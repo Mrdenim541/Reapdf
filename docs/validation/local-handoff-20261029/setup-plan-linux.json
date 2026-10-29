@@ -1,0 +1,23 @@
+{
+  "cwd": "/workspace/Reapdf",
+  "commands": [
+    [
+      "/workspace/Reapdf/.venv/bin/python",
+      "-m",
+      "pip",
+      "install",
+      "-r",
+      "requirements-lock.txt",
+      "PySide6==6.8.3"
+    ],
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm",
+      "ci"
+    ],
+    [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/npm",
+      "run",
+      "build"
+    ]
+  ]
+}

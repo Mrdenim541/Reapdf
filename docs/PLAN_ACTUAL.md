@@ -12,3 +12,5 @@ Próximos bloques:
 4. **Alcance comercial restante.** Conversión Office compleja, portfolios nativos, accesibilidad general, TSA/revocación, preflight completo, servicios y licencias según alcance. No confundir una herramienta personal utilizable con el 100 % de funciones comerciales.
 
 Sin nuevos portables hasta una entrega candidata cercana al 90 % y verificada. Generación de informes/registros/ensayos excluida. Vinculación con nombres/roles generales. Base 0.43 recuperada y mejoras nuevas respaldadas en `recovery/editing-20261029`; 0.55 sigue histórico no recuperado. Informar pruebas reales, límites, avance total y siguiente modelo. Continuar con **6.1 Sol medio**.
+
+Continuación local: [guía para PC](CONTINUAR_EN_PC.md). Priorizar verificaciones Windows en el equipo real; REA se configura aparte según [su evaluación](REA_PARA_REAPDF.md). Utilizar una rama local distinta de la nube. Esta preparación no cambia la madurez del producto.

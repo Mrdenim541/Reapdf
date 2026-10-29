@@ -1,0 +1,15 @@
+{
+  "platform": "linux",
+  "python": "3.12.14",
+  "python_supported": true,
+  "node": "v24.19.0",
+  "node_for_reapdf": true,
+  "node_for_pinned_rea": false,
+  "npm_available": true,
+  "git_available": true,
+  "codex_cli_available": true,
+  "venv_python": "/workspace/Reapdf/.venv/bin/python",
+  "qt": "6.8.3",
+  "frontend_built": true,
+  "note": "Codex puede usarse desde la aplicación o extensión aunque su CLI no esté en PATH. REA y Windows no se consideran verificados por este diagnóstico."
+}

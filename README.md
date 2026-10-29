@@ -2,6 +2,8 @@
 
 Estado vigente: [edición, revisiones y preparación de pruebas](docs/EDICION_REVISIONES_Y_PRUEBA_20261029.md), **≈72 % del programa completo** (estimación de madurez; Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
+Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
+
 Ventana propia Qt, edición de fuentes compatibles, vinculación configurable, medición, capas, XFDF y OCR regional comprobados en Linux. No se genera instalador/portable en este avance. La base procede de 0.43 recuperado y mejoras nuevas; 0.55 no se ha recuperado. Generación de informes/registros/ensayos excluida.
 
 Primera versión experimental de un editor PDF personal, con Adobe Acrobat como referencia funcional. Primero se construye el editor general; la vinculación entre documentos usa archivos y funciones elegidos por el usuario.

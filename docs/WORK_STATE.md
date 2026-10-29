@@ -2,6 +2,8 @@
 
 **Estado vigente:** [edición/revisiones/escritorio](EDICION_REVISIONES_Y_PRUEBA_20261029.md), ≈72 % global (71,9 ponderado, pesos sin cambios). Nuevos: TJ/Tc/Tw compatibles, inserción con clic y altura automática, reflujo uniforme original en página, revisión explícita de archivos vinculados y deshacer. Corregido hijo Qt que sobrevivía al padre; ocho recorridos reales Linux agrupados y workflow Windows/Linux preparado. Totales finales/evidencias en el informe. Consulta de API Actions bloqueada (Forbidden), Windows no ratificado. Sin paquete nuevo. [Plan](PLAN_ACTUAL.md), [prueba personal futura](PRUEBA_PERSONAL_ESCRITORIO.md). Las entradas siguientes son históricas.
 
+Continuidad local preparada: [CONTINUAR_EN_PC.md](CONTINUAR_EN_PC.md), [REA_PARA_REAPDF.md](REA_PARA_REAPDF.md), `scripts/local_workspace.py` y `AGENTS.md`. Helper comprobado con 10 pruebas y diagnóstico/plan de configuración en Linux. No instalado en PC ni ejecutado REA. Versión npm observada/fijada 6.8.0; Node común requerido 24.x >=24.22.1; esta nube tiene 24.19.0, incompatible con ese REA. Ghidra Windows figura experimental en sus fuentes. Madurez total sin cambio: 71,9 %; preparar el entorno no suma puntos al producto.
+
 ## Historial de la recuperación
 
 La base recuperada es 0.43.0, extraída de la entrega GitHub b75864ebcd9fc2fad952effb2197829ad4f4dad4. El ZIP original tiene SHA256 c7b37849bd2491ef2e0eacc13a31d60e868ef33f73c6e175b8ff8e8d28bd59c9. Se recuperaron 435 archivos de fuentes, pruebas y recursos. No se recuperó el código 0.44–0.55; sus mejoras constan en la conversación, pero no se deben presentar como presentes en esta base.

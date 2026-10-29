@@ -1,0 +1,17 @@
+{
+  "name": "rea-agents",
+  "version": "6.8.0",
+  "engines": {
+    "node": "^22.23.4 || ^24.22.1 || >=26.12.1"
+  },
+  "license": "MIT",
+  "integrity": "sha512-9QDeRnGqEDzABZyr04eLnBXBv/c6I9/TWu/6M0MD4pEfkySI/BIgwTODIbAReX3C1x6hjw9+Jlx4A2yUSPZ9ww==",
+  "tarball": "https://registry.npmjs.org/rea-agents/-/rea-agents-6.8.0.tgz",
+  "checked_on": "2026-10-29",
+  "purpose": "Herramienta opcional de desarrollo; no es una dependencia del producto.",
+  "sources": [
+    "https://github.com/morluto/rea",
+    "https://github.com/morluto/rea/blob/main/docs/installation.md",
+    "https://github.com/morluto/rea/blob/main/docs/desktop-applications.md"
+  ]
+}

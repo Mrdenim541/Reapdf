@@ -1,0 +1,11 @@
+{
+  "platform_tested": "Linux",
+  "helper_tests_passed": 10,
+  "setup_executed": false,
+  "rea_executed": false,
+  "codex_configuration_changed": false,
+  "windows_tested": false,
+  "software_installer_built": false,
+  "product_weighted_percent_unchanged": 71.9,
+  "note": "Diagnóstico y plan locales comprobados. REA rechazado por versión Node insuficiente antes de adquirirlo o configurar Codex."
+}
