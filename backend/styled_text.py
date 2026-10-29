@@ -135,26 +135,30 @@ def native_font(doc,xref):return fitz.mupdf.pdf_load_object(fitz._as_pdf_documen
 
 class OriginalFont:
     def __init__(self,doc,item):
-        self.xref,self.ext,self.type,self.name,self.resource,*_=item;self.base=None;self.options=defaultdict(list);self.aliases={normal_name(self.name)};self.program_bytes=0;self.code_bytes=2
+        self.xref,self.ext,self.type,self.name,self.resource,*_=item;self.base=None;self.options=defaultdict(list);self.aliases={normal_name(self.name)};self.program_bytes=0;self.code_bytes=2;self.trace_cid=False
         self.restricted=bool(re.match(r'^[A-Z]{6}\+',self.name))
         if self.type=='Type1' and self.name in BASE_FONTS:
+            if doc.xref_get_key(self.xref,'FontDescriptor/FontFile3')[0]=='xref':self.load_simple(doc,cff=True);return
             if any(doc.xref_get_key(self.xref,'FontDescriptor/'+key)[0]!='null' for key in ['FontFile','FontFile2','FontFile3']):raise DocumentError('Las fuentes Type1 incrustadas requieren otro tratamiento; no se sustituyen por una fuente base.')
             if doc.xref_get_key(self.xref,'Widths')[0]!='null':raise DocumentError('La fuente base tiene anchuras personalizadas.')
             encoding=doc.xref_get_key(self.xref,'Encoding')
             if encoding not in [('name','/WinAnsiEncoding'),('null','null')]:raise DocumentError('La fuente base tiene una codificación no compatible.')
             self.encoding='cp1252' if encoding[0]=='name' else 'ascii';self.base=fitz.Font(BASE_FONTS[self.name]);return
+        if self.type=='Type1':
+            self.load_simple(doc,cff=True);return
         if self.type=='TrueType':
             if doc.xref_get_key(self.xref,'Encoding')[0]=='null':self.load_builtin(doc)
             else:self.load_simple(doc)
             return
-        if self.type!='Type0' or doc.xref_get_key(self.xref,'Encoding')!=('name','/Identity-H'):raise DocumentError('Se requiere una fuente base estándar o TrueType compatible con Identity-H/WinAnsi.')
+        if self.type!='Type0' or doc.xref_get_key(self.xref,'Encoding')!=('name','/Identity-H'):raise DocumentError('Se requiere una fuente base, TrueType o CFF1 compatible con Identity-H/WinAnsi.')
         n=fitz.mupdf;obj=native_font(doc,self.xref);desc=n.pdf_dict_gets(obj,'DescendantFonts')
         if n.pdf_array_len(desc)!=1:raise DocumentError('La fuente compuesta no tiene un descendiente único.')
         descendant=n.pdf_array_get(desc,0)
-        if n.pdf_to_name(n.pdf_dict_gets(descendant,'Subtype'))!='CIDFontType2':raise DocumentError('Los contornos CFF/Type3 todavía no se conservan con este modo.')
-        program=n.pdf_dict_getp(descendant,'FontDescriptor/FontFile2');program_xref=n.pdf_to_num(program)
+        kind=n.pdf_to_name(n.pdf_dict_gets(descendant,'Subtype'));cff=kind=='CIDFontType0'
+        if kind not in ['CIDFontType2','CIDFontType0']:raise DocumentError('El tipo de contorno compuesto no es compatible.')
+        program=n.pdf_dict_getp(descendant,'FontDescriptor/'+('FontFile3' if cff else 'FontFile2'));program_xref=n.pdf_to_num(program)
         if not program_xref:raise DocumentError('Falta el programa TrueType incrustado.')
-        program_data=stream(doc,program_xref,16*1024*1024);self.program_bytes=len(program_data);face=TrueType(program_data);self.aliases.update(normal_name(n) for n in face.names)
+        program_data=stream(doc,program_xref,16*1024*1024);self.program_bytes=len(program_data);face=self.cff_face(doc,program_xref,program_data) if cff else TrueType(program_data);self.aliases.update(normal_name(n) for n in face.names);self.trace_cid=bool(cff and face.cid)
         cmap_xref=n.pdf_to_num(n.pdf_dict_gets(obj,'ToUnicode'))
         if not cmap_xref:raise DocumentError('Falta el mapa Unicode de la fuente.')
         mapping=unicode_cmap(stream(doc,cmap_xref,2*1024*1024))
@@ -172,12 +176,14 @@ class OriginalFont:
                 for cid in range(first,last+1):widths[cid]=width
         default_obj=n.pdf_dict_gets(descendant,'DW');default=1000 if n.pdf_is_null(default_obj) else n.pdf_to_real(default_obj)
         gid_obj=n.pdf_dict_gets(descendant,'CIDToGIDMap');gid_data=None
+        if cff and not n.pdf_is_null(gid_obj):raise DocumentError('CIDToGIDMap no es válido para este modo CFF.')
         if n.pdf_is_stream(gid_obj):gid_data=stream(doc,n.pdf_to_num(gid_obj),131072)
         elif not n.pdf_is_null(gid_obj) and n.pdf_to_name(gid_obj)!='Identity':raise DocumentError('La fuente usa un mapa de glifos no compatible.')
         for cid,char in mapping.items():
             width=widths.get(cid,default)
             if not 0<width<=10000:continue
-            if gid_data is None:gid=cid
+            if cff:gid=face.cid_to_gid.get(cid,0)
+            elif gid_data is None:gid=cid
             elif cid*2+2<=len(gid_data):gid=int.from_bytes(gid_data[cid*2:cid*2+2],'big')
             else:continue
             if 0<gid<face.count and (char in [' ','\u00a0'] or face.has_outline(gid)):
@@ -203,13 +209,20 @@ class OriginalFont:
             if 0<width<=10000 and 0<glyph<face.count and (char in [' ','\u00a0'] or face.has_outline(glyph)):
                 self.options[char].append((cid,width/1000,glyph))
 
-    def load_simple(self,doc):
-        if doc.xref_get_key(self.xref,'Encoding')!=('name','/WinAnsiEncoding'):raise DocumentError('La TrueType simple requiere WinAnsi explícita, sin diferencias.')
+    def cff_face(self,doc,xref,data):
+        from .cff_fonts import CFFFace
+        kind,value=doc.xref_get_key(xref,'Subtype')
+        if kind!='name':raise DocumentError('Falta el subtipo del programa CFF.')
+        return CFFFace(data,value.lstrip('/'))
+
+    def load_simple(self,doc,cff=False):
+        if doc.xref_get_key(self.xref,'Encoding')!=('name','/WinAnsiEncoding'):raise DocumentError('La fuente simple requiere WinAnsi explícita, sin diferencias.')
         kind,flags=doc.xref_get_key(self.xref,'FontDescriptor/Flags')
         if kind!='int' or int(flags)&4 or not int(flags)&32:raise DocumentError('Las TrueType simbólicas o sin clasificación no se editan como WinAnsi.')
-        kind,value=doc.xref_get_key(self.xref,'FontDescriptor/FontFile2')
-        if kind!='xref':raise DocumentError('Falta el programa TrueType simple incrustado.')
-        data=stream(doc,int(value.split()[0]),16*1024*1024);self.program_bytes=len(data);face=TrueType(data)
+        kind,value=doc.xref_get_key(self.xref,'FontDescriptor/'+('FontFile3' if cff else 'FontFile2'))
+        if kind!='xref':raise DocumentError('Falta el programa de fuente simple incrustado.')
+        data=stream(doc,int(value.split()[0]),16*1024*1024);self.program_bytes=len(data);face=self.cff_face(doc,int(value.split()[0]),data) if cff else TrueType(data)
+        if cff and face.cid:raise DocumentError('La fuente simple no puede usar charset CID.')
         self.aliases.update(normal_name(name) for name in face.names)
         try:font=fitz.Font(fontbuffer=data)
         except Exception as exc:raise DocumentError('No se pudo leer el mapa de glifos TrueType simple.') from exc
@@ -253,7 +266,7 @@ class OriginalFont:
 
 
 def styled_model(doc,number,box,font_cache=None):
-    rect,_=region_model(doc,number,box);page=doc[number]
+    rect,_=region_model(doc,number,box,minimum=.1);page=doc[number]
     cache={} if font_cache is None else font_cache
     if '_route_native' not in cache:
         content=page.read_contents();kerned=False
@@ -265,7 +278,7 @@ def styled_model(doc,number,box,font_cache=None):
         multiple=False
         try:multiple=any(o['shows'][0].kind=='operator-array' for o in placements(content)['texts'])
         except DocumentError:pass
-        cache['_route_native']=bool(multiple or kerned or page.get_xobjects() or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz)(?![A-Za-z])',content))
+        cache['_route_native']=bool(multiple or kerned or page.get_xobjects() or any(i[1] in ['cff','otf','cid'] for i in page.get_fonts()) or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz)(?![A-Za-z])',content))
     if cache['_route_native']:
         from .native_text import native_model
         return native_model(doc,number,rect,cache)
@@ -360,9 +373,8 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
 def write_changes(doc,number,prepared):
     page=doc[number]
     if all('_native' in row for row,_ in prepared):
-        from .pdf_content import patch,set_content
-        edits=[(row['_native'][0],row['_native'][1],encoded) for row,encoded in prepared]
-        set_content(doc,page,patch(page.read_contents(),edits));return
+        from .form_text import write
+        write(doc,page,prepared);return
     clone_resources(doc,page)
     for row,_ in prepared:page.add_redact_annot(fitz.Rect(row['bbox']),fill=False,cross_out=False)
     page.apply_redactions(images=0,graphics=0,text=0)

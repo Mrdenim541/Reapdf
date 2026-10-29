@@ -33,13 +33,20 @@ def inspect(base,ops,number,origin,text):
                     if list(span['origin'])==origin and span['text']==text:matches.append(block)
         if len(matches)!=1:raise DocumentError('El párrafo no se identifica de forma única.')
         block=matches[0];rect=(f.Rect(block['bbox'])+(-2,-2,2,2))&page.rect;box=[rect.x0,rect.y0,rect.width,rect.height];_,value=region_model(doc,number,box)
-        reason=''
-        try:_,rows=uniform(doc,number,box);font=rows[0]['font']
+        reason='';runs=[];mixed=False
+        try:
+            from .original_mixed_reflow import source_runs,public_runs
+            _,rows=source_runs(doc,number,box);runs=public_runs(rows);font=' · '.join(sorted({r['font'] for r in rows}));first=rows[0]
+            mixed=any((r['_font'].xref,r['size'],r['color'])!=(first['_font'].xref,first['size'],first['color']) for r in rows)
         except DocumentError as exc:reason=str(exc);font=''
-        return {'box':box,'text':value,'original_available':not reason,'reason':reason,'font':font}
+        return {'box':box,'text':value,'original_available':not reason,'reason':reason,'font':font,'mixed':mixed,'runs':runs}
 
 
-def reflow(base,ops,number,box,text,preview=False,source_box=None):
+
+def reflow(base,ops,number,box,text,preview=False,source_box=None,runs=None):
+    if runs is not None:
+        from .original_mixed_reflow import reflow as mixed
+        return mixed(base,ops,number,box,text,runs,preview,source_box)
     if not isinstance(text,str) or not text.strip() or len(text)>4000 or any((ord(c)<32 and c!='\n') or ord(c)==127 or unicodedata.bidirectional(c) in {'R','AL','AN'} for c in text):raise DocumentError('Usa de 1 a 4000 caracteres, sin controles ni escritura de derecha a izquierda.')
     with open_pdf(base) as source:editable(source)
     with open_pdf(export_pdf(base,ops)) as doc:

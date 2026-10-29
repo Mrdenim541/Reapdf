@@ -1,0 +1,13 @@
+{
+  "full_python_regression": 2443,
+  "subsequent_targeted_python": 238,
+  "javascript": 112,
+  "browser_workflows_passed": 3,
+  "production_build": true,
+  "user_pdf_readonly_compatible": true,
+  "user_pdf_modified_this_pass": false,
+  "windows_verified_this_pass": false,
+  "user_acceptance_deferred": true,
+  "portable_built": false,
+  "weighted_product_percent": 73.33
+}

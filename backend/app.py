@@ -194,7 +194,7 @@ async def inspect_inline_block(doc_id:str,request:Request):
 async def reflow_original(doc_id:str,request:Request):
     from .original_reflow import reflow
     p=await read_payload(request)
-    result=await run_in_threadpool(reflow,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('text'),p.get('preview') is True,p.get('source_box'))
+    result=await run_in_threadpool(reflow,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('text'),p.get('preview') is True,p.get('source_box'),p.get('runs'))
     if p.get('preview') is True:return result
     data,report=result
     return {**store_document(data),'reflow_report':report}

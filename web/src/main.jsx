@@ -33,6 +33,7 @@ import {Measurements} from './measurements.jsx';
 import {DocumentLinks} from './document-links.jsx';
 import {Layers} from './layers.jsx';
 import {InlineTextEditor,visibleTextBox} from './inline-text.jsx';
+import {caretIndex} from './inline-caret.js';
 import {InlineParagraph} from './inline-paragraph.jsx';
 import { ParagraphEditor } from './paragraph-editor.jsx';
 import { ExistingImageEditor } from './existing-images.jsx';
@@ -659,7 +660,7 @@ function App() {
           {pagePreview.failed&&!preview&&<div className="loading"><button onClick={pagePreview.retry}>Reintentar vista de página</button></div>}
           {loading && <div className="loading" role="status">Preparando página…</div>}
           <svg ref={svg} aria-label="Lienzo de anotaciones" viewBox={`0 0 ${geometry.width} ${geometry.height}`} style={{cursor:(drawingTools.has(tool)||markupTools.has(tool)||contentTools.has(tool)||tool==='note')?'crosshair':'default',touchAction:(drawingTools.has(tool)||markupTools.has(tool)||tool==='select'||tool==='images'||contentTools.has(tool))?'none':'auto',pointerEvents:tool==='view'?'none':'auto'}} onPointerDown={start} onPointerMove={move} onPointerUp={end} onPointerCancel={()=>{strokeRef.current=null;activePointer.current=null;setStroke(null);}}>
-            {tool==='text'&&!loading&&!inlineSpan&&!inlineBlock&&spans.map(s=>{const [x,y,w,h]=visibleTextBox(s,geometry);return <rect key={s.id} role="button" tabIndex="0" aria-label={`Editar en página: ${s.text}`} x={x} y={y} width={w} height={h} className="text-target" onClick={()=>{setError('');setInlineSpan(s);}} onKeyDown={e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();setError('');setInlineSpan(s);}}}/>;})}
+            {tool==='text'&&!loading&&!inlineSpan&&!inlineBlock&&spans.map(s=>{const [x,y,w,h]=visibleTextBox(s,geometry);return <rect key={s.id} role="button" tabIndex="0" aria-label={`Editar en página: ${s.text}`} x={x} y={y} width={w} height={h} className="text-target" onClick={e=>{setError('');setInlineSpan({...s,caret:caretIndex(s.text,[x,y,w,h],characters,point(e))});}} onKeyDown={e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();setError('');setInlineSpan(s);}}}/>;})}
 
             <SearchHighlights search={search} page={page}/>
             <defs><marker id="arrow-tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill={color}/></marker></defs>

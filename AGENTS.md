@@ -1,7 +1,7 @@
 # Reapdf · continuidad del desarrollo
 
 - Hablar con el usuario en español. Modelo habitual: 6.1 Sol, razonamiento medio. Al cerrar un avance indicar resultados, pruebas reales, limitaciones, porcentaje TOTAL y modelo recomendado.
-- Leer `docs/PLAN_ACTUAL.md` y el inicio de `docs/WORK_STATE.md`; la matriz vigente es `docs/avance-global.json`. Referencia: 72,75 ponderado, aproximadamente 73 %. Mantener alcance/pesos y justificar cambios. Preparar herramientas o trasladar el repo no aumenta la madurez del producto.
+- Leer `docs/PLAN_ACTUAL.md` y el inicio de `docs/WORK_STATE.md`; la matriz vigente es `docs/avance-global.json`. Consultar allí el porcentaje ponderado actual; no reutilizar cifras históricas. Mantener alcance/pesos y justificar cambios. Preparar herramientas o trasladar el repo no aumenta la madurez del producto.
 - Esta fuente procede de 0.43 recuperado y mejoras posteriores. 0.55 no está recuperado; no afirmar que todo el historial está implementado.
 - El usuario prioriza edición de texto con ratón/cursor sobre la página, interfaz clara y ventana Qt propia. Mantener también las cajas ajustables del proyecto.
 - Excluir generación de informes, registros o documentos de ensayos personales. Mantener vinculación configurable con archivos/roles generales.

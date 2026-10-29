@@ -87,10 +87,10 @@ def paragraph_layout(page,rect,text,font,size,align,line_height,auto_fit,min_siz
     raise DocumentError('El párrafo no cabe. Amplía la región, reduce tamaño o acorta el texto.')
 
 
-def region_model(doc,number,box):
+def region_model(doc,number,box,minimum=10):
     if type(number) is not int or not 0<=number<len(doc) or not isinstance(box,list) or len(box)!=4 or any(not finite(v) for v in box):raise DocumentError('Página o región de párrafo no válida.')
     page=doc[number];x,y,w,h=box;rect=fitz.Rect(x,y,x+w,y+h)
-    if page.rotation or min(w,h)<10 or not page.rect.contains(rect):raise DocumentError('Elige un bloque dentro de una página sin giro, de al menos 10 × 10 pt.')
+    if page.rotation or min(w,h)<minimum or not page.rect.contains(rect):raise DocumentError(f'Elige un bloque dentro de una página sin giro, de al menos {minimum:g} × {minimum:g} pt.')
     if any(a.type[0]==fitz.PDF_ANNOT_REDACT for a in page.annots() or []):raise DocumentError('La página contiene censuras pendientes. Resuélvelas antes de editar el bloque.')
     if any((fitz.Rect(info['bbox'])&rect).get_area()>.1 for info in page.get_image_info()):raise DocumentError('El bloque cruza una imagen o escaneado. No se reemplazará su texto como párrafo digital.')
     if any((a.rect&rect).get_area()>.1 for a in page.annots() or []) or any((w.rect&rect).get_area()>.1 for w in page.widgets() or []):raise DocumentError('El bloque cruza campos o anotaciones. No se modificará.')
