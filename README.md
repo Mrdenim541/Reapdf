@@ -1,6 +1,6 @@
 # Reapdf
 
-Estado vigente: [flujo entre páginas, portfolios y cierre nativo](docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md), **≈75 % del programa completo** (estimación de madurez; Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
+Estado vigente: [medición precisa e intercambio XFDF](docs/PRECISION_Y_XFDF_20261029.md), **≈76 % del programa completo** (estimación de madurez; Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 

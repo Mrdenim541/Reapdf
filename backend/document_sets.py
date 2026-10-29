@@ -193,10 +193,11 @@ def compile_pdf(items,relations,name):
                         # is known; retain a stable placeholder here.
                         toc.append([2,relation['code']+' → '+by_id[relation['target']['document']]['role'],relation])
                 for index,page in enumerate(source):
-                    kind,value=source.xref_get_key(page.xref,'ReapdfCalibration')
-                    if kind=='string':
-                        from .form_structure import pdf_string
-                        out.xref_set_key(out[total+index].xref,'ReapdfCalibration',pdf_string(value))
+                    for key in ['ReapdfCalibration','ReapdfMeasurementScales']:
+                        kind,value=source.xref_get_key(page.xref,key)
+                        if kind=='string':
+                            from .form_structure import pdf_string
+                            out.xref_set_key(out[total+index].xref,key,pdf_string(value))
                 total+=len(source)
         occupied={p.number:[f.Rect(l['from']) for l in p.get_links()] for p in out};targets={}
         for relation in relations:

@@ -15,7 +15,7 @@ from .existing_annotations import display_rgb
 NS='http://ns.adobe.com/xfdf/'
 PRIVATE='https://reapdf.local/xfdf/1'
 E.register_namespace('',NS);E.register_namespace('reapdf',PRIVATE)
-TYPES={f.PDF_ANNOT_TEXT:'text',f.PDF_ANNOT_SQUARE:'square',f.PDF_ANNOT_CIRCLE:'circle',f.PDF_ANNOT_LINE:'line',f.PDF_ANNOT_INK:'ink',f.PDF_ANNOT_POLY_LINE:'polyline',f.PDF_ANNOT_POLYGON:'polygon',f.PDF_ANNOT_HIGHLIGHT:'highlight',f.PDF_ANNOT_UNDERLINE:'underline',f.PDF_ANNOT_STRIKE_OUT:'strikeout'}
+TYPES={f.PDF_ANNOT_TEXT:'text',f.PDF_ANNOT_SQUARE:'square',f.PDF_ANNOT_CIRCLE:'circle',f.PDF_ANNOT_LINE:'line',f.PDF_ANNOT_INK:'ink',f.PDF_ANNOT_POLY_LINE:'polyline',f.PDF_ANNOT_POLYGON:'polygon',f.PDF_ANNOT_HIGHLIGHT:'highlight',f.PDF_ANNOT_UNDERLINE:'underline',f.PDF_ANNOT_STRIKE_OUT:'strikeout',f.PDF_ANNOT_SQUIGGLY:'squiggly',f.PDF_ANNOT_FREE_TEXT:'freetext'}
 MAX_XML=2*1024*1024
 ENDS=['None','Square','Circle','Diamond','OpenArrow','ClosedArrow','Butt','ROpenArrow','RClosedArrow','Slash']
 
@@ -33,17 +33,21 @@ def number(v):return format(float(v),'.7g')
 def coords(points):return ','.join(number(v) for p in points for v in p)
 
 def annotation_node(doc,page,a):
-    if a.type[0] not in TYPES or any(doc.xref_get_key(a.xref,k)[0]!='null' for k in ['IRT','Measure','OC','A','AA','StateModel']):raise DocumentError('Anotación de tipo o estructura no compatible con este intercambio.')
+    if a.type[0] not in TYPES or any(doc.xref_get_key(a.xref,k)[0]!='null' for k in ['IRT','Measure','OC','A','AA','StateModel','ReapdfMeasurement','ReapdfMeasureLabel']):raise DocumentError('Anotación de tipo o estructura no compatible con este intercambio.')
     name=TYPES[a.type[0]];matrix=~page.transformation_matrix;rect=a.rect*matrix
     attrs={'page':str(page.number),'rect':','.join(number(v) for v in rect),'name':clean(a.info.get('id','') or 'reapdf-'+str(a.xref),100),'title':clean(a.info.get('title',''),100),'color':'#'+''.join(f'{round(v*255):02X}' for v in display_rgb(a.colors.get('stroke') or [])),'opacity':number(a.opacity if a.opacity>=0 else 1),'width':number(max(.25,a.border.get('width',1)))}
+    from .xfdf_appearance import export_attributes
+    attrs.update(export_attributes(doc,a,name))
     if name=='line':
         vertices=a.vertices
         if len(vertices)!=2:raise DocumentError('Línea sin extremos compatibles.')
         attrs.update(start=coords([f.Point(vertices[0])*matrix]),end=coords([f.Point(vertices[1])*matrix]))
         ends=a.line_ends or (0,0)
         attrs.update(head=ENDS[ends[0]],tail=ENDS[ends[1]])
+    if name=='polyline':
+        ends=a.line_ends or (0,0);attrs.update(head=ENDS[ends[0]],tail=ENDS[ends[1]])
     node=E.Element(tag(name),attrs);E.SubElement(node,tag('contents')).text=clean(a.info.get('content',''))
-    if name in ['highlight','underline','strikeout']:
+    if name in ['highlight','underline','strikeout','squiggly']:
         if len(a.vertices)%4:raise DocumentError('Cuadriláteros no compatibles.')
         node.set('coords',coords([f.Point(p)*matrix for p in a.vertices]))
     elif name in ['polyline','polygon']:E.SubElement(node,tag('vertices')).text=coords([f.Point(p)*matrix for p in a.vertices])
@@ -166,7 +170,9 @@ def _annotations(snapshot,nodes,field_count,preview):
                 kind,value=doc.xref_get_key(a.xref,'ReapdfXFDFDigest')
                 if kind=='string':digests.add(value)
                 try:node=annotation_node(doc,page,a);existing_names[(page.number,node.get('name'))]=signature(node)
-                except DocumentError:pass
+                except DocumentError:
+                    name=a.info.get('id','')
+                    if name:existing_names[(page.number,name)]=None
             page.set_rotation(rotation)
         for node in nodes:
             if node.tag not in [tag(t) for t in TYPES.values()]:raise DocumentError('Anotación XFDF no compatible; no se importa parcialmente.')
@@ -187,16 +193,22 @@ def _annotations(snapshot,nodes,field_count,preview):
             color=node.get('color','#000000')
             if not re.fullmatch(r'#[0-9a-fA-F]{6}',color):raise DocumentError('Color XFDF no compatible.')
             rgb=[int(color[i:i+2],16)/255 for i in [1,3,5]];opacity=values(node.get('opacity','1'),1)[0];width=values(node.get('width','1'),1)[0]
-            if not 0<=opacity<=1 or not .25<=width<=50:raise DocumentError('Opacidad o grosor XFDF fuera de límites.')
+            from .xfdf_appearance import parse_attributes
+            appearance=parse_attributes(node,kind)
+            if not 0<=opacity<=1 or not (0 if kind=='freetext' else .25)<=width<=50:raise DocumentError('Opacidad o grosor XFDF fuera de límites.')
             def path(raw,minimum):
                 flat=values(raw)
                 if len(flat)%2 or len(flat)<minimum*2:raise DocumentError('Trazado XFDF no válido.')
                 pts=[f.Point(flat[i],flat[i+1])*matrix for i in range(0,len(flat),2)]
                 if any(not page.rect.contains(p) for p in pts):raise DocumentError('Un vértice sale de la página.')
                 return pts
-            if kind=='text':a=page.add_text_annot(rect.tl,content);a.set_rect(rect)
-            elif kind=='square':a=page.add_rect_annot(rect)
-            elif kind=='circle':a=page.add_circle_annot(rect)
+            if kind=='freetext':a=page.add_freetext_annot(rect,content,fontsize=appearance['size'],fontname=appearance['font'],text_color=appearance['text_color'],fill_color=appearance['fill'],align=appearance['align'],rotate=appearance['rotation'],border_width=width)
+            elif kind=='text':
+                a=page.add_text_annot(rect.tl,content,icon=appearance['icon']);a.set_rect(rect);doc.xref_set_key(a.xref,'Open','true' if appearance['open']=='yes' else 'false')
+            elif kind=='square':
+                fringe=appearance.get('fringe',[max(1,width/2)]*4);a=page.add_rect_annot(rect+(fringe[0],fringe[3],-fringe[2],-fringe[1]))
+            elif kind=='circle':
+                fringe=appearance.get('fringe',[max(1,width/2)]*4);a=page.add_circle_annot(rect+(fringe[0],fringe[3],-fringe[2],-fringe[1]))
             elif kind=='line':
                 pts=path(node.get('start','')+','+node.get('end',''),2)
                 if len(pts)!=2:raise DocumentError('La línea XFDF requiere dos extremos.')
@@ -206,6 +218,9 @@ def _annotations(snapshot,nodes,field_count,preview):
                 a.set_line_ends(*ends)
             elif kind in ['polyline','polygon']:
                 pts=path(node.findtext(tag('vertices'),''),3 if kind=='polygon' else 2);a=page.add_polygon_annot(pts) if kind=='polygon' else page.add_polyline_annot(pts)
+                if kind=='polyline':
+                    if any(node.get(k,'None') not in ENDS for k in ['head','tail']):raise DocumentError('Extremos de polilínea no compatibles.')
+                    a.set_line_ends(*[ENDS.index(node.get(k,'None')) for k in ['head','tail']])
             elif kind=='ink':
                 gestures=node.findall('./'+tag('inklist')+'/'+tag('gesture'))
                 if not 1<=len(gestures)<=100:raise DocumentError('Trazos de lápiz XFDF fuera de límites.')
@@ -215,9 +230,13 @@ def _annotations(snapshot,nodes,field_count,preview):
                 if len(pts)%4:raise DocumentError('Cuadriláteros XFDF incompletos.')
                 quads=[f.Quad(pts[i:i+4]) for i in range(0,len(pts),4)]
                 if any(not q.is_convex for q in quads):raise DocumentError('Cuadrilátero XFDF no convexo.')
-                a=({'highlight':page.add_highlight_annot,'underline':page.add_underline_annot,'strikeout':page.add_strikeout_annot}[kind])(quads)
-            a.set_info(content=content,title=author);a.set_colors(stroke=rgb);a.set_opacity(opacity);a.set_border(width=width);a.update()
-            if name:doc.xref_set_key(a.xref,'NM',pdf_string(name))
+                a=({'highlight':page.add_highlight_annot,'underline':page.add_underline_annot,'strikeout':page.add_strikeout_annot,'squiggly':page.add_squiggly_annot}[kind])(quads)
+            a.set_info(content=content,title=author,**appearance['info'])
+            if kind!='freetext':a.set_colors(stroke=rgb,fill=appearance['fill'])
+            from .xfdf_appearance import apply_border
+            a.set_opacity(opacity);apply_border(doc,a,width,appearance['dashes']);a.set_flags(appearance['flags']);a.update()
+            if name:
+                doc.xref_set_key(a.xref,'NM',pdf_string(name));existing_names[(number_page,name)]=sig
             doc.xref_set_key(a.xref,'ReapdfXFDFDigest',pdf_string(sig));digests.add(sig);report['annotations']+=1;page.set_rotation(rotation)
         if not report['annotations'] and not report['fields'] and not report['duplicates']:raise DocumentError('El XFDF no contiene anotaciones o valores compatibles.')
         return report if preview else (doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True),report)

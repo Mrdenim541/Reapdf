@@ -1,0 +1,26 @@
+{
+  "full_python_regression": 2589,
+  "directed_python": 131,
+  "subsequent_measurement_python": 51,
+  "new_boundary_cases_after_full_regression": 6,
+  "javascript": 116,
+  "production_build": true,
+  "browser_workflows_passed": 3,
+  "independent_pdf_parser": "pyHanko",
+  "page_rotations_checked": [
+    0,
+    90,
+    180,
+    270
+  ],
+  "user_units_checked": [
+    1,
+    2
+  ],
+  "windows_verified_this_pass": false,
+  "new_qt_tool_workflow_verified_this_pass": false,
+  "user_acceptance_deferred": true,
+  "portable_built": false,
+  "private_pdf_uploaded_or_modified_this_pass": false,
+  "weighted_product_percent": 75.5
+}

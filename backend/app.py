@@ -265,8 +265,26 @@ def measurement_list(doc_id:str,page:int=0):
 @app.post('/api/documents/{doc_id}/measure')
 async def add_measurement(doc_id:str,request:Request):
     p=await read_payload(request)
-    result=await run_in_threadpool(measurements.measure,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('kind'),p.get('points'),p.get('calibration'),p.get('unit','m'),p.get('preview') is True)
+    result=await run_in_threadpool(measurements.measure,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('kind'),p.get('points'),p.get('calibration'),p.get('unit','m'),p.get('preview') is True,p.get('id'),p.get('profile'))
     return result if p.get('preview') is True else store_document(result)
+
+@app.post('/api/documents/{doc_id}/measurement-model')
+async def measurement_model(doc_id:str,request:Request):
+    p=await read_payload(request)
+    return await run_in_threadpool(measurements.model,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'))
+
+@app.post('/api/documents/{doc_id}/measurement-targets')
+async def measurement_targets(doc_id:str,request:Request):
+    from .measurement_geometry import targets
+    p=await read_payload(request)
+    return await run_in_threadpool(targets,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'))
+
+@app.post('/api/documents/{doc_id}/measurement-scale')
+async def measurement_scale(doc_id:str,request:Request):
+    from .measurement_geometry import configure_profile
+    p=await read_payload(request)
+    result=await run_in_threadpool(configure_profile,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('name'),p.get('box'),p.get('calibration'),p.get('id'),p.get('remove',False))
+    return store_document(result)
 
 @app.post('/api/documents/{doc_id}/delete-measurement')
 async def remove_measurement(doc_id:str,request:Request):

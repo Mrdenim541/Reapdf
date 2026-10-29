@@ -1,0 +1,333 @@
+{
+  "schema": 1,
+  "review_date": "2026-10-29",
+  "status": "provisional_original_flow_portfolio_native_close",
+  "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
+  "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
+  "weighted_percent": 74.6,
+  "reported_percent": 75,
+  "subjective_range_percent": [
+    60,
+    78
+  ],
+  "anchors": {
+    "0": "Sin implementación",
+    "25": "Prototipo o subconjunto pequeño",
+    "50": "Cobertura parcial utilizable",
+    "75": "Cobertura amplia con huecos",
+    "90": "Casi todo el alcance con aceptación pendiente",
+    "100": "Alcance implementado, comprobado y aceptado"
+  },
+  "categories": [
+    {
+      "id": "reader_pages",
+      "weight": 7,
+      "maturity": 90,
+      "evidence": [
+        "backend/viewer.py",
+        "backend/pages.py",
+        "backend/bookmarks.py",
+        "backend/engine.py",
+        "scripts/smoke_advanced_workflows.mjs"
+      ],
+      "remaining": "Corpus extenso, rendimiento en equipos reales y aceptación de lectura."
+    },
+    {
+      "id": "interface",
+      "weight": 7,
+      "maturity": 90,
+      "evidence": [
+        "web/src/main.jsx",
+        "web/src/paragraph-editor.jsx",
+        "scripts/smoke-recovered-editing.mjs",
+        "web/src/inline-text.jsx",
+        "web/src/document-links.jsx",
+        "web/src/inline-paragraph.jsx",
+        "scripts/smoke_revision_quick_text.mjs",
+        "web/src/inline-caret.js",
+        "tests/test_inline_caret.mjs",
+        "scripts/smoke_cff_forms_mixed.mjs",
+        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md"
+      ],
+      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y migración del recorrido gráfico histórico. Flujo original con regiones dibujadas y acceso desde el párrafo incorporados."
+    },
+    {
+      "id": "text_images",
+      "weight": 16,
+      "maturity": 92.5,
+      "evidence": [
+        "backend/styled_text.py",
+        "backend/text_flow.py",
+        "backend/image_editing.py",
+        "tests/test_styled_text.py",
+        "backend/find_replace.py",
+        "tests/test_find_replace.py",
+        "tests/test_find_replace_more.py",
+        "scripts/smoke_find_replace.mjs",
+        "tests/test_styled_simple_truetype.py",
+        "tests/test_find_replace_fragments.py",
+        "scripts/smoke_split_replacement.mjs",
+        "backend/native_text.py",
+        "backend/pdf_content.py",
+        "tests/test_native_content.py",
+        "scripts/check_pdf_editing_qt.py",
+        "backend/text_spacing.py",
+        "backend/original_reflow.py",
+        "backend/quick_text.py",
+        "tests/test_original_reflow.py",
+        "tests/test_revision_quick_spacing.py",
+        "tests/test_scaled_groups.py",
+        "scripts/smoke_scaled_manual.mjs",
+        "backend/cff_fonts.py",
+        "backend/form_text.py",
+        "backend/original_mixed_reflow.py",
+        "tests/test_cff_forms_mixed.py",
+        "scripts/smoke_cff_forms_mixed.mjs",
+        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md"
+      ],
+      "remaining": "CFF2/variables/Type3, Forms con giro interno/inclinación/reflexión/transparencia o estructura semántica. Flujo original entre regiones explícitas ya incorporado, sin redistribuir otros objetos. Falta corpus externo y aceptación personal."
+    },
+    {
+      "id": "annotations",
+      "weight": 7,
+      "maturity": 80,
+      "evidence": [
+        "backend/existing_annotations.py",
+        "backend/comments.py",
+        "backend/xfdf.py",
+        "tests/test_xfdf_working_copy.py"
+      ],
+      "remaining": "XFDF completo, hilos/estados/acciones y corpus externo representativo."
+    },
+    {
+      "id": "forms",
+      "weight": 6,
+      "maturity": 70,
+      "evidence": [
+        "backend/form_import.py",
+        "backend/form_calculations.py",
+        "tests/test_form_import.py",
+        "backend/xfdf.py",
+        "tests/test_xfdf_working_copy.py"
+      ],
+      "remaining": "XFA, JavaScript de formularios, comportamientos complejos y corpus comercial."
+    },
+    {
+      "id": "ocr_conversion",
+      "weight": 9,
+      "maturity": 70,
+      "evidence": [
+        "backend/ocr.py",
+        "backend/docx_import.py",
+        "backend/docx_export.py",
+        "backend/region_ocr.py",
+        "tests/test_structure_preflight_regions.py"
+      ],
+      "remaining": "OCR de tablas y perspectiva; fidelidad Office compleja; corpus multilingüe. El OCR no transforma la imagen en texto original editable."
+    },
+    {
+      "id": "security_signatures",
+      "weight": 7,
+      "maturity": 60,
+      "evidence": [
+        "backend/digital_signatures.py",
+        "backend/redaction.py",
+        "backend/document_tools.py",
+        "backend/working_copy.py",
+        "tests/test_xfdf_working_copy.py"
+      ],
+      "remaining": "Revocación/TSA/LT/LTA/tokens, censura compleja y aceptación independiente."
+    },
+    {
+      "id": "standards_optimization",
+      "weight": 5,
+      "maturity": 55,
+      "evidence": [
+        "backend/standards.py",
+        "backend/compression.py",
+        "backend/preflight.py",
+        "tests/test_structure_preflight_regions.py"
+      ],
+      "remaining": "PDF/X y preflight exhaustivo, tintas planas, sobreimpresión y aceptación de imprenta."
+    },
+    {
+      "id": "accessibility",
+      "weight": 3,
+      "maturity": 50,
+      "evidence": [
+        "backend/accessibility.py",
+        "backend/structure_editing.py",
+        "tests/test_structure_preflight_regions.py"
+      ],
+      "remaining": "Creación/reparación general de etiquetas, tablas/MCID, aceptación asistiva y PDF/UA integral."
+    },
+    {
+      "id": "automation_linking",
+      "weight": 9,
+      "maturity": 90,
+      "evidence": [
+        "backend/automation.py",
+        "backend/batch_tools.py",
+        "backend/document_sets.py",
+        "web/src/document-links.jsx",
+        "tests/test_document_workspaces.py",
+        "scripts/smoke_document_workspaces.mjs",
+        "web/src/document-revision.jsx",
+        "tests/test_revision_quick_spacing.py",
+        "web/src/manual-links.jsx",
+        "tests/test_manual_document_links.py",
+        "scripts/smoke_scaled_manual.mjs"
+      ],
+      "remaining": "Corpus real amplio y aceptación personal, revisiones con identificadores cambiados, lotes mayores y automatizaciones profesionales restantes. Áreas manuales, persistencia, compilación y remarcado explícito en revisión incorporados."
+    },
+    {
+      "id": "desktop_distribution",
+      "weight": 6,
+      "maturity": 70,
+      "evidence": [
+        "portable/native_window.py",
+        "portable/native_print.py",
+        "portable/native_save.py",
+        "scripts/smoke_native_save.py",
+        "portable/single_instance.py",
+        "portable/windows_association.py",
+        "scripts/smoke_single_instance.py",
+        "scripts/smoke_native_readiness.py",
+        "scripts/smoke_native_launcher.py",
+        "tests/test_desktop.py",
+        "scripts/smoke_vector_print.py",
+        "scripts/smoke_native_document_set.py",
+        "portable/desktop.py",
+        "scripts/check_desktop_candidate.py",
+        "scripts/smoke_parent_exit.py",
+        ".github/workflows/desktop-source.yml"
+      ],
+      "remaining": "Ejecución Windows y consulta de sus resultados, DPI/asociaciones/impresión física, ensamblado/aceptación del paquete final. Configurar CI no equivale a superarlo."
+    },
+    {
+      "id": "migration_interoperability",
+      "weight": 4,
+      "maturity": 65,
+      "evidence": [
+        "backend/projects.py",
+        "tests/test_projects.py",
+        "backend/xfdf.py",
+        "backend/document_sets.py"
+      ],
+      "remaining": "Corpus en Acrobat/Nitro y plataformas externas, migración entre versiones; XFDF no cubre todos los subtipos."
+    },
+    {
+      "id": "performance_reliability",
+      "weight": 4,
+      "maturity": 77.5,
+      "evidence": [
+        "backend/projects.py",
+        "portable/native_save.py",
+        "tests/test_native_save.py",
+        "backend/native_text.py",
+        "portable/native_print.py",
+        "backend/document_sets.py",
+        "scripts/smoke_parent_exit.py",
+        "scripts/check_desktop_candidate.py",
+        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md"
+      ],
+      "remaining": "Carga sostenida y memoria de corpus grande, pérdida de energía, borradores y estrés/recuperación Windows. Corregido el aborto al finalizar tras carga fallida en Qt Linux; sondeo Windows aún pendiente allí."
+    },
+    {
+      "id": "measurement",
+      "weight": 3,
+      "maturity": 75,
+      "evidence": [
+        "docs/FUNCIONES.md",
+        "backend/measurements.py",
+        "web/src/measurements.jsx",
+        "tests/test_document_workspaces.py"
+      ],
+      "remaining": "Ajuste a objetos, edición de vértices, escalas por región y aceptación técnica."
+    },
+    {
+      "id": "portfolios_layers",
+      "weight": 3,
+      "maturity": 80,
+      "evidence": [
+        "backend/pro_tools.py",
+        "docs/FUNCIONES.md",
+        "backend/layers.py",
+        "backend/document_sets.py",
+        "tests/test_document_workspaces.py",
+        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md"
+      ],
+      "remaining": "Carpetas de portfolio y edición general de esquemas externos, configuraciones OCG avanzadas y edición del contenido de capas. Interoperabilidad externa pendiente."
+    },
+    {
+      "id": "collaboration_services",
+      "weight": 3,
+      "maturity": 0,
+      "evidence": [
+        "docs/FUNCIONES.md"
+      ],
+      "remaining": "Compartir, sincronización, revisión y solicitud remota de firmas."
+    },
+    {
+      "id": "ai_assistance",
+      "weight": 1,
+      "maturity": 0,
+      "evidence": [
+        "docs/FUNCIONES.md"
+      ],
+      "remaining": "Asistencia dentro del producto con referencias y costes definidos."
+    }
+  ],
+  "completion_gates": [
+    "Fuente completa respaldada y restauración limpia comprobada",
+    "Flujos cotidianos aceptados por el usuario",
+    "Ejecución y distribución Windows verificadas",
+    "Integridad de documentos, recuperación y compatibilidad representativas",
+    "Alcance y licencias de distribución resueltos"
+  ],
+  "historical_reference": {
+    "reported_percent": 61.3,
+    "code_version": "0.55",
+    "available_now": false,
+    "note": "No ratificado con archivos actuales. Esta revisión evalúa 0.43 recuperado y sus mejoras nuevas."
+  },
+  "accepted_complete": false,
+  "last_change": {
+    "baseline": "docs/progress/20261029-before-flow-portfolio-native.json",
+    "before_weighted": 73.33,
+    "after_weighted": 74.6,
+    "new_points": 1.27,
+    "unrounded_category_points": 1.275,
+    "changes": [
+      {
+        "id": "interface",
+        "before": 87.5,
+        "after": 90,
+        "points": 0.175,
+        "reason": "Selección de regiones con ratón, continuación desde el párrafo con borrador conservado y gestor de portfolios separado."
+      },
+      {
+        "id": "text_images",
+        "before": 90,
+        "after": 92.5,
+        "points": 0.4,
+        "reason": "Escala no uniforme positiva por ejes y flujo mixto original entre regiones/páginas, con fuentes conservadas, sin publicación parcial."
+      },
+      {
+        "id": "performance_reliability",
+        "before": 75,
+        "after": 77.5,
+        "points": 0.1,
+        "reason": "Cierre de entrada sin hilo buffered daemon, fallo de carga con salida 1 y muerte del padre comprobados en Qt Linux."
+      },
+      {
+        "id": "portfolios_layers",
+        "before": 60,
+        "after": 80,
+        "points": 0.6,
+        "reason": "Portfolio PDF nativo con esquema, metadatos por archivo, orden y vistas; adjuntos anidados, descarga acotada, relectura y conservación de archivos verificadas."
+      }
+    ],
+    "all_weights_and_scope_unchanged": true
+  }
+}

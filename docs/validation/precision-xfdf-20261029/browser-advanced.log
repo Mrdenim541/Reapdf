@@ -1,0 +1,30 @@
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+FFTM NOT subset; don't know how to subset; dropped
+Failed to build path for Common Name: María Pérez · Prueba
+Traceback (most recent call last):
+  File "/workspace/Reapdf/.venv/lib/python3.12/site-packages/pyhanko/sign/validation/generic_cms.py", line 1232, in handle_certvalidator_errors
+    return CertvalidatorOperationResult(success_result=await coro)
+                                                       ^^^^^^^^^^
+  File "/workspace/Reapdf/.venv/lib/python3.12/site-packages/pyhanko/sign/validation/generic_cms.py", line 626, in _check
+    path: ValidationPath = await find_valid_path(
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/.venv/lib/python3.12/site-packages/pyhanko_certvalidator/__init__.py", line 31, in find_valid_path
+    async for candidate_path in paths:
+  File "/workspace/Reapdf/.venv/lib/python3.12/site-packages/pyhanko_certvalidator/registry.py", line 758, in __anext__
+    raise PathBuildingError(
+pyhanko_certvalidator.errors.PathBuildingError: Unable to build a validation path for the certificate "Common Name: María Pérez · Prueba" - no issuer matching "Common Name: Reapdf CA de pruebas" was found
+Failed to build path for Common Name: María Pérez · Prueba
+Traceback (most recent call last):
+  File "/workspace/Reapdf/.venv/lib/python3.12/site-packages/pyhanko/sign/validation/generic_cms.py", line 1232, in handle_certvalidator_errors
+    return CertvalidatorOperationResult(success_result=await coro)
+                                                       ^^^^^^^^^^
+  File "/workspace/Reapdf/.venv/lib/python3.12/site-packages/pyhanko/sign/validation/generic_cms.py", line 626, in _check
+    path: ValidationPath = await find_valid_path(
+                           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/.venv/lib/python3.12/site-packages/pyhanko_certvalidator/__init__.py", line 31, in find_valid_path
+    async for candidate_path in paths:
+  File "/workspace/Reapdf/.venv/lib/python3.12/site-packages/pyhanko_certvalidator/registry.py", line 758, in __anext__
+    raise PathBuildingError(
+pyhanko_certvalidator.errors.PathBuildingError: Unable to build a validation path for the certificate "Common Name: María Pérez · Prueba" - no issuer matching "Common Name: Reapdf CA de pruebas" was found
+PASS: XFDF fields preview/import, identified unsigned copy edited inline while signed original stays intact, figure alternative/reading order, print inspection, mixed-page region OCR and A0 zoom pixel budget.
