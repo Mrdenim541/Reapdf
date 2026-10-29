@@ -1,0 +1,7 @@
+{
+  "version": "0.43.0",
+  "compiler": "Zig 0.13.0",
+  "target": "x86_64-windows-gnu",
+  "sha256": "3c67a69b18d4d2422b298c7fe9e3f4897bc40df46be18829c19a3d6cf5769402",
+  "windows_execution_verified": false
+}

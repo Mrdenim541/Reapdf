@@ -244,6 +244,30 @@
       "version": "1.25.1",
       "filename": "yarl-1.25.1-cp313-cp313-win_amd64.whl",
       "sha256": "1f51020b2eb8a003c84925638ec63c21a750a4bddd3a22ec8eac6a742dadf1b9"
+    },
+    {
+      "name": "PySide6",
+      "version": "6.8.3",
+      "filename": "PySide6-6.8.3-cp39-abi3-win_amd64.whl",
+      "sha256": "722dc0061d8ef6dbb8c0b99864f21e83a5b49ece1ecb2d0b890840d969e1e461"
+    },
+    {
+      "name": "PySide6-Addons",
+      "version": "6.8.3",
+      "filename": "PySide6_Addons-6.8.3-cp39-abi3-win_amd64.whl",
+      "sha256": "67548f6db11f4e1b7e4b6efd9c3fc2e8d275188a7b2feac388961128572a6955"
+    },
+    {
+      "name": "PySide6-Essentials",
+      "version": "6.8.3",
+      "filename": "PySide6_Essentials-6.8.3-cp39-abi3-win_amd64.whl",
+      "sha256": "3c0fae5550aff69f2166f46476c36e0ef56ce73d84829eac4559770b0c034b07"
+    },
+    {
+      "name": "shiboken6",
+      "version": "6.8.3",
+      "filename": "shiboken6-6.8.3-cp39-abi3-win_amd64.whl",
+      "sha256": "bca3a94513ce9242f7d4bbdca902072a1631888e0aa3a8711a52cc5dbe93588f"
     }
   ]
 }

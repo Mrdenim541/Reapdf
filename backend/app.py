@@ -38,6 +38,7 @@ from .digital_signatures import sign_document,verify_signatures
 from .compression import compress_images
 from .redaction import redact_pdf
 from .redaction_search import search_redactions,redact_search
+from .find_replace import inspect as inspect_replace,replace as batch_replace,plan_token
 from .pro_tools import label_rules, labels_pdf, attachment_model, add_attachment, attachment_pdf, download_attachment, extract_tables, tables_zip, bates_batch
 from .comparison import compare_pdf
 from .image_editing import image_model,edit_image
@@ -288,6 +289,26 @@ async def paragraph_source(doc_id: str, request: Request):
 async def styled_text_source(doc_id: str, request: Request):
     payload=await read_payload(request)
     return await run_in_threadpool(inspect_styled,document_path(doc_id).read_bytes(),payload.get('operations',[]),payload.get('page'),payload.get('box'))
+
+@app.post('/api/documents/{doc_id}/find-replace')
+async def find_replace_source(doc_id:str,request:Request):
+    p=await read_payload(request)
+    return await run_in_threadpool(inspect_replace,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('query'))
+
+@app.post('/api/documents/{doc_id}/find-replace/apply')
+async def find_replace_apply(doc_id:str,request:Request):
+    p=await read_payload(request);base=document_path(doc_id).read_bytes()
+    result,token,count=await run_in_threadpool(batch_replace,base,p.get('operations',[]),p.get('query'),p.get('receipt'),p.get('selected'),p.get('replacement'))
+    if p.get('preview') is True:
+        inspection=await run_in_threadpool(inspect_replace,base,p.get('operations',[]),p.get('query'))
+        pages=sorted({m['page'] for m in inspection['matches'] if m['id'] in p['selected']})
+        images=[]
+        for number in pages[:3]:
+            image,_=await run_in_threadpool(paragraph_preview,result,[],number,1)
+            images.append({'page':number,'image':base64.b64encode(image).decode()})
+        return {'token':token,'count':count,'images':images,'previewed_pages':pages[:3],'total_pages':len(pages)}
+    if p.get('preview_token')!=token:raise DocumentError('Prepara de nuevo la vista previa del reemplazo.')
+    return store_document(result)
 
 @app.post('/api/documents/{doc_id}/replace-styled-text')
 async def change_styled_text(doc_id: str, request: Request):

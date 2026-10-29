@@ -3,6 +3,7 @@
 #define _UNICODE
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <shellapi.h>
 #include <wchar.h>
 #include <stdio.h>
 
@@ -28,7 +29,14 @@ static int fail(const wchar_t *message,const wchar_t *log){
 }
 int WINAPI wWinMain(HINSTANCE instance,HINSTANCE previous,PWSTR arguments,int show){
     (void)previous;(void)arguments;(void)show;
-    wchar_t root[32768],python[32768],script[32768],command[32768],temp[MAX_PATH],ready[MAX_PATH],log[MAX_PATH]=L"";
+    wchar_t root[32768],python[32768],script[32768],command[32768],file[32768]=L"",temp[MAX_PATH],ready[MAX_PATH],log[MAX_PATH]=L"";
+    int argc=0;LPWSTR *argv=CommandLineToArgvW(GetCommandLineW(),&argc);
+    if(!argv||argc>2){if(argv)LocalFree(argv);return fail(L"Selecciona un solo PDF para abrir.",NULL);}
+    if(argc==2){
+        DWORD count=GetFullPathNameW(argv[1],32768,file,NULL);LocalFree(argv);
+        wchar_t *extension=wcsrchr(file,L'.');DWORD attr=GetFileAttributesW(file);
+        if(!count||count>=32768||wcschr(file,L'"')||!extension||_wcsicmp(extension,L".pdf")||attr==INVALID_FILE_ATTRIBUTES||(attr&FILE_ATTRIBUTE_DIRECTORY))return fail(L"No se pudo localizar el PDF indicado.",NULL);
+    }else LocalFree(argv);
     DWORD length=GetModuleFileNameW(NULL,root,32768);
     if(!length||length>=32768)return fail(L"No se pudo localizar Reapdf.exe.",NULL);
     wchar_t *slash=wcsrchr(root,L'\\');if(!slash)return fail(L"Ruta de inicio no compatible.",NULL);*slash=0;
@@ -50,7 +58,8 @@ int WINAPI wWinMain(HINSTANCE instance,HINSTANCE previous,PWSTR arguments,int sh
     if(!job||!SetInformationJobObject(job,JobObjectExtendedLimitInformation,&limit,sizeof(limit))){if(job)CloseHandle(job);CloseHandle(output);CloseHandle(input);DeleteFileW(ready);return fail(L"No se pudo preparar el cierre del programa.",log);}
     STARTUPINFOW startup={0};startup.cb=sizeof(startup);startup.dwFlags=STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;startup.wShowWindow=SW_HIDE;startup.hStdOutput=output;startup.hStdError=output;startup.hStdInput=input;
     PROCESS_INFORMATION process={0};
-    swprintf(command,32768,L"\"%ls\" -I \"%ls\" --desktop --require-desktop --ready-file \"%ls\"",python,script,ready);
+    int written=swprintf(command,32768,L"\"%ls\" -I \"%ls\" --native-desktop --require-desktop --ready-file \"%ls\"%ls%ls%ls",python,script,ready,*file?L" \"":L"",file,*file?L"\"":L"");
+    if(written<0||written>=32768){CloseHandle(output);CloseHandle(input);CloseHandle(job);DeleteFileW(ready);return fail(L"La ruta del programa o PDF es demasiado larga.",log);}
     BOOL started=CreateProcessW(python,command,NULL,NULL,TRUE,CREATE_NO_WINDOW|CREATE_SUSPENDED,NULL,root,&startup,&process);
     CloseHandle(output);CloseHandle(input);
     if(!started){CloseHandle(job);DeleteFileW(ready);return fail(L"Windows no pudo iniciar el motor incluido. Comprueba que el equipo sea Windows 10/11 de 64 bits y que el paquete este completo.",log);}
@@ -67,7 +76,8 @@ int WINAPI wWinMain(HINSTANCE instance,HINSTANCE previous,PWSTR arguments,int sh
         Sleep(80);
     }
     if(splash)DestroyWindow(splash);DeleteFileW(ready);
-    if(cancelled||!prepared){TerminateJobObject(job,1);WaitForSingleObject(process.hProcess,5000);CloseHandle(process.hProcess);CloseHandle(job);return cancelled?0:fail(L"No se pudo abrir la ventana. Reapdf necesita Edge o Chrome instalado y permiso para ejecutar aplicaciones locales. Consulta el registro para ver la causa.",log);}
+    if(!prepared&&!cancelled&&WaitForSingleObject(process.hProcess,0)==WAIT_OBJECT_0){DWORD early=1;GetExitCodeProcess(process.hProcess,&early);if(early==0)prepared=TRUE;}
+    if(cancelled||!prepared){TerminateJobObject(job,1);WaitForSingleObject(process.hProcess,5000);CloseHandle(process.hProcess);CloseHandle(job);return cancelled?0:fail(L"No se pudo abrir la ventana de Reapdf. Comprueba el paquete Qt y consulta el registro para ver la causa.",log);}
     WaitForSingleObject(process.hProcess,INFINITE);DWORD code=1;GetExitCodeProcess(process.hProcess,&code);CloseHandle(process.hProcess);CloseHandle(job);
     return code?fail(L"Reapdf termino con un error. Tus proyectos guardados permanecen en sus carpetas.",log):0;
 }

@@ -11,6 +11,7 @@ import webbrowser
 
 APP_ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(APP_ROOT))
+if (APP_ROOT.parent/'backend').is_dir():sys.path.insert(0,str(APP_ROOT.parent))
 _DLL_HANDLES=[]
 if sys.platform=='win32':
     for directory in [APP_ROOT.parent/'runtime',APP_ROOT.parent/'runtime'/'DLLs',APP_ROOT.parent/'runtime'/'Lib'/'site-packages'/'pymupdf']:

@@ -90,21 +90,36 @@ def create_window(url,initial_file=None):
             self.print_action.triggered.connect(lambda:self.page.runJavaScript('window.dispatchEvent(new Event("reapdf-print"))'));menu.addAction(self.print_action)
             close=menu.addAction('Cerrar');close.triggered.connect(self.close)
             self.profile.downloadRequested.connect(self.download)
-            self.pending_file=initial_file;self.initial_attempts=0;self.initial_timer=QTimer(self)
+            self.pending_file=initial_file;self.external_files=[];self.probing_file=False;self.opening_file=False;self.initial_attempts=0;self.initial_timer=QTimer(self)
             self.initial_timer.setInterval(100);self.initial_timer.timeout.connect(self.try_initial_file)
             if initial_file:self.initial_timer.start()
             self.view.setUrl(QUrl(url))
 
         def try_initial_file(self):
+            if self.probing_file or self.opening_file:return
+            self.probing_file=True
             self.initial_attempts+=1
             if self.allow_close or self.initial_attempts>100:
                 self.initial_timer.stop()
                 if not self.allow_close:QMessageBox.warning(self,'Abrir PDF','La aplicación no terminó de cargar. Abre el archivo desde el menú.')
                 return
             def ready(found):
-                if found and self.pending_file:
-                    file=self.pending_file;self.pending_file=None;self.initial_timer.stop();self.open_path(file)
-            self.page.runJavaScript('!![...document.querySelectorAll("input")].find(e=>e.getAttribute("aria-label")==="Archivo PDF")',ready)
+                self.probing_file=False
+                if found=='busy':self.initial_attempts=0;return
+                if found=='ready':
+                    file=self.pending_file or (self.external_files.pop(0) if self.external_files else None)
+                    self.pending_file=None;self.initial_attempts=0
+                    if not self.external_files:self.initial_timer.stop()
+                    if file:self.open_path(file)
+            self.page.runJavaScript('window.__reapdfCloseState?.busy || document.querySelector("dialog[open]")?"busy":[...document.querySelectorAll("input")].some(e=>e.getAttribute("aria-label")==="Archivo PDF")?"ready":"loading"',ready)
+
+        def enqueue_file(self,file):
+            if self.allow_close:raise ValueError('La ventana se está cerrando; vuelve a abrir el archivo.')
+            if file:
+                if len(self.external_files)>=10:raise ValueError('Hay demasiados archivos pendientes.')
+                self.external_files.append(file);self.initial_attempts=0;self.initial_timer.start()
+            if self.isMinimized():self.showNormal()
+            self.raise_();self.activateWindow()
 
         def open_pdf(self):
             def checked(state):
@@ -124,7 +139,11 @@ def create_window(url,initial_file=None):
                 file=Path(path)
                 if file.stat().st_size>60*1024*1024:raise ValueError('El PDF supera 60 MB.')
                 data=base64.b64encode(file.read_bytes()).decode()
-                self.page.runJavaScript('(()=>{const input=[...document.querySelectorAll("input")].find(e=>e.getAttribute("aria-label")==="Archivo PDF");if(!input)return false;const dt=new DataTransfer();dt.items.add(new File([Uint8Array.from(atob('+json.dumps(data)+'),c=>c.charCodeAt(0))],'+json.dumps(file.name)+',{type:"application/pdf"}));input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));return true;})()',lambda ready:None if ready else QMessageBox.information(self,'Reapdf','Espera a que termine de cargar la aplicación.'))
+                self.opening_file=True
+                def opened(ready):
+                    self.opening_file=False
+                    if not ready:QMessageBox.information(self,'Reapdf','Espera a que termine de cargar la aplicación.')
+                self.page.runJavaScript('(()=>{const input=[...document.querySelectorAll("input")].find(e=>e.getAttribute("aria-label")==="Archivo PDF");if(!input)return false;const dt=new DataTransfer();dt.items.add(new File([Uint8Array.from(atob('+json.dumps(data)+'),c=>c.charCodeAt(0))],'+json.dumps(file.name)+',{type:"application/pdf"}));input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));return true;})()',opened)
             except (OSError,ValueError) as exc:QMessageBox.warning(self,'No se pudo abrir',str(exc))
 
         def download(self,request):
@@ -165,8 +184,15 @@ def main():
     from PySide6.QtWidgets import QApplication
     QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
     app=QApplication(sys.argv[:1]);app.setApplicationName('Reapdf');app.setOrganizationName('Reapdf')
-    window=create_window(sys.argv[1],sys.argv[2] if len(sys.argv)>2 else None);window.show()
-    return app.exec()
+    try:from .single_instance import SingleInstance
+    except ImportError:from single_instance import SingleInstance
+    instance=SingleInstance(sys.argv[2] if len(sys.argv)>2 else None)
+    if not instance.owner:return 0
+    try:
+        window=create_window(sys.argv[1],sys.argv[2] if len(sys.argv)>2 else None);window.show()
+        instance.set_handler(window.enqueue_file)
+        return app.exec()
+    finally:instance.close()
 
 
 if __name__=='__main__':sys.exit(main())

@@ -25,6 +25,7 @@ import {CommentsManager} from './comments.jsx';
 import {DocxExport} from './docx-export.jsx';
 import {BatchProcessor} from './batch-processor.jsx';
 import {LinkEditor} from './link-editor.jsx';
+import {FindReplace} from './find-replace.jsx';
 import { ParagraphEditor } from './paragraph-editor.jsx';
 import { ExistingImageEditor } from './existing-images.jsx';
 import { FieldDesigner } from './field-designer.jsx';
@@ -177,7 +178,7 @@ function App() {
   useEffect(()=>{
     const handler=e=>{
       // Native dialogs own the keyboard, including Escape and text editing.
-      if(document.querySelector('dialog[open]')){if((e.ctrlKey||e.metaKey)&&['s','p','o','g','k'].includes(e.key.toLowerCase()))e.preventDefault();return;}
+      if(document.querySelector('dialog[open]')){if((e.ctrlKey||e.metaKey)&&['s','p','o','g','k','h'].includes(e.key.toLowerCase()))e.preventDefault();return;}
       if(e.key==='Escape'&&focusMode){setFocusMode(false);return;}
       if(!(e.ctrlKey||e.metaKey)||e.altKey)return;
       const key=e.key.toLowerCase();
@@ -188,6 +189,7 @@ function App() {
       else if(key==='s'){e.preventDefault();if(draftMessage){setError(draftMessage);return;}if(doc&&!blocked&&!loading){if(e.shiftKey)save();else saveProject();}}
       else if(key==='p'){e.preventDefault();if(draftMessage){setError(draftMessage);return;}if(doc&&!blocked&&!loading){if(doc.can_print)printDocument();else setError('El documento no permite la impresión disponible en esta versión.');}}
       else if(key==='g'){e.preventDefault();if(doc&&!blocked&&!draftMessage){pageJumpInput.current?.focus();pageJumpInput.current?.select();}}
+      else if(key==='h'){e.preventDefault();if(doc&&!blocked&&!draftMessage&&!loading)setPageTool('find_replace');}
       else if(key==='f'){e.preventDefault();if(doc&&!blocked&&!draftMessage){setFocusMode(false);setNavigationOpen(true);setSearchFocusRequest(n=>n+1);}}
       else if((key==='z'||key==='y')&&!editing){e.preventDefault();if(!blocked&&!draftMessage){const next=cursor+(key==='y'||e.shiftKey?1:-1);if(next>=0&&next<history.length)restoreHistory(next);}}
     };
@@ -216,7 +218,7 @@ function App() {
         const result=await r.json();if(result.document)adoptVersion(result.document,`OCR aplicado a ${result.report.processed.length} páginas; ${result.report.skipped.length} omitidas con texto previo. Revisa los resultados.`,page);
         else {setPageTool(null);setNotice('No se añadió OCR: las páginas seleccionadas ya contienen texto digital.');}
       }else if(action==='optimize'){const result=await r.json();adoptVersion(result.document,`Optimización: ${result.report.before.toLocaleString()} → ${result.report.after.toLocaleString()} bytes (${result.report.saved.toLocaleString()} ahorrados).`,page);}
-      else adoptVersion(await r.json(),action==='prepare-accessibility'?'Título e idioma actualizados; el etiquetado no se modifica. Puedes deshacer.':action==='visual-signature'?'Firma visual incorporada; no contiene certificado digital. Puedes deshacer.':action==='labels'?'Etiquetas de página actualizadas. Puedes deshacer.':action==='add-attachment'?'Archivo adjuntado al PDF. Puedes deshacer.':action==='delete-attachment'?'Adjunto retirado del listado. Puedes deshacer.':action==='replace-styled-text'?'Texto editado conservando la fuente, tamaño, color y posición de los fragmentos compatibles. Puedes deshacer.':action==='flow-text'?'Texto distribuido entre las regiones elegidas. Puedes deshacer el flujo completo.':action==='replace-paragraph'?'Bloque reemplazado con el formato elegido y fuente incrustada. Puedes deshacer.':action==='edit-field-properties'?'Propiedades del campo actualizadas, conservando sus valores. Puedes deshacer.':action==='edit-comment'?'Revisión incorporada al PDF. Puedes deshacer.':action==='edit-link'?'Enlace actualizado. Puedes deshacer.':action==='edit-image'?'Imagen editada. Puedes deshacer para recuperar la versión anterior.':action==='create-field'?'Campo creado. Puedes rellenarlo, guardar proyecto o deshacer.':action==='delete-field'?'Campo eliminado. Puedes deshacer.':action==='flatten-form'?'Campos aplanados conservando su apariencia. Puedes deshacer para recuperar su edición.':'Propiedades actualizadas. Puedes deshacer el cambio.',page);
+      else adoptVersion(await r.json(),action==='prepare-accessibility'?'Título e idioma actualizados; el etiquetado no se modifica. Puedes deshacer.':action==='visual-signature'?'Firma visual incorporada; no contiene certificado digital. Puedes deshacer.':action==='labels'?'Etiquetas de página actualizadas. Puedes deshacer.':action==='add-attachment'?'Archivo adjuntado al PDF. Puedes deshacer.':action==='delete-attachment'?'Adjunto retirado del listado. Puedes deshacer.':action==='find-replace/apply'?'Reemplazos aplicados. Puedes deshacer el lote completo.':action==='replace-styled-text'?'Texto editado conservando la fuente, tamaño, color y posición de los fragmentos compatibles. Puedes deshacer.':action==='flow-text'?'Texto distribuido entre las regiones elegidas. Puedes deshacer el flujo completo.':action==='replace-paragraph'?'Bloque reemplazado con el formato elegido y fuente incrustada. Puedes deshacer.':action==='edit-field-properties'?'Propiedades del campo actualizadas, conservando sus valores. Puedes deshacer.':action==='edit-comment'?'Revisión incorporada al PDF. Puedes deshacer.':action==='edit-link'?'Enlace actualizado. Puedes deshacer.':action==='edit-image'?'Imagen editada. Puedes deshacer para recuperar la versión anterior.':action==='create-field'?'Campo creado. Puedes rellenarlo, guardar proyecto o deshacer.':action==='delete-field'?'Campo eliminado. Puedes deshacer.':action==='flatten-form'?'Campos aplanados conservando su apariencia. Puedes deshacer para recuperar su edición.':'Propiedades actualizadas. Puedes deshacer el cambio.',page);
     }catch(e){setError(e.message);}finally{setBusy(false);}
   }
   async function createImagePdf(plan) {
@@ -712,6 +714,7 @@ function App() {
     {doc&&pageTool==='automation'&&<Suspense fallback={loadingTool}><Automation doc={doc} operations={operations} onClose={()=>setPageTool(null)}/></Suspense>}
     {doc&&pageTool==='batch'&&<BatchProcessor doc={doc} operations={operations} onClose={()=>setPageTool(null)}/>}
     {doc&&pageTool==='existing_links'&&<LinkEditor doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
+    {doc&&pageTool==='find_replace'&&<FindReplace error={error} onClearError={()=>setError('')} doc={doc} page={page} operations={operations} busy={busy} onClose={()=>setPageTool(null)} onApply={params=>runAdvanced('find-replace/apply',params)}/>}
     {doc&&pageTool==='paragraph'&&<ParagraphEditor initialBox={textRegion} doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
     {doc&&pageTool==='existing_images'&&<ExistingImageEditor doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
     {doc&&pageTool==='field'&&<FieldDesigner doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}

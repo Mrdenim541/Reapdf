@@ -1,3 +1,5 @@
+> Guía de la futura distribución Qt. En este avance no se ha ensamblado ni entregado un paquete nuevo. El ZIP histórico 0.43 usa navegador y no contiene estas mejoras.
+
 # Reapdf 0.43 — prueba personal Windows x64
 
 ## Abrir sin instalar
@@ -5,12 +7,12 @@
 1. Descarga el ZIP y elige **Extraer todo** en una carpeta tuya, por ejemplo Descargas. No ejecutes el programa dentro del ZIP.
 2. Abre la carpeta extraída `Reapdf-portable` y haz doble clic en **Reapdf.exe**.
 3. Aparecerá el logo de inicio y después la ventana de Reapdf. Usa **Abrir PDF** para elegir una copia de un documento o uno de `ejemplos`.
-4. Guarda tus cambios con **Exportar copia**; para continuar otro día utiliza **Guardar proyecto**. Conserva los originales.
+4. Guarda tus cambios con **Guardar PDF** o **Exportar copia**; para continuar otro día utiliza **Guardar proyecto**. Conserva los originales.
 5. Guarda o espera «Recuperación local actualizada» antes de cerrar la ventana.
 
 No necesitas instalar previamente Reapdf, Python, Node ni Tesseract; el paquete incluye el motor y OCR español/inglés. Mantén juntos el ejecutable y las carpetas `runtime`, `app` y el resto del contenido. Este `.exe` es un lanzador portable, no un instalador ni un archivo único que puedas separar del paquete.
 
-Necesitas Windows 10/11 de 64 bits y Edge o Chrome ya instalado: la ventana de esta entrega utiliza su modo aplicación, sin barra de direcciones. No se incluye todavía un contenedor de escritorio independiente. El motor trabaja localmente en 127.0.0.1 y elige un puerto disponible. Algunas funciones de estándares requieren Java/Ghostscript, que no se incluyen en este paquete; la interfaz indicará si no están disponibles.
+La futura distribución requiere Windows 10/11 de 64 bits y las dependencias Qt incluidas en el paquete completo. Su ventana integra el motor web y no depende de Edge/Chrome externo. Esa distribución todavía requiere ensamblado y ejecución real en Windows. El motor trabaja localmente en 127.0.0.1 y elige un puerto disponible. Algunas funciones de estándares requieren Java/Ghostscript, que no se incluyen en este paquete; la interfaz indicará si no están disponibles.
 
 ## Si no abre
 

@@ -14,7 +14,7 @@ export const areas = [
 ];
 const areaMembers={
  read:['view','review','compare','attachments','metadata','accessibility'],
- edit:['text','paragraph','flow','textbox','link','existing_links','images','existing_images','watermark','headers'],
+ edit:['find_replace','text','paragraph','flow','textbox','link','existing_links','images','existing_images','watermark','headers'],
  annotate:['comments','select','highlight','underline','strikeout','note','ink','line','arrow','rectangle','stamp'],
  pages:['organizer','insert','replace','duplicate','blank','crop','split','labels','bookmarks','numbering','bates'],
  forms:['form_rules','calculate','forms','field_properties','field','data','flatten','signature','digital_sign','verify_signatures'],
@@ -35,6 +35,7 @@ export const tools = [
  entry('archive','Crear copia PDF/A-2b','Reconstruye una copia de archivo y exige validación independiente antes de descargar.','document','edit_copy','dialog','pdfa archivo conservación preservación'),
  entry('review','Revisar documento','Localiza anotaciones, campos, enlaces y posibles escaneados.','read','read','dialog','diagnóstico inspección control calidad'),
  entry('compare','Comparar documentos','Compara texto y apariencia de dos PDF.','read','copy'),
+ entry('find_replace','Buscar y reemplazar','Busca texto digital y revisa reemplazos con fuente compatible.','edit','read','dialog','buscar reemplazar coincidencias palabras mayúsculas'),
  entry('text','Editar texto','Corrige líneas simples de fuentes base compatibles.','edit','edit','tool'),
  entry('paragraph','Reemplazar bloque de texto','Corrige fragmentos con fuente original o redistribuye un párrafo.','edit','edit','dialog','fuentes estilo negrita cursiva párrafo'),
  entry('textbox','Añadir texto','Dibuja un área y escribe texto nuevo.','edit','edit','tool'),

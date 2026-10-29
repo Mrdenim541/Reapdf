@@ -1,7 +1,8 @@
 """Build the small Windows GUI bootstrap with Zig 0.13.0 (including on Linux)."""
-import argparse,importlib.util,json,os,shutil,struct,subprocess
+import argparse,importlib.util,json,os,shutil,struct,subprocess,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
 
 
 def icon_bytes():
@@ -30,7 +31,7 @@ def build(output=None,zig=None):
     manifest=output.with_suffix('.manifest')
     manifest.write_text('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0"><trustInfo xmlns="urn:schemas-microsoft-com:asm.v3"><security><requestedPrivileges><requestedExecutionLevel level="asInvoker" uiAccess="false"/></requestedPrivileges></security></trustInfo></assembly>',encoding='utf-8')
     resource.write_text('1 ICON "'+icon.name+'"\n1 24 "'+manifest.name+'"\n1 VERSIONINFO\nFILEVERSION '+','.join(parts+['0'])+'\nPRODUCTVERSION '+','.join(parts+['0'])+'\nFILETYPE 1\nBEGIN\n BLOCK "StringFileInfo"\n BEGIN\n BLOCK "040904b0"\n BEGIN\n VALUE "FileDescription", "Reapdf - editor PDF personal"\n VALUE "ProductName", "Reapdf"\n VALUE "FileVersion", "'+package['version']+'"\n VALUE "OriginalFilename", "Reapdf.exe"\n END\n END\n BLOCK "VarFileInfo"\n BEGIN\n VALUE "Translation", 0x0409, 1200\n END\nEND\n',encoding='utf-8')
-    subprocess.run([zig,'cc','-target','x86_64-windows-gnu','-O2','-Wall','-Wextra','-Werror','-Wno-unused-command-line-argument','-municode','-Wl,--subsystem,windows',str(ROOT/'portable/native/launcher.c'),resource.name,'-I',str(output.parent),'-luser32','-lgdi32','-o',str(output)],check=True,cwd=output.parent)
+    subprocess.run([zig,'cc','-target','x86_64-windows-gnu','-O2','-Wall','-Wextra','-Werror','-Wno-unused-command-line-argument','-municode','-Wl,--subsystem,windows',str(ROOT/'portable/native/launcher.c'),resource.name,'-I',str(output.parent),'-luser32','-lgdi32','-lshell32','-o',str(output)],check=True,cwd=output.parent)
     from scripts.package_portable import pe_machine,digest
     if pe_machine(output.read_bytes())!=0x8664:raise ValueError('El lanzador no es Windows x64.')
     data=output.read_bytes();offset=struct.unpack_from('<I',data,60)[0]

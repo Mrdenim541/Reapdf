@@ -1,6 +1,6 @@
 # Reapdf
 
-Estado vigente: [guardado directo y apertura inicial](docs/GUARDADO_DIRECTO_20261029.md). [Auditoría global reconstruida](docs/AUDITORIA_GLOBAL_20261029.md): aproximadamente 48 % del alcance total; aceptación Windows pendiente.
+Estado vigente: [Buscar/reemplazar, instancia única y preparación Windows](docs/BUSCAR_REEMPLAZAR_Y_ESCRITORIO_20261029.md). [Auditoría global reconstruida](docs/AUDITORIA_GLOBAL_20261029.md): aproximadamente 49 % del alcance total; aceptación Windows pendiente.
 
 Último avance: [apertura e impresión desde el escritorio](docs/APERTURA_IMPRESION_20261029.md), carga automática de modos de edición y Ctrl+Enter. Validación Linux; Windows y entrega final pendientes.
 

@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "review_date": "2026-10-29",
+  "status": "provisional_reconstructed_baseline",
+  "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
+  "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
+  "weighted_percent": 47.7,
+  "reported_percent": 48,
+  "subjective_range_percent": [40,60],
+  "anchors": {"0":"Sin implementación", "25":"Prototipo o subconjunto pequeño", "50":"Cobertura parcial utilizable", "75":"Cobertura amplia con huecos", "90":"Casi todo el alcance con aceptación pendiente", "100":"Alcance implementado, comprobado y aceptado"},
+  "categories": [
+    {"id":"reader_pages","weight":7,"maturity":85,"evidence":["backend/viewer.py","backend/pages.py","backend/bookmarks.py"],"remaining":"Documentos grandes, lectura comercial y corpus real."},
+    {"id":"interface","weight":7,"maturity":65,"evidence":["web/src/main.jsx","web/src/paragraph-editor.jsx","scripts/smoke-recovered-editing.mjs"],"remaining":"Usabilidad personal, consistencia y más simplificación."},
+    {"id":"text_images","weight":16,"maturity":50,"evidence":["backend/styled_text.py","backend/text_flow.py","backend/image_editing.py","tests/test_styled_text.py"],"remaining":"CFF/Type3, estructuras complejas, composición y buscar/reemplazar; no se recuperaron mejoras de 0.44–0.55."},
+    {"id":"annotations","weight":7,"maturity":70,"evidence":["backend/existing_annotations.py","backend/comments.py"],"remaining":"Geometrías importadas y formatos de intercambio completos."},
+    {"id":"forms","weight":6,"maturity":60,"evidence":["backend/form_import.py","backend/form_calculations.py","tests/test_form_import.py"],"remaining":"XFA, comportamientos complejos y corpus comercial."},
+    {"id":"ocr_conversion","weight":9,"maturity":55,"evidence":["backend/ocr.py","backend/docx_import.py","backend/docx_export.py"],"remaining":"OCR avanzado y perspectiva; fidelidad Office y tablas complejas."},
+    {"id":"security_signatures","weight":7,"maturity":50,"evidence":["backend/digital_signatures.py","backend/redaction.py","backend/document_tools.py"],"remaining":"Revocación/TSA/LT/LTA/tokens, estructuras de censura complejas y aceptación independiente."},
+    {"id":"standards_optimization","weight":5,"maturity":35,"evidence":["backend/standards.py","backend/compression.py"],"remaining":"PDF/X/preflight general, todas las herramientas externas y validación comercial."},
+    {"id":"accessibility","weight":3,"maturity":20,"evidence":["backend/accessibility.py"],"remaining":"Etiquetas, orden de lectura, alternativas y aceptación asistiva."},
+    {"id":"automation_linking","weight":9,"maturity":35,"evidence":["backend/automation.py","backend/batch_tools.py"],"remaining":"Vincular documentos con identificadores, ambigüedades y navegación persistente; no generar informes/ensayos."},
+    {"id":"desktop_distribution","weight":6,"maturity":40,"evidence":["portable/native_window.py","portable/native_print.py","portable/native_save.py","scripts/smoke_native_save.py"],"remaining":"Windows real, segunda instancia, asociaciones, impresión vectorial/gran formato y distribución Qt."},
+    {"id":"migration_interoperability","weight":4,"maturity":30,"evidence":["backend/projects.py","tests/test_projects.py"],"remaining":"Migración entre versiones y corpus en lectores y plataformas externos."},
+    {"id":"performance_reliability","weight":4,"maturity":60,"evidence":["backend/projects.py","portable/native_save.py","tests/test_native_save.py"],"remaining":"Pruebas de carga, archivos grandes, recuperación de borradores y estrés Windows."},
+    {"id":"measurement","weight":3,"maturity":0,"evidence":["docs/FUNCIONES.md"],"remaining":"Medición calibrada de planos pendiente."},
+    {"id":"portfolios_layers","weight":3,"maturity":25,"evidence":["backend/pro_tools.py","docs/FUNCIONES.md"],"remaining":"Portfolios y capas; disponibles adjuntos acotados."},
+    {"id":"collaboration_services","weight":3,"maturity":0,"evidence":["docs/FUNCIONES.md"],"remaining":"Compartir, sincronización, revisión y solicitud remota de firmas."},
+    {"id":"ai_assistance","weight":1,"maturity":0,"evidence":["docs/FUNCIONES.md"],"remaining":"Asistencia dentro del producto con referencias y costes definidos."}
+  ],
+  "completion_gates": ["Fuente completa respaldada y restauración limpia comprobada", "Flujos cotidianos aceptados por el usuario", "Ejecución y distribución Windows verificadas", "Integridad de documentos, recuperación y compatibilidad representativas", "Alcance y licencias de distribución resueltos"],
+  "historical_reference": {"reported_percent":61.3,"code_version":"0.55","available_now":false,"note":"No ratificado con archivos actuales. Esta revisión evalúa 0.43 recuperado y sus mejoras nuevas."},
+  "accepted_complete":false
+}

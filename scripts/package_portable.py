@@ -65,7 +65,7 @@ def validate_payload(folder,config):
               'runtime/Lib/encodings/__init__.py','runtime/Lib/site-packages/pymupdf/mupdfcpp64.dll',
               'runtime/Lib/site-packages/pydantic_core/_pydantic_core.cp313-win_amd64.pyd',
               'runtime/Lib/site-packages/uvicorn/__init__.py','runtime/Lib/site-packages/colorama/__init__.py',
-              'app/backend/app.py','app/web/dist/index.html','app/launcher.py','app/desktop.py','Iniciar-Reapdf.cmd','Abrir-en-navegador.cmd']
+              'app/backend/app.py','app/web/dist/index.html','app/launcher.py','app/desktop.py','app/native_window.py','app/native_print.py','app/native_save.py','app/single_instance.py','Iniciar-Reapdf.cmd','Abrir-en-navegador.cmd']
     for name in required:
         if not (folder/name).is_file():raise ValueError('Falta un archivo portable: '+name)
     for path in (folder/'runtime').rglob('*'):
@@ -113,7 +113,8 @@ def build(wheelhouse=None,cache=None,output=None):
         shutil.copytree(ROOT/'web'/'src',app/'web'/'src')
         for name in ['package.json','package-lock.json','requirements-lock.txt']:shutil.copy2(ROOT/name,app/name)
         shutil.copy2(ROOT/'portable'/'launcher.py',app/'launcher.py')
-        shutil.copy2(ROOT/'portable'/'desktop.py',app/'desktop.py')
+        for module in ['desktop.py','native_window.py','native_print.py','native_save.py','single_instance.py','windows_association.py']:
+            shutil.copy2(ROOT/'portable'/module,app/module)
         shutil.copytree(ROOT/'docs',folder/'docs')
         shutil.copy2(ROOT/'portable'/'LEEME.md',folder/'LEEME.md')
         shutil.copy2(ROOT/'portable'/'dependencies-windows.json',folder/'DEPENDENCIAS.json')
@@ -125,7 +126,7 @@ def build(wheelhouse=None,cache=None,output=None):
             shutil.copytree(ROOT/directory,source/directory,ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
         shutil.copytree(ROOT/'web'/'src',source/'web'/'src')
         for name in ['index.html','vite.config.js']:shutil.copy2(ROOT/'web'/name,source/'web'/name)
-        for name in ['README.md','requirements.txt','requirements-dev.txt','requirements-lock.txt','package.json','package-lock.json','.gitignore']:
+        for name in ['README.md','requirements.txt','requirements-dev.txt','requirements-lock.txt','requirements-desktop.txt','package.json','package-lock.json','.gitignore']:
             shutil.copy2(ROOT/name,source/name)
         for name in ['index.html','vite.config.js']:shutil.copy2(ROOT/'web'/name,app/'web'/name)
         demo=folder/'ejemplos'/'reapdf-demo.pdf';demo.parent.mkdir()
@@ -136,13 +137,13 @@ def build(wheelhouse=None,cache=None,output=None):
         subprocess.run([sys.executable,str(ROOT/'scripts'/'create_styled_text_sample.py'),str(demo.parent/'reapdf-texto-con-estilos.pdf')],check=True,capture_output=True)
         subprocess.run([sys.executable,str(ROOT/'scripts'/'create_review_sample.py'),str(demo.parent/'reapdf-recorrido.pdf')],check=True,capture_output=True)
         launcher='@echo off\r\nsetlocal DisableDelayedExpansion\r\ncd /d "%~dp0"\r\n"%~dp0runtime\\python.exe" -I "%~dp0app\\launcher.py"\r\nif errorlevel 1 pause\r\n'
-        (folder/'Iniciar-Reapdf.cmd').write_bytes(launcher.replace('app\\launcher.py"','app\\launcher.py" --desktop').encode('ascii'))
+        (folder/'Iniciar-Reapdf.cmd').write_bytes(launcher.replace('app\\launcher.py"','app\\launcher.py" --native-desktop').encode('ascii'))
         (folder/'Abrir-en-navegador.cmd').write_bytes(launcher.encode('ascii'))
         diagnostic=launcher.replace('app\\launcher.py"','app\\launcher.py" --self-test').replace('if errorlevel 1 pause','pause')
         (folder/'Diagnosticar.cmd').write_bytes(diagnostic.encode('ascii'))
         validate_payload(folder,config)
         manifest={'version':json.loads((ROOT/'package.json').read_text())['version'],
-                  'target':'Windows 10/11 x64','python':config['python'],'windows_execution_verified':False,'presentation':'Reapdf.exe GUI bootstrap + installed Edge/Chrome app window','native_launcher':json.loads(native.with_suffix('.build.json').read_text()),
+                  'target':'Windows 10/11 x64','python':config['python'],'windows_execution_verified':False,'presentation':'Reapdf.exe GUI bootstrap + integrated Qt window','native_launcher':json.loads(native.with_suffix('.build.json').read_text()),
                   'files':{p.relative_to(folder).as_posix():digest(p) for p in sorted(folder.rglob('*')) if p.is_file()}}
         (folder/'MANIFIESTO.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
         output=Path(output) if output else out/('Reapdf-'+manifest['version']+'-Windows-x64.zip')
