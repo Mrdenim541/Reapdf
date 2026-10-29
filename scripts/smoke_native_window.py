@@ -5,13 +5,15 @@ import pymupdf as f
 from PySide6.QtWidgets import QApplication,QFileDialog,QMessageBox
 from PySide6.QtCore import QEventLoop,QTimer,QCoreApplication,Qt,QUrl
 from PySide6.QtTest import QTest
+from PySide6.QtPrintSupport import QPrintDialog,QPrinter
+from PySide6.QtWidgets import QDialog
 from portable.native_window import create_window
 
 QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
 app=QApplication([])
 window=create_window('http://127.0.0.1:8000');window.show()
 QMessageBox.question=lambda *args:QMessageBox.StandardButton.Yes
-root=Path(tempfile.mkdtemp(prefix='reapdf-native-check-'));output=root/'export.pdf'
+root=Path(tempfile.mkdtemp(prefix='reapdf-native-check-'));output=root/'export.pdf';printed=root/'printed.pdf'
 
 def evaluate(script):
     result=[];loop=QEventLoop()
@@ -31,13 +33,34 @@ try:
     wait('!![...document.querySelectorAll("input")].find(e=>e.getAttribute("aria-label")==="Archivo PDF")')
     print('STAGE: application loaded',flush=True)
     assert window.windowTitle()=='Reapdf'
+    assert window.bridge.printPdf('invalid').startswith('error:')
+    with f.open() as oversized:
+        oversized.new_page(width=4000,height=4000)
+        assert window.bridge.printPdf(base64.b64encode(oversized.tobytes()).decode()).startswith('error:')
     assert not window.page.acceptNavigationRequest(QUrl('https://example.com'),None,True)
     with f.open() as d:
-        p=d.new_page();p.insert_text((45,100),'NATIVE PDF CHECK');data=base64.b64encode(d.tobytes()).decode()
-    evaluate('(()=>{const bytes=Uint8Array.from(atob('+json.dumps(data)+'),c=>c.charCodeAt(0)),dt=new DataTransfer();dt.items.add(new File([bytes],"native.pdf",{type:"application/pdf"}));const input=[...document.querySelectorAll("input")].find(e=>e.getAttribute("aria-label")==="Archivo PDF");input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));return true;})()')
+        p=d.new_page();p.insert_text((45,100),'NATIVE PDF CHECK')
+        p=d.new_page();p.draw_rect(f.Rect(30,30,300,300),color=(1,0,0),fill=(1,0,0))
+        d.save(root/'native.pdf')
+    QFileDialog.getOpenFileName=lambda *args,**kwargs:(str(root/'native.pdf'),'')
+    window.open_action.trigger()
     wait('document.body.innerText.includes("native.pdf") && !!document.querySelector(".text-layer")')
     wait('[...document.images].some(i=>i.alt==="Página 1 del documento" && i.complete && i.naturalWidth>0)')
     print('STAGE: PDF loaded',flush=True)
+    def select_printer(dialog):
+        printer=dialog.printer();printer.setOutputFormat(QPrinter.OutputFormat.PdfFormat);printer.setOutputFileName(str(printed));printer.setFromTo(2,2)
+        return QDialog.DialogCode.Accepted
+    QPrintDialog.exec=select_printer
+    window.print_action.trigger()
+    wait('document.body.innerText.includes("Documento enviado a impresión.")')
+    assert printed.exists()
+    with f.open(printed) as d:
+        assert len(d)==1
+        pix=d[0].get_pixmap();pixels=pix.samples
+        assert sum(pixels[i]>200 and pixels[i+1]<100 and pixels[i+2]<100 for i in range(0,len(pixels),pix.n))>100
+    QPrintDialog.exec=lambda *args:QDialog.DialogCode.Rejected
+    window.print_action.trigger();wait('document.body.innerText.includes("Impresión cancelada.")')
+    print('STAGE: page range printed and cancellation checked',flush=True)
     QFileDialog.getSaveFileName=lambda *args,**kwargs:(str(output),'')
     evaluate('(()=>{[...document.querySelectorAll("button")].find(b=>b.textContent.trim()==="Exportar copia").click();return true;})()')
     deadline=time.monotonic()+30

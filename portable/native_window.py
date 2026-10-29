@@ -13,11 +13,22 @@ def local_origin(url):
 
 
 def create_window(url):
-    from PySide6.QtCore import QUrl
+    from PySide6.QtCore import QUrl,QObject,Slot,QFile,QIODevice
+    from PySide6.QtGui import QAction,QKeySequence
+    from PySide6.QtWebChannel import QWebChannel
     from PySide6.QtWidgets import QMainWindow,QFileDialog,QMessageBox
     from PySide6.QtWebEngineWidgets import QWebEngineView
-    from PySide6.QtWebEngineCore import QWebEnginePage,QWebEngineProfile
+    from PySide6.QtWebEngineCore import QWebEnginePage,QWebEngineProfile,QWebEngineScript
     origin=local_origin(url)
+
+    class Bridge(QObject):
+        @Slot(str,result=str)
+        def printPdf(self,encoded):
+            try:
+                try:from .native_print import print_pdf
+                except ImportError:from native_print import print_pdf
+                return print_pdf(encoded,self.parent())
+            except Exception as exc:return 'error:'+str(exc)
 
     class Page(QWebEnginePage):
         def javaScriptConfirm(self,security_origin,message):
@@ -34,9 +45,42 @@ def create_window(url):
             self.view=QWebEngineView(self)
             self.profile=QWebEngineProfile(self) # Off-the-record profile, owned by this window.
             self.page=Page(self.profile,self.view);self.page.view_window=self;self.view.setPage(self.page)
+            self.channel=QWebChannel(self.page);self.bridge=Bridge(self)
+            self.channel.registerObject('reapdf',self.bridge);self.page.setWebChannel(self.channel)
+            resource=QFile(':/qtwebchannel/qwebchannel.js')
+            if not resource.open(QIODevice.OpenModeFlag.ReadOnly):raise RuntimeError('No se pudo cargar la conexión de escritorio.')
+            script=QWebEngineScript();script.setName('Reapdf desktop')
+            script.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentCreation)
+            script.setWorldId(QWebEngineScript.ScriptWorldId.MainWorld)
+            script.setSourceCode(bytes(resource.readAll()).decode()+"\nwindow.reapdfDesktop=new Promise(resolve=>new QWebChannel(qt.webChannelTransport,c=>resolve(c.objects.reapdf))); ")
+            self.page.scripts().insert(script);resource.close()
             self.setCentralWidget(self.view)
+            menu=self.menuBar().addMenu('Archivo')
+            self.open_action=QAction('Abrir PDF…',self);self.open_action.setShortcut(QKeySequence.StandardKey.Open)
+            self.open_action.triggered.connect(self.open_pdf);menu.addAction(self.open_action)
+            self.print_action=QAction('Imprimir…',self);self.print_action.setShortcut(QKeySequence.StandardKey.Print)
+            self.print_action.triggered.connect(lambda:self.page.runJavaScript('window.dispatchEvent(new Event("reapdf-print"))'));menu.addAction(self.print_action)
+            close=menu.addAction('Cerrar');close.triggered.connect(self.close)
             self.profile.downloadRequested.connect(self.download)
             self.view.setUrl(QUrl(url))
+
+        def open_pdf(self):
+            def checked(state):
+                if state:
+                    QMessageBox.information(self,'Reapdf','Termina o cancela la operación o edición actual antes de abrir otro archivo.');return
+                self.choose_pdf()
+            self.page.runJavaScript('!!(window.__reapdfCloseState?.busy || document.querySelector("dialog[open]"))',checked)
+
+        def choose_pdf(self):
+            path,_=QFileDialog.getOpenFileName(self,'Abrir PDF','','Documentos PDF (*.pdf)')
+            if not path:return
+            try:
+                import base64
+                file=Path(path)
+                if file.stat().st_size>60*1024*1024:raise ValueError('El PDF supera 60 MB.')
+                data=base64.b64encode(file.read_bytes()).decode()
+                self.page.runJavaScript('(()=>{const input=[...document.querySelectorAll("input")].find(e=>e.getAttribute("aria-label")==="Archivo PDF");if(!input)return false;const dt=new DataTransfer();dt.items.add(new File([Uint8Array.from(atob('+json.dumps(data)+'),c=>c.charCodeAt(0))],'+json.dumps(file.name)+',{type:"application/pdf"}));input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));return true;})()',lambda ready:None if ready else QMessageBox.information(self,'Reapdf','Espera a que termine de cargar la aplicación.'))
+            except (OSError,ValueError) as exc:QMessageBox.warning(self,'No se pudo abrir',str(exc))
 
         def download(self,request):
             name=Path(request.suggestedFileName()).name or 'documento.pdf'

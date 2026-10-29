@@ -291,6 +291,17 @@ function App() {
   }
   async function printDocument() {
     closeFileMenu();
+    if(window.reapdfDesktop){
+      setBusy(true);setError('');
+      try{
+        const response=await checked(await fetch(`/api/documents/${doc.id}/print`,post(operations)));
+        const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.onerror=reject;response.blob().then(blob=>reader.readAsDataURL(blob)).catch(reject);});
+        const bridge=await window.reapdfDesktop,result=await new Promise(resolve=>bridge.printPdf(data,resolve));
+        if(result.startsWith('error:'))throw new Error(result.slice(6));
+        setNotice(result==='cancelled'?'Impresión cancelada.':'Documento enviado a impresión.');
+      }catch(e){setError(e.message);}finally{setBusy(false);}
+      return;
+    }
     // Abrir dentro del gesto del usuario evita bloquear la ventana al esperar al motor.
     const target=window.open('','_blank');
     if(!target){setError('El navegador bloqueó la vista de impresión. Permite ventanas para esta aplicación o exporta el PDF e imprímelo desde tu lector.');return;}
@@ -303,6 +314,7 @@ function App() {
       setNotice('Vista de impresión abierta con los cambios aplicados. Usa Imprimir o Ctrl+P en el lector PDF de esa ventana.');
     }catch(e){target.close();setError(e.message);}finally{setBusy(false);}
   }
+  useEffect(()=>{const print=()=>{if(!doc)return;if(busy||transforming||draftMessage||document.querySelector('dialog[open]')){setError('Termina o cancela la edición actual antes de imprimir.');return;}if(!doc.can_print){setError('El documento no permite impresión.');return;}printDocument();};window.addEventListener('reapdf-print',print);return()=>window.removeEventListener('reapdf-print',print);},[doc,operations,busy,transforming,draftMessage]);
   async function createPages(plan) {
     setBusy(true);setError('');
     const mode=pageTool;
