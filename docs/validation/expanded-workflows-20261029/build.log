@@ -22,7 +22,7 @@ web/dist/assets/text-flow-Dd_geE6X.js            16.04 kB │ gzip:   5.30 kB
 web/dist/assets/automation-BAMHcD5r.js           19.61 kB │ gzip:   6.39 kB
 web/dist/assets/index-fR6aownv.js               545.40 kB │ gzip: 152.16 kB
 
-[plugin builtin:vite-reporter] 
+[plugin builtin:vite-reporter]
 (!) Some chunks are larger than 500 kB after minification. Consider:
 - Using dynamic import() to code-split the application
 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
