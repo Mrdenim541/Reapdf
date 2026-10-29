@@ -82,6 +82,7 @@ function App() {
   const [tool, setTool] = useState('view'), [zoom, setZoom] = useState(1);
   const [inlineSpan,setInlineSpan]=useState(null);
   const [inlineBlock,setInlineBlock]=useState(null);
+  const [textBoxMode,setTextBoxMode]=useState(false);
   const [linkWorkspace,setLinkWorkspace]=useState(null);
   const [color, setColor] = useState('#e34b40'), [width, setWidth] = useState(2);
   const [history, setHistory] = useState([{doc:null, operations:[]}]), [cursor, setCursor] = useState(0);
@@ -170,7 +171,7 @@ function App() {
   }, [doc, page, operations]);
 
   const areaBlocked=areaChangeReason({busy,transforming,stroke,draft:draftMessage});
-  const propertiesVisible=tool!=='view'&&tool!=='text'&&(tool!=='textbox'||!!activeContent)&&!propertiesFolded;
+  const propertiesVisible=tool!=='view'&&tool!=='text'&&(tool!=='textbox'||!!activeContent||textBoxMode)&&!propertiesFolded;
   function changeArea(next){
     if(next===area||areaBlocked)return;
     setArea(next);setFocusMode(false);chooseTool('view');setPropertiesFolded(false);
@@ -567,8 +568,8 @@ function App() {
     catch(e){setError(e.message);}finally{setBusy(false);}
   }
   function start(e) {
-    if(tool==='textbox'&&!inlineSpan&&!activeContent&&preview&&!busy&&!loading&&e.button===0&&mayEdit&&e.target===svg.current){const p=point(e);e.preventDefault();setError('');setInlineSpan({id:crypto.randomUUID(),insert:true,text:'',bbox:[p[0],p[1],p[0]+200,p[1]+24],origin:p,size:14,color:0});return;}
-    if(tool==='textbox'&&(!activeContent||inlineSpan))return;
+    if(tool==='textbox'&&!textBoxMode&&!inlineSpan&&!activeContent&&preview&&!busy&&!loading&&e.button===0&&mayEdit&&e.target===svg.current){const p=point(e);e.preventDefault();setError('');setInlineSpan({id:crypto.randomUUID(),insert:true,text:'',bbox:[p[0],p[1],p[0]+200,p[1]+24],origin:p,size:14,color:0});return;}
+    if(tool==='textbox'&&((!textBoxMode&&!activeContent)||inlineSpan))return;
     if(tool==='note'&&preview&&!busy&&!loading&&e.button===0&&mayAnnotate) {setNotePoint(point(e));setNoteContent('');return;}
     if((!drawingTools.has(tool)&&!markupTools.has(tool)&&!contentTools.has(tool))||!preview||busy||transforming||loading||e.button!==0||!(contentTools.has(tool)&&tool!=='stamp'?mayEdit:mayAnnotate)||activePointer.current!==null)return;
     activePointer.current=e.pointerId;
@@ -647,6 +648,7 @@ function App() {
         </div>
         {tool==='view'&&area!=='read'?<div className="tool-guide"><strong>{areas.find(a=>a.id===area).label}</strong><span>{areas.find(a=>a.id===area).description} Elige una herramienta para comenzar.</span></div>:<ToolGuide tool={tool} selected={selected} pending={draftMessage}/>}
 
+        {tool==='textbox'&&<div className="text-insertion-modes" role="group" aria-label="Modo de insertar texto"><button aria-pressed={!textBoxMode} disabled={!!draftMessage||busy} onClick={()=>{setTextBoxMode(false);setSelectedMark(null);setNotice('Pulsa un punto y escribe sobre la página.');}}>Escribir con clic</button><button aria-pressed={textBoxMode} disabled={!!draftMessage||busy} onClick={()=>{setTextBoxMode(true);setNotice('Arrastra una caja; sus propiedades permiten moverla y corregirla como elemento del proyecto.');}}>Caja ajustable</button></div>}
         <div className="render-status" aria-live="polite">{pagePreview.refining&&preview?'Actualizando nitidez…':pagePreview.limited?'Resolución limitada por el tamaño de esta página.':''}</div>
         <div ref={paperScroll} className="paper-scroll"><div ref={paperElement} className="paper" style={{width:geometry.width*zoom,height:geometry.height*zoom}}>
           {preview && <img src={preview} data-render-scale={pagePreview.scale} alt={`Página ${page+1} del documento`} draggable="false"/>}
