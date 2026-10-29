@@ -1,0 +1,17 @@
+{
+  "python_passed": 2156,
+  "javascript_passed": 109,
+  "build": "passed",
+  "directed_graphical_checks": 8,
+  "host": "Linux, Chromium and Qt offscreen",
+  "windows_execution_verified": false,
+  "windows_package_assembled": false,
+  "installer_or_portable_delivered": false,
+  "source_baseline": "6fcfc1c7c195dc6f899c77b30b26f7ba924cfafc",
+  "global_weighted_percent": 49.9,
+  "global_reported_percent": 50,
+  "limits": "Fixed positions, contiguous runs in one horizontal line; original compatible fonts only; 100 matches/100 runs.",
+  "post_family_fix_targeted_python_passed": 115,
+  "full_python_regression_scope": "2156 tests before final paragraph-family heuristic; 115 relevant tests after it, including 3 new family cases.",
+  "user_document_test": "Qt fallback edit/save/undo/redo and integrity passed; original-font and existing-image editing remain blocked."
+}

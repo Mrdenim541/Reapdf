@@ -1,0 +1,15 @@
+{
+  "source_sha256": "4cd666ff48b5a5bf3df209bca977c9b3f0c90b6c2a29ffd2fa36e06385104d1b",
+  "original_untouched": true,
+  "result": "passed_with_original_font_and_image_editing_limitations",
+  "pixels_outside_edited_region_unchanged": true,
+  "original_font_mode": "blocked: marked or clipped page",
+  "existing_images": "six readonly: transparency/clipping/layers",
+  "fallback_font": "DejaVu Sans Book",
+  "undo_redo": "passed",
+  "native_save": "passed",
+  "remaining_extracted_text": "unchanged",
+  "image_digests_and_positions": "unchanged",
+  "drawing_count": 90,
+  "private_document_and_screenshots_committed": false
+}

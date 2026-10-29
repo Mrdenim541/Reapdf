@@ -2,6 +2,8 @@
 from pathlib import Path
 import json
 import sys
+import os
+import time
 from urllib.parse import urlsplit
 
 
@@ -76,7 +78,7 @@ def create_window(url,initial_file=None):
             script=QWebEngineScript();script.setName('Reapdf desktop')
             script.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentCreation)
             script.setWorldId(QWebEngineScript.ScriptWorldId.MainWorld)
-            script.setSourceCode(bytes(resource.readAll()).decode()+"\nwindow.reapdfDesktop=new Promise(resolve=>new QWebChannel(qt.webChannelTransport,c=>resolve(c.objects.reapdf))); ")
+            script.setSourceCode(bytes(resource.readAll()).decode()+"\nwindow.reapdfDesktop=new Promise(resolve=>new QWebChannel(qt.webChannelTransport,c=>{window.__reapdfBridgeReady=true;resolve(c.objects.reapdf);})); ")
             self.page.scripts().insert(script);resource.close()
             self.setCentralWidget(self.view)
             menu=self.menuBar().addMenu('Archivo')
@@ -93,7 +95,25 @@ def create_window(url,initial_file=None):
             self.pending_file=initial_file;self.external_files=[];self.probing_file=False;self.opening_file=False;self.initial_attempts=0;self.initial_timer=QTimer(self)
             self.initial_timer.setInterval(100);self.initial_timer.timeout.connect(self.try_initial_file)
             if initial_file:self.initial_timer.start()
+            self.startup_load_failed=False
+            self.page.loadFinished.connect(lambda ok:setattr(self,'startup_load_failed',not ok))
             self.view.setUrl(QUrl(url))
+
+        def watch_ready(self,on_ready,on_failure,timeout=20):
+            self.ready_probe=QTimer(self);self.ready_probe.setInterval(100)
+            deadline=time.monotonic()+timeout;probing=False
+            def probe():
+                nonlocal probing
+                if self.startup_load_failed or time.monotonic()>=deadline:
+                    self.ready_probe.stop();on_failure('La interfaz de Reapdf no pudo cargar.');return
+                if probing:return
+                probing=True
+                def checked(ready):
+                    nonlocal probing
+                    probing=False
+                    if ready and self.ready_probe.isActive():self.ready_probe.stop();on_ready()
+                self.page.runJavaScript('!!(window.__reapdfCloseState && window.__reapdfBridgeReady && [...document.querySelectorAll("input")].some(e=>e.getAttribute("aria-label")==="Archivo PDF"))',checked)
+            self.ready_probe.timeout.connect(probe);self.ready_probe.start()
 
         def try_initial_file(self):
             if self.probing_file or self.opening_file:return
@@ -187,10 +207,19 @@ def main():
     try:from .single_instance import SingleInstance
     except ImportError:from single_instance import SingleInstance
     instance=SingleInstance(sys.argv[2] if len(sys.argv)>2 else None)
-    if not instance.owner:return 0
+    def confirm(state):
+        path=os.environ.get('REAPDF_NATIVE_READY_FILE')
+        if path:
+            target=Path(path);temporary=target.with_suffix('.tmp')
+            temporary.write_text(json.dumps({'version':1,'pid':os.getpid(),'state':state}),encoding='utf-8')
+            temporary.replace(target)
+    if not instance.owner:confirm('forwarded');return 0
     try:
         window=create_window(sys.argv[1],sys.argv[2] if len(sys.argv)>2 else None);window.show()
         instance.set_handler(window.enqueue_file)
+        def failed(message):
+            print(message,file=sys.stderr,flush=True);window.allow_close=True;window.close();app.exit(1)
+        window.watch_ready(lambda:confirm('ready'),failed)
         return app.exec()
     finally:instance.close()
 

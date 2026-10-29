@@ -5,6 +5,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import json
+import time
 
 
 def find_browser():
@@ -50,7 +52,23 @@ class DesktopWindow:
 
 class NativeDesktopWindow:
     def __init__(self,unused,url,initial_file=None):
-        self.process=subprocess.Popen([sys.executable,str(Path(__file__).with_name('native_window.py')),url,*([str(initial_file)] if initial_file else [])],stdin=subprocess.DEVNULL)
+        self.state=tempfile.TemporaryDirectory(prefix='reapdf-native-',ignore_cleanup_errors=True)
+        self.ready_path=Path(self.state.name)/'ready.json'
+        env=os.environ.copy();env['REAPDF_NATIVE_READY_FILE']=str(self.ready_path)
+        try:self.process=subprocess.Popen([sys.executable,str(Path(__file__).with_name('native_window.py')),url,*([str(initial_file)] if initial_file else [])],stdin=subprocess.DEVNULL,env=env)
+        except Exception:self.state.cleanup();raise
+
+    def wait_ready(self,timeout=25):
+        deadline=time.monotonic()+timeout
+        while time.monotonic()<deadline:
+            if self.ready_path.exists():
+                try:state=json.loads(self.ready_path.read_text(encoding='utf-8'))
+                except (OSError,ValueError) as exc:raise RuntimeError('La ventana devolvió una confirmación de inicio no válida.') from exc
+                if state!={'version':1,'pid':self.process.pid,'state':'ready'} and state!={'version':1,'pid':self.process.pid,'state':'forwarded'}:raise RuntimeError('La confirmación no corresponde a esta ventana.')
+                return state['state']
+            if self.process.poll() is not None:raise RuntimeError('La ventana terminó antes de cargar la interfaz.')
+            time.sleep(.05)
+        raise RuntimeError('La interfaz de Reapdf no terminó de cargar a tiempo.')
 
     def wait(self):return self.process.wait()
 
@@ -59,3 +77,4 @@ class NativeDesktopWindow:
             self.process.terminate()
             try:self.process.wait(timeout=5)
             except subprocess.TimeoutExpired:self.process.kill();self.process.wait(timeout=5)
+        self.state.cleanup()

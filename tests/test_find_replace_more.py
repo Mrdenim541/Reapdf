@@ -31,10 +31,11 @@ def test_later_missing_glyph_leaves_the_original_unchanged():
     with pytest.raises(DocumentError):replace(base,[],Q,found['receipt'],[m['id'] for m in found['matches']],'Z')
     with f.open(stream=base) as d:assert all(p.get_text().strip()=='REG' for p in d)
 
-def test_over_many_matches_and_run_limit_are_explicit():
+def test_more_than_twenty_runs_now_replace_in_one_batch():
     with f.open() as d:
         p=d.new_page(width=600,height=1000)
         for i in range(21):p.insert_text((40,30+i*35),'REG',fontsize=14)
         base=d.tobytes()
     q={**Q,'pages':[0]};found=inspect(base,[],q)
-    with pytest.raises(DocumentError,match='20 fragmentos'):replace(base,[],q,found['receipt'],[m['id'] for m in found['matches']],'X')
+    out,_,count=replace(base,[],q,found['receipt'],[m['id'] for m in found['matches']],'X')
+    with f.open(stream=out) as d:assert count==21 and d[0].get_text().split()==['X']*21

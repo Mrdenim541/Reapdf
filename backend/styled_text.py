@@ -25,13 +25,14 @@ def stream(doc,xref,limit):
     except (ValueError,zlib.error) as exc:raise DocumentError('El recurso supera el límite o su compresión no es válida.') from exc
 
 
-def unicode_cmap(data):
+def unicode_cmap(data,code_bytes=2):
+    if code_bytes not in [1,2]:raise DocumentError('Tamaño de código de fuente no compatible.')
     if b'usecmap' in data:raise DocumentError('La fuente depende de otro mapa de caracteres no compatible.')
     text=re.sub(rb'%[^\r\n]*',b'',data).decode('ascii',errors='strict');mapping={}
     spaces=re.findall(r'begincodespacerange(.*?)endcodespacerange',text,re.S)
-    if not spaces or any(len(re.sub(r'\s','',v))!=4 for area in spaces for v in re.findall(r'<([^>]*)>',area)):raise DocumentError('El mapa de la fuente no usa códigos de dos bytes.')
+    if not spaces or any(len(re.sub(r'\s','',v))!=code_bytes*2 for area in spaces for v in re.findall(r'<([^>]*)>',area)):raise DocumentError('El mapa de la fuente no usa el tamaño de código esperado.')
     def put(cid,encoded):
-        if not 0<=cid<=65535:raise DocumentError('Código de fuente fuera de rango.')
+        if not 0<=cid<256**code_bytes:raise DocumentError('Código de fuente fuera de rango.')
         try:char=encoded.decode('utf-16-be')
         except UnicodeError:return
         if len(char)!=1 or ord(char)<32:return
@@ -47,11 +48,11 @@ def unicode_cmap(data):
             digits=re.sub(r'\s','',tokens[pos][1:-1]);value=bytes.fromhex(digits+('0' if len(digits)%2 else ''));pos+=1;return value
         for _ in range(count):
             start=hex_bytes()
-            if len(start)!=2:raise DocumentError('Código de fuente no compatible.')
+            if len(start)!=code_bytes:raise DocumentError('Código de fuente no compatible.')
             first=int.from_bytes(start,'big')
             if block[2]=='bfchar':put(first,hex_bytes());continue
             end=hex_bytes()
-            if len(end)!=2:raise DocumentError('Rango de fuente no compatible.')
+            if len(end)!=code_bytes:raise DocumentError('Rango de fuente no compatible.')
             last=int.from_bytes(end,'big')
             if last<first:raise DocumentError('Rango de fuente invertido.')
             if pos<len(tokens) and tokens[pos]=='[':
@@ -128,7 +129,7 @@ def native_font(doc,xref):return fitz.mupdf.pdf_load_object(fitz._as_pdf_documen
 
 class OriginalFont:
     def __init__(self,doc,item):
-        self.xref,self.ext,self.type,self.name,self.resource,*_=item;self.base=None;self.options=defaultdict(list);self.aliases={normal_name(self.name)};self.program_bytes=0
+        self.xref,self.ext,self.type,self.name,self.resource,*_=item;self.base=None;self.options=defaultdict(list);self.aliases={normal_name(self.name)};self.program_bytes=0;self.code_bytes=2
         self.restricted=bool(re.match(r'^[A-Z]{6}\+',self.name))
         if self.type=='Type1' and self.name in BASE_FONTS:
             if any(doc.xref_get_key(self.xref,'FontDescriptor/'+key)[0]!='null' for key in ['FontFile','FontFile2','FontFile3']):raise DocumentError('Las fuentes Type1 incrustadas requieren otro tratamiento; no se sustituyen por una fuente base.')
@@ -136,7 +137,9 @@ class OriginalFont:
             encoding=doc.xref_get_key(self.xref,'Encoding')
             if encoding not in [('name','/WinAnsiEncoding'),('null','null')]:raise DocumentError('La fuente base tiene una codificación no compatible.')
             self.encoding='cp1252' if encoding[0]=='name' else 'ascii';self.base=fitz.Font(BASE_FONTS[self.name]);return
-        if self.type!='Type0' or doc.xref_get_key(self.xref,'Encoding')!=('name','/Identity-H'):raise DocumentError('Se requiere una fuente base estándar o TrueType con Identity-H.')
+        if self.type=='TrueType':
+            self.load_simple(doc);return
+        if self.type!='Type0' or doc.xref_get_key(self.xref,'Encoding')!=('name','/Identity-H'):raise DocumentError('Se requiere una fuente base estándar o TrueType compatible con Identity-H/WinAnsi.')
         n=fitz.mupdf;obj=native_font(doc,self.xref);desc=n.pdf_dict_gets(obj,'DescendantFonts')
         if n.pdf_array_len(desc)!=1:raise DocumentError('La fuente compuesta no tiene un descendiente único.')
         descendant=n.pdf_array_get(desc,0)
@@ -171,6 +174,40 @@ class OriginalFont:
             else:continue
             if 0<gid<face.count and (char in [' ','\u00a0'] or face.has_outline(gid)):
                 self.options[char].append((cid,width/1000,gid))
+    def load_simple(self,doc):
+        if doc.xref_get_key(self.xref,'Encoding')!=('name','/WinAnsiEncoding'):raise DocumentError('La TrueType simple requiere WinAnsi explícita, sin diferencias.')
+        kind,flags=doc.xref_get_key(self.xref,'FontDescriptor/Flags')
+        if kind!='int' or int(flags)&4 or not int(flags)&32:raise DocumentError('Las TrueType simbólicas o sin clasificación no se editan como WinAnsi.')
+        kind,value=doc.xref_get_key(self.xref,'FontDescriptor/FontFile2')
+        if kind!='xref':raise DocumentError('Falta el programa TrueType simple incrustado.')
+        data=stream(doc,int(value.split()[0]),16*1024*1024);self.program_bytes=len(data);face=TrueType(data)
+        self.aliases.update(normal_name(name) for name in face.names)
+        try:font=fitz.Font(fontbuffer=data)
+        except Exception as exc:raise DocumentError('No se pudo leer el mapa de glifos TrueType simple.') from exc
+        n=fitz.mupdf;obj=native_font(doc,self.xref)
+        first_obj=n.pdf_dict_gets(obj,'FirstChar');last_obj=n.pdf_dict_gets(obj,'LastChar');widths=n.pdf_dict_gets(obj,'Widths')
+        if not n.pdf_is_int(first_obj) or not n.pdf_is_int(last_obj):raise DocumentError('Falta el rango de anchuras de la TrueType simple.')
+        first,last=n.pdf_to_int(first_obj),n.pdf_to_int(last_obj)
+        if not 0<=first<=last<=255 or n.pdf_array_len(widths)!=last-first+1:raise DocumentError('La tabla WinAnsi de anchuras no es válida.')
+        cmap_obj=n.pdf_dict_gets(obj,'ToUnicode');mapping=None
+        if not n.pdf_is_null(cmap_obj):
+            if not n.pdf_is_stream(cmap_obj):raise DocumentError('El mapa Unicode simple no es compatible.')
+            mapping=unicode_cmap(stream(doc,n.pdf_to_num(cmap_obj),2*1024*1024),1)
+            for cid,char in mapping.items():
+                try:expected=bytes([cid]).decode('cp1252')
+                except UnicodeError:expected=None
+                if char!=expected:raise DocumentError('El mapa Unicode contradice WinAnsi; se requiere otro tratamiento.')
+        self.code_bytes=1
+        for cid in range(first,last+1):
+            try:char=bytes([cid]).decode('cp1252')
+            except UnicodeError:continue
+            if ord(char)<32 or ord(char)==127 or mapping is not None and cid not in mapping:continue
+            width_obj=n.pdf_array_get(widths,cid-first)
+            if not n.pdf_is_number(width_obj):continue
+            width=n.pdf_to_real(width_obj);gid=font.has_glyph(ord(char),fallback=0)
+            if 0<width<=10000 and 0<gid<face.count and (char in [' ','\u00a0'] or face.has_outline(gid)):
+                self.options[char].append((cid,width/1000,gid))
+
     def encode(self,text,size):
         if self.base:
             try:data=text.encode(self.encoding)
@@ -182,11 +219,11 @@ class OriginalFont:
             entries=self.options.get(char,[])
             if not entries:raise DocumentError(f'La fuente original no contiene el carácter «{char}». Cambia el texto o usa DejaVu Sans.')
             if len({(round(w,6),gid) for _,w,gid in entries})!=1:raise DocumentError(f'El carácter «{char}» tiene varias formas ambiguas en esta fuente.')
-            cid,advance,_=entries[0];result.extend(cid.to_bytes(2,'big'));width+=advance*size
+            cid,advance,_=entries[0];result.extend(cid.to_bytes(self.code_bytes,'big'));width+=advance*size
         return bytes(result),width
 
 
-def styled_model(doc,number,box):
+def styled_model(doc,number,box,font_cache=None):
     rect,_=region_model(doc,number,box);page=doc[number]
     if page.get_xobjects() or doc.get_ocgs() or doc.xref_get_key(page.xref,'Resources')[0]=='null':raise DocumentError('Este modo requiere texto directo sin capas ni objetos de formulario internos.')
     if any(doc.xref_get_key(page.xref,key)[0]!='null' for key in ['Resources/ExtGState','Resources/Pattern','Resources/Shading']):raise DocumentError('Las transparencias, patrones o sombreados necesitan una edición adicional antes de conservar estilos.')
@@ -196,7 +233,7 @@ def styled_model(doc,number,box):
     if any(t['type']!=0 or t['opacity']!=1 or t['layer'] for t in traces):raise DocumentError('Este modo no admite texto oculto, contorneado, transparente o asociado a capas.')
     fonts=page.get_fonts(full=True)
     if len(fonts)>20:raise DocumentError('Este modo admite hasta 20 recursos de fuente por página.')
-    cache={};rows=[];program_bytes=0
+    cache={} if font_cache is None else font_cache;rows=[];program_bytes=sum(v.program_bytes for v in cache.values() if isinstance(v,OriginalFont))
     for item in fonts:
         if item[-1] or item[0] in cache:continue
         try:
@@ -247,39 +284,77 @@ def replace_styled(base,operations,number,box,changes,expand=False):
     with open_pdf(base) as source:editable(source)
     with open_pdf(export_pdf(base,operations)) as doc:
         page,rotation=prepare_text_page(doc,number)
-        rect,rows=styled_model(doc,number,box);model={r['id']:r for r in rows};seen=set();prepared=[];total=0
-        for change in changes:
-            if not isinstance(change,dict) or set(change)!={'id','text'} or not isinstance(change.get('id'),str) or change['id'] not in model or change['id'] in seen:raise DocumentError('Fragmento inexistente, repetido o con propiedades no compatibles.')
-            seen.add(change['id']);row=model[change['id']];text=change['text']
-            if not isinstance(text,str) or len(text)>4000 or any(ord(c)<32 or ord(c)==127 for c in text):raise DocumentError('Cada fragmento admite una línea, sin controles, dentro del límite de 4000 caracteres.')
-            total+=len(text)
-            if text==row['text']:continue
-            if not row['editable']:raise DocumentError(row['reason'])
-            encoded,width=row['_font'].encode(text,row['size'])
-            available=rect.x1-row['origin'][0] if expand else fitz.Rect(row['bbox']).width
-            if width>available+.1:raise DocumentError('El texto no cabe en el ancho disponible. Acórtalo o amplía el área y activa su ancho disponible; este modo no redistribuye las líneas.')
-            if not page_contains(doc[number],row,width):raise DocumentError('El texto sale de la página o se cruza con otro fragmento.')
-            prepared.append((row,encoded))
-        if total>4000:raise DocumentError('Hasta 4000 caracteres entre los fragmentos editados.')
-        if not prepared:raise DocumentError('No hay cambios de texto para aplicar.')
-        page=doc[number]
-        clone_resources(doc,page)
-        for row,_ in prepared:page.add_redact_annot(fitz.Rect(row['bbox']),fill=False,cross_out=False)
-        page.apply_redactions(images=0,graphics=0,text=0)
-        page.wrap_contents()
-        font_dict=clone_resources(doc,page)
-        snippets=[]
-        for index,(row,encoded) in enumerate(prepared):
-            alias=f'ReapdfOriginal{index+1}'
-            while doc.xref_get_key(font_dict,alias)[0]!='null':alias+='x'
-            doc.xref_set_key(font_dict,alias,f"{row['_font'].xref} 0 R")
-            if not encoded:continue
-            origin=fitz.Point(row['origin'])*~page.transformation_matrix;color=[((row['color']>>shift)&255)/255 for shift in [16,8,0]]
-            snippets.append(f"q BT /{alias} {row['size']:.8f} Tf {' '.join(f'{v:.8f}' for v in color)} rg 1 0 0 1 {origin.x:.8f} {origin.y:.8f} Tm <{encoded.hex()}> Tj ET Q")
-        if snippets:
-            content=doc.get_new_xref();doc.update_object(content,'<<>>');doc.update_stream(content,'\n'.join(snippets).encode('ascii'))
-            page.set_contents(content) if not page.get_contents() else doc.xref_set_key(page.xref,'Contents','['+' '.join(f'{x} 0 R' for x in page.get_contents()+[content])+']')
-        page.set_rotation(rotation)
+        rect,rows=styled_model(doc,number,box)
+        prepared=prepare_changes(doc,number,rect,rows,changes,expand)
+        write_changes(doc,number,prepared)
+        doc[number].set_rotation(rotation)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+
+
+def prepare_changes(doc,number,rect,rows,changes,expand=False):
+    model={r['id']:r for r in rows};seen=set();prepared=[];total=0
+    for change in changes:
+        if not isinstance(change,dict) or set(change)!={'id','text'} or not isinstance(change.get('id'),str) or change['id'] not in model or change['id'] in seen:raise DocumentError('Fragmento inexistente, repetido o con propiedades no compatibles.')
+        seen.add(change['id']);row=model[change['id']];text=change['text']
+        if not isinstance(text,str) or len(text)>4000 or any(ord(c)<32 or ord(c)==127 for c in text):raise DocumentError('Cada fragmento admite una línea, sin controles, dentro del límite de 4000 caracteres.')
+        total+=len(text)
+        if text==row['text']:continue
+        if not row['editable']:raise DocumentError(row['reason'])
+        encoded,width=row['_font'].encode(text,row['size'])
+        available=rect.x1-row['origin'][0] if expand else fitz.Rect(row['bbox']).width
+        if width>available+.1:raise DocumentError('El texto no cabe en el ancho disponible. Acórtalo o amplía el área y activa su ancho disponible; este modo no redistribuye las líneas.')
+        if not page_contains(doc[number],row,width):raise DocumentError('El texto sale de la página o se cruza con otro fragmento.')
+        prepared.append((row,encoded))
+    if total>4000:raise DocumentError('Hasta 4000 caracteres entre los fragmentos editados.')
+    if not prepared:raise DocumentError('No hay cambios de texto para aplicar.')
+    return prepared
+
+
+def write_changes(doc,number,prepared):
+    page=doc[number]
+    clone_resources(doc,page)
+    for row,_ in prepared:page.add_redact_annot(fitz.Rect(row['bbox']),fill=False,cross_out=False)
+    page.apply_redactions(images=0,graphics=0,text=0)
+    page.wrap_contents()
+    font_dict=clone_resources(doc,page)
+    snippets=[]
+    for index,(row,encoded) in enumerate(prepared):
+        alias=f'ReapdfOriginal{index+1}'
+        while doc.xref_get_key(font_dict,alias)[0]!='null':alias+='x'
+        doc.xref_set_key(font_dict,alias,f"{row['_font'].xref} 0 R")
+        if not encoded:continue
+        origin=fitz.Point(row['origin'])*~page.transformation_matrix;color=[((row['color']>>shift)&255)/255 for shift in [16,8,0]]
+        snippets.append(f"q BT /{alias} {row['size']:.8f} Tf {' '.join(f'{v:.8f}' for v in color)} rg 1 0 0 1 {origin.x:.8f} {origin.y:.8f} Tm <{encoded.hex()}> Tj ET Q")
+    if snippets:
+        content=doc.get_new_xref();doc.update_object(content,'<<>>');doc.update_stream(content,'\n'.join(snippets).encode('ascii'))
+        page.set_contents(content) if not page.get_contents() else doc.xref_set_key(page.xref,'Contents','['+' '.join(f'{x} 0 R' for x in page.get_contents()+[content])+']')
+
+
+def replace_styled_regions(base,operations,regions):
+    """Validate every region first, then redact once per page and serialize once.
+
+    Each region carries stable row IDs from the same exported snapshot. No
+    intermediate PDF is published if a later region fails validation.
+    """
+    if not isinstance(regions,list) or not 1<=len(regions)<=100:raise DocumentError('Selecciona de 1 a 100 regiones.')
+    with open_pdf(base) as source:editable(source)
+    with open_pdf(export_pdf(base,operations)) as doc:
+        prepared=defaultdict(list);rotations={};caches=defaultdict(dict);seen=set();characters=0
+        for region in regions:
+            number=region['page'];changes=region['changes']
+            if not isinstance(changes,list) or not 1<=len(changes)<=100:raise DocumentError('Indica de 1 a 100 fragmentos editados.')
+            if number not in rotations:_,rotations[number]=prepare_text_page(doc,number)
+            rect,rows=styled_model(doc,number,region['box'],caches[number])
+            try:items=prepare_changes(doc,number,rect,rows,changes)
+            except DocumentError as exc:raise DocumentError(f'Página {number+1}: {exc} No se aplicó ningún cambio.') from exc
+            for row,_ in items:
+                key=(number,row['id'])
+                if key in seen:raise DocumentError('Un fragmento aparece en más de una región.')
+                seen.add(key);characters+=len(row['text'])
+            if len(seen)>100 or characters>20000:raise DocumentError('Hasta 100 fragmentos y 20000 caracteres originales por operación.')
+            prepared[number].extend(items)
+        for number,items in prepared.items():
+            write_changes(doc,number,items);doc[number].set_rotation(rotations[number])
         return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
 
 

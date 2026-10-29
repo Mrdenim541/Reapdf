@@ -154,6 +154,7 @@ def serve(open_browser=True,port=0,desktop=False,require_desktop=False,ready_fil
                     if executable:
                         try:
                             window=DesktopWindow(executable,url);windows.append(window)
+                            if native_desktop:window.wait_ready()
                             print('REAPDF_PRESENTATION=desktop',flush=True)
                             if ready_file:Path(ready_file).write_text(url,encoding='utf-8')
                             code=window.wait()
@@ -164,7 +165,7 @@ def serve(open_browser=True,port=0,desktop=False,require_desktop=False,ready_fil
                             elif not server.should_exit:
                                 print('La ventana no pudo iniciarse. Se abre el navegador; Ctrl+C cierra el motor.',flush=True)
                                 webbrowser.open(url)
-                        except OSError as exc:
+                        except (OSError,RuntimeError,ValueError) as exc:
                             print('No se pudo abrir la ventana: '+str(exc),flush=True)
                             if require_desktop:startup_errors.append(str(exc));server.should_exit=True
                             else:webbrowser.open(url)

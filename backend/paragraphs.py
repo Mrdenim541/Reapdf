@@ -35,8 +35,14 @@ def paragraph_format(page,rect):
     if not spans:return None
     def model(span):
         flags=span['flags'];bold=bool(flags&16);italic=bool(flags&2)
+        # Some producers mark embedded Sans resources as serif. Prefer known
+        # family names when choosing an explicitly approximate bundled font.
+        name=span['font'].lower().replace(' ','').replace('-','')
+        mono=bool(flags&8) or any(value in name for value in ['courier','mono'])
+        sans=any(value in name for value in ['dejavusans','liberationsans','notosans','helvetica','arial','calibri','aptos'])
+        family='mono' if mono else 'sans' if sans else 'serif' if flags&4 else 'sans'
         return {'size':max(6,min(72,round(span['size'],2))), 'color':'#'+format(span['color'],'06x'),
-                'family':'mono' if flags&8 else 'serif' if flags&4 else 'sans',
+                'family':family,
                 'style':'bold-italic' if bold and italic else 'bold' if bold else 'italic' if italic else 'regular'}
     first=model(spans[0]);return first|{'mixed':any(model(v)!=first for v in spans[1:])}
 

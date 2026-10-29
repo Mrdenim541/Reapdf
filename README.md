@@ -1,6 +1,6 @@
 # Reapdf
 
-Estado vigente: [Buscar/reemplazar, instancia única y preparación Windows](docs/BUSCAR_REEMPLAZAR_Y_ESCRITORIO_20261029.md). [Auditoría global reconstruida](docs/AUDITORIA_GLOBAL_20261029.md): aproximadamente 49 % del alcance total; aceptación Windows pendiente.
+Estado vigente: [Edición entre fragmentos, fuentes WinAnsi y arranque comprobado](docs/FRAGMENTOS_FUENTES_Y_ARRANQUE_20261029.md). [Auditoría global reconstruida](docs/AUDITORIA_GLOBAL_20261029.md): aproximadamente 50 % del alcance total; aceptación Windows pendiente.
 
 Último avance: [apertura e impresión desde el escritorio](docs/APERTURA_IMPRESION_20261029.md), carga automática de modos de edición y Ctrl+Enter. Validación Linux; Windows y entrega final pendientes.
 

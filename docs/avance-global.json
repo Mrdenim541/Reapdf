@@ -4,8 +4,8 @@
   "status": "provisional_reconstructed_baseline",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 48.8,
-  "reported_percent": 49,
+  "weighted_percent": 49.9,
+  "reported_percent": 50,
   "subjective_range_percent": [
     40,
     60
@@ -44,7 +44,7 @@
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 55,
+      "maturity": 60,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -53,9 +53,12 @@
         "backend/find_replace.py",
         "tests/test_find_replace.py",
         "tests/test_find_replace_more.py",
-        "scripts/smoke_find_replace.mjs"
+        "scripts/smoke_find_replace.mjs",
+        "tests/test_styled_simple_truetype.py",
+        "tests/test_find_replace_fragments.py",
+        "scripts/smoke_split_replacement.mjs"
       ],
-      "remaining": "Buscar/reemplazar compatible por fragmentos incorporado. Pendientes coincidencias entre fragmentos, ampliar límites y composición, CFF/Type3 y estructuras complejas; no se recuperaron mejoras de 0.44–0.55."
+      "remaining": "TrueType simple WinAnsi y búsqueda/reemplazo entre estilos contiguos en una línea incorporados; hasta 100 coincidencias/100 fragmentos. Pendientes CFF/Type3, fuentes simbólicas, espaciados complejos, reflujo entre líneas y estructuras etiquetadas/capas; no se recuperaron mejoras de 0.44–0.55."
     },
     {
       "id": "annotations",
@@ -132,7 +135,7 @@
     {
       "id": "desktop_distribution",
       "weight": 6,
-      "maturity": 45,
+      "maturity": 50,
       "evidence": [
         "portable/native_window.py",
         "portable/native_print.py",
@@ -140,9 +143,12 @@
         "scripts/smoke_native_save.py",
         "portable/single_instance.py",
         "portable/windows_association.py",
-        "scripts/smoke_single_instance.py"
+        "scripts/smoke_single_instance.py",
+        "scripts/smoke_native_readiness.py",
+        "scripts/smoke_native_launcher.py",
+        "tests/test_desktop.py"
       ],
-      "remaining": "Segunda instancia probada en Linux, asociaciones y arranque preparados/compilados. Pendientes aplicación/ejecución Windows, paquete Qt ensamblado, impresión vectorial/gran formato y distribución final."
+      "remaining": "Arranque Qt, puente listo, fallo de carga y cierre del backend secundario comprobados en Linux. Pendientes ejecución Windows, asociaciones aplicadas, paquete Qt ensamblado, impresión vectorial/gran formato y distribución final."
     },
     {
       "id": "migration_interoperability",
@@ -218,24 +224,24 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261029-before-find-replace.json",
-    "before_weighted": 47.7,
-    "after_weighted": 48.8,
+    "baseline": "docs/progress/20261029-before-split-replacement.json",
+    "before_weighted": 48.8,
+    "after_weighted": 49.9,
     "new_points": 1.1,
     "changes": [
       {
         "id": "text_images",
-        "before": 50,
-        "after": 55,
+        "before": 55,
+        "after": 60,
         "points": 0.8,
-        "reason": "Buscar/reemplazar literal, opciones, selección, vista previa vinculada y aplicación atómica compatible con deshacer/exportación."
+        "reason": "TrueType simple WinAnsi original, coincidencias entre estilos contiguos, lotes de 100 fragmentos con validación previa y una escritura por página; selección limitada en interfaz."
       },
       {
         "id": "desktop_distribution",
-        "before": 40,
-        "after": 45,
+        "before": 45,
+        "after": 50,
         "points": 0.3,
-        "reason": "Reenvío local entre procesos y recuperación de bloqueo verificados; preparación de Abrir con y arranque Windows compilado, sin certificación Windows."
+        "reason": "Confirmación vinculada a hijo Qt/interfaz/puente listos, fallo de carga explícito y cadena lanzador/backend/segunda invocación comprobada en Linux."
       }
     ],
     "other_areas_and_weights_unchanged": true
