@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "scope": "Editor personal general de Reapdf; no equivalencia universal con Acrobat",
+  "criteria": [
+    {
+      "id": "reader_pages",
+      "status": "verified",
+      "description": "Lectura, búsqueda y organización compatibles",
+      "remaining": "Ampliar corpus real y lectores externos; la lectura universal no se presupone."
+    },
+    {
+      "id": "annotations",
+      "status": "partial",
+      "description": "Anotaciones individuales y selección múltiple",
+      "remaining": "Transformación de resaltados importados, grupos persistentes y corpus de fabricantes."
+    },
+    {
+      "id": "text_editing",
+      "status": "partial",
+      "description": "Edición de texto general",
+      "remaining": "Fuentes exactas CFF/Type3, estructuras/codificaciones complejas, objetos y etiquetas semánticas; corpus real. Flujo entre regiones ya admite fragmentos con negrita/cursiva, tamaños y colores, sustitución explícita de familias, ajuste proporcional y comprobación de texto/desbordamientos. No es reflujo universal de páginas."
+    },
+    {
+      "id": "office_conversion",
+      "status": "partial",
+      "description": "Conversión Office",
+      "remaining": "Saltos de sección continuos/pares/impares, columnas, campos fuera de PAGE/NUMPAGES/SECTIONPAGES y estructuras complejas; corpus y contraste visual Office. PAGE/NUMPAGES simples/complejos en encabezados/pies, inicio/formato de numeración, etiquetas PDF y tablas con combinaciones rectangulares ya implementados con límites y revisión. Secciones con salto a página siguiente conservan papel/márgenes/encabezados, continuidad/reinicio y etiquetas; SECTIONPAGES y saltos manuales implementados en 0.42."
+    },
+    {
+      "id": "complex_redaction",
+      "status": "partial",
+      "description": "Censura de estructuras complejas",
+      "remaining": "Contenido marcado, Form XObjects, recursos compartidos y corpus OCR complejo."
+    },
+    {
+      "id": "advanced_signatures",
+      "status": "partial",
+      "description": "Validación avanzada de firmas",
+      "remaining": "Revocación, sellado de tiempo TSA y perfiles LT/LTA."
+    },
+    {
+      "id": "semantic_accessibility",
+      "status": "partial",
+      "description": "Accesibilidad semántica",
+      "remaining": "Crear/reparar etiquetas y orden de lectura; revisión con tecnologías de asistencia."
+    },
+    {
+      "id": "automation",
+      "status": "partial",
+      "description": "Automatización de flujos generales",
+      "remaining": "Rangos por paso, OCR en recetas, importación Office por lotes, planificación y corpus real. Se añade Word como salida terminal con informes de contenido y omisiones."
+    },
+    {
+      "id": "windows_execution",
+      "status": "unverified",
+      "description": "Ejecutable propio en Windows",
+      "remaining": "Arranque gráfico, abrir/editar/exportar, impresión, permisos y recuperación en Windows real."
+    },
+    {
+      "id": "independent_corpus",
+      "status": "partial",
+      "description": "Corpus real e interoperabilidad",
+      "remaining": "PDF representativos contrastados en lectores comerciales y revisión manual."
+    },
+    {
+      "id": "advanced_forms",
+      "status": "partial",
+      "description": "Formularios avanzados",
+      "remaining": "Fórmulas PDF nativas interoperables, XFA, multiselección, scripts y corpus real. Reglas de proyecto conservadas al organizar/insertar/reemplazar/duplicar/añadir hojas/recortar y editar propiedades/nombres/crear/eliminar campos compatibles; dependencias eliminadas o incompatibles rechazan el cambio. Otras transformaciones aún materializan valores."
+    },
+    {
+      "id": "image_compression",
+      "status": "partial",
+      "description": "Compresión con pérdida controlada",
+      "remaining": "Transparencia, máscaras, Decode personalizado, transformaciones oblicuas y corpus amplio. RGB/gris/CMYK y Form XObjects anidados ortogonales ya implementados con límites y contraste de color."
+    },
+    {
+      "id": "professional_standards",
+      "status": "partial",
+      "description": "Preimpresión y estándares profesionales",
+      "remaining": "PDF/X, comprobación de impresión avanzada y perfiles pendientes."
+    }
+  ]
+}

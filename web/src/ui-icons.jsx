@@ -1,0 +1,26 @@
+import React from 'react';
+const paths={
+ line:<path d="m4 20 16-16"/>,
+ arrow:<><path d="m4 20 16-16M10 4h10v10"/></>,
+ rectangle:<rect x="4" y="5" width="16" height="14" rx="1"/>,
+ ink:<path d="M3 16c2-7 4-9 6-9 3 0-4 11-1 11 2 0 3-7 5-7s-1 7 2 7c2 0 3-3 6-3"/>,
+ note:<><path d="M4 3h16v13l-5 5H4zM15 21v-5h5M8 8h8M8 12h6"/></>,
+ highlight:<><path d="m6 14 8-11 6 5-8 11zM6 14l-2 5 5-1M3 22h18"/></>,
+ underline:<><path d="M6 4v7a6 6 0 0 0 12 0V4M4 21h16"/></>,
+ strikeout:<><path d="M18 5c-1-2-10-3-11 2-1 4 10 4 10 8 0 5-9 6-11 2M3 12h18"/></>,
+ select:<path d="m5 3 14 10-7 1-3 7z"/>,
+ read:<><path d="M4 4h6a3 3 0 0 1 3 3v14a4 4 0 0 0-4-3H4z"/><path d="M20 4h-4a3 3 0 0 0-3 3v14a4 4 0 0 1 4-3h3z"/></>,
+ edit:<><path d="m14 5 5 5M4 20l5-1L20 8a2 2 0 0 0-5-5L4 14z"/><path d="M13 20h7"/></>,
+ annotate:<><path d="M20 11a8 8 0 0 1-8 8H5l-3 3V10a8 8 0 0 1 16-4"/><path d="m13 10 6-6 3 3-6 6-4 1z"/></>,
+ pages:<><rect x="7" y="3" width="13" height="16" rx="2"/><path d="M4 7v13a2 2 0 0 0 2 2h10M11 8h5M11 12h5"/></>,
+ forms:<><rect x="4" y="3" width="16" height="18" rx="2"/><path d="m7 8 1 1 2-2M13 8h4M7 13h3M13 13h4M7 17h10"/></>,
+ convert:<><path d="M7 3H3v14h10v-4M17 21h4V7H11v4M8 7h11l-3-3M16 17H5l3 3"/></>,
+ protect:<><path d="m12 3 8 3v6c0 5-8 9-8 9s-8-4-8-9V6z"/><path d="m8 12 3 3 5-6"/></>,
+ text:<><path d="M4 5h16M12 5v15M8 20h8"/></>,
+ image:<><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8" cy="9" r="1.5"/><path d="m3 17 5-4 4 3 4-6 5 7"/></>,
+ link:<><path d="m10 14 4-4M8 16l-1 1a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0M16 8l1-1a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0"/></>,
+ search:<><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></>,
+ focus:<><path d="M8 3H3v5M16 3h5v5M3 16v5h5M21 16v5h-5"/></>,
+ file:<><path d="M14 3H5v18h14V8zM14 3v5h5M8 12h8M8 16h6"/></>,
+};
+export function Icon({name,className=''}){return <svg className={`ui-icon ${className}`} viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.65" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">{paths[name]||paths.file}</svg>;}

@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "scope": "Editor personal general de Reapdf; no equivalencia universal con Acrobat",
+  "version": "0.36.0",
+  "local_regression_verified": true,
+  "validation": {
+    "python": 1839,
+    "javascript": 103,
+    "browser": true,
+    "build": true
+  },
+  "evidence_errors": [],
+  "windows_execution_evidence": false,
+  "pending": [
+    {
+      "id": "annotations",
+      "status": "partial",
+      "description": "Anotaciones individuales y selección múltiple",
+      "remaining": "Transformación de resaltados importados, grupos persistentes y corpus de fabricantes."
+    },
+    {
+      "id": "text_editing",
+      "status": "partial",
+      "description": "Edición de texto general",
+      "remaining": "CFF/Type3 y codificaciones/estructuras complejas con formato conservado; reflujo general con objetos y etiquetas semánticas. El flujo explícito entre regiones de páginas existentes ya está implementado con formato común y límites."
+    },
+    {
+      "id": "office_conversion",
+      "status": "partial",
+      "description": "Conversión Office",
+      "remaining": "Importación y conversión fiel de Office y validación en Word/LibreOffice. Se amplía exportación DOCX con enlaces web completos y un informe de omisiones."
+    },
+    {
+      "id": "complex_redaction",
+      "status": "partial",
+      "description": "Censura de estructuras complejas",
+      "remaining": "Contenido marcado, Form XObjects, recursos compartidos y corpus OCR complejo."
+    },
+    {
+      "id": "advanced_signatures",
+      "status": "partial",
+      "description": "Validación avanzada de firmas",
+      "remaining": "Revocación, sellado de tiempo TSA y perfiles LT/LTA."
+    },
+    {
+      "id": "semantic_accessibility",
+      "status": "partial",
+      "description": "Accesibilidad semántica",
+      "remaining": "Crear/reparar etiquetas y orden de lectura; revisión con tecnologías de asistencia."
+    },
+    {
+      "id": "automation",
+      "status": "partial",
+      "description": "Automatización de flujos generales",
+      "remaining": "Rangos por paso, OCR/Office en recetas, planificación y corpus real. Recetas declarativas de ocho tareas, biblioteca JSON, revisión y ejecución CLI ya implementadas con límites."
+    },
+    {
+      "id": "windows_execution",
+      "status": "unverified",
+      "description": "Ejecutable propio en Windows",
+      "remaining": "Arranque gráfico, abrir/editar/exportar, impresión, permisos y recuperación en Windows real."
+    },
+    {
+      "id": "independent_corpus",
+      "status": "partial",
+      "description": "Corpus real e interoperabilidad",
+      "remaining": "PDF representativos contrastados en lectores comerciales y revisión manual."
+    },
+    {
+      "id": "advanced_forms",
+      "status": "partial",
+      "description": "Formularios avanzados",
+      "remaining": "Fórmulas automáticas, XFA, selección múltiple y compatibilidad de fuentes/scripts. Cálculos decimales puntuales sobre campos compatibles ya implementados; se guardan valores sin JavaScript."
+    },
+    {
+      "id": "image_compression",
+      "status": "partial",
+      "description": "Compresión con pérdida controlada",
+      "remaining": "Transparencia, máscaras, Decode personalizado, transformaciones oblicuas y corpus amplio. RGB/gris/CMYK y Form XObjects anidados ortogonales ya implementados con límites y contraste de color."
+    },
+    {
+      "id": "professional_standards",
+      "status": "partial",
+      "description": "Preimpresión y estándares profesionales",
+      "remaining": "PDF/X, comprobación de impresión avanzada y perfiles pendientes."
+    }
+  ],
+  "ready_for_1_0": false,
+  "note": "La lista combina evidencia técnica local y alcance declarado; no calcula un porcentaje comercial ni sustituye revisión humana."
+}

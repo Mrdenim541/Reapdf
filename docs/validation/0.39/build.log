@@ -1,0 +1,30 @@
+
+> reapdf@0.39.0 build
+> vite build --config web/vite.config.js
+
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 73 modules transformed.
+rendering chunks...
+computing gzip size...
+web/dist/index.html                               0.36 kB │ gzip:   0.27 kB
+web/dist/assets/word-import-DnV3GHPw.css          0.69 kB │ gzip:   0.36 kB
+web/dist/assets/text-flow-DI83aVBM.css            1.04 kB │ gzip:   0.51 kB
+web/dist/assets/automation-BSplge_a.css           2.13 kB │ gzip:   0.79 kB
+web/dist/assets/index-ChYV17RA.css               55.42 kB │ gzip:  11.53 kB
+web/dist/assets/compression-DeJAzznm.js           6.24 kB │ gzip:   2.48 kB
+web/dist/assets/word-import-CiZZaamn.js           6.26 kB │ gzip:   2.58 kB
+web/dist/assets/form-calculations-BM3dAjxA.js     6.75 kB │ gzip:   2.59 kB
+web/dist/assets/form-rules-yIdabncy.js            6.76 kB │ gzip:   2.58 kB
+web/dist/assets/text-flow-CrK2RzKB.js            10.92 kB │ gzip:   3.83 kB
+web/dist/assets/standards-nO3l-z31.js            11.67 kB │ gzip:   4.04 kB
+web/dist/assets/digital-signatures-2krG7ye0.js   12.55 kB │ gzip:   4.59 kB
+web/dist/assets/automation-CYexB5Bn.js           19.61 kB │ gzip:   6.39 kB
+web/dist/assets/index-DFqrDGB3.js               489.93 kB │ gzip: 138.16 kB
+
+✓ built in 256ms
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

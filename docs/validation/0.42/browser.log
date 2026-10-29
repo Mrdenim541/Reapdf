@@ -1,0 +1,57 @@
+
+> reapdf@0.42.0 test:ui
+> node scripts/smoke-ui.mjs
+
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+PASS: secciones Word con orientación y márgenes propios, herencia de encabezados, reinicios, etiquetas, enlaces, proyecto y recuperación; campos Word complejos, numeración romana desde 5, etiquetas PDF, tablas con combinaciones horizontales/verticales, informes/hash y recuperación; flujo mixto con estilos, tamaños y colores importados, edición/separación de fragmentos, revisión multipágina, comprobación del PDF y proyecto/historial/recuperación; encabezados/pies y PAGE/NUMPAGES Word con revisión multipágina; cálculos conservados entre inserción, renombrado, reemplazo y duplicación con copias independientes, proyecto y recuperación; estilos heredados y listas DOCX, reglas activas tras ordenar/girar/eliminar páginas con bloqueo de dependencias y recuperación; importación DOCX con revisión multipágina e informe/hash, Word en recetas y cálculos dependientes en proyectos/recuperación; reflujo entre regiones y páginas con revisión completa, historial/recuperación; cálculos decimales de campos sin scripts; enlaces web conservados en Word; recetas configurables con pasos ordenados, guardado/importación/exportación sin credenciales, copias cifradas y TXT, manifiestos con hashes y revisión vigente; compresión de imágenes con DPI/calidad, comparación, copia e informe con hash exacto; extremos independientes de líneas, selección múltiple, alineación/distribución, movimiento y color colectivos, borrado atómico, historial/proyectos/recuperación; tiradores nativos para mover y redimensionar trazos/flechas importados, cuatro giros y recortes, cancelación, teclado, historial y proyecto/recuperación; interfaz profesional, secciones plegables y ayuda persistente, ventanas y adaptación a 600/900/1100/1440 px, movimiento de trazos y flechas importados con historial y exportación; selección por caracteres con vista de arrastre, censura selectiva por búsqueda y manual multipágina con revisión de todas las páginas y extracción independiente; PDF/A y PDF/UA con veraPDF, copia PDF/A-2b validada, comparación visual, título/idioma y diagnóstico de accesibilidad; certificados P12/PFX, firmas SHA-256 sucesivas, confianza explícita, alteraciones, informes y recuperación; Word con imágenes/tablas y revisión de pérdidas; nombres y opciones de campos, valores e historial; comentarios nativos, estados e informes; enlaces existentes, formato/valores iniciales de formularios, tamaño de rectángulos/elipses, lotes TXT/optimización/AES-256 sin modificar la sesión; edición de bloques a 90/180/270° con recortes, formato sugerido, comparación original/resultado y fuentes conservadas; catálogo y comandos, favoritos persistentes, navegación directa, revisión paginada/JSON con reintento, atajos/foco, borradores y tamaños de pantalla; fuentes/estilos originales con TrueType parcial y rechazo de glifos ausentes, historial/proyecto/recuperación; jerarquías, campos compartidos y radios exclusivos, creación/eliminación de grupos, datos/proyectos/aplanado; Bates entre varios archivos, adjuntos Unicode, etiquetas y navegación, tablas CSV protegidas, censura con saneamiento, firmas visuales, movimiento de notas importadas y OCR con giro manual; bloques de texto con fuente incrustada y Unicode, imágenes existentes reversibles; OCR real conservando píxeles, datos/aplanado/creación de campos, marcas de agua, metadatos, optimización, protección/apertura y comparación; formulario nativo editable con valores, vista previa, historial/proyectos/recuperación; creación desde PNG/JPEG y exportación PNG/JPEG con resolución/orden; marcadores editables con jerarquía, encabezados y numeración con vista previa, proyectos y recuperación; texto nuevo, sellos y enlaces editables; proyectos editables, recuperación tras reinicio, páginas nuevas e impresión; imágenes originales, posición/tamaño e historial; zoom nítido DPR 2, controles y borradores, marcado práctico y todos los flujos y exportaciones anteriores.
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice
+/workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+PASS: Word sections, portrait/landscape/portrait, merged table, headers, numbering, labels, links, reports, project and recovery; final Spanish units and number formats

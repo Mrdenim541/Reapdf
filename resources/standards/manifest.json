@@ -1,0 +1,15 @@
+{
+  "verapdf": {
+    "version": "1.30.3",
+    "file": "verapdf-cli-1.30.3.jar",
+    "source": "https://repo.maven.apache.org/maven2/org/verapdf/apps/cli/1.30.3/cli-1.30.3.jar",
+    "sha256": "4c8acbaeb16405456c8d6d76deac8cf40d94618cb4e33aedf44e51ee1b68be91",
+    "license": "MPL-2.0 or GPL-3.0-or-later"
+  },
+  "icc": {
+    "file": "sRGB.icc",
+    "sha256": "2a92d4bae450b76d8b0aa42193df974d75f62738ecebf74f01c5e75b12a95796",
+    "source": "Debian icc-profiles-free / sRGB.icc",
+    "license": "Zlib"
+  }
+}
