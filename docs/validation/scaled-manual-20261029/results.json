@@ -1,0 +1,15 @@
+{
+  "full_python_regression": 2382,
+  "subsequent_targeted_python": 89,
+  "javascript": 109,
+  "production_build": true,
+  "current_browser_workflow": true,
+  "previous_browser_workflows_passed": 2,
+  "user_pdf_original_readonly_compatible": true,
+  "user_pdf_modified_this_pass": false,
+  "windows_verified_this_pass": false,
+  "user_acceptance_deferred": true,
+  "portable_built": false,
+  "weighted_product_percent": 72.75,
+  "new_boundary_cases_after_full_regression": 4
+}

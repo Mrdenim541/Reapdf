@@ -6,7 +6,7 @@ import json
 import re
 from zipfile import ZipFile,ZIP_DEFLATED,BadZipFile
 import pymupdf as f
-from .engine import DocumentError,open_pdf
+from .engine import DocumentError,open_pdf,finite
 
 MAX_SET=60*1024*1024
 CODE=re.compile(r'(?<![A-Z0-9./-])[A-Z0-9]+(?:[-./][A-Z0-9]+){1,7}(?![A-Z0-9./-])')
@@ -91,6 +91,19 @@ def analyze(items,source,target,codes=None):
     return {'candidates':rows,'duplicates':[ids for ids in hashes.values() if len(ids)>1],'unmatched_source':len(set(a)-set(b)),'unmatched_target':len(set(b)-set(a)),'scope':'Identificadores de una línea digital; para escaneados prepara antes el OCR.'}
 
 
+def manual_anchor(item,code,number,rect):
+    code=normalized(text(code,80))
+    if not re.fullmatch(r'[A-Z0-9][A-Z0-9./-]{0,79}',code):raise DocumentError('Usa un identificador alfanumérico con guiones, puntos o barras.')
+    if type(number) is not int or not isinstance(rect,list) or len(rect)!=4 or any(not finite(v) for v in rect):raise DocumentError('Página o región manual no válida.')
+    with open_pdf(item['data']) as doc:
+        if not 0<=number<len(doc):raise DocumentError('Página de referencia fuera del documento.')
+        box=f.Rect(rect)
+        if min(box.width,box.height)<2 or not doc[number].rect.contains(box):raise DocumentError('Marca una región de al menos 2 × 2 pt dentro de la página.')
+    coordinates=[round(v,4) for v in rect]
+    identity=digest(json.dumps(['manual',item['sha256'],number,coordinates,code]).encode())[:24]
+    return {'id':identity,'document':item['id'],'page':number,'rect':coordinates,'code':code,'kind':'manual'}
+
+
 def validate_relations(items,relations):
     if not isinstance(relations,list) or len(relations)>500:raise DocumentError('Hasta 500 vínculos por conjunto.')
     documents(items);by_id={i['id']:i for i in items};codes=[];seen=set()
@@ -99,15 +112,17 @@ def validate_relations(items,relations):
         seen.add(r['id']);codes.append(text(r['code'],80))
         for side in ['source','target']:
             anchor=r[side]
-            if not isinstance(anchor,dict) or set(anchor)!={'id','document','page','rect','code'} or not isinstance(anchor['document'],str) or anchor['document'] not in by_id:raise DocumentError('Destino de vínculo no válido.')
+            if not isinstance(anchor,dict) or set(anchor) not in [{'id','document','page','rect','code'},{'id','document','page','rect','code','kind'}] or ('kind' in anchor and anchor['kind']!='manual') or not isinstance(anchor['document'],str) or anchor['document'] not in by_id:raise DocumentError('Destino de vínculo no válido.')
         if r['source']['document']==r['target']['document']:raise DocumentError('El vínculo debe relacionar documentos distintos.')
     if len(set(codes))>200:raise DocumentError('Hasta 200 identificadores distintos en los vínculos.')
-    indices={item['id']:index(item,sorted(set(codes))) for item in items} if codes else {}
+    automatic_codes=sorted({r['code'] for r in relations if any(r[s].get('kind')!='manual' for s in ['source','target'])})
+    indices={item['id']:index(item,automatic_codes) for item in items} if automatic_codes else {}
     pairs=set()
     for r in relations:
         if normalized(r['code'])!=r['code']:raise DocumentError('Identificador de vínculo no normalizado.')
         for side in ['source','target']:
-            anchor=r[side];matches=indices[anchor['document']].get(r['code'],[])
+            anchor=r[side]
+            matches=[manual_anchor(by_id[anchor['document']],r['code'],anchor['page'],anchor['rect'])] if anchor.get('kind')=='manual' else indices[anchor['document']].get(r['code'],[])
             if anchor not in matches:raise DocumentError('Una referencia ya no coincide con su PDF. Revisa de nuevo los destinos.')
         pair=(r['source']['document'],r['source']['id'],r['target']['document'],r['target']['id'])
         if pair in pairs:raise DocumentError('El mismo vínculo ya está incluido.')
@@ -117,7 +132,8 @@ def validate_relations(items,relations):
 
 def build(items,relations,name):
     documents(items);validate_relations(items,relations);name=text(name,100)
-    manifest={'format':'reapdf-document-set','version':1,'name':name,'documents':[{k:v for k,v in i.items() if k!='data'} for i in items],'relations':relations}
+    version=2 if any(r[s].get('kind')=='manual' for r in relations for s in ['source','target']) else 1
+    manifest={'format':'reapdf-document-set','version':version,'name':name,'documents':[{k:v for k,v in i.items() if k!='data'} for i in items],'relations':relations}
     stream=BytesIO()
     with ZipFile(stream,'w',ZIP_DEFLATED) as archive:
         archive.writestr('manifest.json',json.dumps(manifest,ensure_ascii=False,allow_nan=False))
@@ -134,7 +150,7 @@ def read(data):
             info=archive.getinfo('manifest.json')
             if info.file_size>1024*1024:raise DocumentError('Manifiesto demasiado grande.')
             manifest=json.loads(archive.read(info))
-            if not isinstance(manifest,dict) or set(manifest)!={'format','version','name','documents','relations'} or manifest['format']!='reapdf-document-set' or type(manifest['version']) is not int or manifest['version']!=1:raise DocumentError('Formato de conjunto no compatible.')
+            if not isinstance(manifest,dict) or set(manifest)!={'format','version','name','documents','relations'} or manifest['format']!='reapdf-document-set' or type(manifest['version']) is not int or manifest['version'] not in [1,2]:raise DocumentError('Formato de conjunto no compatible.')
             text(manifest['name'],100);docs=manifest['documents']
             if not isinstance(docs,list) or not 1<=len(docs)<=10:raise DocumentError('Lista de documentos no válida.')
             expected={'manifest.json'};items=[];total=0
@@ -147,6 +163,7 @@ def read(data):
                 items.append({**item,'data':content})
             if {i.filename for i in entries}!=expected:raise DocumentError('El conjunto contiene archivos ajenos al formato.')
             documents(items);validate_relations(items,manifest['relations'])
+            if manifest['version']==1 and any(r[s].get('kind')=='manual' for r in manifest['relations'] for s in ['source','target']):raise DocumentError('Las referencias manuales requieren el formato de conjunto 2.')
             return items,manifest['relations'],manifest['name']
     except DocumentError:raise
     except (BadZipFile,KeyError,TypeError,ValueError,RuntimeError,OSError,EOFError) as exc:raise DocumentError('No se pudo verificar el conjunto. No se reemplazó el conjunto abierto.') from exc
@@ -219,16 +236,20 @@ def revision(items,relations,old_id,replacement,choices=None):
     affected=[r for r in relations if any(r[s]['document']==old_id for s in ['source','target'])]
     codes=sorted({r['code'] for r in affected});new_index=index(replacement,codes) if codes else {};rows=[]
     for r in affected:
-        side='source' if r['source']['document']==old_id else 'target';anchor=r[side];candidates=new_index.get(r['code'],[])
+        side='source' if r['source']['document']==old_id else 'target';anchor=r[side];candidates=[] if anchor.get('kind')=='manual' else new_index.get(r['code'],[])
         exact=[a for a in candidates if a['page']==anchor['page'] and all(abs(x-y)<.05 for x,y in zip(a['rect'],anchor['rect']))]
         suggested=exact[0]['id'] if len(exact)==1 else candidates[0]['id'] if len(candidates)==1 else ''
-        status='ambiguous' if len(candidates)>1 else 'same_location' if len(exact)==1 else 'moved' if candidates else 'missing'
+        status='manual_review' if anchor.get('kind')=='manual' else 'ambiguous' if len(candidates)>1 else 'same_location' if len(exact)==1 else 'moved' if candidates else 'missing'
         rows.append({'relation':r['id'],'code':r['code'],'side':side,'previous':anchor,'candidates':candidates,'suggested':suggested,'status':status})
     if choices is None:return {'old':{k:v for k,v in old.items() if k!='data'},'replacement':{k:v for k,v in replacement.items() if k!='data'},'affected':rows,'unaffected':len(relations)-len(rows),'review_required':True}
     if not isinstance(choices,dict) or set(choices)!={r['relation'] for r in rows}:raise DocumentError('Revisa el destino o la retirada de cada vínculo afectado.')
     selected={};removed=set()
     for row in rows:
         choice=choices[row['relation']]
+        if isinstance(choice,dict) and row['previous'].get('kind')=='manual':
+            candidate=manual_anchor(replacement,row['code'],choice.get('page'),choice.get('rect'))
+            if set(choice)!={'page','rect'}:raise DocumentError('Revisa la región manual en el documento nuevo.')
+            selected[row['relation']]=(row['side'],candidate);continue
         if choice is None:removed.add(row['relation']);continue
         match=next((a for a in row['candidates'] if a['id']==choice),None)
         if match is None:raise DocumentError('Un destino no pertenece a la revisión actual.')

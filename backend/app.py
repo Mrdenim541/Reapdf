@@ -141,6 +141,11 @@ async def analyze_set(request:Request):
     p=await read_payload(request)
     return await run_in_threadpool(document_sets.analyze,set_items(p.get('documents')),p.get('source'),p.get('target'),p.get('codes'))
 
+@app.post('/api/document-sets/manual-anchor')
+async def create_manual_anchor(request:Request):
+    p=await read_payload(request);item=set_items([p.get('document')])[0]
+    return await run_in_threadpool(document_sets.manual_anchor,item,p.get('code'),p.get('page'),p.get('rect'))
+
 @app.post('/api/document-sets/revision')
 async def revise_set(request:Request):
     p=await read_payload(request);items=set_items(p.get('documents'));replacement=set_items([p.get('replacement')])[0]

@@ -18,6 +18,7 @@ def uniform(doc,number,box):
     page=doc[number];compatible_page(doc,page);rect,rows=styled_model(doc,number,box)
     if not rows or any(not r['editable'] for r in rows):raise DocumentError('El bloque contiene una fuente o espaciado no verificable para reflujo original.')
     first=rows[0]
+    if any(r.get('_spacing',{}).get('state',{}).get('scale',100)!=100 for r in rows):raise DocumentError('El reflujo de un bloque escalado requiere otra disposición. Puedes editar su línea conservando la escala.')
     if any(r['_font'].xref!=first['_font'].xref or abs(r['size']-first['size'])>.01 or r['color']!=first['color'] for r in rows):raise DocumentError('El reflujo original requiere un solo tamaño, color y fuente. Para formato mixto utiliza el editor de flujo.')
     return rect,rows
 

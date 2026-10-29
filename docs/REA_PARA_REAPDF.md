@@ -50,4 +50,4 @@ Un fallo del proveedor no significa que la aplicación de PDF esté dañada. Rep
 
 La CLI documenta inventario acotado con `inspect-desktop-application RUTA --detail summary --evidence_output ARCHIVO --json`. La ruta debe seleccionarse en la PC, sin inventar dónde están Acrobat/Nitro. La salida debe ser nueva y privada. No usar esta sesión de nube para afirmar observaciones sobre programas que no están aquí.
 
-**Criterio de utilidad:** cerrar una incógnita que bloquee una función y transformarla en una implementación propia comprobada. Trasladar el repositorio o instalar REA mantiene el avance total en **71,9 % (≈72 %)**; no añade puntos al software.
+**Criterio de utilidad:** cerrar una incógnita que bloquee una función y transformarla en una implementación propia comprobada. Trasladar el repositorio o instalar REA no añade puntos al software. El avance vigente se consulta en `docs/avance-global.json`.

@@ -45,7 +45,7 @@ def test_native_original_font_preserves_marked_bytes_program_and_other_page(rota
         assert a.extract_font(a[0].get_fonts()[0][0])[3]==b.extract_font(b[0].get_fonts()[0][0])[3]
 
 
-@pytest.mark.parametrize('kind',['missing','wide','actual_text','transparent','two_shows'])
+@pytest.mark.parametrize('kind',['missing','wide','actual_text','transparent'])
 def test_unsupported_native_edits_leave_original_unchanged(kind):
     base=custom_source()
     if kind not in ['missing','wide']:

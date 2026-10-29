@@ -1,6 +1,6 @@
 # Referencia global de la base recuperada
 
-**Actualización vigente:** ≈72 % (71,9 ponderado), tras [edición/revisiones/escritorio](EDICION_REVISIONES_Y_PRUEBA_20261029.md). Se mantienen alcance, diecisiete áreas y pesos. Matriz: [avance-global.json](avance-global.json). Este documento conserva la referencia reconstruida anterior.
+**Actualización vigente:** ≈73 % (72,75 ponderado), tras [escala/grupos/áreas](ESCALA_GRUPOS_Y_AREAS_20261029.md). Se mantienen alcance, diecisiete áreas y pesos. Matriz: [avance-global.json](avance-global.json). Las referencias anteriores de este documento son históricas.
 
 Estimación conservadora actual: **aproximadamente 50 % del programa completo**, intervalo subjetivo **40–60 %**. No es una medida objetiva de paridad con Acrobat ni una previsión de horas restantes.
 

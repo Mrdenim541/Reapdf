@@ -254,14 +254,21 @@ class OriginalFont:
 
 def styled_model(doc,number,box,font_cache=None):
     rect,_=region_model(doc,number,box);page=doc[number]
-    content=page.read_contents();kerned=False
-    if b'TJ' in content:
-        from .pdf_content import operations as content_operations
-        try:kerned=any(op=='TJ' and len(args)==1 and args[0].kind=='array' and any(t.kind=='number' and t.value!=0 for t in args[0].value) for op,args,_ in content_operations(content))
+    cache={} if font_cache is None else font_cache
+    if '_route_native' not in cache:
+        content=page.read_contents();kerned=False
+        if b'TJ' in content:
+            from .pdf_content import operations as content_operations
+            try:kerned=any(op=='TJ' and len(args)==1 and args[0].kind=='array' and any(t.kind=='number' and t.value!=0 for t in args[0].value) for op,args,_ in content_operations(content))
+            except DocumentError:pass
+        from .pdf_content import placements
+        multiple=False
+        try:multiple=any(o['shows'][0].kind=='operator-array' for o in placements(content)['texts'])
         except DocumentError:pass
-    if kerned or page.get_xobjects() or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz)(?![A-Za-z])',page.read_contents()):
+        cache['_route_native']=bool(multiple or kerned or page.get_xobjects() or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz)(?![A-Za-z])',content))
+    if cache['_route_native']:
         from .native_text import native_model
-        return native_model(doc,number,rect,font_cache)
+        return native_model(doc,number,rect,cache)
     if page.get_xobjects() or doc.get_ocgs() or doc.xref_get_key(page.xref,'Resources')[0]=='null':raise DocumentError('Este modo requiere texto directo sin capas ni objetos de formulario internos.')
     if any(doc.xref_get_key(page.xref,key)[0]!='null' for key in ['Resources/ExtGState','Resources/Pattern','Resources/Shading']):raise DocumentError('Las transparencias, patrones o sombreados necesitan una edición adicional antes de conservar estilos.')
     if re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?)(?![A-Za-z])',page.read_contents()):raise DocumentError('El contenido marcado o recortado todavía no es compatible con este modo.')

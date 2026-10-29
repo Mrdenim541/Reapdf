@@ -1,6 +1,6 @@
 # Reapdf
 
-Estado vigente: [edición, revisiones y preparación de pruebas](docs/EDICION_REVISIONES_Y_PRUEBA_20261029.md), **≈72 % del programa completo** (estimación de madurez; Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
+Estado vigente: [texto escalado y vínculos por áreas](docs/ESCALA_GRUPOS_Y_AREAS_20261029.md), **≈73 % del programa completo** (estimación de madurez; Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 

@@ -66,7 +66,7 @@ def test_archive_is_verified_before_import(kind):
     if kind in ['extra','traversal']:entries['../outside.pdf' if kind=='traversal' else 'extra.txt']=b'x'
     if kind=='tampered':entries['documents/'+a['id']+'.pdf']=pdf('OTHER-01')
     if kind=='version':
-        manifest=json.loads(entries['manifest.json']);manifest['version']=2;entries['manifest.json']=json.dumps(manifest).encode()
+        manifest=json.loads(entries['manifest.json']);manifest['version']=99;entries['manifest.json']=json.dumps(manifest).encode()
     out=BytesIO()
     with ZipFile(out,'w',ZIP_DEFLATED) as archive:
         for n,data in entries.items():archive.writestr(n,data)

@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "review_date": "2026-10-29",
-  "status": "provisional_reflow_revision_desktop",
+  "status": "provisional_scaled_groups_manual_anchors",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 71.9,
-  "reported_percent": 72,
+  "weighted_percent": 72.75,
+  "reported_percent": 73,
   "subjective_range_percent": [
     60,
     78
@@ -50,7 +50,7 @@
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 85,
+      "maturity": 87.5,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -71,9 +71,11 @@
         "backend/original_reflow.py",
         "backend/quick_text.py",
         "tests/test_original_reflow.py",
-        "tests/test_revision_quick_spacing.py"
+        "tests/test_revision_quick_spacing.py",
+        "tests/test_scaled_groups.py",
+        "scripts/smoke_scaled_manual.mjs"
       ],
-      "remaining": "CFF/Type3, escalas y transformaciones de texto, espacios inferidos y varios Tj por BT, reflujo original mixto/entre páginas y edición de texto dentro de Form/capas/etiquetas. Nuevos caracteres requieren un glifo disponible o elegir otra fuente."
+      "remaining": "CFF/Type3, texto dentro de Form, transformaciones inclinadas/reflejadas, cambios de estado entre instrucciones y espacios inferidos. Escala horizontal positiva 10–400 % y grupos consecutivos compatibles incorporados; no edición universal ni reflujo escalado/mixto original."
     },
     {
       "id": "annotations",
@@ -152,7 +154,7 @@
     {
       "id": "automation_linking",
       "weight": 9,
-      "maturity": 85,
+      "maturity": 90,
       "evidence": [
         "backend/automation.py",
         "backend/batch_tools.py",
@@ -161,9 +163,12 @@
         "tests/test_document_workspaces.py",
         "scripts/smoke_document_workspaces.mjs",
         "web/src/document-revision.jsx",
-        "tests/test_revision_quick_spacing.py"
+        "tests/test_revision_quick_spacing.py",
+        "web/src/manual-links.jsx",
+        "tests/test_manual_document_links.py",
+        "scripts/smoke_scaled_manual.mjs"
       ],
-      "remaining": "Anclas manuales/geométricas, detección avanzada de revisiones con códigos cambiados, lotes mayores y corpus real de documentos relacionados."
+      "remaining": "Corpus real amplio y aceptación personal, revisiones con identificadores cambiados, lotes mayores y automatizaciones profesionales restantes. Áreas manuales, persistencia, compilación y remarcado explícito en revisión incorporados."
     },
     {
       "id": "desktop_distribution",
@@ -276,45 +281,24 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261029-before-revisions-reflow.json",
-    "before_weighted": 69.8,
-    "after_weighted": 71.9,
-    "new_points": 2.1,
+    "baseline": "docs/progress/20261029-before-scale-manual.json",
+    "before_weighted": 71.9,
+    "after_weighted": 72.75,
+    "new_points": 0.85,
     "changes": [
       {
-        "id": "interface",
-        "before": 80,
-        "after": 85,
-        "points": 0.35,
-        "reason": "Entrada de texto con clic y altura automática; párrafo en página; comparación de destinos lado a lado."
-      },
-      {
         "id": "text_images",
-        "before": 80,
-        "after": 85,
-        "points": 0.8,
-        "reason": "TJ y espaciados verificables; reflujo uniforme de varias líneas con programa original; inserción Unicode automática."
+        "before": 85,
+        "after": 87.5,
+        "points": 0.4,
+        "reason": "Edición conservando escala Tz, tamaño nominal real y grupos consecutivos Tj/TJ, con fuente y posiciones verificadas."
       },
       {
         "id": "automation_linking",
-        "before": 80,
-        "after": 85,
+        "before": 85,
+        "after": 90,
         "points": 0.45,
-        "reason": "Revisión de archivos del conjunto con destinos movidos, ambiguos y ausentes, confirmación completa, retirada explícita y deshacer."
-      },
-      {
-        "id": "desktop_distribution",
-        "before": 65,
-        "after": 70,
-        "points": 0.3,
-        "reason": "Ocho recorridos Qt reales agrupados, prueba de muerte forzada del padre y cierre por EOF. Automatización Windows/Linux preparada."
-      },
-      {
-        "id": "performance_reliability",
-        "before": 70,
-        "after": 75,
-        "points": 0.2,
-        "reason": "Ventana hija vigilada por pipe; cierre aun con muerte forzada del padre y aislamiento de instancia en pruebas."
+        "reason": "Vinculación manual de regiones sin texto/OCR, formato compatible con conjuntos anteriores y revisión que exige volver a marcar áreas."
       }
     ],
     "all_weights_and_scope_unchanged": true

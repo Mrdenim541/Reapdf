@@ -1,6 +1,6 @@
 # Avance estimado del producto
 
-Estado vigente de la base recuperada: [edición/revisiones/escritorio](EDICION_REVISIONES_Y_PRUEBA_20261029.md), ≈72 % (71,9 ponderado). Las cifras de versiones anteriores que siguen son históricas y no reemplazan la matriz reconstruida actual.
+Estado vigente de la base recuperada: [escala/grupos/áreas](ESCALA_GRUPOS_Y_AREAS_20261029.md), ≈73 % (72,75 ponderado). Las cifras de versiones anteriores que siguen son históricas y no reemplazan la matriz reconstruida actual.
 
 ## Corte: versión 0.43
 

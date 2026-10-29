@@ -1,4 +1,4 @@
-"""Verified single-show TJ kerning and character/word spacing.
+"""Verified TJ kerning, horizontal scale and character/word spacing.
 
 Only adjustments between unchanged adjacent characters are carried to new text.
 Unchanged source operators, fonts and clipping remain intact.
@@ -8,13 +8,13 @@ from .engine import DocumentError
 
 
 def layout(font,text,size,spacing,kern):
-    advance=0.;origins=[]
+    advance=0.;origins=[];scale=spacing['scale']/100
     for i,char in enumerate(text):
         origins.append(advance);encoded,width=font.encode(char,size)
         # PDF word spacing applies only to a one-byte space code (32).
         extra=spacing['char']+(spacing['word'] if encoded==b' ' else 0)
-        advance+=width
-        if i<len(text)-1:advance+=extra-kern[i]*size/1000
+        advance+=width*scale
+        if i<len(text)-1:advance+=(extra-kern[i]*size/1000)*scale
     return advance,origins
 
 
@@ -49,4 +49,4 @@ def replacement(row,text):
         chunks.append(b'<'+font.encode(char,row['size'])[0].hex().encode()+b'>')
         if i<len(kern) and kern[i]:chunks.append(format(kern[i],'.8f').rstrip('0').rstrip('.').encode())
     if row['_native'][2]=='string':return b'<'+font.encode(text,row['size'])[0].hex().encode()+b'>',width
-    return b'['+b' '.join(chunks)+b']',width
+    return b'['+b' '.join(chunks)+b']'+(b' TJ' if row['_native'][2]=='operator-array' else b''),width

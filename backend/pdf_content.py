@@ -128,6 +128,8 @@ def placements(data):
     state={'char':0.,'word':0.,'scale':100.,'render':0.,'rise':0.}
     parameter={'Tc':'char','Tw':'word','Tz':'scale','Tr':'render','Ts':'rise'}
     for op,args,token in operations(data):
+        if text is not None and op not in ['BT','ET','Tf','Td','Tm','Tj','TJ','Tc','Tw','Tz','Tr','Ts'] and not (not text['shows'] and op in ['q','Q','rg','RG','g','G','k','K','cs','CS','sc','SC','scn','SCN','gs','TL']):
+            text['simple']=False
         if op=='q':
             stack.append((f.Matrix(matrix),dict(state)))
             if len(stack)>100:raise DocumentError('Demasiados estados gráficos anidados.')
@@ -140,9 +142,12 @@ def placements(data):
             if text is not None and text['shows']:text['simple']=False
         elif op=='BT':
             if text is not None:raise DocumentError('Objetos de texto anidados.')
-            text={'origin':f.Point(0,0),'matrix':f.Matrix(matrix),'font':None,'size':0,'shows':[],'simple':True}
+            text={'origin':f.Point(0,0),'matrix':f.Matrix(matrix),'font':None,'size':0,'shows':[],'parts':[],'show_ends':[],'simple':True}
         elif op=='ET' and text is not None:
-            if text['simple'] and len(text['shows'])==1 and text['font']:texts.append(text)
+            if text['simple'] and text['shows'] and text['font']:
+                if len(text['shows'])>1:
+                    shows=text['shows'];text['shows']=[Token('operator-array',b''.join(s.value for s in shows),shows[0].start,text['show_ends'][-1])]
+                texts.append(text)
             text=None
         elif op=='Do':
             if len(args)!=1 or args[0].kind!='name':raise DocumentError('Invocación de objeto no válida.')
@@ -165,8 +170,8 @@ def placements(data):
                     if all(t.kind in ['string','number'] for t in parts):show=Token('array-string',b''.join(t.value for t in parts if t.kind=='string'),args[0].start,args[0].end)
                 if show is None:text['simple']=False
                 else:
-                    text['shows'].append(show);text['parts']=parts;text['spacing']=dict(state)
-                    if state['scale']!=100 or state['render']!=0 or state['rise']!=0 or max(abs(state['char']),abs(state['word']))>1000:text['simple']=False
+                    text['shows'].append(show);text['parts'].extend(parts);text['show_ends'].append(token.end);text['spacing']=dict(state)
+                    if not 10<=state['scale']<=400 or state['render']!=0 or state['rise']!=0 or max(abs(state['char']),abs(state['word']))>1000:text['simple']=False
             elif op in ["'",'"','TD','T*','Td','Tm']:text['simple']=False
     if stack or text is not None:raise DocumentError('Contenido PDF sin cierre gráfico o de texto.')
     return {'images':images,'texts':texts}
