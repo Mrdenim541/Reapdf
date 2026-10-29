@@ -87,25 +87,28 @@ def paragraph_layout(page,rect,text,font,size,align,line_height,auto_fit,min_siz
     raise DocumentError('El párrafo no cabe. Amplía la región, reduce tamaño o acorta el texto.')
 
 
-def region_model(doc,number,box,minimum=10):
+def region_model(doc,number,box,minimum=10,affine=False):
     if type(number) is not int or not 0<=number<len(doc) or not isinstance(box,list) or len(box)!=4 or any(not finite(v) for v in box):raise DocumentError('Página o región de párrafo no válida.')
     page=doc[number];x,y,w,h=box;rect=fitz.Rect(x,y,x+w,y+h)
     if page.rotation or min(w,h)<minimum or not page.rect.contains(rect):raise DocumentError(f'Elige un bloque dentro de una página sin giro, de al menos {minimum:g} × {minimum:g} pt.')
     if any(a.type[0]==fitz.PDF_ANNOT_REDACT for a in page.annots() or []):raise DocumentError('La página contiene censuras pendientes. Resuélvelas antes de editar el bloque.')
-    if any((fitz.Rect(info['bbox'])&rect).get_area()>.1 for info in page.get_image_info()):raise DocumentError('El bloque cruza una imagen o escaneado. No se reemplazará su texto como párrafo digital.')
-    if any((a.rect&rect).get_area()>.1 for a in page.annots() or []) or any((w.rect&rect).get_area()>.1 for w in page.widgets() or []):raise DocumentError('El bloque cruza campos o anotaciones. No se modificará.')
-    lines=[]
+    if not affine and any((fitz.Rect(info['bbox'])&rect).get_area()>.1 for info in page.get_image_info()):raise DocumentError('El bloque cruza una imagen o escaneado. No se reemplazará su texto como párrafo digital.')
+    if not affine and (any((a.rect&rect).get_area()>.1 for a in page.annots() or []) or any((w.rect&rect).get_area()>.1 for w in page.widgets() or [])):raise DocumentError('El bloque cruza campos o anotaciones. No se modificará.')
+    lines=[];selected_frames=[]
     for block in page.get_text('dict',flags=fitz.TEXTFLAGS_TEXT,sort=True)['blocks']:
         for line in block.get('lines',[]):
             selected=[]
             for span in line['spans']:
                 bounds=fitz.Rect(span['bbox'])
                 if (bounds&rect).get_area()<=.1:continue
-                if not (rect+(-.01,-.01,.01,.01)).contains(bounds):raise DocumentError('La región corta un fragmento de texto. Amplía sus bordes para contenerlo completo.')
-                if tuple(line['dir'])!=(1.,0.) or span.get('alpha',255)!=255:raise DocumentError('El bloque contiene texto inclinado o transparente no compatible.')
-                selected.append(span['text'])
+                if not affine and not (rect+(-.01,-.01,.01,.01)).contains(bounds):raise DocumentError('La región corta un fragmento de texto. Amplía sus bordes para contenerlo completo.')
+                if not affine and (tuple(line['dir'])!=(1.,0.) or span.get('alpha',255)!=255):raise DocumentError('El bloque contiene texto inclinado o transparente no compatible.')
+                selected_frames.append((len(selected_frames),span,line['dir']));selected.append(span['text'])
             if selected:lines.append(''.join(selected))
     if not lines:raise DocumentError('No hay texto digital completo en esta región.')
+    if not affine:
+        from .affine_text import require_horizontal
+        require_horizontal(page,selected_frames)
     text='\n'.join(lines)
     if len(text)>4000:raise DocumentError('El bloque supera 4000 caracteres. Divide la edición en regiones menores.')
     return rect,text

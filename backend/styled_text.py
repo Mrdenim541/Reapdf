@@ -266,7 +266,7 @@ class OriginalFont:
 
 
 def styled_model(doc,number,box,font_cache=None):
-    rect,_=region_model(doc,number,box,minimum=.1);page=doc[number]
+    rect,_=region_model(doc,number,box,minimum=.1,affine=True);page=doc[number]
     cache={} if font_cache is None else font_cache
     if '_route_native' not in cache:
         content=page.read_contents();kerned=False
@@ -274,14 +274,15 @@ def styled_model(doc,number,box,font_cache=None):
             from .pdf_content import operations as content_operations
             try:kerned=any(op=='TJ' and len(args)==1 and args[0].kind=='array' and any(t.kind=='number' and t.value!=0 for t in args[0].value) for op,args,_ in content_operations(content))
             except DocumentError:pass
-        from .pdf_content import placements
+        from .pdf_content import placements,operations as content_operations
         multiple=False;transformed=False
-        try:objects=placements(content)['texts'];multiple=any(o['shows'][0].kind=='operator-array' for o in objects);transformed=any(tuple(o['matrix'])!=(1.,0.,0.,1.,0.,0.) for o in objects)
-        except DocumentError:pass
+        try:objects=placements(content)['texts'];multiple=any(o['shows'][0].kind=='operator-array' for o in objects);transformed=any(tuple(o['matrix'])!=(1.,0.,0.,1.,0.,0.) for o in objects) or any(op=='Tm' and [t.value for t in args[:4]]!=[1,0,0,1] for op,args,_ in content_operations(content))
+        except DocumentError:transformed=bool(re.search(rb'(?<![A-Za-z])(?:cm|Tm)(?![A-Za-z])',content))
         cache['_route_native']=bool(transformed or multiple or kerned or page.get_xobjects() or any(i[1] in ['cff','otf','cid'] for i in page.get_fonts()) or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz)(?![A-Za-z])',content))
     if cache['_route_native']:
         from .native_text import native_model
         return native_model(doc,number,rect,cache)
+    region_model(doc,number,box,minimum=.1)
     if page.get_xobjects() or doc.get_ocgs() or doc.xref_get_key(page.xref,'Resources')[0]=='null':raise DocumentError('Este modo requiere texto directo sin capas ni objetos de formulario internos.')
     if any(doc.xref_get_key(page.xref,key)[0]!='null' for key in ['Resources/ExtGState','Resources/Pattern','Resources/Shading']):raise DocumentError('Las transparencias, patrones o sombreados necesitan una edición adicional antes de conservar estilos.')
     if re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?)(?![A-Za-z])',page.read_contents()):raise DocumentError('El contenido marcado o recortado todavía no es compatible con este modo.')
@@ -345,7 +346,9 @@ def replace_styled(base,operations,number,box,changes,expand=False):
         prepared=prepare_changes(doc,number,rect,rows,changes,expand)
         write_changes(doc,number,prepared)
         doc[number].set_rotation(rotation)
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+    from .affine_text import verify
+    verify(data,{number:prepared});return data
 
 
 def prepare_changes(doc,number,rect,rows,changes,expand=False):
@@ -361,12 +364,25 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
             from .text_spacing import replacement
             encoded,width=replacement(row,text)
         else:encoded,width=row['_font'].encode(text,row['size'])
-        available=rect.x1-row['origin'][0] if expand else fitz.Rect(row['bbox']).width
-        if width>available+.1:raise DocumentError('El texto no cabe en el ancho disponible. Acórtalo o amplía el área y activa su ancho disponible; este modo no redistribuye las líneas.')
-        target=fitz.Rect(row['bbox']);target.x1=row['origin'][0]+width
-        if width and any(not (fitz.Rect(clip)+(-.05,-.05,.05,.05)).contains(target) for clip in row.get('_clips',[])):raise DocumentError('El texto nuevo sale del recorte del objeto Form.')
-        if not page_contains(doc[number],row,width):raise DocumentError('El texto sale de la página o se cruza con otro fragmento.')
-        prepared.append((row,encoded))
+        if '_geometry' in row:
+            from .affine_text import polygon,contains,rectangle,overlap
+            g=row['_geometry'];target=polygon(g,width)
+            if not expand and width>g['width']+.1:raise DocumentError('El texto no cabe en el ancho disponible. Acórtalo o amplía su región; este modo no redistribuye las líneas.')
+            if width and (not contains(rectangle(rect),target) or not contains(rectangle(doc[number].rect),target)):raise DocumentError('El texto sale de la página o de la región disponible.')
+            if width and any(not contains(clip,target) for clip in row.get('_clips',[])):raise DocumentError('El texto nuevo sale del recorte del objeto Form.')
+            if any(overlap(target,obstacle)>.1 for obstacle in row.get('_obstacles',[])):raise DocumentError('El texto nuevo cruza una imagen, campo o anotación.')
+            original=polygon(g)
+            for block in doc[number].get_text('dict',flags=fitz.TEXTFLAGS_TEXT)['blocks']:
+                for line in block.get('lines',[]):
+                    for span in line['spans']:
+                        if span['origin']==tuple(row['origin']) and span['font']==row['font'] and span['text']==row['text']:continue
+                        neighbor=rectangle(fitz.Rect(span['bbox']))
+                        if overlap(neighbor,target)>.1 or overlap(neighbor,original)>.1:raise DocumentError('El texto se cruza con otro fragmento.')
+        else:
+            available=rect.x1-row['origin'][0] if expand else fitz.Rect(row['bbox']).width
+            if width>available+.1:raise DocumentError('El texto no cabe en el ancho disponible. Acórtalo o amplía el área y activa su ancho disponible; este modo no redistribuye las líneas.')
+            if not page_contains(doc[number],row,width):raise DocumentError('El texto sale de la página o se cruza con otro fragmento.')
+        prepared.append(({**row,'_replacement_text':text,'_replacement_width':width},encoded))
     if total>4000:raise DocumentError('Hasta 4000 caracteres entre los fragmentos editados.')
     if not prepared:raise DocumentError('No hay cambios de texto para aplicar.')
     return prepared
@@ -420,7 +436,9 @@ def replace_styled_regions(base,operations,regions):
             prepared[number].extend(items)
         for number,items in prepared.items():
             write_changes(doc,number,items);doc[number].set_rotation(rotations[number])
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+    from .affine_text import verify
+    verify(data,prepared);return data
 
 
 def page_contains(page,row,width):

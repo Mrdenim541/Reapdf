@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "review_date": "2026-10-29",
-  "status": "provisional_measurement_precision_xfdf",
+  "status": "provisional_affine_original_text",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 75.5,
+  "weighted_percent": 76.08,
   "reported_percent": 76,
   "subjective_range_percent": [
     60,
@@ -35,7 +35,7 @@
     {
       "id": "interface",
       "weight": 7,
-      "maturity": 90,
+      "maturity": 92.5,
       "evidence": [
         "web/src/main.jsx",
         "web/src/paragraph-editor.jsx",
@@ -47,14 +47,15 @@
         "web/src/inline-caret.js",
         "tests/test_inline_caret.mjs",
         "scripts/smoke_cff_forms_mixed.mjs",
-        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md"
+        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md",
+        "docs/TEXTO_AFIN_20261029.md"
       ],
-      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y migración del recorrido gráfico histórico. Flujo original con regiones dibujadas y acceso desde el párrafo incorporados."
+      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y migración del recorrido gráfico histórico. Selección por cuadriláteros y edición de texto afín incorporadas."
     },
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 92.5,
+      "maturity": 95,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -83,9 +84,10 @@
         "backend/original_mixed_reflow.py",
         "tests/test_cff_forms_mixed.py",
         "scripts/smoke_cff_forms_mixed.mjs",
-        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md"
+        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md",
+        "docs/TEXTO_AFIN_20261029.md"
       ],
-      "remaining": "CFF2/variables/Type3, Forms con giro interno/inclinación/reflexión/transparencia o estructura semántica. Flujo original entre regiones explícitas ya incorporado, sin redistribuir otros objetos. Falta corpus externo y aceptación personal."
+      "remaining": "CFF2/variables/Type3, escritura vertical/RTL compleja, grupos con transparencia o estructura semántica y estados intermedios. Reflujo de texto afín y sustitución de su fuente siguen fuera. Falta corpus externo y aceptación personal."
     },
     {
       "id": "annotations",
@@ -296,33 +298,27 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261029-before-precision-xfdf.json",
-    "before_weighted": 74.6,
-    "after_weighted": 75.5,
-    "new_points": 0.9,
+    "baseline": "docs/progress/20261029-before-affine-text.json",
+    "before_weighted": 75.5,
+    "after_weighted": 76.08,
+    "new_points": 0.58,
     "changes": [
       {
-        "id": "annotations",
-        "before": 80,
-        "after": 85,
-        "points": 0.35,
-        "reason": "XFDF ampliado con texto libre sencillo en tres fuentes regulares, ondulado, rellenos, guiones fraccionarios, indicadores, iconos, metadatos y extremos de polilínea; conflictos de nombres también dentro del lote."
+        "id": "interface",
+        "before": 90,
+        "after": 92.5,
+        "points": 0.175,
+        "reason": "Selección por contorno transformado, contorno activo y editor legible sobre la página; se bloquean alternativas que descartarían la transformación."
       },
       {
-        "id": "migration_interoperability",
-        "before": 65,
-        "after": 67.5,
-        "points": 0.1,
-        "reason": "Mayor subconjunto XFDF con geometría y apariencia comprobadas tras giro/recorte, relectura pyHanko y detección de conflictos sin importación parcial."
-      },
-      {
-        "id": "measurement",
-        "before": 75,
-        "after": 90,
-        "points": 0.45,
-        "reason": "Ajuste a extremos vectoriales y esquinas de imagen, vértices editables por ratón/teclado/coordenadas y escalas regionales persistentes. Coordenadas PDF estables tras giro/recorte y UserUnit 1/2 comprobadas."
+        "id": "text_images",
+        "before": 92.5,
+        "after": 95,
+        "points": 0.4,
+        "reason": "Edición afín por matriz de texto y de Form (giro/inclinación/reflexión) con fuentes base/TrueType/CFF, recortes poligonales y verificación del resultado antes de publicar."
       }
     ],
+    "unrounded_after_weighted": "76.075",
     "all_weights_and_scope_unchanged": true
   }
 }

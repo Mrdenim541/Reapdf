@@ -1,0 +1,31 @@
+{
+  "full_python_regression": 2735,
+  "new_affine_python_before_final_guard": 140,
+  "directed_regression_python": 358,
+  "transform_boundary_python": 225,
+  "final_guards_python": 447,
+  "new_affine_tests_in_final_source": 141,
+  "new_boundary_cases_after_full_regression": 1,
+  "javascript": 116,
+  "production_build": true,
+  "browser_workflows_passed": 3,
+  "qt_linux_original_edit_native_save": true,
+  "private_reference_readonly_compatible": true,
+  "private_pdf_modified_or_uploaded_this_pass": false,
+  "page_rotations_checked": [
+    0,
+    90,
+    180,
+    270
+  ],
+  "font_programs_checked": [
+    "base",
+    "TrueType",
+    "OpenType CFF",
+    "CID CFF"
+  ],
+  "windows_verified_this_pass": false,
+  "user_acceptance_deferred": true,
+  "portable_built": false,
+  "weighted_product_percent": 76.08
+}

@@ -27,8 +27,10 @@ def structure(doc,page):
         parsed=placements(data)
         for obj in parsed['texts']:
             combined=obj['matrix']*parent
-            if abs(combined.b)>.00001 or abs(combined.c)>.00001 or combined.a<=0 or combined.d<=0 or not .1<=combined.a/combined.d<=10:continue
-            result.append({**obj,'matrix':combined,'scope':owner if path else 0,'path':path,'clips':clips,'factor':combined.d,'horizontal_factor':combined.a/combined.d})
+            from .affine_text import frame
+            try:values=frame(combined,f.Point(0,0))
+            except DocumentError:continue
+            result.append({**obj,'matrix':combined,'scope':owner if path else 0,'path':path,'clips':clips,'factor':values['factor'],'horizontal_factor':values['horizontal']})
             if len(result)>5000:raise DocumentError('Hasta 5000 grupos de texto por página.')
         for invocation in parsed['images']:
             name=invocation['resource']
@@ -43,7 +45,10 @@ def structure(doc,page):
             if doc.xref_get_key(target,'Resources')[0] not in ['dict','xref']:continue
             try:
                 matrix=f.Matrix(*array(doc,target,'Matrix',6,[1,0,0,1,0,0]))*invocation['matrix']*parent
-                bounds=f.Rect(array(doc,target,'BBox',4))*matrix*page_matrix
+                from .affine_text import rectangle
+                box=f.Rect(array(doc,target,'BBox',4))
+                if box.is_empty:raise DocumentError('El recorte Form está vacío o invertido.')
+                bounds=[list(f.Point(p)*matrix*page_matrix) for p in rectangle(box)]
                 from .styled_text import stream
                 child=stream(doc,target,16*1024*1024)
                 entry={'owner':owner,'target':target,'start':invocation['start'],'end':invocation['end']}

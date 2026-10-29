@@ -11,6 +11,7 @@ from .text_flow import next_line
 def source_runs(doc,number,box):
     from .original_reflow import compatible_page
     compatible_page(doc,doc[number]);rect,rows=styled_model(doc,number,box)
+    if any(r.get('transformed') for r in rows):raise DocumentError('El reflujo no cambia la matriz del texto. Edita su línea con la fuente original.')
     if not rows or any(not r['editable'] for r in rows):raise DocumentError('Algún fragmento no permite conservar su fuente original.')
     if any(r.get('_spacing',{}).get('state',{}).get('scale',100)!=100 for r in rows):raise DocumentError('El reflujo de fragmentos escalados todavía no es compatible.')
     return rect,rows

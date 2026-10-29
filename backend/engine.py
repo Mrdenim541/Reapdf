@@ -30,7 +30,7 @@ def open_pdf(data: bytes):
 
 def spans(page):
     from .text_style import SOURCE_FONTS
-    result = []
+    result = [];targets=[]
     for bi, block in enumerate(page.get_text("dict")["blocks"]):
         for li, line in enumerate(block.get("lines", [])):
             for si, span in enumerate(line["spans"]):
@@ -43,6 +43,10 @@ def spans(page):
                                "bbox": list(span["bbox"]), "origin": list(span["origin"]),
                                "size": span["size"], "font": span["font"],
                                "color": span["color"], "font_key": SOURCE_FONTS.get(span["font"]), "editable": editable})
+                targets.append((f"{bi}:{li}:{si}",span,line["dir"]))
+    from .affine_text import pointer_targets
+    cells=pointer_targets(page,targets)
+    for row in result:row.update(cells.get(row['id'],{}))
     return result
 
 def metadata(doc):

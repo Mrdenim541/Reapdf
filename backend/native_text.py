@@ -20,6 +20,9 @@ def native_model(doc,number,rect,font_cache=None):
         from .form_text import structure
         cache['_structure']=(structure(doc,page),page.get_fonts(full=True),page.get_texttrace())
     objects,fonts,traces=cache['_structure']
+    if '_obstacles' not in cache:
+        from .affine_text import obstacles
+        cache['_obstacles']=obstacles(page)
     if len(fonts)>20 or sum(len(t['chars']) for t in traces)>100000:raise DocumentError('La página supera los límites de fuentes o texto del editor.')
     # Only direct, unambiguous page text with verified font maps is editable.
     # Marked content and clipping remain byte-for-byte intact.
@@ -55,31 +58,40 @@ def native_model(doc,number,rect,font_cache=None):
                 bounds=f.Rect(span['bbox'])
                 if (bounds&rect).get_area()<=.1:continue
                 text=''.join(c['c'] for c in span['chars']);reason='';font=None;native=None;spacing=None;actual_size=span['size']
-                found=[]
+                found=[];g=None
+                from .affine_text import geometry,polygon,contains,rectangle,overlap
                 for obj in objects:
                     face=compatible.get((obj['scope'],obj['font']))
                     if face is None or normal_name(span['font']) not in face.aliases:continue
-                    matrix=obj['matrix'];origin=obj['origin']*matrix*page.transformation_matrix;effective_size=obj['size']*obj['factor']
-                    if not 0<effective_size<=1000 or abs(effective_size*math.sqrt(obj['spacing']['scale']/100*obj['horizontal_factor'])-span['size'])>=.01 or abs(origin.x-span['origin'][0])>=.02 or abs(origin.y-span['origin'][1])>=.02:continue
-                    try:encoded,_=face.encode(text,effective_size)
+                    origin=obj['origin']*obj['matrix']*page.transformation_matrix
+                    if math.dist(origin,span['origin'])>.02:continue
+                    try:
+                        candidate=geometry(obj,page,span)
+                        if math.dist(candidate['direction'],line['dir'])>.001:continue
+                        encoded,_=face.encode(text,candidate['size'])
                     except DocumentError:continue
-                    if obj['shows'][0].value==encoded:found.append((face,obj))
+                    if obj['shows'][0].value==encoded:found.append((face,obj,candidate))
                 try:
                     if len(found)!=1:raise DocumentError('El texto necesita un grupo original único y verificable; revisa fuentes, objetos o transformaciones.')
-                    font,obj=found[0]
-                    if any(not (clip+(-.05,-.05,.05,.05)).contains(bounds) for clip in obj['clips']):raise DocumentError('El texto queda parcialmente fuera del recorte Form.')
-                    trace=[t for t in traces if ''.join(chr(c[0]) for c in t['chars'])==text and t['chars'] and abs(t['chars'][0][2][0]-span['origin'][0])<.02 and abs(t['chars'][0][2][1]-span['origin'][1])<.02]
+                    font,obj,g=found[0]
+                    if not (rect+(-.05,-.05,.05,.05)).contains(bounds):raise DocumentError('La región corta este fragmento de texto.')
+                    if line.get('wmode',0)!=0:raise DocumentError('La escritura vertical requiere otro tratamiento.')
+                    trace=[t for t in traces if ''.join(chr(c[0]) for c in t['chars'])==text and t['chars'] and math.dist(t['chars'][0][2],span['origin'])<.02]
                     if len(trace)!=1 or trace[0]['type']!=0 or trace[0]['opacity']!=1 or trace[0]['layer']:raise DocumentError('El texto no tiene una apariencia opaca única y verificable.')
                     if any(c[1] not in ({font.base.has_glyph(c[0],fallback=0)} if font.base else {entry[0] if font.trace_cid else entry[2] for entry in font.options.get(chr(c[0]),[])}) for c in trace[0]['chars']):raise DocumentError('El mapa de glifos no coincide con el texto representado.')
                     from .text_spacing import source_layout
-                    actual_size=obj['size']*obj['factor']
-                    local={**obj,'spacing':{**obj['spacing'],'char':obj['spacing']['char']*obj['factor'],'word':obj['spacing']['word']*obj['factor'],'scale':obj['spacing']['scale']*obj['horizontal_factor']}}
-                    width,origins,spacing=source_layout(font,text,actual_size,local)
-                    if abs(width-bounds.width)>.3:raise DocumentError('Las anchuras originales no coinciden con el fragmento.')
+                    actual_size=g['size']
+                    local={**obj,'spacing':{**obj['spacing'],'char':obj['spacing']['char']*g['factor'],'word':obj['spacing']['word']*g['factor'],'scale':obj['spacing']['scale']*g['horizontal']}}
+                    width,origins,spacing=source_layout(font,text,actual_size,local);g=geometry(obj,page,span,width);cell=polygon(g)
                     for char,advance in zip(span['chars'],origins):
-                        if abs(char['origin'][0]-span['origin'][0]-advance)>.3:raise DocumentError('El espaciado no coincide con los caracteres representados.')
+                        expected=[span['origin'][i]+g['direction'][i]*advance for i in [0,1]]
+                        if math.dist(char['origin'],expected)>.3:raise DocumentError('El espaciado no coincide con los caracteres representados.')
+                    if any(not contains(clip,cell) for clip in obj['clips']):raise DocumentError('El texto queda parcialmente fuera del recorte Form.')
+                    if any(overlap(cell,obstacle)>.1 for obstacle in cache['_obstacles']):raise DocumentError('El fragmento cruza una imagen, campo o anotación.')
                     show=obj['shows'][0];native=[show.start,show.end,show.kind]
                 except DocumentError as exc:reason=str(exc)
-                rows.append({'id':f'{bi}:{li}:{si}','text':text,'font':span['font'],'size':actual_size,'display_size':span['size'],'color':span['color'],'origin':list(span['origin']),'bbox':list(bounds),'editable':not reason,'reason':reason,'subset':bool(font and font.restricted),'method':'form-occurrence' if native and obj['path'] else 'direct-content','_font':font,'_native':native,'_spacing':spacing,'_native_path':obj['path'] if native else [],'_clips':obj['clips'] if native else []})
+                row={'id':f'{bi}:{li}:{si}','text':text,'font':span['font'],'size':actual_size,'display_size':span['size'],'color':span['color'],'origin':list(span['origin']),'bbox':list(bounds),'editable':not reason,'reason':reason,'subset':bool(font and font.restricted),'method':'form-occurrence' if native and obj['path'] else 'direct-content','_font':font,'_native':native,'_spacing':spacing,'_native_path':obj['path'] if native else [],'_clips':obj['clips'] if native else [],'_obstacles':cache['_obstacles'],'_geometry':g if native else None,'quad':polygon(g) if g else None,'transformed':g['transformed'] if g else tuple(line['dir'])!=(1.,0.)}
+                if native is None:row.pop('_geometry')
+                rows.append(row)
     if len(rows)>100:raise DocumentError('Hasta 100 fragmentos por región.')
     return rect,rows

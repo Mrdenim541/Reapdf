@@ -11,3 +11,5 @@
 .text-insertion-modes{display:flex;gap:6px;padding:6px 14px;background:#fff;border-bottom:1px solid #e0e6e2}.text-insertion-modes button{font-size:11px;padding:5px 10px}.text-insertion-modes [aria-pressed=true]{background:#e7f2ec;border-color:#7aaa96;color:#195845}
 
 .inline-original-runs{max-height:250px;overflow:auto;margin:8px 0}.inline-original-runs label{display:block;font-size:11px;border-bottom:1px solid #dce5e1;padding:5px 0}.inline-original-runs textarea{min-height:48px;margin:3px 0}
+
+.text-edit-outline{fill:#287a6610;stroke:#287a66;stroke-width:1;stroke-dasharray:4 2;pointer-events:none}

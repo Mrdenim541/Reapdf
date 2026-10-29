@@ -160,8 +160,9 @@ def placements(data):
                 x,y=numbers(args,2);text['origin']+=f.Point(x,y)
             elif op=='Tm' and not text['shows']:
                 a,b,c,d,e,g=numbers(args,6)
-                if (a,b,c,d)!=(1,0,0,1):text['simple']=False
-                text['origin']=f.Point(e,g)
+                linear=f.Matrix(a,b,c,d,0,0)
+                if abs(a*d-b*c)<1e-8:text['simple']=False
+                text['origin']=f.Point(e,g)*~linear;text['matrix']=linear*matrix
             elif op in ['Tj','TJ']:
                 show=None;parts=[]
                 if op=='Tj' and len(args)==1 and args[0].kind=='string':show=args[0];parts=[show]
