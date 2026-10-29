@@ -12,6 +12,8 @@ from .document_tools import editable, selected_pages
 from .headers import SLOTS, prepare_headers, apply_headers
 from .page_labels import read_rules,write_rules
 
+from .embedded_files import normalize as normalize_embedded
+
 MAX_ATTACHMENT = 8 * 1024 * 1024
 
 
@@ -52,7 +54,7 @@ def attachment_info(doc,index):
 
 def attachment_model(base):
     with open_pdf(base) as doc:
-        names=doc.embfile_names()
+        normalize_embedded(doc);names=doc.embfile_names()
         if len(names)>100:raise DocumentError('Hasta 100 adjuntos por documento en esta herramienta.')
         return [{'index':i,**attachment_info(doc,i)} for i in range(len(names))]
 
@@ -68,7 +70,7 @@ def add_attachment(base,operations,name,data):
     name=safe_name(name)
     with open_pdf(base) as source:editable(source)
     with open_pdf(export_pdf(base,operations)) as doc:
-        names=[attachment_info(doc,i)['name'] for i in range(doc.embfile_count())]
+        normalize_embedded(doc);names=[attachment_info(doc,i)['name'] for i in range(doc.embfile_count())]
         if len(names)>=100 or name in names:raise DocumentError('Nombre de adjunto repetido o límite de 100 alcanzado.')
         sizes=[doc.embfile_info(i).get('size',0) for i in range(len(names))]
         if any(type(n) is not int or n<0 for n in sizes) or sum(sizes)+len(data)>32*1024*1024:raise DocumentError('Los tamaños declarados de adjuntos superan 32 MB o no son válidos.')
@@ -79,6 +81,7 @@ def add_attachment(base,operations,name,data):
 def attachment_pdf(base,operations,index):
     with open_pdf(base) as source:editable(source)
     with open_pdf(export_pdf(base,operations)) as doc:
+        normalize_embedded(doc)
         if type(index) is not int or not 0<=index<doc.embfile_count():raise DocumentError('Adjunto no encontrado.')
         doc.embfile_del(index)
         return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
@@ -86,6 +89,7 @@ def attachment_pdf(base,operations,index):
 
 def download_attachment(base,index):
     with open_pdf(base) as doc:
+        normalize_embedded(doc)
         if not doc.permissions & fitz.PDF_PERM_COPY:raise DocumentError('El documento no permite extraer adjuntos.')
         if type(index) is not int or not 0<=index<min(doc.embfile_count(),100):raise DocumentError('Adjunto no encontrado.')
         info=attachment_info(doc,index)

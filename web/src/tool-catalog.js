@@ -14,7 +14,7 @@ export const areas = [
  {id:'protect',label:'Proteger',description:'Prepara copias protegidas o censuradas.'},
 ];
 const areaMembers={
- workspace:['document_links','measurement','layers','xfdf','structure'],
+ workspace:['portfolio','document_links','measurement','layers','xfdf','structure'],
  read:['view','review','compare','attachments','metadata','accessibility'],
  edit:['find_replace','text','paragraph','flow','textbox','link','existing_links','images','existing_images','watermark','headers'],
  annotate:['comments','select','highlight','underline','strikeout','note','ink','line','arrow','rectangle','stamp'],
@@ -79,6 +79,7 @@ export const tools = [
  entry('tables','Exportar tablas a CSV','Extrae tablas digitales a un ZIP de archivos CSV.','document','copy','dialog','excel hojas cálculo'),
  entry('docx','Exportar texto a Word','Crea un DOCX con texto, imágenes compatibles y tablas editables revisadas.','document','copy','dialog','word docx office texto editable conversión'),
  entry('export_text','Exportar texto','Descarga el texto del documento en TXT.','document','copy','text'),
+ entry('portfolio','Portfolio PDF','Organiza adjuntos en una colección PDF nativa con títulos, descripciones y orden.','document','read','dialog','portfolio portafolio colección archivos paquete'),
  entry('attachments','Archivos adjuntos','Consulta y gestiona los archivos incrustados.','document','read'),
  entry('flow','Continuar texto entre regiones','Distribuye un texto entre bloques y áreas vacías de varias páginas.','edit','edit','dialog','reflujo párrafos continuar columnas flujo texto'),
  entry('form_rules','Cálculos automáticos del proyecto','Recalcula campos dependientes y conserva reglas en proyectos Reapdf.','forms','fill','dialog','fórmulas reglas dependencias automático suma promedio'),

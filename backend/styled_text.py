@@ -275,10 +275,10 @@ def styled_model(doc,number,box,font_cache=None):
             try:kerned=any(op=='TJ' and len(args)==1 and args[0].kind=='array' and any(t.kind=='number' and t.value!=0 for t in args[0].value) for op,args,_ in content_operations(content))
             except DocumentError:pass
         from .pdf_content import placements
-        multiple=False
-        try:multiple=any(o['shows'][0].kind=='operator-array' for o in placements(content)['texts'])
+        multiple=False;transformed=False
+        try:objects=placements(content)['texts'];multiple=any(o['shows'][0].kind=='operator-array' for o in objects);transformed=any(tuple(o['matrix'])!=(1.,0.,0.,1.,0.,0.) for o in objects)
         except DocumentError:pass
-        cache['_route_native']=bool(multiple or kerned or page.get_xobjects() or any(i[1] in ['cff','otf','cid'] for i in page.get_fonts()) or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz)(?![A-Za-z])',content))
+        cache['_route_native']=bool(transformed or multiple or kerned or page.get_xobjects() or any(i[1] in ['cff','otf','cid'] for i in page.get_fonts()) or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz)(?![A-Za-z])',content))
     if cache['_route_native']:
         from .native_text import native_model
         return native_model(doc,number,rect,cache)
@@ -363,6 +363,8 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
         else:encoded,width=row['_font'].encode(text,row['size'])
         available=rect.x1-row['origin'][0] if expand else fitz.Rect(row['bbox']).width
         if width>available+.1:raise DocumentError('El texto no cabe en el ancho disponible. Acórtalo o amplía el área y activa su ancho disponible; este modo no redistribuye las líneas.')
+        target=fitz.Rect(row['bbox']);target.x1=row['origin'][0]+width
+        if width and any(not (fitz.Rect(clip)+(-.05,-.05,.05,.05)).contains(target) for clip in row.get('_clips',[])):raise DocumentError('El texto nuevo sale del recorte del objeto Form.')
         if not page_contains(doc[number],row,width):raise DocumentError('El texto sale de la página o se cruza con otro fragmento.')
         prepared.append((row,encoded))
     if total>4000:raise DocumentError('Hasta 4000 caracteres entre los fragmentos editados.')

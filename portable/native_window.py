@@ -200,7 +200,7 @@ def create_window(url,initial_file=None):
 
 
 def main():
-    from PySide6.QtCore import QCoreApplication,Qt,QObject,Signal
+    from PySide6.QtCore import QCoreApplication,Qt,QTimer
     from PySide6.QtWidgets import QApplication
     QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
     app=QApplication(sys.argv[:1]);app.setApplicationName('Reapdf');app.setOrganizationName('Reapdf')
@@ -218,21 +218,15 @@ def main():
         window=create_window(sys.argv[1],sys.argv[2] if len(sys.argv)>2 else None);window.show()
         instance.set_handler(window.enqueue_file)
         if os.environ.get('REAPDF_PARENT_PIPE')=='1':
-            # EOF is signalled by the OS even if the parent is killed on Windows.
-            # A queued Qt signal closes only this child, never unrelated windows.
-            import threading
-            class ParentMonitor(QObject):
-                lost=Signal()
-            monitor=ParentMonitor()
-            def parent_lost():
-                window.allow_close=True;window.close();app.quit()
-            monitor.lost.connect(parent_lost)
+            # Poll the inherited pipe on the Qt loop. A buffered daemon reader
+            # can abort Python during shutdown after a failed page load.
+            try:from .parent_pipe import parent_alive
+            except ImportError:from parent_pipe import parent_alive
+            parent_fd=sys.stdin.fileno();parent_timer=QTimer(window)
             def watch_parent():
-                try:
-                    while sys.stdin.buffer.read(1):pass
-                except (OSError,ValueError):pass
-                monitor.lost.emit()
-            threading.Thread(target=watch_parent,daemon=True).start()
+                if not parent_alive(parent_fd):
+                    parent_timer.stop();window.allow_close=True;window.close();app.quit()
+            parent_timer.timeout.connect(watch_parent);parent_timer.start(200)
 
         def failed(message):
             print(message,file=sys.stderr,flush=True);window.allow_close=True;window.close();app.exit(1)

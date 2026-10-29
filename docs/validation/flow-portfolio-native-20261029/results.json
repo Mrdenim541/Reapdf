@@ -1,0 +1,20 @@
+{
+  "full_python_regression": 2509,
+  "subsequent_native_python": 42,
+  "features_targeted_python": 174,
+  "subsequent_axis_font_python": 25,
+  "javascript": 112,
+  "production_build": true,
+  "browser_workflows_passed": 3,
+  "qt_linux_checks_passed": 3,
+  "failed_load_child_exit_code": 1,
+  "buffered_reader_abort_reproduced_and_fixed": true,
+  "independent_portfolio_parser": "pyHanko",
+  "windows_verified_this_pass": false,
+  "user_acceptance_deferred": true,
+  "portable_built": false,
+  "private_pdf_uploaded_or_modified_this_pass": false,
+  "weighted_product_percent": 74.6,
+  "first_regression_timing_failure_resolved": true,
+  "last_parent_pipe_tests_added_after_full_collection": 3
+}

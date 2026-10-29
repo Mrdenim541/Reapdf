@@ -1,0 +1,9 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+Fontconfig error: No writable cache directories
+[407220:407240:1029/221531.772378:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 407241: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: loaded Qt child exits after controlled parent is killed; no unrelated process is terminated.

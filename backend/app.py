@@ -506,7 +506,7 @@ async def inspect_text_flow(doc_id: str, request: Request):
 @app.post('/api/documents/{doc_id}/flow-text')
 async def apply_text_flow(doc_id: str, request: Request):
     payload=await read_payload(request);base=document_path(doc_id).read_bytes();ops=payload.get('operations',[])
-    result,report=await run_in_threadpool(flow_text,base,ops,payload.get('regions'),payload.get('text'),payload.get('size',12),payload.get('family','sans'),payload.get('style','regular'),payload.get('color'),payload.get('align',0),payload.get('line_height',1.2),payload.get('auto_fit',False),payload.get('min_size',8),payload.get('runs'))
+    result,report=await run_in_threadpool(flow_text,base,ops,payload.get('regions'),payload.get('text'),payload.get('size',12),payload.get('family','sans'),payload.get('style','regular'),payload.get('color'),payload.get('align',0),payload.get('line_height',1.2),payload.get('auto_fit',False),payload.get('min_size',8),payload.get('runs'),payload.get('original_runs'))
     if payload.get('preview') is True:
         def previews():
             rows=[]
@@ -783,6 +783,18 @@ def get_labels(doc_id: str):return {'rules':label_rules(document_path(doc_id).re
 async def set_labels(doc_id: str, request: Request):
     payload=await read_payload(request)
     return store_document(labels_pdf(document_path(doc_id).read_bytes(),payload.get('operations',[]),payload.get('rules')))
+
+@app.get('/api/documents/{doc_id}/portfolio')
+def portfolio_info(doc_id: str):
+    from .portfolios import model
+    return model(document_path(doc_id).read_bytes())
+
+@app.post('/api/documents/{doc_id}/configure-portfolio')
+async def configure_portfolio(doc_id: str, request: Request):
+    from .portfolios import configure
+    payload=await read_payload(request)
+    result=await run_in_threadpool(configure,document_path(doc_id).read_bytes(),payload.get('operations',[]),payload.get('enabled'),payload.get('view','details'),payload.get('files'))
+    return store_document(result)
 
 @app.get('/api/documents/{doc_id}/attachments')
 def attachments(doc_id: str):return {'files':attachment_model(document_path(doc_id).read_bytes())}

@@ -65,7 +65,7 @@ def validate_payload(folder,config):
               'runtime/Lib/encodings/__init__.py','runtime/Lib/site-packages/pymupdf/mupdfcpp64.dll',
               'runtime/Lib/site-packages/pydantic_core/_pydantic_core.cp313-win_amd64.pyd',
               'runtime/Lib/site-packages/uvicorn/__init__.py','runtime/Lib/site-packages/colorama/__init__.py',
-              'app/backend/app.py','app/web/dist/index.html','app/launcher.py','app/desktop.py','app/native_window.py','app/native_print.py','app/native_save.py','app/single_instance.py','Iniciar-Reapdf.cmd','Abrir-en-navegador.cmd']
+              'app/backend/app.py','app/web/dist/index.html','app/launcher.py','app/desktop.py','app/native_window.py','app/native_print.py','app/native_save.py','app/single_instance.py','app/parent_pipe.py','Iniciar-Reapdf.cmd','Abrir-en-navegador.cmd']
     for name in required:
         if not (folder/name).is_file():raise ValueError('Falta un archivo portable: '+name)
     for path in (folder/'runtime').rglob('*'):
@@ -113,7 +113,7 @@ def build(wheelhouse=None,cache=None,output=None):
         shutil.copytree(ROOT/'web'/'src',app/'web'/'src')
         for name in ['package.json','package-lock.json','requirements-lock.txt']:shutil.copy2(ROOT/name,app/name)
         shutil.copy2(ROOT/'portable'/'launcher.py',app/'launcher.py')
-        for module in ['desktop.py','native_window.py','native_print.py','native_save.py','single_instance.py','windows_association.py']:
+        for module in ['desktop.py','native_window.py','native_print.py','native_save.py','single_instance.py','parent_pipe.py','windows_association.py']:
             shutil.copy2(ROOT/'portable'/module,app/module)
         shutil.copytree(ROOT/'docs',folder/'docs')
         shutil.copy2(ROOT/'portable'/'LEEME.md',folder/'LEEME.md')

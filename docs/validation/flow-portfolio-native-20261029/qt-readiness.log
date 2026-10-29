@@ -1,0 +1,20 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+Fontconfig error: No writable cache directories
+[407147:407169:1029/221529.841380:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 407170: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+Fontconfig error: No writable cache directories
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+Fontconfig error: No writable cache directories
+[407184:407204:1029/221530.857342:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 407205: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+La interfaz de Reapdf no pudo cargar.
+PASS: real Qt frontend ready, separate child forwards activation, 404 fails before ready and exits.

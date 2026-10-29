@@ -51,8 +51,9 @@ def inspect_flow(base,operations,regions):
     with open_pdf(export_pdf(base,operations)) as doc:
         rows,_=regions_model(doc,regions)
         from .mixed_flow import inspect_runs
+        from .original_flow import inspect_original
         return {'text':'\n\n'.join(r['text'] for r in rows if r['replace']),
-                'regions':[{'page':r['page'],'text':r['text']} for r in rows],**inspect_runs(doc,rows)}
+                'regions':[{'page':r['page'],'text':r['text']} for r in rows],**inspect_runs(doc,rows),**inspect_original(doc,rows)}
 
 
 def next_line(text,cursor,width,prefix):
@@ -89,7 +90,11 @@ def layout_flow(doc,rows,text,font,size,align,line_height):
     return writers,report,cursor
 
 
-def flow_text(base,operations,regions,text,size=12,family='sans',style='regular',color=None,align=0,line_height=1.2,auto_fit=False,min_size=8,runs=None):
+def flow_text(base,operations,regions,text,size=12,family='sans',style='regular',color=None,align=0,line_height=1.2,auto_fit=False,min_size=8,runs=None,original_runs=None):
+    if original_runs is not None:
+        if runs is not None:raise DocumentError('Elige un solo modo de fuentes para el flujo.')
+        from .original_flow import flow
+        return flow(base,operations,regions,text,original_runs,align,line_height,auto_fit,min_size)
     if not isinstance(text,str) or not text.strip() or len(text)>12000 or any((ord(c)<32 and c!='\n') or ord(c)==127 or unicodedata.bidirectional(c) in {'R','AL','AN'} for c in text):raise DocumentError('Usa entre 1 y 12000 caracteres, sin controles ni escritura de derecha a izquierda.')
     if not finite(size) or not 6<=size<=72 or not finite(min_size) or not 6<=min_size<=(size if runs is None else 72) or type(auto_fit) is not bool or type(align) is not int or align not in [0,1,2,3] or not finite(line_height) or not 1<=line_height<=2.5:raise DocumentError('Formato de flujo no válido: tamaño 6–72 pt e interlineado 1–2,5.')
     color=text_color([0,0,0] if color is None else color);font=paragraph_font(family,style)

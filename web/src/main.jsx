@@ -58,6 +58,7 @@ const AccessibilityDialog=lazy(()=>import('./standards.jsx').then(m=>({default:m
 const CompressionDialog=lazy(()=>import('./compression.jsx').then(m=>({default:m.CompressionDialog})));
 const DigitalSignatures=lazy(()=>import('./digital-signatures.jsx').then(m=>({default:m.DigitalSignatures})));
 const WordImport=lazy(()=>import('./word-import.jsx').then(m=>({default:m.WordImport})));
+const Portfolio=lazy(()=>import('./portfolio.jsx').then(m=>({default:m.Portfolio})));
 const TextFlow=lazy(()=>import('./text-flow.jsx').then(m=>({default:m.TextFlow})));
 const FormRules=lazy(()=>import('./form-rules.jsx').then(m=>({default:m.FormRules})));
 const FormCalculations=lazy(()=>import('./form-calculations.jsx').then(m=>({default:m.FormCalculations})));
@@ -82,7 +83,7 @@ function App() {
   const [searchFocusRequest,setSearchFocusRequest]=useState(0);
   const [tool, setTool] = useState('view'), [zoom, setZoom] = useState(1);
   const [inlineSpan,setInlineSpan]=useState(null);
-  const [inlineBlock,setInlineBlock]=useState(null);
+  const [inlineBlock,setInlineBlock]=useState(null),[flowStart,setFlowStart]=useState(null);
   const [textBoxMode,setTextBoxMode]=useState(false);
   const [linkWorkspace,setLinkWorkspace]=useState(null);
   const [color, setColor] = useState('#e34b40'), [width, setWidth] = useState(2);
@@ -132,7 +133,7 @@ function App() {
   const activeContent=contentDraft||(contentTools.has(tool)&&selectedOperation?.type===tool?selectedOperation:null);
   const sessionImages=operations.filter(op=>op.page===page&&op.type==='image');
   const noteEditDraft=tool==='select'&&selectedOperation?.type==='note'&&noteContent!==selectedOperation.content;
-  const draftMessage=inlineBlock?'Termina o cancela el párrafo sobre la página antes de continuar.':inlineSpan?'Termina o cancela la edición sobre la página antes de continuar.':(contentDraft||contentChanged)?'Hay contenido nuevo sin aplicar. Usa Aplicar o Cancelar contenido antes de exportar.':textDraft?'Hay texto sin aplicar. Pulsa Aplicar cambio o Cancelar antes de exportar.':
+  const draftMessage=flowStart&&pageTool==='flow'?'Termina o cancela el flujo iniciado desde el párrafo antes de continuar.':inlineBlock?'Termina o cancela el párrafo sobre la página antes de continuar.':inlineSpan?'Termina o cancela la edición sobre la página antes de continuar.':(contentDraft||contentChanged)?'Hay contenido nuevo sin aplicar. Usa Aplicar o Cancelar contenido antes de exportar.':textDraft?'Hay texto sin aplicar. Pulsa Aplicar cambio o Cancelar antes de exportar.':
     (notePoint||noteEditDraft)?'Guarda la nota o cancela sus cambios antes de exportar.':
     multiDraft?'Aplica o cancela los cambios del grupo antes de continuar.':
     existingDraft?'Pulsa Aplicar propiedades existentes o cancela los cambios de la marca.':
@@ -210,7 +211,7 @@ function App() {
   });
 
   function adoptNewDocument(next,name) {
-    setInlineSpan(null);setInlineBlock(null);
+    setInlineSpan(null);setInlineBlock(null);setFlowStart(null);
     const previousIds=sessionIds.current;sessionIds.current=new Set([next.id]);
     saved.current=JSON.stringify({id:next.id,operations:[]});projectSaved.current='';
     setArea('read');setPropertiesFolded(false);setSearchFocusRequest(0);setHistory([{doc:{...next,name,nativeKey:next.id,baseChanges:0},operations:[]}]);setPage(0);setCursor(0);setTool('view');setPageTool(null);
@@ -232,7 +233,7 @@ function App() {
         const result=await r.json();if(result.document)adoptVersion(result.document,`OCR aplicado a ${result.report.processed.length} páginas; ${result.report.skipped.length} omitidas con texto previo. Revisa los resultados.`,page);
         else {setPageTool(null);setNotice('No se añadió OCR: las páginas seleccionadas ya contienen texto digital.');}
       }else if(action==='optimize'){const result=await r.json();adoptVersion(result.document,`Optimización: ${result.report.before.toLocaleString()} → ${result.report.after.toLocaleString()} bytes (${result.report.saved.toLocaleString()} ahorrados).`,page);}
-      else adoptVersion(await r.json(),action==='prepare-accessibility'?'Título e idioma actualizados; el etiquetado no se modifica. Puedes deshacer.':action==='visual-signature'?'Firma visual incorporada; no contiene certificado digital. Puedes deshacer.':action==='labels'?'Etiquetas de página actualizadas. Puedes deshacer.':action==='add-attachment'?'Archivo adjuntado al PDF. Puedes deshacer.':action==='delete-attachment'?'Adjunto retirado del listado. Puedes deshacer.':action==='find-replace/apply'?'Reemplazos aplicados. Puedes deshacer el lote completo.':action==='replace-styled-text'?'Texto editado conservando la fuente, tamaño, color y posición de los fragmentos compatibles. Puedes deshacer.':action==='flow-text'?'Texto distribuido entre las regiones elegidas. Puedes deshacer el flujo completo.':action==='replace-paragraph'?'Bloque reemplazado con el formato elegido y fuente incrustada. Puedes deshacer.':action==='edit-field-properties'?'Propiedades del campo actualizadas, conservando sus valores. Puedes deshacer.':action==='edit-comment'?'Revisión incorporada al PDF. Puedes deshacer.':action==='edit-link'?'Enlace actualizado. Puedes deshacer.':action==='edit-image'?'Imagen editada. Puedes deshacer para recuperar la versión anterior.':action==='create-field'?'Campo creado. Puedes rellenarlo, guardar proyecto o deshacer.':action==='delete-field'?'Campo eliminado. Puedes deshacer.':action==='flatten-form'?'Campos aplanados conservando su apariencia. Puedes deshacer para recuperar su edición.':'Propiedades actualizadas. Puedes deshacer el cambio.',page);
+      else adoptVersion(await r.json(),action==='configure-portfolio'?'Portfolio PDF actualizado. Puedes deshacer.':action==='prepare-accessibility'?'Título e idioma actualizados; el etiquetado no se modifica. Puedes deshacer.':action==='visual-signature'?'Firma visual incorporada; no contiene certificado digital. Puedes deshacer.':action==='labels'?'Etiquetas de página actualizadas. Puedes deshacer.':action==='add-attachment'?'Archivo adjuntado al PDF. Puedes deshacer.':action==='delete-attachment'?'Adjunto retirado del listado. Puedes deshacer.':action==='find-replace/apply'?'Reemplazos aplicados. Puedes deshacer el lote completo.':action==='replace-styled-text'?'Texto editado conservando la fuente, tamaño, color y posición de los fragmentos compatibles. Puedes deshacer.':action==='flow-text'?'Texto distribuido entre las regiones elegidas. Puedes deshacer el flujo completo.':action==='replace-paragraph'?'Bloque reemplazado con el formato elegido y fuente incrustada. Puedes deshacer.':action==='edit-field-properties'?'Propiedades del campo actualizadas, conservando sus valores. Puedes deshacer.':action==='edit-comment'?'Revisión incorporada al PDF. Puedes deshacer.':action==='edit-link'?'Enlace actualizado. Puedes deshacer.':action==='edit-image'?'Imagen editada. Puedes deshacer para recuperar la versión anterior.':action==='create-field'?'Campo creado. Puedes rellenarlo, guardar proyecto o deshacer.':action==='delete-field'?'Campo eliminado. Puedes deshacer.':action==='flatten-form'?'Campos aplanados conservando su apariencia. Puedes deshacer para recuperar su edición.':'Propiedades actualizadas. Puedes deshacer el cambio.',page);
       return true;
     }catch(e){setError(e.message);return false;}finally{setBusy(false);}
   }
@@ -395,6 +396,7 @@ function App() {
     setTimeout(()=>URL.revokeObjectURL(url),10000);
   }
   function adoptVersion(next, message, focus = 0) {
+    setFlowStart(null);
     sessionIds.current.add(next.id);
     const {project_operations=[],...version}=next;
     setHistory(h=>[...h.slice(0,cursor+1),{doc:{...version,name:next.working_copy?doc.name.replace(/\.pdf$/i,'')+'-copia-trabajo.pdf':doc.name,nativeKey:next.working_copy?next.id:doc.nativeKey||doc.id,baseChanges:changeCount+1},operations:project_operations}]);
@@ -656,7 +658,7 @@ function App() {
           {preview&&tool==='view'&&<LinkLayer links={links} zoom={zoom} onPage={target=>{setPage(target);paperScroll.current?.scrollTo(0,0);}}/>}
           {preview && <TextLayer items={textItems} zoom={zoom} enabled={tool==='view'}/>}
           {inlineSpan&&<InlineTextEditor key={`${doc.id}:${page}:${inlineSpan.id}`} doc={doc} page={page} operations={operations} span={inlineSpan} zoom={zoom} busy={busy} error={error} onParagraph={()=>{setInlineBlock(inlineSpan);setInlineSpan(null);setError('');}} onApply={async(action,params)=>{const ok=await runAdvanced(action,params);if(ok)setTool(inlineSpan.insert?'textbox':'text');return ok;}} onCancel={()=>{setInlineSpan(null);setError('');}}/>}
-          {inlineBlock&&<InlineParagraph doc={doc} page={page} operations={operations} span={inlineBlock} zoom={zoom} busy={busy} error={error} onApply={async(action,params)=>{const ok=await runAdvanced(action,params);if(ok)setTool('text');return ok;}} onCancel={()=>{setInlineBlock(null);setError('');}}/>}
+          {inlineBlock&&<InlineParagraph onContinue={payload=>{setFlowStart({id:doc.id,...payload});setInlineBlock(null);setError('');setPageTool('flow');}} doc={doc} page={page} operations={operations} span={inlineBlock} zoom={zoom} busy={busy} error={error} onApply={async(action,params)=>{const ok=await runAdvanced(action,params);if(ok)setTool('text');return ok;}} onCancel={()=>{setInlineBlock(null);setError('');}}/>}
           {pagePreview.failed&&!preview&&<div className="loading"><button onClick={pagePreview.retry}>Reintentar vista de página</button></div>}
           {loading && <div className="loading" role="status">Preparando página…</div>}
           <svg ref={svg} aria-label="Lienzo de anotaciones" viewBox={`0 0 ${geometry.width} ${geometry.height}`} style={{cursor:(drawingTools.has(tool)||markupTools.has(tool)||contentTools.has(tool)||tool==='note')?'crosshair':'default',touchAction:(drawingTools.has(tool)||markupTools.has(tool)||tool==='select'||tool==='images'||contentTools.has(tool))?'none':'auto',pointerEvents:tool==='view'?'none':'auto'}} onPointerDown={start} onPointerMove={move} onPointerUp={end} onPointerCancel={()=>{strokeRef.current=null;activePointer.current=null;setStroke(null);}}>
@@ -728,7 +730,8 @@ function App() {
     {doc&&pageTool==='accessibility'&&<Suspense fallback={loadingTool}><AccessibilityDialog doc={doc} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced} onPage={next=>{setPageTool(null);setPage(next);paperScroll.current?.scrollTo(0,0);}}/></Suspense>}
     {doc&&pageTool==='docx'&&<DocxExport doc={doc} page={page} operations={operations} onClose={()=>setPageTool(null)}/>}
     {pageTool==='import_word'&&<Suspense fallback={loadingTool}><WordImport onClose={()=>setPageTool(null)} onImported={(next,name)=>{if(!doc&&recovery.info?.available&&!window.confirm('Abrir el Word convertido reemplazará la sesión recuperable. ¿Continuar?'))return false;if((needsSave||draftMessage)&&!window.confirm('Abrir el Word convertido reemplazará el documento actual. Guarda un proyecto para conservar sus cambios. ¿Continuar?'))return false;adoptNewDocument(next,name);setNotice('Word convertido a PDF. Revisa el resultado y guarda un proyecto o exporta una copia.');return true;}}/></Suspense>}
-    {doc&&pageTool==='flow'&&<Suspense fallback={loadingTool}><TextFlow doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/></Suspense>}
+    {doc&&pageTool==='portfolio'&&<Suspense fallback={loadingTool}><Portfolio doc={doc} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/></Suspense>}
+    {doc&&pageTool==='flow'&&<Suspense fallback={loadingTool}><TextFlow start={flowStart?.id===doc.id?flowStart:null} doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>{setFlowStart(null);setPageTool(null);}} onAction={runAdvanced}/></Suspense>}
     {doc&&pageTool==='form_rules'&&<Suspense fallback={loadingTool}><FormRules doc={doc} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onApply={plan=>applyDocumentTool('form_rules',plan)}/></Suspense>}
     {doc&&pageTool==='calculate'&&<Suspense fallback={loadingTool}><FormCalculations doc={doc} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/></Suspense>}
     {doc&&pageTool==='automation'&&<Suspense fallback={loadingTool}><Automation doc={doc} operations={operations} onClose={()=>setPageTool(null)}/></Suspense>}

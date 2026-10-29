@@ -60,7 +60,7 @@ def native_model(doc,number,rect,font_cache=None):
                     face=compatible.get((obj['scope'],obj['font']))
                     if face is None or normal_name(span['font']) not in face.aliases:continue
                     matrix=obj['matrix'];origin=obj['origin']*matrix*page.transformation_matrix;effective_size=obj['size']*obj['factor']
-                    if not 0<effective_size<=1000 or abs(effective_size*math.sqrt(obj['spacing']['scale']/100)-span['size'])>=.01 or abs(origin.x-span['origin'][0])>=.02 or abs(origin.y-span['origin'][1])>=.02:continue
+                    if not 0<effective_size<=1000 or abs(effective_size*math.sqrt(obj['spacing']['scale']/100*obj['horizontal_factor'])-span['size'])>=.01 or abs(origin.x-span['origin'][0])>=.02 or abs(origin.y-span['origin'][1])>=.02:continue
                     try:encoded,_=face.encode(text,effective_size)
                     except DocumentError:continue
                     if obj['shows'][0].value==encoded:found.append((face,obj))
@@ -73,13 +73,13 @@ def native_model(doc,number,rect,font_cache=None):
                     if any(c[1] not in ({font.base.has_glyph(c[0],fallback=0)} if font.base else {entry[0] if font.trace_cid else entry[2] for entry in font.options.get(chr(c[0]),[])}) for c in trace[0]['chars']):raise DocumentError('El mapa de glifos no coincide con el texto representado.')
                     from .text_spacing import source_layout
                     actual_size=obj['size']*obj['factor']
-                    local={**obj,'spacing':{**obj['spacing'],'char':obj['spacing']['char']*obj['factor'],'word':obj['spacing']['word']*obj['factor']}}
+                    local={**obj,'spacing':{**obj['spacing'],'char':obj['spacing']['char']*obj['factor'],'word':obj['spacing']['word']*obj['factor'],'scale':obj['spacing']['scale']*obj['horizontal_factor']}}
                     width,origins,spacing=source_layout(font,text,actual_size,local)
                     if abs(width-bounds.width)>.3:raise DocumentError('Las anchuras originales no coinciden con el fragmento.')
                     for char,advance in zip(span['chars'],origins):
                         if abs(char['origin'][0]-span['origin'][0]-advance)>.3:raise DocumentError('El espaciado no coincide con los caracteres representados.')
                     show=obj['shows'][0];native=[show.start,show.end,show.kind]
                 except DocumentError as exc:reason=str(exc)
-                rows.append({'id':f'{bi}:{li}:{si}','text':text,'font':span['font'],'size':actual_size,'display_size':span['size'],'color':span['color'],'origin':list(span['origin']),'bbox':list(bounds),'editable':not reason,'reason':reason,'subset':bool(font and font.restricted),'method':'form-occurrence' if native and obj['path'] else 'direct-content','_font':font,'_native':native,'_spacing':spacing,'_native_path':obj['path'] if native else []})
+                rows.append({'id':f'{bi}:{li}:{si}','text':text,'font':span['font'],'size':actual_size,'display_size':span['size'],'color':span['color'],'origin':list(span['origin']),'bbox':list(bounds),'editable':not reason,'reason':reason,'subset':bool(font and font.restricted),'method':'form-occurrence' if native and obj['path'] else 'direct-content','_font':font,'_native':native,'_spacing':spacing,'_native_path':obj['path'] if native else [],'_clips':obj['clips'] if native else []})
     if len(rows)>100:raise DocumentError('Hasta 100 fragmentos por región.')
     return rect,rows

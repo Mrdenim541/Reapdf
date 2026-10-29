@@ -27,8 +27,8 @@ def structure(doc,page):
         parsed=placements(data)
         for obj in parsed['texts']:
             combined=obj['matrix']*parent
-            if abs(combined.b)>.00001 or abs(combined.c)>.00001 or combined.a<=0 or abs(combined.a-combined.d)>.00001:continue
-            result.append({**obj,'matrix':combined,'scope':owner if path else 0,'path':path,'clips':clips,'factor':combined.a})
+            if abs(combined.b)>.00001 or abs(combined.c)>.00001 or combined.a<=0 or combined.d<=0 or not .1<=combined.a/combined.d<=10:continue
+            result.append({**obj,'matrix':combined,'scope':owner if path else 0,'path':path,'clips':clips,'factor':combined.d,'horizontal_factor':combined.a/combined.d})
             if len(result)>5000:raise DocumentError('Hasta 5000 grupos de texto por página.')
         for invocation in parsed['images']:
             name=invocation['resource']

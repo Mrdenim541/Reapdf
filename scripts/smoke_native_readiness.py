@@ -30,6 +30,6 @@ try:
     try:failed.wait_ready(10)
     except RuntimeError:pass
     else:raise AssertionError('404 must not mark the application ready')
-    assert failed.process.wait(timeout=10)!=0
+    assert failed.process.wait(timeout=10)==1, "A failed load must exit cleanly with code 1, never abort during shutdown"
 finally:failed.close();server.shutdown();server.server_close();thread.join(timeout=5)
 print('PASS: real Qt frontend ready, separate child forwards activation, 404 fails before ready and exits.')
