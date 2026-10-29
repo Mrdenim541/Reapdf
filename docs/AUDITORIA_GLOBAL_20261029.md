@@ -1,5 +1,7 @@
 # Referencia global de la base recuperada
 
+**Actualización vigente:** ≈70 % (69,8 ponderado), tras el [avance integrado](AVANCE_INTEGRADO_20261029.md). Se conservan las diecisiete áreas, alcance y pesos; cambios y pendientes en [avance-global.json](avance-global.json). El texto siguiente documenta la referencia anterior de 49,9 %, archivada para comparación.
+
 Estimación conservadora actual: **aproximadamente 50 % del programa completo**, intervalo subjetivo **40–60 %**. No es una medida objetiva de paridad con Acrobat ni una previsión de horas restantes.
 
 Se evalúa el código 0.43 recuperado y las mejoras de edición/escritorio añadidas después de su recuperación. La cifra histórica de 61,3 % correspondía a 0.55 y sus archivos no están disponibles. Esta evaluación inaugura una referencia reconstruida; no permite calcular una subida o bajada comparable contra aquella versión. La matriz anterior tampoco se recuperó: las áreas y pesos publicados aquí son la nueva referencia, que deberá conservarse en siguientes revisiones o cambiarse con justificación explícita.

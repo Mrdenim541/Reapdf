@@ -35,7 +35,7 @@ try:
     assert window.windowTitle()=='Reapdf'
     assert window.bridge.printPdf('invalid').startswith('error:')
     with f.open() as oversized:
-        oversized.new_page(width=4000,height=4000)
+        oversized.new_page(width=6001,height=6001)
         assert window.bridge.printPdf(base64.b64encode(oversized.tobytes()).decode()).startswith('error:')
     assert not window.page.acceptNavigationRequest(QUrl('https://example.com'),None,True)
     with f.open() as d:

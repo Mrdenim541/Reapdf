@@ -102,6 +102,12 @@ class TrueType:
             if self.offsets!=sorted(self.offsets) or self.offsets[-1]>len(self.glyf):raise ValueError()
         except (KeyError,ValueError,struct.error) as exc:raise DocumentError('Los contornos TrueType no son compatibles.') from exc
         self.cache={}
+        self.byte_cmap=None
+        cmap=tables.get(b'cmap',b'')
+        if len(cmap)>=12 and struct.unpack_from('>H',cmap,2)[0]==1:
+            platform,encoding,offset=struct.unpack_from('>HHI',cmap,4)
+            if platform==1 and encoding==0 and offset+262<=len(cmap) and struct.unpack_from('>HH',cmap,offset)==(0,262):
+                self.byte_cmap=list(cmap[offset+6:offset+262])
     def has_outline(self,gid,path=()):
         if gid in self.cache:return self.cache[gid]
         if not 0<gid<self.count or gid in path or len(path)>16:return False
@@ -138,7 +144,9 @@ class OriginalFont:
             if encoding not in [('name','/WinAnsiEncoding'),('null','null')]:raise DocumentError('La fuente base tiene una codificación no compatible.')
             self.encoding='cp1252' if encoding[0]=='name' else 'ascii';self.base=fitz.Font(BASE_FONTS[self.name]);return
         if self.type=='TrueType':
-            self.load_simple(doc);return
+            if doc.xref_get_key(self.xref,'Encoding')[0]=='null':self.load_builtin(doc)
+            else:self.load_simple(doc)
+            return
         if self.type!='Type0' or doc.xref_get_key(self.xref,'Encoding')!=('name','/Identity-H'):raise DocumentError('Se requiere una fuente base estándar o TrueType compatible con Identity-H/WinAnsi.')
         n=fitz.mupdf;obj=native_font(doc,self.xref);desc=n.pdf_dict_gets(obj,'DescendantFonts')
         if n.pdf_array_len(desc)!=1:raise DocumentError('La fuente compuesta no tiene un descendiente único.')
@@ -174,6 +182,27 @@ class OriginalFont:
             else:continue
             if 0<gid<face.count and (char in [' ','\u00a0'] or face.has_outline(gid)):
                 self.options[char].append((cid,width/1000,gid))
+    def load_builtin(self,doc):
+        kind,flags=doc.xref_get_key(self.xref,'FontDescriptor/Flags')
+        if kind!='int' or not int(flags)&4:raise DocumentError('La codificación integrada requiere una clasificación simbólica explícita y un mapa verificado.')
+        kind,value=doc.xref_get_key(self.xref,'FontDescriptor/FontFile2')
+        if kind!='xref':raise DocumentError('Falta el programa TrueType incrustado.')
+        data=stream(doc,int(value.split()[0]),16*1024*1024);self.program_bytes=len(data);face=TrueType(data)
+        if face.byte_cmap is None:raise DocumentError('La fuente integrada requiere un único cmap Macintosh de un byte; no se adivina su codificación.')
+        kind,value=doc.xref_get_key(self.xref,'ToUnicode')
+        if kind!='xref':raise DocumentError('Falta ToUnicode para la fuente integrada.')
+        mapping=unicode_cmap(stream(doc,int(value.split()[0]),2*1024*1024),1)
+        n=fitz.mupdf;obj=native_font(doc,self.xref);first=n.pdf_dict_gets(obj,'FirstChar');last=n.pdf_dict_gets(obj,'LastChar');widths=n.pdf_dict_gets(obj,'Widths')
+        if not n.pdf_is_int(first) or not n.pdf_is_int(last):raise DocumentError('Rango de anchuras no válido.')
+        a,b=n.pdf_to_int(first),n.pdf_to_int(last)
+        if not 0<=a<=b<=255 or n.pdf_array_len(widths)!=b-a+1:raise DocumentError('Tabla de anchuras integrada no válida.')
+        self.code_bytes=1;self.aliases.update(normal_name(name) for name in face.names)
+        for cid,char in mapping.items():
+            if not a<=cid<=b:continue
+            glyph=face.byte_cmap[cid];width=n.pdf_to_real(n.pdf_array_get(widths,cid-a))
+            if 0<width<=10000 and 0<glyph<face.count and (char in [' ','\u00a0'] or face.has_outline(glyph)):
+                self.options[char].append((cid,width/1000,glyph))
+
     def load_simple(self,doc):
         if doc.xref_get_key(self.xref,'Encoding')!=('name','/WinAnsiEncoding'):raise DocumentError('La TrueType simple requiere WinAnsi explícita, sin diferencias.')
         kind,flags=doc.xref_get_key(self.xref,'FontDescriptor/Flags')
@@ -225,6 +254,9 @@ class OriginalFont:
 
 def styled_model(doc,number,box,font_cache=None):
     rect,_=region_model(doc,number,box);page=doc[number]
+    if page.get_xobjects() or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?)(?![A-Za-z])',page.read_contents()):
+        from .native_text import native_model
+        return native_model(doc,number,rect,font_cache)
     if page.get_xobjects() or doc.get_ocgs() or doc.xref_get_key(page.xref,'Resources')[0]=='null':raise DocumentError('Este modo requiere texto directo sin capas ni objetos de formulario internos.')
     if any(doc.xref_get_key(page.xref,key)[0]!='null' for key in ['Resources/ExtGState','Resources/Pattern','Resources/Shading']):raise DocumentError('Las transparencias, patrones o sombreados necesitan una edición adicional antes de conservar estilos.')
     if re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?)(?![A-Za-z])',page.read_contents()):raise DocumentError('El contenido marcado o recortado todavía no es compatible con este modo.')
@@ -275,7 +307,7 @@ def inspect_styled(base,operations,number,box):
     with open_pdf(export_pdf(base,operations)) as doc:
         prepare_text_page(doc,number)
         _,rows=styled_model(doc,number,box)
-        return {'runs':[{k:v for k,v in r.items() if k!='_font'} for r in rows]}
+        return {'runs':[{k:v for k,v in r.items() if not k.startswith('_')} for r in rows]}
 
 
 def replace_styled(base,operations,number,box,changes,expand=False):
@@ -312,6 +344,10 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
 
 def write_changes(doc,number,prepared):
     page=doc[number]
+    if all('_native' in row for row,_ in prepared):
+        from .pdf_content import patch,set_content
+        edits=[(row['_native'][0],row['_native'][1],(b'[<' if row['_native'][2]=='array-string' else b'<')+encoded.hex().encode()+(b'>]' if row['_native'][2]=='array-string' else b'>')) for row,encoded in prepared]
+        set_content(doc,page,patch(page.read_contents(),edits));return
     clone_resources(doc,page)
     for row,_ in prepared:page.add_redact_annot(fitz.Rect(row['bbox']),fill=False,cross_out=False)
     page.apply_redactions(images=0,graphics=0,text=0)

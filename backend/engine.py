@@ -16,8 +16,8 @@ def open_pdf(data: bytes):
             raise DocumentError("Este prototipo no admite PDF con contraseña.")
         if not 1 <= len(doc) <= MAX_PAGES:
             raise DocumentError(f"Se admiten documentos de 1 a {MAX_PAGES} páginas.")
-        if any(max(p.rect.width, p.rect.height) > 3000 for p in doc):
-            raise DocumentError("Este prototipo no admite páginas de más de 3000 puntos.")
+        if any(max(p.rect.width, p.rect.height) > 6000 for p in doc):
+            raise DocumentError("Este prototipo no admite páginas de más de 6000 puntos.")
         return doc
     except DocumentError:
         if doc is not None:

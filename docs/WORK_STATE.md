@@ -1,4 +1,8 @@
-# Estado comprobado · recuperación del 29 de octubre de 2026
+# Estado comprobado · 29 de octubre de 2026
+
+**Estado vigente:** [avance integrado](AVANCE_INTEGRADO_20261029.md), ≈70 % global (69,8 ponderado, intervalo subjetivo 60–78 %). 2257 Python, 109 JS y recorridos Chromium/Qt aprobados; Windows y entrega final pendientes. Edición sobre la página con ratón/cursor; PDF real editado con fuente original e imagen movida, sin alterar el original. Incorporadas vinculación/medición/capas/XFDF, copia de trabajo, etiquetas, diagnóstico, OCR regional e impresión vectorial/mosaicos. [Plan siguiente](PLAN_ACTUAL.md). No paquete nuevo. Las entradas que siguen conservan el historial y sus límites de cada corte.
+
+## Historial de la recuperación
 
 La base recuperada es 0.43.0, extraída de la entrega GitHub b75864ebcd9fc2fad952effb2197829ad4f4dad4. El ZIP original tiene SHA256 c7b37849bd2491ef2e0eacc13a31d60e868ef33f73c6e175b8ff8e8d28bd59c9. Se recuperaron 435 archivos de fuentes, pruebas y recursos. No se recuperó el código 0.44–0.55; sus mejoras constan en la conversación, pero no se deben presentar como presentes en esta base.
 

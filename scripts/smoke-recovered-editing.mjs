@@ -13,20 +13,12 @@ const browser=await chromium.launch({headless:true,executablePath:'/usr/bin/chro
 try{
  const page=await browser.newPage();page.on('dialog',d=>d.message().startsWith('Cambiar de modo')?d.dismiss():d.accept());const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('http://127.0.0.1:8000');await page.getByLabel('Archivo PDF').setInputFiles(source);await openTool(page,'Editar texto');
- await page.getByRole('button',{name:'Editar bloque: Texto original largo',exact:true}).click();
- await expect(page.getByLabel('Modo de edición del bloque')).toHaveValue('original');
- await expect(page.getByLabel('Texto del fragmento 1')).toHaveValue('Texto original largo');
- await page.getByLabel('Modo de edición del bloque').selectOption('reflow');
- await expect(page.getByLabel('Texto del bloque')).toHaveValue('Texto original largo');
- await page.getByLabel('Modo de edición del bloque').selectOption('original');
- await expect(page.getByLabel('Texto del fragmento 1')).toHaveValue('Texto original largo');
- await page.getByLabel('Texto del fragmento 1').fill('Texto nuevo');
- await page.getByLabel('Modo de edición del bloque').selectOption('reflow');
- await expect(page.getByLabel('Modo de edición del bloque')).toHaveValue('original');
- await expect(page.getByLabel('Texto del fragmento 1')).toHaveValue('Texto nuevo');
- await page.getByLabel('Texto del fragmento 1').press('Control+Enter');
- await expect(page.getByRole('button',{name:'Aplicar párrafo',exact:true})).toBeEnabled();
- await page.getByLabel('Texto del fragmento 1').press('Control+Enter');await expect(page.getByRole('dialog')).toHaveCount(0);
+ await page.getByRole('button',{name:'Editar en página: Texto original largo',exact:true}).click();
+ await expect(page.getByLabel('Texto sobre la página',{exact:true})).toBeEnabled();
+ await expect(page.locator('#tool-properties')).toBeHidden();
+ await page.getByLabel('Texto sobre la página',{exact:true}).fill('Texto nuevo');
+ await page.getByLabel('Texto sobre la página',{exact:true}).press('Control+Enter');
+ await expect(page.getByLabel('Texto sobre la página',{exact:true})).toHaveCount(0);
  await expect(page.locator('.text-layer')).toContainText('Texto nuevo');
  await page.getByRole('button',{name:'Deshacer',exact:false}).click();await expect(page.locator('.text-layer')).toContainText('Texto original largo');
  await page.getByRole('button',{name:'Rehacer',exact:false}).click();await expect(page.locator('.text-layer')).toContainText('Texto nuevo');

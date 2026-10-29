@@ -1,14 +1,10 @@
 # Reapdf
 
-Estado vigente: [Edición entre fragmentos, fuentes WinAnsi y arranque comprobado](docs/FRAGMENTOS_FUENTES_Y_ARRANQUE_20261029.md). [Auditoría global reconstruida](docs/AUDITORIA_GLOBAL_20261029.md): aproximadamente 50 % del alcance total; aceptación Windows pendiente.
+Estado vigente: [edición sobre la página y avance integrado](docs/AVANCE_INTEGRADO_20261029.md), **≈70 % del programa completo** (estimación de madurez; Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
-Último avance: [apertura e impresión desde el escritorio](docs/APERTURA_IMPRESION_20261029.md), carga automática de modos de edición y Ctrl+Enter. Validación Linux; Windows y entrega final pendientes.
+Ventana propia Qt, edición de fuentes compatibles, vinculación configurable, medición, capas, XFDF y OCR regional comprobados en Linux. No se genera instalador/portable en este avance. La base procede de 0.43 recuperado y mejoras nuevas; 0.55 no se ha recuperado. Generación de informes/registros/ensayos excluida.
 
-Nuevo alojamiento de escritorio: [ventana propia Qt y protección de borradores](docs/ESCRITORIO_QT_20261029.md). Comprobación Linux; empaquetado y aceptación Windows pendientes.
-
-Estado vigente: [recuperación y edición directa](docs/WORK_STATE.md), [plan actual](docs/PLAN_ACTUAL.md). Esta base procede de 0.43, con cambios nuevos documentados; el código 0.55 mencionado en el historial no se ha recuperado. Generación de informes/registros/ensayos excluida del alcance actual. No se entrega un portable en este avance.
-
-Primera versión experimental de un editor PDF personal, con Adobe Acrobat como referencia funcional. Primero se construye el editor general; las automatizaciones de registros y planos se desarrollarán después.
+Primera versión experimental de un editor PDF personal, con Adobe Acrobat como referencia funcional. Primero se construye el editor general; la vinculación entre documentos usa archivos y funciones elegidos por el usuario.
 
 ## Funciona en este prototipo
 

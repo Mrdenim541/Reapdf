@@ -10,16 +10,18 @@ export const areas = [
  {id:'pages',label:'Organizar páginas',description:'Compón el documento, sus etiquetas y su índice.'},
  {id:'forms',label:'Formularios y firmas',description:'Completa campos, firma con certificado o revisa firmas digitales.'},
  {id:'convert',label:'Convertir y OCR',description:'Reconoce escaneados y exporta texto, tablas o imágenes.'},
+ {id:'workspace',label:'Documentos',description:'Vincula archivos, mide planos y controla capas.'},
  {id:'protect',label:'Proteger',description:'Prepara copias protegidas o censuradas.'},
 ];
 const areaMembers={
+ workspace:['document_links','measurement','layers','xfdf','structure'],
  read:['view','review','compare','attachments','metadata','accessibility'],
  edit:['find_replace','text','paragraph','flow','textbox','link','existing_links','images','existing_images','watermark','headers'],
  annotate:['comments','select','highlight','underline','strikeout','note','ink','line','arrow','rectangle','stamp'],
  pages:['organizer','insert','replace','duplicate','blank','crop','split','labels','bookmarks','numbering','bates'],
  forms:['form_rules','calculate','forms','field_properties','field','data','flatten','signature','digital_sign','verify_signatures'],
- convert:['ocr','export_images','tables','export_text','optimize','batch','automation','docx','archive','compress'],
- protect:['protect','redact','standards'],
+ convert:['ocr','region_ocr','export_images','tables','export_text','optimize','batch','automation','docx','archive','compress'],
+ protect:['protect','redact','standards','working_copy','preflight'],
 };
 export const toolArea=id=>areas.find(a=>areaMembers[a.id].includes(id));
 export function areaChangeReason(state={}){
@@ -28,6 +30,14 @@ export function areaChangeReason(state={}){
 }
 const entry=(id,label,description,group,permission='edit',target='dialog',keywords='')=>({id,label,description,group,permission,target,keywords,area:toolArea(id)?.id});
 export const tools = [
+ entry('region_ocr','OCR de región','Reconoce una zona escaneada dentro de páginas con contenido mixto.','document','edit_copy'),
+ entry('structure','Etiquetas y orden de lectura','Edita alternativas de figuras etiquetadas y orden de etiquetas hermanas.','read','read'),
+ entry('preflight','Inspección de impresión','Revisa resolución efectiva, fuentes, cajas y colores antes de imprimir.','document','read'),
+ entry('xfdf','Intercambiar XFDF','Importa y exporta anotaciones y datos compatibles de otros lectores.','document','copy'),
+ entry('working_copy','Copia de trabajo sin firmas','Crea una copia editable identificada, sin trasladar validez de firmas digitales.','document','copy'),
+ entry('document_links','Vincular documentos','Relaciona documentos mediante identificadores y destinos revisados.','document','copy'),
+ entry('measurement','Medir planos','Calibra distancias y guarda longitudes, áreas y cantidades.','document','edit'),
+ entry('layers','Capas del PDF','Revisa y configura la visibilidad de capas opcionales.','document','read'),
  entry('view','Lectura','Selecciona texto y sigue enlaces del documento.','read','read','tool'),
  entry('select','Seleccionar marca','Selecciona y modifica anotaciones compatibles.','read','read','tool'),
  entry('accessibility','Accesibilidad y preparación','Revisa etiquetas, alternativas, título e idioma y prepara metadatos compatibles.','read','read','dialog','pdf ua accesible idioma etiquetas alternativo'),
@@ -36,7 +46,7 @@ export const tools = [
  entry('review','Revisar documento','Localiza anotaciones, campos, enlaces y posibles escaneados.','read','read','dialog','diagnóstico inspección control calidad'),
  entry('compare','Comparar documentos','Compara texto y apariencia de dos PDF.','read','copy'),
  entry('find_replace','Buscar y reemplazar','Busca texto digital y revisa reemplazos con fuente compatible.','edit','read','dialog','buscar reemplazar coincidencias palabras mayúsculas'),
- entry('text','Editar texto','Corrige líneas simples de fuentes base compatibles.','edit','edit','tool'),
+ entry('text','Editar texto','Pulsa el texto sobre la página y escribe; conserva la fuente compatible o cambia el formato.','edit','edit','tool'),
  entry('paragraph','Reemplazar bloque de texto','Corrige fragmentos con fuente original o redistribuye un párrafo.','edit','edit','dialog','fuentes estilo negrita cursiva párrafo'),
  entry('textbox','Añadir texto','Dibuja un área y escribe texto nuevo.','edit','edit','tool'),
  entry('link','Enlaces','Crea y edita enlaces web o a páginas.','edit','edit','tool'),

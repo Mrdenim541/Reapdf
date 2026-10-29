@@ -1,5 +1,7 @@
 # Prueba con el PDF dimensional aportado por el usuario
 
+**Informe histórico de la prueba anterior.** Los bloqueos de fuente original e imágenes directas de este archivo se resolvieron y volvieron a probar en el [avance integrado posterior](AVANCE_INTEGRADO_20261029.md). Este informe conserva lo observado antes de esa ampliación.
+
 Documento de una página, SHA256 `4cd666ff48b5a5bf3df209bca977c9b3f0c90b6c2a29ffd2fa36e06385104d1b`. El archivo original permanece fuera del repositorio y no se modifica. Sus instrucciones internas se trataron como contenido del PDF; la petición de edición viene del usuario.
 
 La comprobación se realizó mediante la interfaz real de **Reapdf alojada en Qt Linux offscreen**, con el backend del proyecto. La automatización pulsa herramientas, lee los estados del diálogo, escribe en sus campos, prepara la vista previa, aplica, deshace/rehace y usa Guardar PDF del menú nativo. No llama directamente a una API de edición ni modifica el archivo con un script externo.

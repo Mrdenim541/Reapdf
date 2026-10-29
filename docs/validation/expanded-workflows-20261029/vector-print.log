@@ -1,0 +1,2 @@
+PASS: virtual PDF printer retains vector paths with no page bitmap; A0 fallback prints bounded tiles without sampled seams. No physical printer/Windows acceptance.
+Fontconfig error: No writable cache directories

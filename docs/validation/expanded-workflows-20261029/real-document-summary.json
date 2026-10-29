@@ -1,0 +1,14 @@
+{
+  "source_sha256": "4cd666ff48b5a5bf3df209bca977c9b3f0c90b6c2a29ffd2fa36e06385104d1b",
+  "host": "Reapdf Qt Linux offscreen",
+  "original_untouched": true,
+  "pixels_outside_edited_region_unchanged": true,
+  "result": "passed_original_font_and_image_move",
+  "checks": [
+    "on-page text edit with original font",
+    "header image moved 2pt",
+    "undo/redo",
+    "native atomic save and reopen",
+    "other text/image bytes/drawings preserved"
+  ]
+}

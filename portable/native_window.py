@@ -31,7 +31,7 @@ def create_window(url,initial_file=None):
                 try:from .native_save import atomic_save,file_digest
                 except ImportError:from native_save import atomic_save,file_digest
                 name=Path(name).name;extension=Path(name).suffix.lower()
-                if extension not in {'.pdf','.reapdf'} or len(name)>255 or len(key)>200:raise ValueError('Formato de guardado no admitido.')
+                if extension not in {'.pdf','.reapdf','.reapdfset'} or len(name)>255 or len(key)>200:raise ValueError('Formato de guardado no admitido.')
                 window=self.parent();identity=(key,extension);previous=window.save_targets.get(identity)
                 path=None if save_as or not previous else previous[0]
                 if path and path.exists() and file_digest(path)!=previous[1]:

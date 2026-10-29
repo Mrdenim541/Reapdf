@@ -26,6 +26,13 @@ import {DocxExport} from './docx-export.jsx';
 import {BatchProcessor} from './batch-processor.jsx';
 import {LinkEditor} from './link-editor.jsx';
 import {FindReplace} from './find-replace.jsx';
+import {RegionOCR} from './region-ocr.jsx';
+import {StructureEditor,Preflight} from './structure-preflight.jsx';
+import {Interchange,WorkingCopy} from './interchange.jsx';
+import {Measurements} from './measurements.jsx';
+import {DocumentLinks} from './document-links.jsx';
+import {Layers} from './layers.jsx';
+import {InlineTextEditor,visibleTextBox} from './inline-text.jsx';
 import { ParagraphEditor } from './paragraph-editor.jsx';
 import { ExistingImageEditor } from './existing-images.jsx';
 import { FieldDesigner } from './field-designer.jsx';
@@ -72,6 +79,8 @@ function App() {
   const [area,setArea]=useState('read'),[navigationOpen,setNavigationOpen]=useState(true),[propertiesFolded,setPropertiesFolded]=useState(false);
   const [searchFocusRequest,setSearchFocusRequest]=useState(0);
   const [tool, setTool] = useState('view'), [zoom, setZoom] = useState(1);
+  const [inlineSpan,setInlineSpan]=useState(null);
+  const [linkWorkspace,setLinkWorkspace]=useState(null);
   const [color, setColor] = useState('#e34b40'), [width, setWidth] = useState(2);
   const [history, setHistory] = useState([{doc:null, operations:[]}]), [cursor, setCursor] = useState(0);
   const [spans, setSpans] = useState([]), [selected, setSelected] = useState(null), [text, setText] = useState('');
@@ -119,22 +128,22 @@ function App() {
   const activeContent=contentDraft||(contentTools.has(tool)&&selectedOperation?.type===tool?selectedOperation:null);
   const sessionImages=operations.filter(op=>op.page===page&&op.type==='image');
   const noteEditDraft=tool==='select'&&selectedOperation?.type==='note'&&noteContent!==selectedOperation.content;
-  const draftMessage=(contentDraft||contentChanged)?'Hay contenido nuevo sin aplicar. Usa Aplicar o Cancelar contenido antes de exportar.':textDraft?'Hay texto sin aplicar. Pulsa Aplicar cambio o Cancelar antes de exportar.':
+  const draftMessage=inlineSpan?'Termina o cancela la edición sobre la página antes de continuar.':(contentDraft||contentChanged)?'Hay contenido nuevo sin aplicar. Usa Aplicar o Cancelar contenido antes de exportar.':textDraft?'Hay texto sin aplicar. Pulsa Aplicar cambio o Cancelar antes de exportar.':
     (notePoint||noteEditDraft)?'Guarda la nota o cancela sus cambios antes de exportar.':
     multiDraft?'Aplica o cancela los cambios del grupo antes de continuar.':
     existingDraft?'Pulsa Aplicar propiedades existentes o cancela los cambios de la marca.':
     transformDraft?'Pulsa Aplicar posición y tamaño o cancela los valores pendientes.':'';
   navigationGate.current=busy||transforming||!!stroke||!!draftMessage;
-  useEffect(()=>{window.__reapdfCloseState={dirty:!!(needsSave||draftMessage),busy:!!(busy||transforming||stroke)};return()=>{delete window.__reapdfCloseState;};},[needsSave,draftMessage,busy,transforming,stroke]);
+  useEffect(()=>{window.__reapdfCloseState={dirty:!!(needsSave||draftMessage||linkWorkspace?.dirty),busy:!!(busy||transforming||stroke)};return()=>{delete window.__reapdfCloseState;};},[needsSave,draftMessage,busy,transforming,stroke,linkWorkspace?.dirty]);
   const mayEdit = doc && !doc.signed && doc.can_edit;
   const recovery=useRecovery(doc,operations,page,zoom);
   const commit = (ops) => {if (ops.length > 1000) {setError('El límite de esta sesión es 1000 cambios.'); return;} setSelectedMark(null);setHistory(h => [...h.slice(0, cursor + 1), {doc, operations:ops}]); setCursor(cursor + 1); setNotice('');};
 
   useEffect(() => {
-    const handler = e => { if (needsSave || draftMessage) {e.preventDefault(); e.returnValue = '';}};
+    const handler = e => { if (needsSave || draftMessage || linkWorkspace?.dirty) {e.preventDefault(); e.returnValue = '';}};
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
-  }, [needsSave, draftMessage]);
+  }, [needsSave, draftMessage,linkWorkspace?.dirty]);
 
   useEffect(() => {
     setMultiMode(false);setMultiRefs([]);setEndpointMode(false);setSelected(null); setSelectedMark(null); setSelectedExisting(null); setExistingAnnotations([]); setAnnotationsTruncated(false); setNotePoint(null); setContentDraft(null);setLinks([]);setSpans([]); setStroke(null); strokeRef.current = null; activePointer.current=null;
@@ -159,7 +168,7 @@ function App() {
   }, [doc, page, operations]);
 
   const areaBlocked=areaChangeReason({busy,transforming,stroke,draft:draftMessage});
-  const propertiesVisible=tool!=='view'&&!propertiesFolded;
+  const propertiesVisible=tool!=='view'&&tool!=='text'&&!propertiesFolded;
   function changeArea(next){
     if(next===area||areaBlocked)return;
     setArea(next);setFocusMode(false);chooseTool('view');setPropertiesFolded(false);
@@ -197,6 +206,7 @@ function App() {
   });
 
   function adoptNewDocument(next,name) {
+    setInlineSpan(null);
     const previousIds=sessionIds.current;sessionIds.current=new Set([next.id]);
     saved.current=JSON.stringify({id:next.id,operations:[]});projectSaved.current='';
     setArea('read');setPropertiesFolded(false);setSearchFocusRequest(0);setHistory([{doc:{...next,name,nativeKey:next.id,baseChanges:0},operations:[]}]);setPage(0);setCursor(0);setTool('view');setPageTool(null);
@@ -219,7 +229,8 @@ function App() {
         else {setPageTool(null);setNotice('No se añadió OCR: las páginas seleccionadas ya contienen texto digital.');}
       }else if(action==='optimize'){const result=await r.json();adoptVersion(result.document,`Optimización: ${result.report.before.toLocaleString()} → ${result.report.after.toLocaleString()} bytes (${result.report.saved.toLocaleString()} ahorrados).`,page);}
       else adoptVersion(await r.json(),action==='prepare-accessibility'?'Título e idioma actualizados; el etiquetado no se modifica. Puedes deshacer.':action==='visual-signature'?'Firma visual incorporada; no contiene certificado digital. Puedes deshacer.':action==='labels'?'Etiquetas de página actualizadas. Puedes deshacer.':action==='add-attachment'?'Archivo adjuntado al PDF. Puedes deshacer.':action==='delete-attachment'?'Adjunto retirado del listado. Puedes deshacer.':action==='find-replace/apply'?'Reemplazos aplicados. Puedes deshacer el lote completo.':action==='replace-styled-text'?'Texto editado conservando la fuente, tamaño, color y posición de los fragmentos compatibles. Puedes deshacer.':action==='flow-text'?'Texto distribuido entre las regiones elegidas. Puedes deshacer el flujo completo.':action==='replace-paragraph'?'Bloque reemplazado con el formato elegido y fuente incrustada. Puedes deshacer.':action==='edit-field-properties'?'Propiedades del campo actualizadas, conservando sus valores. Puedes deshacer.':action==='edit-comment'?'Revisión incorporada al PDF. Puedes deshacer.':action==='edit-link'?'Enlace actualizado. Puedes deshacer.':action==='edit-image'?'Imagen editada. Puedes deshacer para recuperar la versión anterior.':action==='create-field'?'Campo creado. Puedes rellenarlo, guardar proyecto o deshacer.':action==='delete-field'?'Campo eliminado. Puedes deshacer.':action==='flatten-form'?'Campos aplanados conservando su apariencia. Puedes deshacer para recuperar su edición.':'Propiedades actualizadas. Puedes deshacer el cambio.',page);
-    }catch(e){setError(e.message);}finally{setBusy(false);}
+      return true;
+    }catch(e){setError(e.message);return false;}finally{setBusy(false);}
   }
   async function createImagePdf(plan) {
     if((needsSave||draftMessage)&&!window.confirm('Crear otro documento descartará la sesión abierta. Guarda un proyecto o exporta antes de continuar. ¿Continuar?'))return;
@@ -382,7 +393,7 @@ function App() {
   function adoptVersion(next, message, focus = 0) {
     sessionIds.current.add(next.id);
     const {project_operations=[],...version}=next;
-    setHistory(h=>[...h.slice(0,cursor+1),{doc:{...version,name:doc.name,nativeKey:doc.nativeKey||doc.id,baseChanges:changeCount+1},operations:project_operations}]);
+    setHistory(h=>[...h.slice(0,cursor+1),{doc:{...version,name:next.working_copy?doc.name.replace(/\.pdf$/i,'')+'-copia-trabajo.pdf':doc.name,nativeKey:next.working_copy?next.id:doc.nativeKey||doc.id,baseChanges:changeCount+1},operations:project_operations}]);
     setCursor(cursor+1);setPage(focus);setTool('view');setOrganizerOpen(false);setInserterOpen(false);setPageTool(null);setNotice(message+(next.project_operations?.length?' Los cálculos automáticos siguen activos.':''));
   }
   async function insertPages(plan) {
@@ -614,7 +625,7 @@ function App() {
       <div className="limits">Hasta 30 MB · 500 páginas · Sin envío a servicios externos</div>
       <div className="cards"><article><b>01 / Leer</b><h3>Encuentra tu página</h3><p>Miniaturas, índice, búsqueda y revisión de la estructura del documento.</p></article><article><b>02 / Marcar</b><h3>Deja tu trazo</h3><p>Anotaciones, notas, trazos, formularios y firma visual, con cambios reversibles.</p></article><article><b>03 / Editar</b><h3>Cambia el contenido</h3><p>Texto e imágenes compatibles, OCR local, organización y exportación de copias.</p></article></div>
       <div className="prototype">Versión en desarrollo. La edición depende de la estructura y fuentes del PDF. Incluye OCR local en español e inglés; las firmas visuales y las firmas con certificado tienen asistentes separados. Consulta la guía para conocer los flujos y límites.</div>
-    </main> : <><div className="workspace-bar"><AreaNavigation area={area} blocked={areaBlocked} onChange={changeArea}/><div className="panel-controls"><button aria-expanded={navigationOpen&&!focusMode} aria-controls="document-navigation" disabled={busy||transforming||!!stroke} onClick={()=>{setFocusMode(false);setNavigationOpen(focusMode?true:!navigationOpen);}}>{navigationOpen&&!focusMode?'Ocultar navegación':'Mostrar navegación'}</button>{tool!=='view'&&<button aria-expanded={propertiesVisible&&!focusMode} aria-controls="tool-properties" disabled={!!areaBlocked} title={areaBlocked||'Mostrar u ocultar las propiedades de la herramienta'} onClick={()=>{setFocusMode(false);setPropertiesFolded(focusMode?false:!propertiesFolded);}}>{propertiesVisible&&!focusMode?'Ocultar propiedades':'Mostrar propiedades'}</button>}</div></div><div className={`workspace${!navigationOpen?' navigation-closed':''}${!propertiesVisible?' properties-closed':''}`}>
+    </main> : <><div className="workspace-bar"><AreaNavigation area={area} blocked={areaBlocked} onChange={changeArea}/><div className="panel-controls"><button aria-expanded={navigationOpen&&!focusMode} aria-controls="document-navigation" disabled={busy||transforming||!!stroke} onClick={()=>{setFocusMode(false);setNavigationOpen(focusMode?true:!navigationOpen);}}>{navigationOpen&&!focusMode?'Ocultar navegación':'Mostrar navegación'}</button>{tool!=='view'&&tool!=='text'&&<button aria-expanded={propertiesVisible&&!focusMode} aria-controls="tool-properties" disabled={!!areaBlocked} title={areaBlocked||'Mostrar u ocultar las propiedades de la herramienta'} onClick={()=>{setFocusMode(false);setPropertiesFolded(focusMode?false:!propertiesFolded);}}>{propertiesVisible&&!focusMode?'Ocultar propiedades':'Mostrar propiedades'}</button>}</div></div><div className={`workspace${!navigationOpen?' navigation-closed':''}${!propertiesVisible?' properties-closed':''}`}>
 
       <aside className="tools" aria-label="Herramientas PDF">
         <ToolCatalog area={area} active={tool} reason={toolReason} onRun={runCatalogTool} onCommands={()=>setCommandsOpen(true)}/>
@@ -637,11 +648,12 @@ function App() {
           {preview && <img src={preview} data-render-scale={pagePreview.scale} alt={`Página ${page+1} del documento`} draggable="false"/>}
           {preview&&tool==='view'&&<LinkLayer links={links} zoom={zoom} onPage={target=>{setPage(target);paperScroll.current?.scrollTo(0,0);}}/>}
           {preview && <TextLayer items={textItems} zoom={zoom} enabled={tool==='view'}/>}
+          {inlineSpan&&<InlineTextEditor key={`${doc.id}:${page}:${inlineSpan.id}`} doc={doc} page={page} operations={operations} span={inlineSpan} zoom={zoom} busy={busy} error={error} onApply={async(action,params)=>{const ok=await runAdvanced(action,params);if(ok)setTool('text');return ok;}} onCancel={()=>{setInlineSpan(null);setError('');}}/>}
           {pagePreview.failed&&!preview&&<div className="loading"><button onClick={pagePreview.retry}>Reintentar vista de página</button></div>}
           {loading && <div className="loading" role="status">Preparando página…</div>}
           <svg ref={svg} aria-label="Lienzo de anotaciones" viewBox={`0 0 ${geometry.width} ${geometry.height}`} style={{cursor:(drawingTools.has(tool)||markupTools.has(tool)||contentTools.has(tool)||tool==='note')?'crosshair':'default',touchAction:(drawingTools.has(tool)||markupTools.has(tool)||tool==='select'||tool==='images'||contentTools.has(tool))?'none':'auto',pointerEvents:tool==='view'?'none':'auto'}} onPointerDown={start} onPointerMove={move} onPointerUp={end} onPointerCancel={()=>{strokeRef.current=null;activePointer.current=null;setStroke(null);}}>
-            {tool==='text'&&!loading&&geometry.rotation===0&&spans.filter(s=>!s.editable).map(s=><rect key={'block-'+s.id} role="button" tabIndex="0" aria-label={`Editar bloque: ${s.text}`} x={s.bbox[0]} y={s.bbox[1]} width={s.bbox[2]-s.bbox[0]} height={s.bbox[3]-s.bbox[1]} className="text-target" onClick={()=>editBlock(s)} onKeyDown={e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();editBlock(s);}}}/>)}
-            {tool==='text'&&!loading&&spans.filter(s=>s.editable).map(s=><rect key={s.id} role="button" tabIndex="0" aria-label={`Editar: ${s.text}`} x={s.bbox[0]} y={s.bbox[1]} width={s.bbox[2]-s.bbox[0]} height={s.bbox[3]-s.bbox[1]} className={`text-target ${selected?.id===s.id?'selected':''}`} onClick={()=>{selectText(s);}} onKeyDown={e=>{if(e.key==='Enter'){selectText(s);}}}/>)}
+            {tool==='text'&&!loading&&!inlineSpan&&spans.map(s=>{const [x,y,w,h]=visibleTextBox(s,geometry);return <rect key={s.id} role="button" tabIndex="0" aria-label={`Editar en página: ${s.text}`} x={x} y={y} width={w} height={h} className="text-target" onClick={()=>{setError('');setInlineSpan(s);}} onKeyDown={e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();setError('');setInlineSpan(s);}}}/>;})}
+
             <SearchHighlights search={search} page={page}/>
             <defs><marker id="arrow-tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill={color}/></marker></defs>
             {contentTools.has(tool)&&!loading&&<ContentTargets operations={operations} page={page} tool={tool} selected={selectedMark} onSelect={id=>{setContentDraft(null);selectMark(id);}}/>}
@@ -716,6 +728,14 @@ function App() {
     {doc&&pageTool==='existing_links'&&<LinkEditor doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
     {doc&&pageTool==='find_replace'&&<FindReplace error={error} onClearError={()=>setError('')} doc={doc} page={page} operations={operations} busy={busy} onClose={()=>setPageTool(null)} onApply={params=>runAdvanced('find-replace/apply',params)}/>}
     {doc&&pageTool==='paragraph'&&<ParagraphEditor initialBox={textRegion} doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
+    {doc&&pageTool==='document_links'&&<DocumentLinks doc={doc} operations={operations} workspace={linkWorkspace} onChange={setLinkWorkspace} onClose={()=>setPageTool(null)}/>}
+    {doc&&pageTool==='region_ocr'&&<RegionOCR doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
+    {doc&&pageTool==='structure'&&<StructureEditor doc={doc} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
+    {doc&&pageTool==='preflight'&&<Preflight doc={doc} operations={operations} onClose={()=>setPageTool(null)}/>}
+    {doc&&pageTool==='xfdf'&&<Interchange doc={doc} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
+    {doc&&pageTool==='working_copy'&&<WorkingCopy doc={doc} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
+    {doc&&pageTool==='measurement'&&<Measurements doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
+    {doc&&pageTool==='layers'&&<Layers doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
     {doc&&pageTool==='existing_images'&&<ExistingImageEditor doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
     {doc&&pageTool==='field'&&<FieldDesigner doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
     {doc&&pageTool==='compare'&&<ComparisonDialog doc={doc} operations={operations} onClose={()=>setPageTool(null)}/>}

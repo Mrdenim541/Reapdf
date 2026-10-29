@@ -1,5 +1,7 @@
 # Avance estimado del producto
 
+Estado vigente de la base recuperada: [avance integrado de octubre de 2026](AVANCE_INTEGRADO_20261029.md), ≈70 % (69,8 ponderado). Las cifras de versiones anteriores que siguen son históricas y no reemplazan la matriz reconstruida actual.
+
 ## Corte: versión 0.43
 
 **Entrega 0.43:** ejecutable portable de prueba solicitado por el usuario, con lanzador Windows GUI, señal de preparación, cierre del proceso propio y registros. La ejecución gráfica Windows sigue pendiente. Guía: [ENTREGA_EJECUTABLE_043.md](ENTREGA_EJECUTABLE_043.md). Plan general configurable: [PLAN_CIERRE_Y_FLUJOS.md](PLAN_CIERRE_Y_FLUJOS.md).

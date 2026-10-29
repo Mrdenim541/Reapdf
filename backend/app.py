@@ -42,6 +42,7 @@ from .find_replace import inspect as inspect_replace,replace as batch_replace,pl
 from .pro_tools import label_rules, labels_pdf, attachment_model, add_attachment, attachment_pdf, download_attachment, extract_tables, tables_zip, bates_batch
 from .comparison import compare_pdf
 from .image_editing import image_model,edit_image
+from . import measurements,layers,document_sets,xfdf,working_copy,structure_editing,preflight,region_ocr
 from .paragraphs import inspect_paragraph,replace_paragraph,paragraph_blocks,paragraph_preview
 from .text_flow import inspect_flow,flow_text
 from .form_calculations import calculate_fields
@@ -108,6 +109,144 @@ def document_path(doc_id):
 @app.get("/api/health")
 def health():
     return {"status": "ok", "version": "0.43.0"}
+
+def set_items(descriptors):
+    if not isinstance(descriptors,list) or not 1<=len(descriptors)<=10:raise DocumentError('Hasta 10 documentos por conjunto.')
+    items=[]
+    for item in descriptors:
+        if not isinstance(item,dict) or set(item)!={'id','name','role','sha256'}:raise DocumentError('Documento del conjunto no válido.')
+        if not isinstance(item['id'],str):raise DocumentError('Identidad PDF no válida.')
+        items.append({**item,'data':document_path(item['id']).read_bytes()})
+    return document_sets.documents(items)
+
+@app.post('/api/document-sets/current/{doc_id}')
+async def current_set_document(doc_id:str,request:Request):
+    p=await read_payload(request);data=await run_in_threadpool(export_pdf,document_path(doc_id).read_bytes(),p.get('operations',[]))
+    with open_pdf(data) as source:
+        if not source.permissions&pymupdf.PDF_PERM_COPY:raise DocumentError('El documento no permite esta copia.')
+    name=document_sets.text(p.get('name'),200)
+    return {**store_document(data),'name':name,'role':'Origen','sha256':document_sets.digest(data)}
+
+@app.post('/api/document-sets/file')
+async def add_set_document(file:UploadFile):
+    data=await file.read(MAX_UPLOAD+1);await file.close()
+    if not data or len(data)>MAX_UPLOAD:raise DocumentError('Añade un PDF de hasta 30 MB.')
+    with open_pdf(data) as source:
+        if not source.permissions&pymupdf.PDF_PERM_COPY:raise DocumentError('El PDF no permite incorporarlo al conjunto.')
+    name=document_sets.text(Path(file.filename or 'Documento.pdf').name,200)
+    return {**store_document(data),'name':name,'role':'Destino','sha256':document_sets.digest(data)}
+
+@app.post('/api/document-sets/analyze')
+async def analyze_set(request:Request):
+    p=await read_payload(request)
+    return await run_in_threadpool(document_sets.analyze,set_items(p.get('documents')),p.get('source'),p.get('target'),p.get('codes'))
+
+@app.post('/api/document-sets/export')
+async def export_set(request:Request):
+    p=await read_payload(request)
+    data=await run_in_threadpool(document_sets.build,set_items(p.get('documents')),p.get('relations',[]),p.get('name'))
+    return Response(data,media_type='application/octet-stream',headers={'Content-Disposition':'attachment; filename="Documentos.reapdfset"'})
+
+@app.post('/api/document-sets/compile')
+async def compile_set(request:Request):
+    p=await read_payload(request)
+    data,report=await run_in_threadpool(document_sets.compile_pdf,set_items(p.get('documents')),p.get('relations',[]),p.get('name'))
+    return Response(data,media_type='application/pdf',headers={'X-Reapdf-Compilation':json.dumps(report),'Content-Disposition':'attachment; filename="Documentos-vinculados.pdf"'})
+
+@app.post('/api/document-sets/import')
+async def import_set(file:UploadFile):
+    data=await file.read(70*1024*1024+1);await file.close()
+    items,relations,name=await run_in_threadpool(document_sets.read,data)
+    if sum(p.stat().st_size for p in app.state.root.glob('*.pdf'))+sum(len(i['data']) for i in items)>MAX_STORE:raise HTTPException(413,'Almacenamiento temporal insuficiente para abrir el conjunto.')
+    created=[];mapping={}
+    try:
+        for item in items:
+            version=store_document(item['data']);mapping[item['id']]=version['id'];created.append({**version,'name':item['name'],'role':item['role'],'sha256':item['sha256']})
+        for relation in relations:
+            for side in ['source','target']:relation[side]['document']=mapping[relation[side]['document']]
+        return {'name':name,'documents':created,'relations':relations}
+    except Exception:
+        for item in created:(app.state.root/(item['id']+'.pdf')).unlink(missing_ok=True)
+        raise
+
+@app.post('/api/documents/{doc_id}/xfdf/export')
+async def export_xfdf(doc_id:str,request:Request):
+    p=await read_payload(request)
+    if type(p.get('annotations',True)) is not bool or type(p.get('fields',True)) is not bool:raise DocumentError('Opciones XFDF no válidas.')
+    data,report=await run_in_threadpool(xfdf.export,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('annotations',True),p.get('fields',True))
+    return Response(data,media_type='application/vnd.adobe.xfdf',headers={'X-Reapdf-XFDF':json.dumps(report),'Content-Disposition':'attachment; filename="Datos.xfdf"'})
+
+@app.post('/api/documents/{doc_id}/xfdf/import')
+async def import_xfdf(doc_id:str,request:Request):
+    p=await read_payload(request);xml=p.get('xml')
+    if not isinstance(xml,str) or len(xml)>xfdf.MAX_XML:raise DocumentError('XFDF no válido o demasiado grande.')
+    try:data=xml.encode('utf-8')
+    except UnicodeError as exc:raise DocumentError('XML UTF-8 no válido.') from exc
+    result=await run_in_threadpool(xfdf.import_data,document_path(doc_id).read_bytes(),p.get('operations',[]),data,p.get('confirm',False),p.get('preview') is True)
+    if p.get('preview') is True:return result
+    data,report=result
+    return {**store_document(data),'xfdf_report':report}
+
+@app.post('/api/documents/{doc_id}/working-copy')
+async def create_working_copy(doc_id:str,request:Request):
+    p=await read_payload(request)
+    if p.get('operations',[]):raise DocumentError('Crea la copia desde el original firmado, sin operaciones pendientes.')
+    data,report=await run_in_threadpool(working_copy.create,document_path(doc_id).read_bytes(),p.get('acknowledge',False))
+    return {**store_document(data),'working_copy':True,'copy_report':report}
+
+@app.post('/api/documents/{doc_id}/structure')
+async def inspect_structure(doc_id:str,request:Request):
+    p=await read_payload(request)
+    return await run_in_threadpool(structure_editing.model,document_path(doc_id).read_bytes(),p.get('operations',[]))
+
+@app.post('/api/documents/{doc_id}/structure/{action}')
+async def edit_structure(doc_id:str,action:str,request:Request):
+    p=await read_payload(request)
+    if action not in ['alt','order']:raise DocumentError('Cambio de estructura no válido.')
+    data=await run_in_threadpool(structure_editing.edit,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('id'),p.get('alt') if action=='alt' else None,p.get('order') if action=='order' else None)
+    return store_document(data)
+
+@app.post('/api/documents/{doc_id}/preflight')
+async def inspect_print(doc_id:str,request:Request):
+    p=await read_payload(request)
+    return await run_in_threadpool(preflight.inspect,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('min_dpi',150))
+
+@app.post('/api/documents/{doc_id}/ocr-regions')
+async def recognize_regions(doc_id:str,request:Request):
+    p=await read_payload(request)
+    if not OCR_LOCK.acquire(blocking=False):raise DocumentError('Ya hay un OCR en curso. Espera a que termine.')
+    try:data,report=await run_in_threadpool(region_ocr.recognize,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('regions'),p.get('language','spa+eng'),p.get('dpi',200),p.get('orientation',0))
+    finally:OCR_LOCK.release()
+    return {**store_document(data),'ocr_report':report}
+
+@app.get('/api/documents/{doc_id}/measurements')
+def measurement_list(doc_id:str,page:int=0):
+    return measurements.model(document_path(doc_id).read_bytes(),[],page)
+
+@app.post('/api/documents/{doc_id}/measure')
+async def add_measurement(doc_id:str,request:Request):
+    p=await read_payload(request)
+    result=await run_in_threadpool(measurements.measure,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('kind'),p.get('points'),p.get('calibration'),p.get('unit','m'),p.get('preview') is True)
+    return result if p.get('preview') is True else store_document(result)
+
+@app.post('/api/documents/{doc_id}/delete-measurement')
+async def remove_measurement(doc_id:str,request:Request):
+    p=await read_payload(request)
+    return store_document(await run_in_threadpool(measurements.delete_measure,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('id')))
+
+@app.post('/api/documents/{doc_id}/layers')
+async def inspect_layers(doc_id:str,request:Request):
+    p=await read_payload(request)
+    return await run_in_threadpool(layers.model,document_path(doc_id).read_bytes(),p.get('operations',[]))
+
+@app.post('/api/documents/{doc_id}/set-layers')
+async def change_layers(doc_id:str,request:Request):
+    p=await read_payload(request)
+    result=await run_in_threadpool(layers.apply,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('visible'))
+    if p.get('preview') is True:
+        image,_=await run_in_threadpool(paragraph_preview,result,[],p.get('page',0),1)
+        return Response(image,media_type='image/png')
+    return store_document(result)
 
 @app.post("/api/documents")
 async def upload(file: UploadFile, password: str = Form('')):
