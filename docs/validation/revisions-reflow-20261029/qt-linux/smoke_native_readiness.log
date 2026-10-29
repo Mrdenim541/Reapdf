@@ -1,0 +1,22 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[382809:382829:1029/201103.844576:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 382830: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[382845:382865:1029/201104.888600:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 382866: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+La interfaz de Reapdf no pudo cargar.
+Fatal Python error: _enter_buffered_busy: could not acquire lock for <_io.BufferedReader name='<stdin>'> at interpreter shutdown, possibly due to daemon threads
+Python runtime state: finalizing (tstate=0x00000000015b7de0)
+
+Current thread 0x00007fa5fb7fe740 (most recent call first):
+  <no Python frame>
+PASS: real Qt frontend ready, separate child forwards activation, 404 fails before ready and exits.

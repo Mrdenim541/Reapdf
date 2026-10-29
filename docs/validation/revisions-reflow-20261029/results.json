@@ -1,0 +1,15 @@
+{
+  "python": 2301,
+  "javascript": 109,
+  "build": true,
+  "browser_current_workflows": true,
+  "real_document_qt": true,
+  "desktop_qt_linux_checks": 8,
+  "windows_observed": false,
+  "human_acceptance": false,
+  "physical_printer": false,
+  "installer_or_portable_built": false,
+  "legacy_full_smoke_migration_pending": true,
+  "actions_api_query": "Forbidden",
+  "runtime_source_commit": "0ab9c44817b9e77c96ebba47563437b6a23c6302"
+}

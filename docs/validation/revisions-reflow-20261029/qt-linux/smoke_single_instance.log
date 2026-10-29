@@ -1,0 +1,10 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[382687:382708:1029/201056.505600:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 382709: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+This plugin does not support raise()
+PASS: separate process hands off PDF, refusal preserves draft, confirmation opens in the same Qt window.

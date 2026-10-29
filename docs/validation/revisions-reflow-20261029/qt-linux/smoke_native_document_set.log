@@ -1,0 +1,14 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[382649:382669:1029/201054.304662:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 382670: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+CLICK: Guardar conjunto
+STAGE: cancel acknowledged
+CLICK: Guardar conjunto
+STAGE: save acknowledged
+CLICK: Guardar conjunto
+CLICK: Cerrar
+PASS: Qt .reapdfset atomic save, cancellation retains dirty, acknowledged save clears dirty, repeat destination, closed panel retains workspace changes.

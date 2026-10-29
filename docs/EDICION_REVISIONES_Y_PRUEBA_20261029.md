@@ -18,6 +18,8 @@ El reflujo conserva el programa de fuente; no implica conservar idénticos salto
 
 ## Verificación
 
+**Resultado final: 2301 pruebas Python y 109 JavaScript aprobadas, compilación correcta, recorridos actuales Chromium y ocho comprobaciones reales Qt Linux aprobados.** El informe Qt identifica el commit de fuente y sus huellas; no había modificaciones locales al iniciarlo.
+
 La carpeta [validation/revisions-reflow-20261029](validation/revisions-reflow-20261029) contiene los resultados finales, huellas de fuente y registros de los recorridos. Se ejecutan compilación, JavaScript, regresión Python y comprobaciones Qt/Chromium. Los totales definitivos figuran en `results.json`; no confundir la regresión previa de 2286 casos con la regresión final tras añadir el nuevo reflujo y sus pruebas.
 
 Pruebas específicas: cuatro rotaciones para espaciado, inserción y reflujo; glifos ausentes, desbordamientos, texto vecino, dibujos, enlaces, etiquetas y recortes rechazados antes de publicar un resultado. API de revisión con confirmación obligatoria y API de párrafo con fallo de ajuste sin modificar el original. Chromium modifica párrafo/texto, exporta, revisa un vínculo movido a otra página, deshace la revisión, guarda y vuelve a abrir.
