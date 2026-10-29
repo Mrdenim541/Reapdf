@@ -197,7 +197,7 @@ function App() {
   function adoptNewDocument(next,name) {
     const previousIds=sessionIds.current;sessionIds.current=new Set([next.id]);
     saved.current=JSON.stringify({id:next.id,operations:[]});projectSaved.current='';
-    setArea('read');setPropertiesFolded(false);setSearchFocusRequest(0);setHistory([{doc:{...next,name,baseChanges:0},operations:[]}]);setPage(0);setCursor(0);setTool('view');setPageTool(null);
+    setArea('read');setPropertiesFolded(false);setSearchFocusRequest(0);setHistory([{doc:{...next,name,nativeKey:next.id,baseChanges:0},operations:[]}]);setPage(0);setCursor(0);setTool('view');setPageTool(null);
     for(const id of previousIds)fetch(`/api/documents/${id}`,{method:'DELETE'}).catch(()=>{});
   }
   async function runAdvanced(action,params={}) {
@@ -255,13 +255,14 @@ function App() {
     closeFileMenu();setBusy(true);setError('');
     try {
       const response=await checked(await fetch(`/api/documents/${doc.id}/project`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(projectPayload(doc,operations,page,zoom))}));
+      if(window.reapdfDesktop){if(await nativeSave(await response.blob(),'-proyecto','reapdf',false)){projectSaved.current=fingerprint;setNotice('Proyecto guardado.');}else setNotice('Guardado cancelado; los cambios siguen pendientes.');return;}
       download(await response.blob(),'-proyecto','reapdf');projectSaved.current=fingerprint;setNotice('Proyecto preparado para descargar. Conserva el PDF base y los cambios aplicados; no incluye borradores ni el historial anterior.');
     }catch(e){setError(e.message);}finally{setBusy(false);}
   }
   function adoptProject(restored,fromRecovery=false) {
     const next=restored.document,state=restored.state,previous=sessionIds.current;
     sessionIds.current=new Set([next.id]);saved.current='';projectSaved.current=fromRecovery?'':JSON.stringify({id:next.id,operations:restored.operations});
-    setHistory([{doc:{...next,name:state.name,baseChanges:state.base_changes},operations:restored.operations}]);
+    setHistory([{doc:{...next,name:state.name,nativeKey:next.id,baseChanges:state.base_changes},operations:restored.operations}]);
     setCursor(0);setPage(state.page);setZoom(state.zoom);setTool('view');setSelected(null);setSelectedMark(null);setNotePoint(null);
     setOrganizerOpen(false);setInserterOpen(false);setPageTool(null);
     for(const id of previous)fetch(`/api/documents/${id}`,{method:'DELETE'}).catch(()=>{});
@@ -345,10 +346,20 @@ function App() {
       commit(next); setSelected(null);
     } catch(e) {setError(e.message);} finally {setBusy(false);}
   }
-  async function save() {
+  async function nativeSave(blob,suffix,extension,saveAs){
+    const encoded=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result.split(',')[1]);r.onerror=()=>reject(new Error('No se pudo preparar el archivo.'));r.readAsDataURL(blob);});
+    const bridge=await window.reapdfDesktop,name=doc.name.replace(/\.pdf$/i,'')+suffix+'.'+extension;
+    const result=JSON.parse(await new Promise(resolve=>bridge.saveFile(encoded,name,doc.nativeKey||doc.id,saveAs!==false,resolve)));
+    if(result.conflict||result.status==='error'){saved.current='';projectSaved.current='';}
+    if(result.status==='error')throw new Error(result.message);
+    return result.status==='saved';
+  }
+  useEffect(()=>{const guard=action=>()=>{if(!doc)return;if(busy||transforming||draftMessage||document.querySelector('dialog[open]')){setError('Termina o cancela la edición actual antes de guardar.');return;}action();};const saveCurrent=guard(()=>save(false)),saveAs=guard(()=>save(true));window.addEventListener('reapdf-save',saveCurrent);window.addEventListener('reapdf-save-as',saveAs);return()=>{window.removeEventListener('reapdf-save',saveCurrent);window.removeEventListener('reapdf-save-as',saveAs);};},[doc,operations,busy,transforming,draftMessage]);
+  async function save(saveAs=true) {
     setBusy(true); setError('');
     try {
       const r=await checked(await fetch(`/api/documents/${doc.id}/export`,post(operations)));
+      if(window.reapdfDesktop){if(await nativeSave(await r.blob(),'-editado','pdf',saveAs)){saved.current=fingerprint;setNotice('PDF guardado.');}else setNotice('Guardado cancelado; los cambios siguen pendientes.');return;}
       const url=URL.createObjectURL(await r.blob()); const a=document.createElement('a');
       a.href=url; a.download=doc.name.replace(/\.pdf$/i,'')+'-editado.pdf'; a.click();
       setTimeout(()=>URL.revokeObjectURL(url),10000);
@@ -369,7 +380,7 @@ function App() {
   function adoptVersion(next, message, focus = 0) {
     sessionIds.current.add(next.id);
     const {project_operations=[],...version}=next;
-    setHistory(h=>[...h.slice(0,cursor+1),{doc:{...version,name:doc.name,baseChanges:changeCount+1},operations:project_operations}]);
+    setHistory(h=>[...h.slice(0,cursor+1),{doc:{...version,name:doc.name,nativeKey:doc.nativeKey||doc.id,baseChanges:changeCount+1},operations:project_operations}]);
     setCursor(cursor+1);setPage(focus);setTool('view');setOrganizerOpen(false);setInserterOpen(false);setPageTool(null);setNotice(message+(next.project_operations?.length?' Los cálculos automáticos siguen activos.':''));
   }
   async function insertPages(plan) {

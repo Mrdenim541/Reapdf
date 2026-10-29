@@ -121,7 +121,7 @@ def self_test():
     print(json.dumps({'portable_self_test':'ok','python':sys.version.split()[0],**health()}))
 
 
-def serve(open_browser=True,port=0,desktop=False,require_desktop=False,ready_file=None,native_desktop=False):
+def serve(open_browser=True,port=0,desktop=False,require_desktop=False,ready_file=None,native_desktop=False,initial_file=None):
     import uvicorn
     from backend.app import app
     from desktop import DesktopWindow, find_browser
@@ -129,7 +129,7 @@ def serve(open_browser=True,port=0,desktop=False,require_desktop=False,ready_fil
         import importlib.util
         if importlib.util.find_spec('PySide6') is None:raise RuntimeError('Instala requirements-desktop.txt para iniciar la ventana propia.')
         from desktop import NativeDesktopWindow
-        DesktopWindow=NativeDesktopWindow
+        DesktopWindow=lambda executable,url:NativeDesktopWindow(executable,url,initial_file)
         find_browser=lambda: sys.executable
         desktop=True;require_desktop=True
     if require_desktop and not desktop:raise ValueError('El inicio de escritorio estricto requiere --desktop.')
@@ -192,15 +192,17 @@ def main():
     presentation.add_argument('--no-browser',action='store_true')
     presentation.add_argument('--desktop',action='store_true')
     presentation.add_argument('--native-desktop',action='store_true',help='Ventana propia Qt; requiere requirements-desktop.txt.')
+    parser.add_argument('file',nargs='?',help='PDF que abrir al iniciar la ventana propia.')
     parser.add_argument('--port',type=int,default=0)
     parser.add_argument('--require-desktop',action='store_true',help='Exige ventana; no abre una pestana como alternativa.')
     parser.add_argument('--ready-file',help='Confirmacion de inicio para el lanzador GUI.')
     args=parser.parse_args()
+    if args.file and not args.native_desktop:parser.error('La apertura de archivo requiere --native-desktop')
     if args.require_desktop and not (args.desktop or args.native_desktop):parser.error('--require-desktop necesita --desktop')
     if args.ready_file and not args.require_desktop:parser.error('--ready-file necesita --require-desktop')
     try:
         if args.self_test:self_test()
-        else:serve(not args.no_browser,args.port,args.desktop,args.require_desktop,args.ready_file,args.native_desktop)
+        else:serve(not args.no_browser,args.port,args.desktop,args.require_desktop,args.ready_file,args.native_desktop,args.file)
     except Exception as exc:
         print('No se pudo iniciar Reapdf: '+str(exc),file=sys.stderr)
         return 1

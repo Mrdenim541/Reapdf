@@ -87,10 +87,8 @@ try:
     QTest.qWait(500)
     QFileDialog.getSaveFileName=lambda *args,**kwargs:('','')
     evaluate('(()=>{[...document.querySelectorAll("button")].find(b=>b.textContent.trim()==="Exportar copia").click();return true;})()')
-    deadline=time.monotonic()+5
-    while not window.unfinished_save and time.monotonic()<deadline:QTest.qWait(100)
-    assert window.unfinished_save
-    evaluate('window.__reapdfCloseState={dirty:false,busy:false}')
+    wait('document.body.innerText.includes("Guardado cancelado")')
+    evaluate('window.__reapdfCloseState={dirty:true,busy:false}')
     window.close()
     deadline=time.monotonic()+5
     while not calls and time.monotonic()<deadline:QTest.qWait(100)

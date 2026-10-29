@@ -12,8 +12,8 @@ def local_origin(url):
     return f'http://127.0.0.1:{parsed.port}'
 
 
-def create_window(url):
-    from PySide6.QtCore import QUrl,QObject,Slot,QFile,QIODevice
+def create_window(url,initial_file=None):
+    from PySide6.QtCore import QUrl,QObject,Slot,QFile,QIODevice,QTimer
     from PySide6.QtGui import QAction,QKeySequence
     from PySide6.QtWebChannel import QWebChannel
     from PySide6.QtWidgets import QMainWindow,QFileDialog,QMessageBox
@@ -22,6 +22,30 @@ def create_window(url):
     origin=local_origin(url)
 
     class Bridge(QObject):
+        @Slot(str,str,str,bool,result=str)
+        def saveFile(self,encoded,name,key,save_as):
+            conflict=False
+            try:
+                try:from .native_save import atomic_save,file_digest
+                except ImportError:from native_save import atomic_save,file_digest
+                name=Path(name).name;extension=Path(name).suffix.lower()
+                if extension not in {'.pdf','.reapdf'} or len(name)>255 or len(key)>200:raise ValueError('Formato de guardado no admitido.')
+                window=self.parent();identity=(key,extension);previous=window.save_targets.get(identity)
+                path=None if save_as or not previous else previous[0]
+                if path and path.exists() and file_digest(path)!=previous[1]:
+                    conflict=True
+                    QMessageBox.information(window,'Archivo modificado','El archivo cambió fuera de Reapdf. Elige un destino y revisa si deseas reemplazarlo.');path=None
+                if path is None:
+                    selected,_=QFileDialog.getSaveFileName(window,'Guardar archivo',name,options=QFileDialog.Option.DontConfirmOverwrite)
+                    if not selected:return json.dumps({'status':'cancelled','conflict':conflict})
+                    path=Path(selected)
+                    if path.suffix.lower()!=extension:path=Path(str(path)+extension)
+                    if path.exists() and QMessageBox.question(window,'Reemplazar archivo',f'¿Reemplazar {path.name}?',QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.No,QMessageBox.StandardButton.No)!=QMessageBox.StandardButton.Yes:return json.dumps({'status':'cancelled','conflict':conflict})
+                digest=atomic_save(path,encoded)
+                window.save_targets[identity]=(path,digest);window.unfinished_save=False
+                return json.dumps({'status':'saved','name':path.name})
+            except Exception as exc:return json.dumps({'status':'error','message':str(exc)})
+
         @Slot(str,result=str)
         def printPdf(self,encoded):
             try:
@@ -40,7 +64,7 @@ def create_window(url):
 
     class Window(QMainWindow):
         def __init__(self):
-            super().__init__();self.allow_close=False;self.checking_close=False;self.unfinished_save=False
+            super().__init__();self.allow_close=False;self.checking_close=False;self.unfinished_save=False;self.save_targets={}
             self.setWindowTitle('Reapdf');self.resize(1320,900)
             self.view=QWebEngineView(self)
             self.profile=QWebEngineProfile(self) # Off-the-record profile, owned by this window.
@@ -58,11 +82,29 @@ def create_window(url):
             menu=self.menuBar().addMenu('Archivo')
             self.open_action=QAction('Abrir PDF…',self);self.open_action.setShortcut(QKeySequence.StandardKey.Open)
             self.open_action.triggered.connect(self.open_pdf);menu.addAction(self.open_action)
+            self.save_action=QAction('Guardar PDF',self);self.save_action.setShortcut(QKeySequence.StandardKey.Save)
+            self.save_action.triggered.connect(lambda:self.page.runJavaScript('window.dispatchEvent(new Event("reapdf-save"))'));menu.addAction(self.save_action)
+            self.save_as_action=QAction('Guardar PDF como…',self);self.save_as_action.setShortcut(QKeySequence.StandardKey.SaveAs)
+            self.save_as_action.triggered.connect(lambda:self.page.runJavaScript('window.dispatchEvent(new Event("reapdf-save-as"))'));menu.addAction(self.save_as_action)
             self.print_action=QAction('Imprimir…',self);self.print_action.setShortcut(QKeySequence.StandardKey.Print)
             self.print_action.triggered.connect(lambda:self.page.runJavaScript('window.dispatchEvent(new Event("reapdf-print"))'));menu.addAction(self.print_action)
             close=menu.addAction('Cerrar');close.triggered.connect(self.close)
             self.profile.downloadRequested.connect(self.download)
+            self.pending_file=initial_file;self.initial_attempts=0;self.initial_timer=QTimer(self)
+            self.initial_timer.setInterval(100);self.initial_timer.timeout.connect(self.try_initial_file)
+            if initial_file:self.initial_timer.start()
             self.view.setUrl(QUrl(url))
+
+        def try_initial_file(self):
+            self.initial_attempts+=1
+            if self.allow_close or self.initial_attempts>100:
+                self.initial_timer.stop()
+                if not self.allow_close:QMessageBox.warning(self,'Abrir PDF','La aplicación no terminó de cargar. Abre el archivo desde el menú.')
+                return
+            def ready(found):
+                if found and self.pending_file:
+                    file=self.pending_file;self.pending_file=None;self.initial_timer.stop();self.open_path(file)
+            self.page.runJavaScript('!![...document.querySelectorAll("input")].find(e=>e.getAttribute("aria-label")==="Archivo PDF")',ready)
 
         def open_pdf(self):
             def checked(state):
@@ -74,6 +116,9 @@ def create_window(url):
         def choose_pdf(self):
             path,_=QFileDialog.getOpenFileName(self,'Abrir PDF','','Documentos PDF (*.pdf)')
             if not path:return
+            self.open_path(path)
+
+        def open_path(self,path):
             try:
                 import base64
                 file=Path(path)
@@ -120,7 +165,7 @@ def main():
     from PySide6.QtWidgets import QApplication
     QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
     app=QApplication(sys.argv[:1]);app.setApplicationName('Reapdf');app.setOrganizationName('Reapdf')
-    window=create_window(sys.argv[1]);window.show()
+    window=create_window(sys.argv[1],sys.argv[2] if len(sys.argv)>2 else None);window.show()
     return app.exec()
 
 

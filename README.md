@@ -1,5 +1,7 @@
 # Reapdf
 
+Estado vigente: [guardado directo y apertura inicial](docs/GUARDADO_DIRECTO_20261029.md). [Auditoría global reconstruida](docs/AUDITORIA_GLOBAL_20261029.md): aproximadamente 48 % del alcance total; aceptación Windows pendiente.
+
 Último avance: [apertura e impresión desde el escritorio](docs/APERTURA_IMPRESION_20261029.md), carga automática de modos de edición y Ctrl+Enter. Validación Linux; Windows y entrega final pendientes.
 
 Nuevo alojamiento de escritorio: [ventana propia Qt y protección de borradores](docs/ESCRITORIO_QT_20261029.md). Comprobación Linux; empaquetado y aceptación Windows pendientes.

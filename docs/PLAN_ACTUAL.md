@@ -5,6 +5,8 @@
 3. Buscar y reemplazar: página/rango/documento, palabras completas y mayúsculas, resultados seleccionables, vista previa, reemplazo reversible y rechazo de cambios que no quepan o no sean compatibles.
 4. Compatibilidad: ampliar fuentes y estructuras con criterios concretos, OCR y conversiones. No confundir pruebas sintéticas con aceptación personal.
 5. Vinculación general de documentos: archivos/roles elegidos por el usuario, identificadores, resolución de duplicados, navegación y persistencia. Generación de informes/registros/ensayos excluida.
-6. Escritorio Windows: alojamiento Qt, menú de apertura, impresión raster con rango de páginas, descarga y cierre protegido comprobados en Linux offscreen. Continuar con apertura desde el sistema/segunda instancia, guardado directo, impresión vectorial/gran formato, escalado, rendimiento, recuperación, empaquetado y aceptación Windows antes de entrega.
+6. Escritorio Windows: Qt, apertura de ruta inicial, guardado directo atómico, detección de cambios externos, impresión raster con rango y cierre protegido comprobados en Linux offscreen. Continuar con segunda instancia/asociaciones, impresión vectorial/gran formato, escalado, rendimiento, recuperación, empaquetado y aceptación Windows antes de entrega.
 
 Cada avance agrupa entregables independientes cuando sea viable, identifica bloqueos acotados y evita repetir como nuevas funciones ya cerradas. Informar desarrollo, comprobación automática, aceptación real, estado global y modelo recomendado. No generar portables intermedios.
+
+Referencia global vigente reconstruida: aproximadamente 48 %, intervalo subjetivo 40–60 %, en avance-global.json. Se conserva su alcance/pesos en revisiones futuras o se justifica explícitamente cualquier cambio. El 61,3 % anterior pertenece a código 0.55 no recuperado.

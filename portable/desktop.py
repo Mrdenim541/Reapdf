@@ -49,8 +49,8 @@ class DesktopWindow:
 
 
 class NativeDesktopWindow:
-    def __init__(self,unused,url):
-        self.process=subprocess.Popen([sys.executable,str(Path(__file__).with_name('native_window.py')),url],stdin=subprocess.DEVNULL)
+    def __init__(self,unused,url,initial_file=None):
+        self.process=subprocess.Popen([sys.executable,str(Path(__file__).with_name('native_window.py')),url,*([str(initial_file)] if initial_file else [])],stdin=subprocess.DEVNULL)
 
     def wait(self):return self.process.wait()
 
