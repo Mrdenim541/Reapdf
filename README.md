@@ -1,5 +1,7 @@
 # Reapdf
 
+Nuevo alojamiento de escritorio: [ventana propia Qt y protección de borradores](docs/ESCRITORIO_QT_20261029.md). Comprobación Linux; empaquetado y aceptación Windows pendientes.
+
 Estado vigente: [recuperación y edición directa](docs/WORK_STATE.md), [plan actual](docs/PLAN_ACTUAL.md). Esta base procede de 0.43, con cambios nuevos documentados; el código 0.55 mencionado en el historial no se ha recuperado. Generación de informes/registros/ensayos excluida del alcance actual. No se entrega un portable en este avance.
 
 Primera versión experimental de un editor PDF personal, con Adobe Acrobat como referencia funcional. Primero se construye el editor general; las automatizaciones de registros y planos se desarrollarán después.

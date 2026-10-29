@@ -46,3 +46,16 @@ class DesktopWindow:
             except subprocess.TimeoutExpired:
                 self.process.kill();self.process.wait(timeout=5)
         self.profile.cleanup()
+
+
+class NativeDesktopWindow:
+    def __init__(self,unused,url):
+        self.process=subprocess.Popen([sys.executable,str(Path(__file__).with_name('native_window.py')),url],stdin=subprocess.DEVNULL)
+
+    def wait(self):return self.process.wait()
+
+    def close(self):
+        if self.process.poll() is None:
+            self.process.terminate()
+            try:self.process.wait(timeout=5)
+            except subprocess.TimeoutExpired:self.process.kill();self.process.wait(timeout=5)

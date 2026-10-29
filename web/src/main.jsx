@@ -124,6 +124,7 @@ function App() {
     existingDraft?'Pulsa Aplicar propiedades existentes o cancela los cambios de la marca.':
     transformDraft?'Pulsa Aplicar posición y tamaño o cancela los valores pendientes.':'';
   navigationGate.current=busy||transforming||!!stroke||!!draftMessage;
+  useEffect(()=>{window.__reapdfCloseState={dirty:!!(needsSave||draftMessage),busy:!!(busy||transforming||stroke)};return()=>{delete window.__reapdfCloseState;};},[needsSave,draftMessage,busy,transforming,stroke]);
   const mayEdit = doc && !doc.signed && doc.can_edit;
   const recovery=useRecovery(doc,operations,page,zoom);
   const commit = (ops) => {if (ops.length > 1000) {setError('El límite de esta sesión es 1000 cambios.'); return;} setSelectedMark(null);setHistory(h => [...h.slice(0, cursor + 1), {doc, operations:ops}]); setCursor(cursor + 1); setNotice('');};

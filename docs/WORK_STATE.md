@@ -10,4 +10,6 @@ Preferencias vigentes: excluir generación de informes, registros y documentos d
 
 Porcentaje: 61,3 % corresponde al historial de 0.55; no es una evaluación verificable de esta recuperación. Reestablecer cobertura global cuando se contraste el inventario recuperado y se localicen o reconstruyan las diferencias; no aumentar porcentaje por recuperación ni número de pruebas.
 
-Siguiente bloque: mejorar interacción de edición y casos de texto incompatibles; definir y desarrollar alojamiento de escritorio propio. La entrega recuperada utiliza navegador en modo ventana y no acredita una ventana nativa ni ejecución Windows. Conservar el origen recuperado en Git y una rama remota verificable para evitar depender del disco de una sesión.
+Nuevo avance: alojamiento propio Qt implementado, `portable/launcher.py --native-desktop`, con PySide6 6.8.3 opcional en requirements-desktop.txt. Ventana sin navegador externo; descargas y cierre protegido con comprobación JSON del estado frontend; navegación externa bloqueada. Modo antiguo --desktop sigue siendo navegador y se mantiene únicamente por compatibilidad. Prueba real Qt Linux offscreen; no Windows ni instalable nuevo. Detalle: ESCRITORIO_QT_20261029.md. Cambio de modo del editor ahora protege borradores con confirmación.
+
+Siguiente bloque: abrir/guardar e impresión de escritorio, mejorar edición y casos incompatibles. Conservar el origen recuperado y sus mejoras en Git y la rama remota recovery/editing-20261029. Continuar con 6.1 Sol medio. No confundir la ejecución Qt en Linux con aceptación Windows.

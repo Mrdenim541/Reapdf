@@ -1,0 +1,10 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[334869:334908:1029/164403.532920:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 334909: Read-only file system (30)
+STAGE: application loaded
+STAGE: PDF loaded
+STAGE: download created
+PASS: Qt window, PDF upload/render, native download, busy guard, cancelled download protection, cancelled close and explicit discard.

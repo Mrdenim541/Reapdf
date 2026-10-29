@@ -5,6 +5,6 @@
 3. Buscar y reemplazar: página/rango/documento, palabras completas y mayúsculas, resultados seleccionables, vista previa, reemplazo reversible y rechazo de cambios que no quepan o no sean compatibles.
 4. Compatibilidad: ampliar fuentes y estructuras con criterios concretos, OCR y conversiones. No confundir pruebas sintéticas con aceptación personal.
 5. Vinculación general de documentos: archivos/roles elegidos por el usuario, identificadores, resolución de duplicados, navegación y persistencia. Generación de informes/registros/ensayos excluida.
-6. Escritorio Windows: trabajar desde el bloque 2 en ventana propia y operaciones de archivo; cerrar impresión, escalado, rendimiento, recuperación, empaquetado y aceptación Windows antes de entrega.
+6. Escritorio Windows: alojamiento Qt propio añadido y comprobado en Linux offscreen, con descarga y cierre protegido. Continuar con apertura/guardado, impresión, escalado, rendimiento, recuperación, empaquetado y aceptación Windows antes de entrega.
 
 Cada avance agrupa entregables independientes cuando sea viable, identifica bloqueos acotados y evita repetir como nuevas funciones ya cerradas. Informar desarrollo, comprobación automática, aceptación real, estado global y modelo recomendado. No generar portables intermedios.
