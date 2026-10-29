@@ -1,6 +1,6 @@
 # Reapdf
 
-Estado vigente: [edición sobre la página y avance integrado](docs/AVANCE_INTEGRADO_20261029.md), **≈70 % del programa completo** (estimación de madurez; Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
+Estado vigente: [edición, revisiones y preparación de pruebas](docs/EDICION_REVISIONES_Y_PRUEBA_20261029.md), **≈72 % del programa completo** (estimación de madurez; Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
 Ventana propia Qt, edición de fuentes compatibles, vinculación configurable, medición, capas, XFDF y OCR regional comprobados en Linux. No se genera instalador/portable en este avance. La base procede de 0.43 recuperado y mejoras nuevas; 0.55 no se ha recuperado. Generación de informes/registros/ensayos excluida.
 

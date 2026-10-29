@@ -48,7 +48,7 @@ export const tools = [
  entry('find_replace','Buscar y reemplazar','Busca texto digital y revisa reemplazos con fuente compatible.','edit','read','dialog','buscar reemplazar coincidencias palabras mayúsculas'),
  entry('text','Editar texto','Pulsa el texto sobre la página y escribe; conserva la fuente compatible o cambia el formato.','edit','edit','tool'),
  entry('paragraph','Reemplazar bloque de texto','Corrige fragmentos con fuente original o redistribuye un párrafo.','edit','edit','dialog','fuentes estilo negrita cursiva párrafo'),
- entry('textbox','Añadir texto','Dibuja un área y escribe texto nuevo.','edit','edit','tool'),
+ entry('textbox','Añadir texto','Pulsa en la página y escribe; altura automática y formato en contexto.','edit','edit','tool'),
  entry('link','Enlaces','Crea y edita enlaces web o a páginas.','edit','edit','tool'),
  entry('existing_links','Editar enlaces del PDF','Cambia destinos, mueve, redimensiona o elimina enlaces existentes.','edit','edit','dialog','hipervínculos vínculos url destinos'),
  entry('images','Imágenes','Añade PNG o JPEG y ajusta su posición y tamaño.','edit','edit','tool'),

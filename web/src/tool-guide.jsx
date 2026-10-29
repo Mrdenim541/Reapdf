@@ -1,7 +1,7 @@
 import React from 'react';
 export function ToolGuide({tool,selected,pending}) {
   const guides={
-    textbox:['Añadir texto','Arrastra una caja, escribe a la derecha y aplica. Después puedes moverla, cambiar tamaño o corregir su texto.'],
+    textbox:['Añadir texto','Pulsa sobre la página y escribe allí. La altura se ajusta al contenido; puedes cambiar ancho, fuente, tamaño y color.'],
     stamp:['Sellos','Define un área y elige un sello estándar. Para añadirlo, la página debe estar a 0°.'],
     link:['Enlaces','Define el área del enlace y elige una página o dirección web. En Lectura podrás activarlo.'],
     view:['Lectura','Selecciona texto para copiarlo. Usa el zoom o ajusta la página a la ventana.'],

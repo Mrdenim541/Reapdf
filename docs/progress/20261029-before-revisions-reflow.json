@@ -1,0 +1,377 @@
+{
+  "schema": 1,
+  "review_date": "2026-10-29",
+  "status": "provisional_expanded_workflows",
+  "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
+  "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
+  "weighted_percent": 69.8,
+  "reported_percent": 70,
+  "subjective_range_percent": [
+    60,
+    78
+  ],
+  "anchors": {
+    "0": "Sin implementación",
+    "25": "Prototipo o subconjunto pequeño",
+    "50": "Cobertura parcial utilizable",
+    "75": "Cobertura amplia con huecos",
+    "90": "Casi todo el alcance con aceptación pendiente",
+    "100": "Alcance implementado, comprobado y aceptado"
+  },
+  "categories": [
+    {
+      "id": "reader_pages",
+      "weight": 7,
+      "maturity": 90,
+      "evidence": [
+        "backend/viewer.py",
+        "backend/pages.py",
+        "backend/bookmarks.py",
+        "backend/engine.py",
+        "scripts/smoke_advanced_workflows.mjs"
+      ],
+      "remaining": "Corpus extenso, rendimiento en equipos reales y aceptación de lectura."
+    },
+    {
+      "id": "interface",
+      "weight": 7,
+      "maturity": 80,
+      "evidence": [
+        "web/src/main.jsx",
+        "web/src/paragraph-editor.jsx",
+        "scripts/smoke-recovered-editing.mjs",
+        "web/src/inline-text.jsx",
+        "web/src/document-links.jsx"
+      ],
+      "remaining": "Aceptación personal, pantallas pequeñas, edición continua y consistencia del conjunto de herramientas."
+    },
+    {
+      "id": "text_images",
+      "weight": 16,
+      "maturity": 80,
+      "evidence": [
+        "backend/styled_text.py",
+        "backend/text_flow.py",
+        "backend/image_editing.py",
+        "tests/test_styled_text.py",
+        "backend/find_replace.py",
+        "tests/test_find_replace.py",
+        "tests/test_find_replace_more.py",
+        "scripts/smoke_find_replace.mjs",
+        "tests/test_styled_simple_truetype.py",
+        "tests/test_find_replace_fragments.py",
+        "scripts/smoke_split_replacement.mjs",
+        "backend/native_text.py",
+        "backend/pdf_content.py",
+        "tests/test_native_content.py",
+        "scripts/check_pdf_editing_qt.py"
+      ],
+      "remaining": "CFF/Type3, kerning/espaciado complejo, reflujo entre líneas, texto dentro de Form, capas y actualización conjunta de ActualText. Conservar fuente requiere glifos disponibles y espacio suficiente; no equivale a edición universal."
+    },
+    {
+      "id": "annotations",
+      "weight": 7,
+      "maturity": 80,
+      "evidence": [
+        "backend/existing_annotations.py",
+        "backend/comments.py",
+        "backend/xfdf.py",
+        "tests/test_xfdf_working_copy.py"
+      ],
+      "remaining": "XFDF completo, hilos/estados/acciones y corpus externo representativo."
+    },
+    {
+      "id": "forms",
+      "weight": 6,
+      "maturity": 70,
+      "evidence": [
+        "backend/form_import.py",
+        "backend/form_calculations.py",
+        "tests/test_form_import.py",
+        "backend/xfdf.py",
+        "tests/test_xfdf_working_copy.py"
+      ],
+      "remaining": "XFA, JavaScript de formularios, comportamientos complejos y corpus comercial."
+    },
+    {
+      "id": "ocr_conversion",
+      "weight": 9,
+      "maturity": 70,
+      "evidence": [
+        "backend/ocr.py",
+        "backend/docx_import.py",
+        "backend/docx_export.py",
+        "backend/region_ocr.py",
+        "tests/test_structure_preflight_regions.py"
+      ],
+      "remaining": "OCR de tablas y perspectiva; fidelidad Office compleja; corpus multilingüe. El OCR no transforma la imagen en texto original editable."
+    },
+    {
+      "id": "security_signatures",
+      "weight": 7,
+      "maturity": 60,
+      "evidence": [
+        "backend/digital_signatures.py",
+        "backend/redaction.py",
+        "backend/document_tools.py",
+        "backend/working_copy.py",
+        "tests/test_xfdf_working_copy.py"
+      ],
+      "remaining": "Revocación/TSA/LT/LTA/tokens, censura compleja y aceptación independiente."
+    },
+    {
+      "id": "standards_optimization",
+      "weight": 5,
+      "maturity": 55,
+      "evidence": [
+        "backend/standards.py",
+        "backend/compression.py",
+        "backend/preflight.py",
+        "tests/test_structure_preflight_regions.py"
+      ],
+      "remaining": "PDF/X y preflight exhaustivo, tintas planas, sobreimpresión y aceptación de imprenta."
+    },
+    {
+      "id": "accessibility",
+      "weight": 3,
+      "maturity": 50,
+      "evidence": [
+        "backend/accessibility.py",
+        "backend/structure_editing.py",
+        "tests/test_structure_preflight_regions.py"
+      ],
+      "remaining": "Creación/reparación general de etiquetas, tablas/MCID, aceptación asistiva y PDF/UA integral."
+    },
+    {
+      "id": "automation_linking",
+      "weight": 9,
+      "maturity": 80,
+      "evidence": [
+        "backend/automation.py",
+        "backend/batch_tools.py",
+        "backend/document_sets.py",
+        "web/src/document-links.jsx",
+        "tests/test_document_workspaces.py",
+        "scripts/smoke_document_workspaces.mjs"
+      ],
+      "remaining": "Actualización asistida ante revisiones, vínculos geométricos/manuales, lotes mayores y corpus real de documentos relacionados."
+    },
+    {
+      "id": "desktop_distribution",
+      "weight": 6,
+      "maturity": 65,
+      "evidence": [
+        "portable/native_window.py",
+        "portable/native_print.py",
+        "portable/native_save.py",
+        "scripts/smoke_native_save.py",
+        "portable/single_instance.py",
+        "portable/windows_association.py",
+        "scripts/smoke_single_instance.py",
+        "scripts/smoke_native_readiness.py",
+        "scripts/smoke_native_launcher.py",
+        "tests/test_desktop.py",
+        "scripts/smoke_vector_print.py",
+        "scripts/smoke_native_document_set.py"
+      ],
+      "remaining": "Windows real, asociaciones aplicadas, instalador/portable Qt, escalado, impresión física y distribución final."
+    },
+    {
+      "id": "migration_interoperability",
+      "weight": 4,
+      "maturity": 65,
+      "evidence": [
+        "backend/projects.py",
+        "tests/test_projects.py",
+        "backend/xfdf.py",
+        "backend/document_sets.py"
+      ],
+      "remaining": "Corpus en Acrobat/Nitro y plataformas externas, migración entre versiones; XFDF no cubre todos los subtipos."
+    },
+    {
+      "id": "performance_reliability",
+      "weight": 4,
+      "maturity": 70,
+      "evidence": [
+        "backend/projects.py",
+        "portable/native_save.py",
+        "tests/test_native_save.py",
+        "backend/native_text.py",
+        "portable/native_print.py",
+        "backend/document_sets.py"
+      ],
+      "remaining": "Carga sostenida, memoria medida con corpus grande y estrés/recuperación Windows."
+    },
+    {
+      "id": "measurement",
+      "weight": 3,
+      "maturity": 75,
+      "evidence": [
+        "docs/FUNCIONES.md",
+        "backend/measurements.py",
+        "web/src/measurements.jsx",
+        "tests/test_document_workspaces.py"
+      ],
+      "remaining": "Ajuste a objetos, edición de vértices, escalas por región y aceptación técnica."
+    },
+    {
+      "id": "portfolios_layers",
+      "weight": 3,
+      "maturity": 60,
+      "evidence": [
+        "backend/pro_tools.py",
+        "docs/FUNCIONES.md",
+        "backend/layers.py",
+        "backend/document_sets.py",
+        "tests/test_document_workspaces.py"
+      ],
+      "remaining": "Portfolios PDF nativos, configuraciones OCG avanzadas y edición del contenido de capas."
+    },
+    {
+      "id": "collaboration_services",
+      "weight": 3,
+      "maturity": 0,
+      "evidence": [
+        "docs/FUNCIONES.md"
+      ],
+      "remaining": "Compartir, sincronización, revisión y solicitud remota de firmas."
+    },
+    {
+      "id": "ai_assistance",
+      "weight": 1,
+      "maturity": 0,
+      "evidence": [
+        "docs/FUNCIONES.md"
+      ],
+      "remaining": "Asistencia dentro del producto con referencias y costes definidos."
+    }
+  ],
+  "completion_gates": [
+    "Fuente completa respaldada y restauración limpia comprobada",
+    "Flujos cotidianos aceptados por el usuario",
+    "Ejecución y distribución Windows verificadas",
+    "Integridad de documentos, recuperación y compatibilidad representativas",
+    "Alcance y licencias de distribución resueltos"
+  ],
+  "historical_reference": {
+    "reported_percent": 61.3,
+    "code_version": "0.55",
+    "available_now": false,
+    "note": "No ratificado con archivos actuales. Esta revisión evalúa 0.43 recuperado y sus mejoras nuevas."
+  },
+  "accepted_complete": false,
+  "last_change": {
+    "baseline": "docs/progress/20261029-before-expanded-workflows.json",
+    "before_weighted": 49.9,
+    "after_weighted": 69.8,
+    "new_points": 19.9,
+    "changes": [
+      {
+        "id": "reader_pages",
+        "before": 85,
+        "after": 90,
+        "points": 0.35,
+        "reason": "Lectura de A0 y otros formatos hasta 6000 pt, con presupuesto de píxeles conservado."
+      },
+      {
+        "id": "interface",
+        "before": 65,
+        "after": 80,
+        "points": 1.05,
+        "reason": "Edición y selección sobre la página, controles flotantes y área Documentos separada."
+      },
+      {
+        "id": "text_images",
+        "before": 60,
+        "after": 80,
+        "points": 3.2,
+        "reason": "Edición de objetos Tj/TJ compatibles sin reescribir marcas/recortes; subconjuntos simples con cmap Macintosh verificado; imágenes directas recortadas/translúcidas. Documento real editado en Qt con fuente original."
+      },
+      {
+        "id": "annotations",
+        "before": 70,
+        "after": 80,
+        "points": 0.7,
+        "reason": "Intercambio XFDF acotado de diez tipos de anotación con geometría y deduplicación."
+      },
+      {
+        "id": "forms",
+        "before": 60,
+        "after": 70,
+        "points": 0.6,
+        "reason": "Valores AcroForm por nombre lógico mediante XFDF y grupos compatibles."
+      },
+      {
+        "id": "ocr_conversion",
+        "before": 55,
+        "after": 70,
+        "points": 1.35,
+        "reason": "OCR regional en páginas mixtas, idiomas locales, giros y conservación de imágenes."
+      },
+      {
+        "id": "security_signatures",
+        "before": 50,
+        "after": 60,
+        "points": 0.7,
+        "reason": "Copia de trabajo identificada, sin firmas digitales, con permiso y aceptación explícita; original intacto."
+      },
+      {
+        "id": "standards_optimization",
+        "before": 35,
+        "after": 55,
+        "points": 1.0,
+        "reason": "Diagnóstico de resolución efectiva, fuentes, cajas y operadores de color declarados."
+      },
+      {
+        "id": "accessibility",
+        "before": 20,
+        "after": 50,
+        "points": 0.9,
+        "reason": "Alternativas de figuras y reordenación de hermanos en estructuras existentes compatibles."
+      },
+      {
+        "id": "automation_linking",
+        "before": 35,
+        "after": 80,
+        "points": 4.05,
+        "reason": "Conjuntos portátiles con roles configurables, detección de códigos, resolución de ambigüedades, anclas verificadas y PDF compilado con enlaces/marcadores."
+      },
+      {
+        "id": "desktop_distribution",
+        "before": 50,
+        "after": 65,
+        "points": 0.9,
+        "reason": "Impresión vectorial comprobada con muestra y alternativa por mosaicos; guardado nativo de conjuntos."
+      },
+      {
+        "id": "migration_interoperability",
+        "before": 30,
+        "after": 65,
+        "points": 1.4,
+        "reason": "Importación/exportación XFDF y conjuntos portátiles; salida PDF estándar con enlaces."
+      },
+      {
+        "id": "performance_reliability",
+        "before": 60,
+        "after": 70,
+        "points": 0.4,
+        "reason": "Caché del análisis de contenido, límites de objetos/píxeles/archivos, impresión por mosaicos y validación de conjuntos antes de importar."
+      },
+      {
+        "id": "measurement",
+        "before": 0,
+        "after": 75,
+        "points": 2.25,
+        "reason": "Distancia, polilínea, área y conteo, calibración, unidades y anotaciones persistentes."
+      },
+      {
+        "id": "portfolios_layers",
+        "before": 25,
+        "after": 60,
+        "points": 1.05,
+        "reason": "Capas OCG con visibilidad, grupos exclusivos, bloqueos y vista previa; colecciones de documentos conservadas en conjuntos."
+      }
+    ],
+    "all_weights_and_scope_unchanged": true
+  }
+}

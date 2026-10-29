@@ -200,13 +200,13 @@ def create_window(url,initial_file=None):
 
 
 def main():
-    from PySide6.QtCore import QCoreApplication,Qt
+    from PySide6.QtCore import QCoreApplication,Qt,QObject,Signal
     from PySide6.QtWidgets import QApplication
     QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
     app=QApplication(sys.argv[:1]);app.setApplicationName('Reapdf');app.setOrganizationName('Reapdf')
     try:from .single_instance import SingleInstance
     except ImportError:from single_instance import SingleInstance
-    instance=SingleInstance(sys.argv[2] if len(sys.argv)>2 else None)
+    instance=SingleInstance(sys.argv[2] if len(sys.argv)>2 else None,namespace=os.environ.get('REAPDF_INSTANCE_NAMESPACE'))
     def confirm(state):
         path=os.environ.get('REAPDF_NATIVE_READY_FILE')
         if path:
@@ -217,6 +217,23 @@ def main():
     try:
         window=create_window(sys.argv[1],sys.argv[2] if len(sys.argv)>2 else None);window.show()
         instance.set_handler(window.enqueue_file)
+        if os.environ.get('REAPDF_PARENT_PIPE')=='1':
+            # EOF is signalled by the OS even if the parent is killed on Windows.
+            # A queued Qt signal closes only this child, never unrelated windows.
+            import threading
+            class ParentMonitor(QObject):
+                lost=Signal()
+            monitor=ParentMonitor()
+            def parent_lost():
+                window.allow_close=True;window.close();app.quit()
+            monitor.lost.connect(parent_lost)
+            def watch_parent():
+                try:
+                    while sys.stdin.buffer.read(1):pass
+                except (OSError,ValueError):pass
+                monitor.lost.emit()
+            threading.Thread(target=watch_parent,daemon=True).start()
+
         def failed(message):
             print(message,file=sys.stderr,flush=True);window.allow_close=True;window.close();app.exit(1)
         window.watch_ready(lambda:confirm('ready'),failed)

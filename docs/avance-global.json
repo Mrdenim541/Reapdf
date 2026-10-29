@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "review_date": "2026-10-29",
-  "status": "provisional_expanded_workflows",
+  "status": "provisional_reflow_revision_desktop",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 69.8,
-  "reported_percent": 70,
+  "weighted_percent": 71.9,
+  "reported_percent": 72,
   "subjective_range_percent": [
     60,
     78
@@ -35,20 +35,22 @@
     {
       "id": "interface",
       "weight": 7,
-      "maturity": 80,
+      "maturity": 85,
       "evidence": [
         "web/src/main.jsx",
         "web/src/paragraph-editor.jsx",
         "scripts/smoke-recovered-editing.mjs",
         "web/src/inline-text.jsx",
-        "web/src/document-links.jsx"
+        "web/src/document-links.jsx",
+        "web/src/inline-paragraph.jsx",
+        "scripts/smoke_revision_quick_text.mjs"
       ],
-      "remaining": "Aceptación personal, pantallas pequeñas, edición continua y consistencia del conjunto de herramientas."
+      "remaining": "Aceptación personal, adaptación de edición a pantallas pequeñas y coherencia en las herramientas restantes."
     },
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 80,
+      "maturity": 85,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -64,9 +66,14 @@
         "backend/native_text.py",
         "backend/pdf_content.py",
         "tests/test_native_content.py",
-        "scripts/check_pdf_editing_qt.py"
+        "scripts/check_pdf_editing_qt.py",
+        "backend/text_spacing.py",
+        "backend/original_reflow.py",
+        "backend/quick_text.py",
+        "tests/test_original_reflow.py",
+        "tests/test_revision_quick_spacing.py"
       ],
-      "remaining": "CFF/Type3, kerning/espaciado complejo, reflujo entre líneas, texto dentro de Form, capas y actualización conjunta de ActualText. Conservar fuente requiere glifos disponibles y espacio suficiente; no equivale a edición universal."
+      "remaining": "CFF/Type3, escalas y transformaciones de texto, espacios inferidos y varios Tj por BT, reflujo original mixto/entre páginas y edición de texto dentro de Form/capas/etiquetas. Nuevos caracteres requieren un glifo disponible o elegir otra fuente."
     },
     {
       "id": "annotations",
@@ -145,21 +152,23 @@
     {
       "id": "automation_linking",
       "weight": 9,
-      "maturity": 80,
+      "maturity": 85,
       "evidence": [
         "backend/automation.py",
         "backend/batch_tools.py",
         "backend/document_sets.py",
         "web/src/document-links.jsx",
         "tests/test_document_workspaces.py",
-        "scripts/smoke_document_workspaces.mjs"
+        "scripts/smoke_document_workspaces.mjs",
+        "web/src/document-revision.jsx",
+        "tests/test_revision_quick_spacing.py"
       ],
-      "remaining": "Actualización asistida ante revisiones, vínculos geométricos/manuales, lotes mayores y corpus real de documentos relacionados."
+      "remaining": "Anclas manuales/geométricas, detección avanzada de revisiones con códigos cambiados, lotes mayores y corpus real de documentos relacionados."
     },
     {
       "id": "desktop_distribution",
       "weight": 6,
-      "maturity": 65,
+      "maturity": 70,
       "evidence": [
         "portable/native_window.py",
         "portable/native_print.py",
@@ -172,9 +181,13 @@
         "scripts/smoke_native_launcher.py",
         "tests/test_desktop.py",
         "scripts/smoke_vector_print.py",
-        "scripts/smoke_native_document_set.py"
+        "scripts/smoke_native_document_set.py",
+        "portable/desktop.py",
+        "scripts/check_desktop_candidate.py",
+        "scripts/smoke_parent_exit.py",
+        ".github/workflows/desktop-source.yml"
       ],
-      "remaining": "Windows real, asociaciones aplicadas, instalador/portable Qt, escalado, impresión física y distribución final."
+      "remaining": "Ejecución Windows y consulta de sus resultados, DPI/asociaciones/impresión física, ensamblado/aceptación del paquete final. Configurar CI no equivale a superarlo."
     },
     {
       "id": "migration_interoperability",
@@ -191,16 +204,18 @@
     {
       "id": "performance_reliability",
       "weight": 4,
-      "maturity": 70,
+      "maturity": 75,
       "evidence": [
         "backend/projects.py",
         "portable/native_save.py",
         "tests/test_native_save.py",
         "backend/native_text.py",
         "portable/native_print.py",
-        "backend/document_sets.py"
+        "backend/document_sets.py",
+        "scripts/smoke_parent_exit.py",
+        "scripts/check_desktop_candidate.py"
       ],
-      "remaining": "Carga sostenida, memoria medida con corpus grande y estrés/recuperación Windows."
+      "remaining": "Carga sostenida y memoria de corpus grande, pérdida de energía, borradores sin aplicar y estrés/recuperación Windows."
     },
     {
       "id": "measurement",
@@ -261,115 +276,45 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261029-before-expanded-workflows.json",
-    "before_weighted": 49.9,
-    "after_weighted": 69.8,
-    "new_points": 19.9,
+    "baseline": "docs/progress/20261029-before-revisions-reflow.json",
+    "before_weighted": 69.8,
+    "after_weighted": 71.9,
+    "new_points": 2.1,
     "changes": [
       {
-        "id": "reader_pages",
-        "before": 85,
-        "after": 90,
-        "points": 0.35,
-        "reason": "Lectura de A0 y otros formatos hasta 6000 pt, con presupuesto de píxeles conservado."
-      },
-      {
         "id": "interface",
-        "before": 65,
-        "after": 80,
-        "points": 1.05,
-        "reason": "Edición y selección sobre la página, controles flotantes y área Documentos separada."
+        "before": 80,
+        "after": 85,
+        "points": 0.35,
+        "reason": "Entrada de texto con clic y altura automática; párrafo en página; comparación de destinos lado a lado."
       },
       {
         "id": "text_images",
-        "before": 60,
-        "after": 80,
-        "points": 3.2,
-        "reason": "Edición de objetos Tj/TJ compatibles sin reescribir marcas/recortes; subconjuntos simples con cmap Macintosh verificado; imágenes directas recortadas/translúcidas. Documento real editado en Qt con fuente original."
-      },
-      {
-        "id": "annotations",
-        "before": 70,
-        "after": 80,
-        "points": 0.7,
-        "reason": "Intercambio XFDF acotado de diez tipos de anotación con geometría y deduplicación."
-      },
-      {
-        "id": "forms",
-        "before": 60,
-        "after": 70,
-        "points": 0.6,
-        "reason": "Valores AcroForm por nombre lógico mediante XFDF y grupos compatibles."
-      },
-      {
-        "id": "ocr_conversion",
-        "before": 55,
-        "after": 70,
-        "points": 1.35,
-        "reason": "OCR regional en páginas mixtas, idiomas locales, giros y conservación de imágenes."
-      },
-      {
-        "id": "security_signatures",
-        "before": 50,
-        "after": 60,
-        "points": 0.7,
-        "reason": "Copia de trabajo identificada, sin firmas digitales, con permiso y aceptación explícita; original intacto."
-      },
-      {
-        "id": "standards_optimization",
-        "before": 35,
-        "after": 55,
-        "points": 1.0,
-        "reason": "Diagnóstico de resolución efectiva, fuentes, cajas y operadores de color declarados."
-      },
-      {
-        "id": "accessibility",
-        "before": 20,
-        "after": 50,
-        "points": 0.9,
-        "reason": "Alternativas de figuras y reordenación de hermanos en estructuras existentes compatibles."
+        "before": 80,
+        "after": 85,
+        "points": 0.8,
+        "reason": "TJ y espaciados verificables; reflujo uniforme de varias líneas con programa original; inserción Unicode automática."
       },
       {
         "id": "automation_linking",
-        "before": 35,
-        "after": 80,
-        "points": 4.05,
-        "reason": "Conjuntos portátiles con roles configurables, detección de códigos, resolución de ambigüedades, anclas verificadas y PDF compilado con enlaces/marcadores."
+        "before": 80,
+        "after": 85,
+        "points": 0.45,
+        "reason": "Revisión de archivos del conjunto con destinos movidos, ambiguos y ausentes, confirmación completa, retirada explícita y deshacer."
       },
       {
         "id": "desktop_distribution",
-        "before": 50,
-        "after": 65,
-        "points": 0.9,
-        "reason": "Impresión vectorial comprobada con muestra y alternativa por mosaicos; guardado nativo de conjuntos."
-      },
-      {
-        "id": "migration_interoperability",
-        "before": 30,
-        "after": 65,
-        "points": 1.4,
-        "reason": "Importación/exportación XFDF y conjuntos portátiles; salida PDF estándar con enlaces."
+        "before": 65,
+        "after": 70,
+        "points": 0.3,
+        "reason": "Ocho recorridos Qt reales agrupados, prueba de muerte forzada del padre y cierre por EOF. Automatización Windows/Linux preparada."
       },
       {
         "id": "performance_reliability",
-        "before": 60,
-        "after": 70,
-        "points": 0.4,
-        "reason": "Caché del análisis de contenido, límites de objetos/píxeles/archivos, impresión por mosaicos y validación de conjuntos antes de importar."
-      },
-      {
-        "id": "measurement",
-        "before": 0,
+        "before": 70,
         "after": 75,
-        "points": 2.25,
-        "reason": "Distancia, polilínea, área y conteo, calibración, unidades y anotaciones persistentes."
-      },
-      {
-        "id": "portfolios_layers",
-        "before": 25,
-        "after": 60,
-        "points": 1.05,
-        "reason": "Capas OCG con visibilidad, grupos exclusivos, bloqueos y vista previa; colecciones de documentos conservadas en conjuntos."
+        "points": 0.2,
+        "reason": "Ventana hija vigilada por pipe; cierre aun con muerte forzada del padre y aislamiento de instancia en pruebas."
       }
     ],
     "all_weights_and_scope_unchanged": true

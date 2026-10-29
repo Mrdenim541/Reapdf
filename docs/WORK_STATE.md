@@ -1,6 +1,6 @@
 # Estado comprobado · 29 de octubre de 2026
 
-**Estado vigente:** [avance integrado](AVANCE_INTEGRADO_20261029.md), ≈70 % global (69,8 ponderado, intervalo subjetivo 60–78 %). 2257 Python, 109 JS y recorridos Chromium/Qt aprobados; Windows y entrega final pendientes. Edición sobre la página con ratón/cursor; PDF real editado con fuente original e imagen movida, sin alterar el original. Incorporadas vinculación/medición/capas/XFDF, copia de trabajo, etiquetas, diagnóstico, OCR regional e impresión vectorial/mosaicos. [Plan siguiente](PLAN_ACTUAL.md). No paquete nuevo. Las entradas que siguen conservan el historial y sus límites de cada corte.
+**Estado vigente:** [edición/revisiones/escritorio](EDICION_REVISIONES_Y_PRUEBA_20261029.md), ≈72 % global (71,9 ponderado, pesos sin cambios). Nuevos: TJ/Tc/Tw compatibles, inserción con clic y altura automática, reflujo uniforme original en página, revisión explícita de archivos vinculados y deshacer. Corregido hijo Qt que sobrevivía al padre; ocho recorridos reales Linux agrupados y workflow Windows/Linux preparado. Totales finales/evidencias en el informe. Consulta de API Actions bloqueada (Forbidden), Windows no ratificado. Sin paquete nuevo. [Plan](PLAN_ACTUAL.md), [prueba personal futura](PRUEBA_PERSONAL_ESCRITORIO.md). Las entradas siguientes son históricas.
 
 ## Historial de la recuperación
 

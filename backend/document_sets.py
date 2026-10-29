@@ -200,3 +200,44 @@ def compile_pdf(items,relations,name):
     with open_pdf(data) as check:
         if len(check)!=total or sum(1 for p in check for link in p.get_links() if link['kind']==f.LINK_GOTO)<len(relations):raise DocumentError('No se pudo comprobar el PDF vinculado.')
     return data,{'documents':len(items),'pages':total,'links':len(relations),'scope':'Copias de páginas, marcadores y enlaces nativos; conserva los originales con Guardar conjunto. No transfiere el árbol de accesibilidad ni adjuntos del documento fuente.'}
+
+
+def revision(items,relations,old_id,replacement,choices=None):
+    """Review every affected link before replacing a set snapshot.
+
+    A unique code can still have moved to a different page: suggestions never
+    constitute approval. Missing anchors require an explicit removed relation.
+    Inputs are validated again when applying, so stale/tampered plans fail.
+    """
+    validate_relations(items,relations)
+    old=next((i for i in items if i['id']==old_id),None)
+    if old is None:raise DocumentError('Elige el documento que se revisará.')
+    documents([replacement])
+    if replacement['id'] in {i['id'] for i in items}:raise DocumentError('La revisión necesita una nueva copia del documento.')
+    replacement={**replacement,'role':old['role']}
+    updated=[replacement if i['id']==old_id else i for i in items];documents(updated)
+    affected=[r for r in relations if any(r[s]['document']==old_id for s in ['source','target'])]
+    codes=sorted({r['code'] for r in affected});new_index=index(replacement,codes) if codes else {};rows=[]
+    for r in affected:
+        side='source' if r['source']['document']==old_id else 'target';anchor=r[side];candidates=new_index.get(r['code'],[])
+        exact=[a for a in candidates if a['page']==anchor['page'] and all(abs(x-y)<.05 for x,y in zip(a['rect'],anchor['rect']))]
+        suggested=exact[0]['id'] if len(exact)==1 else candidates[0]['id'] if len(candidates)==1 else ''
+        status='ambiguous' if len(candidates)>1 else 'same_location' if len(exact)==1 else 'moved' if candidates else 'missing'
+        rows.append({'relation':r['id'],'code':r['code'],'side':side,'previous':anchor,'candidates':candidates,'suggested':suggested,'status':status})
+    if choices is None:return {'old':{k:v for k,v in old.items() if k!='data'},'replacement':{k:v for k,v in replacement.items() if k!='data'},'affected':rows,'unaffected':len(relations)-len(rows),'review_required':True}
+    if not isinstance(choices,dict) or set(choices)!={r['relation'] for r in rows}:raise DocumentError('Revisa el destino o la retirada de cada vínculo afectado.')
+    selected={};removed=set()
+    for row in rows:
+        choice=choices[row['relation']]
+        if choice is None:removed.add(row['relation']);continue
+        match=next((a for a in row['candidates'] if a['id']==choice),None)
+        if match is None:raise DocumentError('Un destino no pertenece a la revisión actual.')
+        selected[row['relation']]=(row['side'],match)
+    result=[]
+    for r in relations:
+        if r['id'] in removed:continue
+        if r['id'] in selected:
+            side,anchor=selected[r['id']];r={**r,side:anchor}
+        result.append(r)
+    validate_relations(updated,result)
+    return updated,result,{'reviewed':len(rows),'removed':len(removed),'unaffected':len(relations)-len(rows)}

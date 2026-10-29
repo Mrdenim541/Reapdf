@@ -123,19 +123,24 @@ def numbers(args,count):
 
 
 def placements(data):
-    """Locate direct image invocations and simple single-show text objects."""
-    matrix=f.Matrix(1,1);stack=[];images=[];texts=[];text=None;unsupported=False
+    """Locate direct invocations and bounded single-show text, including spacing."""
+    matrix=f.Matrix(1,1);stack=[];images=[];texts=[];text=None
+    state={'char':0.,'word':0.,'scale':100.,'render':0.,'rise':0.}
+    parameter={'Tc':'char','Tw':'word','Tz':'scale','Tr':'render','Ts':'rise'}
     for op,args,token in operations(data):
         if op=='q':
-            stack.append(f.Matrix(matrix))
+            stack.append((f.Matrix(matrix),dict(state)))
             if len(stack)>100:raise DocumentError('Demasiados estados gráficos anidados.')
         elif op=='Q':
             if not stack:raise DocumentError('Estado gráfico PDF desequilibrado.')
-            matrix=stack.pop()
+            matrix,state=stack.pop()
         elif op=='cm':matrix=f.Matrix(*numbers(args,6))*matrix
+        elif op in parameter:
+            value=numbers(args,1)[0];state[parameter[op]]=value
+            if text is not None and text['shows']:text['simple']=False
         elif op=='BT':
             if text is not None:raise DocumentError('Objetos de texto anidados.')
-            text={'origin':f.Point(0,0),'matrix':f.Matrix(matrix),'font':None,'size':0,'shows':[],'simple':not unsupported}
+            text={'origin':f.Point(0,0),'matrix':f.Matrix(matrix),'font':None,'size':0,'shows':[],'simple':True}
         elif op=='ET' and text is not None:
             if text['simple'] and len(text['shows'])==1 and text['font']:texts.append(text)
             text=None
@@ -143,27 +148,26 @@ def placements(data):
             if len(args)!=1 or args[0].kind!='name':raise DocumentError('Invocación de objeto no válida.')
             images.append({'resource':args[0].value,'matrix':f.Matrix(matrix),'start':args[0].start,'end':token.end})
         elif text is not None:
-            if op=='Tf' and len(args)==2 and args[0].kind=='name' and args[1].kind=='number':text['font']=args[0].value;text['size']=args[1].value
+            if op=='Tf' and len(args)==2 and args[0].kind=='name' and args[1].kind=='number':
+                if text['shows']:text['simple']=False
+                text['font']=args[0].value;text['size']=args[1].value
             elif op=='Td' and not text['shows']:
                 x,y=numbers(args,2);text['origin']+=f.Point(x,y)
             elif op=='Tm' and not text['shows']:
                 a,b,c,d,e,g=numbers(args,6)
                 if (a,b,c,d)!=(1,0,0,1):text['simple']=False
                 text['origin']=f.Point(e,g)
-            elif op=='Tj' and len(args)==1 and args[0].kind=='string':text['shows'].append(args[0])
-            elif op=='TJ' and len(args)==1 and args[0].kind=='array':
-                parts=args[0].value
-                if all(t.kind=='string' or t.kind=='number' and t.value==0 for t in parts):text['shows'].append(Token('array-string',b''.join(t.value for t in parts if t.kind=='string'),args[0].start,args[0].end))
-                else:text['simple']=False
-            elif op in ['Tc','Tw','Tr','Ts']:
-                if numbers(args,1)!=[0]:text['simple']=False
-            elif op=='Tz':
-                if numbers(args,1)!=[100]:text['simple']=False
-            elif op in ["'",'"','TD','T*']:text['simple']=False
-        elif op in ['Tc','Tw','Tr','Ts','Tz']:
-            # Text-state parameters can persist outside BT; refuse rather than
-            # guess whether they affect a later object's glyphs.
-            unsupported=True
+            elif op in ['Tj','TJ']:
+                show=None;parts=[]
+                if op=='Tj' and len(args)==1 and args[0].kind=='string':show=args[0];parts=[show]
+                elif op=='TJ' and len(args)==1 and args[0].kind=='array':
+                    parts=args[0].value
+                    if all(t.kind in ['string','number'] for t in parts):show=Token('array-string',b''.join(t.value for t in parts if t.kind=='string'),args[0].start,args[0].end)
+                if show is None:text['simple']=False
+                else:
+                    text['shows'].append(show);text['parts']=parts;text['spacing']=dict(state)
+                    if state['scale']!=100 or state['render']!=0 or state['rise']!=0 or max(abs(state['char']),abs(state['word']))>1000:text['simple']=False
+            elif op in ["'",'"','TD','T*','Td','Tm']:text['simple']=False
     if stack or text is not None:raise DocumentError('Contenido PDF sin cierre gráfico o de texto.')
     return {'images':images,'texts':texts}
 

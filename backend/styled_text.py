@@ -254,7 +254,12 @@ class OriginalFont:
 
 def styled_model(doc,number,box,font_cache=None):
     rect,_=region_model(doc,number,box);page=doc[number]
-    if page.get_xobjects() or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?)(?![A-Za-z])',page.read_contents()):
+    content=page.read_contents();kerned=False
+    if b'TJ' in content:
+        from .pdf_content import operations as content_operations
+        try:kerned=any(op=='TJ' and len(args)==1 and args[0].kind=='array' and any(t.kind=='number' and t.value!=0 for t in args[0].value) for op,args,_ in content_operations(content))
+        except DocumentError:pass
+    if kerned or page.get_xobjects() or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz)(?![A-Za-z])',page.read_contents()):
         from .native_text import native_model
         return native_model(doc,number,rect,font_cache)
     if page.get_xobjects() or doc.get_ocgs() or doc.xref_get_key(page.xref,'Resources')[0]=='null':raise DocumentError('Este modo requiere texto directo sin capas ni objetos de formulario internos.')
@@ -332,7 +337,10 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
         total+=len(text)
         if text==row['text']:continue
         if not row['editable']:raise DocumentError(row['reason'])
-        encoded,width=row['_font'].encode(text,row['size'])
+        if '_native' in row:
+            from .text_spacing import replacement
+            encoded,width=replacement(row,text)
+        else:encoded,width=row['_font'].encode(text,row['size'])
         available=rect.x1-row['origin'][0] if expand else fitz.Rect(row['bbox']).width
         if width>available+.1:raise DocumentError('El texto no cabe en el ancho disponible. Acórtalo o amplía el área y activa su ancho disponible; este modo no redistribuye las líneas.')
         if not page_contains(doc[number],row,width):raise DocumentError('El texto sale de la página o se cruza con otro fragmento.')
@@ -346,7 +354,7 @@ def write_changes(doc,number,prepared):
     page=doc[number]
     if all('_native' in row for row,_ in prepared):
         from .pdf_content import patch,set_content
-        edits=[(row['_native'][0],row['_native'][1],(b'[<' if row['_native'][2]=='array-string' else b'<')+encoded.hex().encode()+(b'>]' if row['_native'][2]=='array-string' else b'>')) for row,encoded in prepared]
+        edits=[(row['_native'][0],row['_native'][1],encoded) for row,encoded in prepared]
         set_content(doc,page,patch(page.read_contents(),edits));return
     clone_resources(doc,page)
     for row,_ in prepared:page.add_redact_annot(fitz.Rect(row['bbox']),fill=False,cross_out=False)

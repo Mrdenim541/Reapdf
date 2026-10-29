@@ -1,6 +1,6 @@
 # Avance estimado del producto
 
-Estado vigente de la base recuperada: [avance integrado de octubre de 2026](AVANCE_INTEGRADO_20261029.md), ≈70 % (69,8 ponderado). Las cifras de versiones anteriores que siguen son históricas y no reemplazan la matriz reconstruida actual.
+Estado vigente de la base recuperada: [edición/revisiones/escritorio](EDICION_REVISIONES_Y_PRUEBA_20261029.md), ≈72 % (71,9 ponderado). Las cifras de versiones anteriores que siguen son históricas y no reemplazan la matriz reconstruida actual.
 
 ## Corte: versión 0.43
 

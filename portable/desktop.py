@@ -54,8 +54,8 @@ class NativeDesktopWindow:
     def __init__(self,unused,url,initial_file=None):
         self.state=tempfile.TemporaryDirectory(prefix='reapdf-native-',ignore_cleanup_errors=True)
         self.ready_path=Path(self.state.name)/'ready.json'
-        env=os.environ.copy();env['REAPDF_NATIVE_READY_FILE']=str(self.ready_path)
-        try:self.process=subprocess.Popen([sys.executable,str(Path(__file__).with_name('native_window.py')),url,*([str(initial_file)] if initial_file else [])],stdin=subprocess.DEVNULL,env=env)
+        env=os.environ.copy();env['REAPDF_NATIVE_READY_FILE']=str(self.ready_path);env['REAPDF_PARENT_PIPE']='1'
+        try:self.process=subprocess.Popen([sys.executable,str(Path(__file__).with_name('native_window.py')),url,*([str(initial_file)] if initial_file else [])],stdin=subprocess.PIPE,env=env)
         except Exception:self.state.cleanup();raise
 
     def wait_ready(self,timeout=25):
@@ -73,8 +73,10 @@ class NativeDesktopWindow:
     def wait(self):return self.process.wait()
 
     def close(self):
+        if self.process.stdin is not None and not self.process.stdin.closed:self.process.stdin.close()
         if self.process.poll() is None:
-            self.process.terminate()
+            try:self.process.wait(timeout=3)
+            except subprocess.TimeoutExpired:self.process.terminate()
             try:self.process.wait(timeout=5)
             except subprocess.TimeoutExpired:self.process.kill();self.process.wait(timeout=5)
         self.state.cleanup()

@@ -18,7 +18,7 @@
       "id": "text_editing",
       "status": "partial",
       "description": "Edición de texto general",
-      "remaining": "Fuentes exactas CFF/Type3, estructuras/codificaciones complejas, objetos y etiquetas semánticas; corpus real. Flujo entre regiones ya admite fragmentos con negrita/cursiva, tamaños y colores, sustitución explícita de familias, ajuste proporcional y comprobación de texto/desbordamientos. No es reflujo universal de páginas."
+      "remaining": "CFF/Type3, Form, escalas/codificaciones complejas, reflujo original mixto/entre páginas y etiquetas semánticas. Incorporados espaciado TJ/Tc/Tw verificable, inserción Unicode con clic y reflujo uniforme con fuente original sobre la página; corpus comercial y aceptación pendientes."
     },
     {
       "id": "office_conversion",
@@ -42,19 +42,19 @@
       "id": "semantic_accessibility",
       "status": "partial",
       "description": "Accesibilidad semántica",
-      "remaining": "Crear/reparar etiquetas y orden de lectura; revisión con tecnologías de asistencia."
+      "remaining": "Crear/reparar etiquetas generales, MCID/tablas y aceptación asistiva. Edición acotada de alternativas y orden entre hermanos existentes ya implementada."
     },
     {
       "id": "automation",
       "status": "partial",
       "description": "Automatización de flujos generales",
-      "remaining": "Rangos por paso, OCR en recetas, importación Office por lotes, planificación y corpus real. Se añade Word como salida terminal con informes de contenido y omisiones."
+      "remaining": "Anclas manuales y revisiones con códigos cambiados; lotes y corpus real. Vinculación configurable con ambigüedades, persistencia, PDF enlazado y revisión explícita de destinos ya incorporadas. También permanecen rangos por paso, OCR en recetas, Office por lotes y planificación."
     },
     {
       "id": "windows_execution",
       "status": "unverified",
       "description": "Ejecutable propio en Windows",
-      "remaining": "Arranque gráfico, abrir/editar/exportar, impresión, permisos y recuperación en Windows real."
+      "remaining": "Workflow de ocho recorridos de fuente preparado. Ejecución Windows aún sin resultado ratificado; pendientes DPI, asociaciones, impresión física, recuperación y prueba del paquete ensamblado en Windows limpio."
     },
     {
       "id": "independent_corpus",

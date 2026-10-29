@@ -33,6 +33,7 @@ import {Measurements} from './measurements.jsx';
 import {DocumentLinks} from './document-links.jsx';
 import {Layers} from './layers.jsx';
 import {InlineTextEditor,visibleTextBox} from './inline-text.jsx';
+import {InlineParagraph} from './inline-paragraph.jsx';
 import { ParagraphEditor } from './paragraph-editor.jsx';
 import { ExistingImageEditor } from './existing-images.jsx';
 import { FieldDesigner } from './field-designer.jsx';
@@ -80,6 +81,7 @@ function App() {
   const [searchFocusRequest,setSearchFocusRequest]=useState(0);
   const [tool, setTool] = useState('view'), [zoom, setZoom] = useState(1);
   const [inlineSpan,setInlineSpan]=useState(null);
+  const [inlineBlock,setInlineBlock]=useState(null);
   const [linkWorkspace,setLinkWorkspace]=useState(null);
   const [color, setColor] = useState('#e34b40'), [width, setWidth] = useState(2);
   const [history, setHistory] = useState([{doc:null, operations:[]}]), [cursor, setCursor] = useState(0);
@@ -128,7 +130,7 @@ function App() {
   const activeContent=contentDraft||(contentTools.has(tool)&&selectedOperation?.type===tool?selectedOperation:null);
   const sessionImages=operations.filter(op=>op.page===page&&op.type==='image');
   const noteEditDraft=tool==='select'&&selectedOperation?.type==='note'&&noteContent!==selectedOperation.content;
-  const draftMessage=inlineSpan?'Termina o cancela la edición sobre la página antes de continuar.':(contentDraft||contentChanged)?'Hay contenido nuevo sin aplicar. Usa Aplicar o Cancelar contenido antes de exportar.':textDraft?'Hay texto sin aplicar. Pulsa Aplicar cambio o Cancelar antes de exportar.':
+  const draftMessage=inlineBlock?'Termina o cancela el párrafo sobre la página antes de continuar.':inlineSpan?'Termina o cancela la edición sobre la página antes de continuar.':(contentDraft||contentChanged)?'Hay contenido nuevo sin aplicar. Usa Aplicar o Cancelar contenido antes de exportar.':textDraft?'Hay texto sin aplicar. Pulsa Aplicar cambio o Cancelar antes de exportar.':
     (notePoint||noteEditDraft)?'Guarda la nota o cancela sus cambios antes de exportar.':
     multiDraft?'Aplica o cancela los cambios del grupo antes de continuar.':
     existingDraft?'Pulsa Aplicar propiedades existentes o cancela los cambios de la marca.':
@@ -168,7 +170,7 @@ function App() {
   }, [doc, page, operations]);
 
   const areaBlocked=areaChangeReason({busy,transforming,stroke,draft:draftMessage});
-  const propertiesVisible=tool!=='view'&&tool!=='text'&&!propertiesFolded;
+  const propertiesVisible=tool!=='view'&&tool!=='text'&&(tool!=='textbox'||!!activeContent)&&!propertiesFolded;
   function changeArea(next){
     if(next===area||areaBlocked)return;
     setArea(next);setFocusMode(false);chooseTool('view');setPropertiesFolded(false);
@@ -206,7 +208,7 @@ function App() {
   });
 
   function adoptNewDocument(next,name) {
-    setInlineSpan(null);
+    setInlineSpan(null);setInlineBlock(null);
     const previousIds=sessionIds.current;sessionIds.current=new Set([next.id]);
     saved.current=JSON.stringify({id:next.id,operations:[]});projectSaved.current='';
     setArea('read');setPropertiesFolded(false);setSearchFocusRequest(0);setHistory([{doc:{...next,name,nativeKey:next.id,baseChanges:0},operations:[]}]);setPage(0);setCursor(0);setTool('view');setPageTool(null);
@@ -565,6 +567,8 @@ function App() {
     catch(e){setError(e.message);}finally{setBusy(false);}
   }
   function start(e) {
+    if(tool==='textbox'&&!inlineSpan&&!activeContent&&preview&&!busy&&!loading&&e.button===0&&mayEdit&&e.target===svg.current){const p=point(e);e.preventDefault();setError('');setInlineSpan({id:crypto.randomUUID(),insert:true,text:'',bbox:[p[0],p[1],p[0]+200,p[1]+24],origin:p,size:14,color:0});return;}
+    if(tool==='textbox'&&(!activeContent||inlineSpan))return;
     if(tool==='note'&&preview&&!busy&&!loading&&e.button===0&&mayAnnotate) {setNotePoint(point(e));setNoteContent('');return;}
     if((!drawingTools.has(tool)&&!markupTools.has(tool)&&!contentTools.has(tool))||!preview||busy||transforming||loading||e.button!==0||!(contentTools.has(tool)&&tool!=='stamp'?mayEdit:mayAnnotate)||activePointer.current!==null)return;
     activePointer.current=e.pointerId;
@@ -625,7 +629,7 @@ function App() {
       <div className="limits">Hasta 30 MB · 500 páginas · Sin envío a servicios externos</div>
       <div className="cards"><article><b>01 / Leer</b><h3>Encuentra tu página</h3><p>Miniaturas, índice, búsqueda y revisión de la estructura del documento.</p></article><article><b>02 / Marcar</b><h3>Deja tu trazo</h3><p>Anotaciones, notas, trazos, formularios y firma visual, con cambios reversibles.</p></article><article><b>03 / Editar</b><h3>Cambia el contenido</h3><p>Texto e imágenes compatibles, OCR local, organización y exportación de copias.</p></article></div>
       <div className="prototype">Versión en desarrollo. La edición depende de la estructura y fuentes del PDF. Incluye OCR local en español e inglés; las firmas visuales y las firmas con certificado tienen asistentes separados. Consulta la guía para conocer los flujos y límites.</div>
-    </main> : <><div className="workspace-bar"><AreaNavigation area={area} blocked={areaBlocked} onChange={changeArea}/><div className="panel-controls"><button aria-expanded={navigationOpen&&!focusMode} aria-controls="document-navigation" disabled={busy||transforming||!!stroke} onClick={()=>{setFocusMode(false);setNavigationOpen(focusMode?true:!navigationOpen);}}>{navigationOpen&&!focusMode?'Ocultar navegación':'Mostrar navegación'}</button>{tool!=='view'&&tool!=='text'&&<button aria-expanded={propertiesVisible&&!focusMode} aria-controls="tool-properties" disabled={!!areaBlocked} title={areaBlocked||'Mostrar u ocultar las propiedades de la herramienta'} onClick={()=>{setFocusMode(false);setPropertiesFolded(focusMode?false:!propertiesFolded);}}>{propertiesVisible&&!focusMode?'Ocultar propiedades':'Mostrar propiedades'}</button>}</div></div><div className={`workspace${!navigationOpen?' navigation-closed':''}${!propertiesVisible?' properties-closed':''}`}>
+    </main> : <><div className="workspace-bar"><AreaNavigation area={area} blocked={areaBlocked} onChange={changeArea}/><div className="panel-controls"><button aria-expanded={navigationOpen&&!focusMode} aria-controls="document-navigation" disabled={busy||transforming||!!stroke} onClick={()=>{setFocusMode(false);setNavigationOpen(focusMode?true:!navigationOpen);}}>{navigationOpen&&!focusMode?'Ocultar navegación':'Mostrar navegación'}</button>{tool!=='view'&&tool!=='text'&&tool!=='textbox'&&<button aria-expanded={propertiesVisible&&!focusMode} aria-controls="tool-properties" disabled={!!areaBlocked} title={areaBlocked||'Mostrar u ocultar las propiedades de la herramienta'} onClick={()=>{setFocusMode(false);setPropertiesFolded(focusMode?false:!propertiesFolded);}}>{propertiesVisible&&!focusMode?'Ocultar propiedades':'Mostrar propiedades'}</button>}</div></div><div className={`workspace${!navigationOpen?' navigation-closed':''}${!propertiesVisible?' properties-closed':''}`}>
 
       <aside className="tools" aria-label="Herramientas PDF">
         <ToolCatalog area={area} active={tool} reason={toolReason} onRun={runCatalogTool} onCommands={()=>setCommandsOpen(true)}/>
@@ -648,11 +652,12 @@ function App() {
           {preview && <img src={preview} data-render-scale={pagePreview.scale} alt={`Página ${page+1} del documento`} draggable="false"/>}
           {preview&&tool==='view'&&<LinkLayer links={links} zoom={zoom} onPage={target=>{setPage(target);paperScroll.current?.scrollTo(0,0);}}/>}
           {preview && <TextLayer items={textItems} zoom={zoom} enabled={tool==='view'}/>}
-          {inlineSpan&&<InlineTextEditor key={`${doc.id}:${page}:${inlineSpan.id}`} doc={doc} page={page} operations={operations} span={inlineSpan} zoom={zoom} busy={busy} error={error} onApply={async(action,params)=>{const ok=await runAdvanced(action,params);if(ok)setTool('text');return ok;}} onCancel={()=>{setInlineSpan(null);setError('');}}/>}
+          {inlineSpan&&<InlineTextEditor key={`${doc.id}:${page}:${inlineSpan.id}`} doc={doc} page={page} operations={operations} span={inlineSpan} zoom={zoom} busy={busy} error={error} onParagraph={()=>{setInlineBlock(inlineSpan);setInlineSpan(null);setError('');}} onApply={async(action,params)=>{const ok=await runAdvanced(action,params);if(ok)setTool(inlineSpan.insert?'textbox':'text');return ok;}} onCancel={()=>{setInlineSpan(null);setError('');}}/>}
+          {inlineBlock&&<InlineParagraph doc={doc} page={page} operations={operations} span={inlineBlock} zoom={zoom} busy={busy} error={error} onApply={async(action,params)=>{const ok=await runAdvanced(action,params);if(ok)setTool('text');return ok;}} onCancel={()=>{setInlineBlock(null);setError('');}}/>}
           {pagePreview.failed&&!preview&&<div className="loading"><button onClick={pagePreview.retry}>Reintentar vista de página</button></div>}
           {loading && <div className="loading" role="status">Preparando página…</div>}
           <svg ref={svg} aria-label="Lienzo de anotaciones" viewBox={`0 0 ${geometry.width} ${geometry.height}`} style={{cursor:(drawingTools.has(tool)||markupTools.has(tool)||contentTools.has(tool)||tool==='note')?'crosshair':'default',touchAction:(drawingTools.has(tool)||markupTools.has(tool)||tool==='select'||tool==='images'||contentTools.has(tool))?'none':'auto',pointerEvents:tool==='view'?'none':'auto'}} onPointerDown={start} onPointerMove={move} onPointerUp={end} onPointerCancel={()=>{strokeRef.current=null;activePointer.current=null;setStroke(null);}}>
-            {tool==='text'&&!loading&&!inlineSpan&&spans.map(s=>{const [x,y,w,h]=visibleTextBox(s,geometry);return <rect key={s.id} role="button" tabIndex="0" aria-label={`Editar en página: ${s.text}`} x={x} y={y} width={w} height={h} className="text-target" onClick={()=>{setError('');setInlineSpan(s);}} onKeyDown={e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();setError('');setInlineSpan(s);}}}/>;})}
+            {tool==='text'&&!loading&&!inlineSpan&&!inlineBlock&&spans.map(s=>{const [x,y,w,h]=visibleTextBox(s,geometry);return <rect key={s.id} role="button" tabIndex="0" aria-label={`Editar en página: ${s.text}`} x={x} y={y} width={w} height={h} className="text-target" onClick={()=>{setError('');setInlineSpan(s);}} onKeyDown={e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();setError('');setInlineSpan(s);}}}/>;})}
 
             <SearchHighlights search={search} page={page}/>
             <defs><marker id="arrow-tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill={color}/></marker></defs>

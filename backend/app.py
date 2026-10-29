@@ -141,6 +141,16 @@ async def analyze_set(request:Request):
     p=await read_payload(request)
     return await run_in_threadpool(document_sets.analyze,set_items(p.get('documents')),p.get('source'),p.get('target'),p.get('codes'))
 
+@app.post('/api/document-sets/revision')
+async def revise_set(request:Request):
+    p=await read_payload(request);items=set_items(p.get('documents'));replacement=set_items([p.get('replacement')])[0]
+    apply=p.get('apply') is True
+    if apply and p.get('acknowledge') is not True:raise DocumentError('Confirma la revisión de todos los vínculos afectados.')
+    result=await run_in_threadpool(document_sets.revision,items,p.get('relations',[]),p.get('old'),replacement,p.get('choices',{}) if apply else None)
+    if not apply:return result
+    docs,relations,report=result
+    return {'documents':[{k:v for k,v in d.items() if k!='data'} for d in docs],'relations':relations,'report':report}
+
 @app.post('/api/document-sets/export')
 async def export_set(request:Request):
     p=await read_payload(request)
@@ -168,6 +178,30 @@ async def import_set(file:UploadFile):
     except Exception:
         for item in created:(app.state.root/(item['id']+'.pdf')).unlink(missing_ok=True)
         raise
+
+@app.post('/api/documents/{doc_id}/inline-block')
+async def inspect_inline_block(doc_id:str,request:Request):
+    from .original_reflow import inspect
+    p=await read_payload(request)
+    return await run_in_threadpool(inspect,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('origin'),p.get('text'))
+
+@app.post('/api/documents/{doc_id}/reflow-original')
+async def reflow_original(doc_id:str,request:Request):
+    from .original_reflow import reflow
+    p=await read_payload(request)
+    result=await run_in_threadpool(reflow,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('text'),p.get('preview') is True,p.get('source_box'))
+    if p.get('preview') is True:return result
+    data,report=result
+    return {**store_document(data),'reflow_report':report}
+
+@app.post('/api/documents/{doc_id}/insert-text-auto')
+async def insert_quick_text(doc_id:str,request:Request):
+    from .quick_text import insert
+    p=await read_payload(request)
+    result=await run_in_threadpool(insert,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('point'),p.get('text'),p.get('size',12),p.get('family','sans'),p.get('style','regular'),p.get('color'),p.get('width',240),p.get('preview') is True)
+    if p.get('preview') is True:return result
+    data,report=result
+    return {**store_document(data),'insertion_report':report}
 
 @app.post('/api/documents/{doc_id}/xfdf/export')
 async def export_xfdf(doc_id:str,request:Request):
