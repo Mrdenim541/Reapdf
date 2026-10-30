@@ -20,7 +20,7 @@ const areaMembers={
  annotate:['comments','select','highlight','underline','strikeout','note','ink','line','arrow','rectangle','stamp'],
  pages:['organizer','insert','replace','duplicate','blank','crop','split','labels','bookmarks','numbering','bates'],
  forms:['form_rules','calculate','forms','field_properties','field','data','flatten','signature','digital_sign','verify_signatures'],
- convert:['ocr','region_ocr','export_images','tables','export_text','optimize','batch','automation','docx','archive','compress'],
+ convert:['ocr','region_ocr','table_region','export_images','tables','export_text','optimize','batch','automation','docx','archive','compress'],
  protect:['protect','redact','standards','working_copy','preflight'],
 };
 export const toolArea=id=>areas.find(a=>areaMembers[a.id].includes(id));
@@ -30,6 +30,7 @@ export function areaChangeReason(state={}){
 }
 const entry=(id,label,description,group,permission='edit',target='dialog',keywords='')=>({id,label,description,group,permission,target,keywords,area:toolArea(id)?.id});
 export const tools = [
+ entry('table_region','Extraer tabla por región','Reconoce tablas digitales o escaneadas, permite revisar celdas y exportar CSV o Word.','document','copy','dialog','tabla escaneada excel OCR celdas word'),
  entry('region_ocr','OCR de región','Reconoce una zona escaneada dentro de páginas con contenido mixto.','document','edit_copy'),
  entry('structure','Etiquetas y orden de lectura','Edita alternativas de figuras etiquetadas y orden de etiquetas hermanas.','read','read'),
  entry('preflight','Inspección de impresión','Revisa resolución efectiva, fuentes, cajas y colores antes de imprimir.','document','read'),

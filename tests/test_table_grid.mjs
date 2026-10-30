@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {regularGrid,assignGrid} from '../web/src/table-grid.js';
+test('manual grid redistributes source words and flags cut words',()=>{const words=[{text:'AB',bbox:[5,2,15,8]},{text:'NEXT',bbox:[22,3,28,8]}];assert.deepEqual(assignGrid(words,[0,10,20,30],[0,10]),{cells:[['','AB','NEXT']],crossing:1});assert.deepEqual(assignGrid(words,[0,20,30],[0,10]),{cells:[['AB','NEXT']],crossing:0});});
+test('grid handles multiline cells and keeps word reading order',()=>{const words=[{text:'second',bbox:[3,15,10,20]},{text:'line',bbox:[12,15,20,20]},{text:'first',bbox:[3,5,10,10]}];assert.deepEqual(assignGrid(words,[0,30],[0,30]).cells,[['first\nsecond line']]);});
+test('grid uses the actual selected region origin',()=>assert.deepEqual(regularGrid([40,80,450,150],3,3),{columns:[40,190,340,490],rows:[80,130,180,230]}));
+test('invalid separators cannot merge unknown geometry',()=>assert.throws(()=>assignGrid([],[0,1,30],[0,20]),/3 pt/));

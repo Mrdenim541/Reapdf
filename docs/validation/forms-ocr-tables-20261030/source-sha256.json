@@ -1,0 +1,19 @@
+{
+  "backend/app.py": "afcc0a20450589cffe00e0e651b48bf9867e9660668ae43dbb53a536963c349c",
+  "backend/forms.py": "f897a126d1a119c24471fbb1ef1e33186610dccc3f624468e822427063556b5f",
+  "backend/form_actions.py": "82fc3344cc9c492d197624f8576d589275b9436a7c1d29be756869b0c9781e0a",
+  "backend/table_regions.py": "393bc7657f1236a80d4b4eb795c7d792903f21241a3f01fff95043238c93b9ea",
+  "web/src/forms.jsx": "9db71ac1e91850af0221a6dd258b7c141139c6640c0c0e273f3ba77aed10ecea",
+  "web/src/main.jsx": "3fdf1f173d00802b5a5abdb917c70f255afce7ab8a7e1b9b46dcead2b358112b",
+  "web/src/style.css": "758a630dd2813a7b939bf01c8a48bf39630a388e6e27b6f0eefa1b2f5b465dd0",
+  "web/src/tool-catalog.js": "26402090861633674a239fae3f9220fa93322bc73f39b795866f6e2f90339b4b",
+  "web/src/tool-sections.js": "6d69c1ad027811573531f58a546c2a9ca3fa7fa350e08f30421a68ca97df80d0",
+  "web/src/table-grid.js": "4540a3e803825d3e9e6d4026de53c54c9b80160335e28f81aaef1d6fd47a44a0",
+  "web/src/table-regions.jsx": "8a6a903a793b191e0de537e3ef3a315289c3811ca2b35c4649504fe6b773306f",
+  "web/src/table-regions.css": "b2c745c4280da6ad54d70793fc681a64c2f9b3ace93e0280cc398fa368c6869c",
+  "tests/test_form_standard_actions.py": "74a3ebdc24d13b2e186c9e2e2f12bef9b45b50b19d91f8dd8d943be756d955f9",
+  "tests/test_table_regions.py": "c8698f0b84aa80a4e20675f39787d6f4d02e01a0f4d1b0a102709abfd45c47a8",
+  "tests/test_table_grid.mjs": "a621399fa37d0e4d0214b18d5579512f9adddc89c4e1e8c2a232ef25d0b9b45a",
+  "scripts/smoke_commercial_forms_tables.mjs": "5330bb72dd35caa00fe270a559596320fe61d6dd814f583acbbf8bba87384406",
+  "scripts/smoke_commercial_native.py": "c56aa51a90a18ff276a585729f46b0d9fdd0670509b4013e8431a823f02b7987"
+}

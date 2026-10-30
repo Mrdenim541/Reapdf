@@ -27,6 +27,7 @@ import {BatchProcessor} from './batch-processor.jsx';
 import {LinkEditor} from './link-editor.jsx';
 import {FindReplace} from './find-replace.jsx';
 import {RegionOCR} from './region-ocr.jsx';
+import {TableRegions} from './table-regions.jsx';
 import {StructureEditor,Preflight} from './structure-preflight.jsx';
 import {Interchange,WorkingCopy} from './interchange.jsx';
 import {Measurements} from './measurements.jsx';
@@ -741,6 +742,7 @@ function App() {
     {doc&&pageTool==='find_replace'&&<FindReplace error={error} onClearError={()=>setError('')} doc={doc} page={page} operations={operations} busy={busy} onClose={()=>setPageTool(null)} onApply={params=>runAdvanced('find-replace/apply',params)}/>}
     {doc&&pageTool==='paragraph'&&<ParagraphEditor initialBox={textRegion} doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
     {doc&&pageTool==='document_links'&&<DocumentLinks doc={doc} operations={operations} workspace={linkWorkspace} onChange={setLinkWorkspace} onClose={()=>setPageTool(null)}/>}
+    {doc&&pageTool==='table_region'&&<TableRegions doc={doc} page={page} operations={operations} busy={busy} onClose={()=>setPageTool(null)}/>}
     {doc&&pageTool==='region_ocr'&&<RegionOCR doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
     {doc&&pageTool==='structure'&&<StructureEditor doc={doc} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
     {doc&&pageTool==='preflight'&&<Preflight doc={doc} operations={operations} onClose={()=>setPageTool(null)}/>}

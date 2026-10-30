@@ -1,0 +1,26 @@
+{
+  "date_utc": "2026-10-30",
+  "base_commit": "f3e98bddd159d3bfa689ce90a87078a857c02e29",
+  "python_full": {
+    "passed": 2956,
+    "warnings": 3,
+    "seconds": 350.91
+  },
+  "final_targeted": {
+    "passed": 349,
+    "warnings": 2,
+    "seconds": 57.8,
+    "note": "After correcting the maximum-grid capacity check and adding crop/rotation/MaxLen tests; not a second full regression."
+  },
+  "javascript": 120,
+  "build": "passed; final help-text polish compiled after GUI checks",
+  "chromium": "passed: number/date/percent, required review, on-page field selection, automatic preview, invalid date, undo/redo/PDF export; real scanned table, grid drag, correction, CSV and editable Word",
+  "qt_linux": "passed: own window, automatic formatted form preview, native atomic PDF save, original actions/other page/source preserved; scanned table OCR/review and native CSV/Word save dialogs",
+  "word_verification": "OOXML structure and reimport to editable PDF within Reapdf; not external Microsoft Word",
+  "windows": "not run",
+  "external_acrobat_nitro": "not run",
+  "physical_print": "not run",
+  "new_package": false,
+  "private_files": "not used",
+  "source_pdf_modified_by_extraction": false
+}

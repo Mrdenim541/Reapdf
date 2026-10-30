@@ -40,7 +40,7 @@ def _form_model(doc):
     catalog=doc.pdf_catalog()
     blocked=doc.get_sigflags()>0 or not doc.permissions & fitz.PDF_PERM_FORM
     special=special_form(doc)
-    result=[]
+    result=[];policies={}
     for number,w in rows:
         # Keep the Page alive while accessing its Widget.
         page=doc[number];w=page.load_widget(w.xref)
@@ -50,13 +50,26 @@ def _form_model(doc):
         kind=TYPES.get(w.field_type,'unsupported');flags=w.field_flags
         inherited_readonly=any(doc.xref_get_key(n,'Ff')[0]=='int' and int(doc.xref_get_key(n,'Ff')[1])&1 for n in chain)
         options=choices(w) if kind=='choice' else []
+        fmt=None;action_reason=''
+        if any(doc.xref_get_key(n,'AA')[0]!='null' for n in chain):
+            if kind!='text' or flags&4096:action_reason='Los formatos automáticos solo se admiten en texto de una línea.'
+            else:
+                from .form_actions import policy
+                identity=tuple(chain)
+                if identity not in policies:
+                    try:policies[identity]=policy(doc,chain)
+                    except DocumentError as exc:policies[identity]=str(exc)
+                if isinstance(policies[identity],str):action_reason=policies[identity]
+                else:fmt=policies[identity]
+
         if blocked:reason='El documento está firmado o no permite rellenar formularios.'
         elif special:reason='El formulario contiene XFA, cálculos o scripts; se conserva sin rellenar.'
         elif tree_reason:reason=tree_reason
         elif kind=='unsupported':reason='Tipo de campo todavía no compatible (incluye botones y firmas).'
         elif inherited_readonly:reason='Campo de solo lectura.'
         elif names[info['name']]>1:reason='Hay campos independientes con el mismo nombre; no se sincronizan sin un propietario común.'
-        elif any(doc.xref_get_key(n,key)[0]!='null' for n in chain for key in ['AA','A','OC']):reason='Campo con acciones o scripts; no se modifica.'
+        elif any(doc.xref_get_key(n,key)[0]!='null' for n in chain for key in ['A','OC']):reason='Campo con acciones o capas; no se modifica.'
+        elif action_reason:reason=action_reason
         elif flags & (8192|1048576|2097152|16777216|33554432):reason='Opciones de campo avanzadas todavía no compatibles.'
         elif kind in {'text','choice'} and (not isinstance(w.text_font,str) or w.text_font.lower() not in BASE_FONTS or not finite(w.text_fontsize) or not 0<=w.text_fontsize<=144):reason='La fuente o tamaño del campo todavía no es compatible.'
         elif kind=='choice' and (not options or any(o['value']=='' for o in options) or any(any(ord(c)<32 or ord(c)>255 for c in o['label']) for o in options) or w.field_value not in ['',None,*[o['value'] for o in options]]):reason='Opciones o valor del campo no compatibles.'
@@ -69,10 +82,15 @@ def _form_model(doc):
             stored=doc.xref_get_key(owner,'V')
             value=stored[1].lstrip('/') if stored[0]=='name' and stored[1]!='/Off' else ''
             if stored[0] not in ['null','name']:reason='El radio no tiene un valor de grupo de tipo nombre PDF.'
+        display=value;format_issue=''
+        if fmt and isinstance(value,str):
+            from .form_actions import edit_value,value as format_value
+            try:display=format_value(fmt,value,stored=True)[1];value=edit_value(fmt,value)
+            except DocumentError as exc:format_issue=str(exc)
         rect=w.rect*page.rotation_matrix
         if not page.rect.contains(rect):reason='El campo queda fuera de la página visible.'
         result.append({'page':number,'xref':w.xref,'name':w.field_name,'label':w.field_label or w.field_name,
-                       'group':owner,'group_size':len(members),'can_delete':not reason,
+                       'group':owner,'group_size':len(members),'can_delete':not reason,'required':bool(flags&2),'format':fmt,'display_value':display,'format_issue':format_issue,
                        'can_clear':not bool(flags&16384),'kind':kind,'value':value,'choices':options or [],'multiline':bool(flags & 4096),
                        'max_length':min(w.text_maxlen or 2000,2000),'rect':list(rect),
                        'editable':not reason,'reason':reason})
@@ -145,12 +163,21 @@ def prepare_fill(doc,values):
         else:
             if not isinstance(value,str) or len(value)>row['max_length'] or any(ord(c)>255 or ord(c)<32 and not(c=='\n' and row['multiline']) for c in value):
                 raise DocumentError(f"El campo {row['label']} admite hasta {row['max_length']} caracteres latinos y sus saltos de línea permitidos.")
-            size=fitted_text_size(w,value,row['multiline'])
+            if row.get('format'):
+                from .form_actions import value as format_value
+                value,display=format_value(row['format'],value)
+            size=fitted_text_size(w,display if display is not None else value,row['multiline'])
         result.append((key[0],key[1],value,size,display,choice_index,row['group'],row['kind'],row.get('radio_state')))
     return result
 
 
 def apply_fill(doc,prepared):
+    # Temporarily detach all field actions before native appearance updates.
+    # No PDF JavaScript is passed to the updater; restore original action objects.
+    _,ownership,_,_=field_structure(doc)
+    nodes={n for _,xref,*_ in prepared for n in ownership[xref]['chain']}
+    actions={n:raw_key(doc,n,'AA') for n in nodes}
+    for node in nodes:doc.xref_set_key(node,'AA','null')
     structural={xref:{key:raw_key(doc,xref,key) for key in ['T','FT','Ff','MaxLen','Opt','TU','Parent']} for _,xref,*_ in prepared}
     for number,xref,value,size,display,choice_index,owner,kind,on_state in prepared:
         page=doc[number];widget=page.load_widget(xref)
@@ -175,6 +202,8 @@ def apply_fill(doc,prepared):
             # Generate the label appearance, then retain the actual export value.
             doc.xref_set_key(xref,'V',fitz.get_pdf_str(value))
         if choice_index is not None:doc.xref_set_key(xref,'I',f'[{choice_index}]' if choice_index>=0 else 'null')
+
+    for node,action in actions.items():doc.xref_set_key(node,'AA',action)
 
     # Native updates materialize inherited flags on widgets and may leave /V on
     # bare widget children. Restore the source ownership and keep values at the

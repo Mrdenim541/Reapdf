@@ -1,14 +1,14 @@
 {
   "schema": 1,
   "review_date": "2026-10-30",
-  "status": "provisional_intermediate_states_normal_alpha",
+  "status": "provisional_standard_forms_reviewed_ocr_tables",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 76.4,
-  "reported_percent": 76,
+  "weighted_percent": 78.0,
+  "reported_percent": 78,
   "subjective_range_percent": [
     60,
-    78
+    80
   ],
   "anchors": {
     "0": "Sin implementación",
@@ -35,7 +35,7 @@
     {
       "id": "interface",
       "weight": 7,
-      "maturity": 92.5,
+      "maturity": 94,
       "evidence": [
         "web/src/main.jsx",
         "web/src/paragraph-editor.jsx",
@@ -50,9 +50,13 @@
         "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md",
         "docs/TEXTO_AFIN_20261029.md",
         "scripts/smoke_core_workflows.mjs",
-        "docs/ESTADOS_Y_TRANSPARENCIA_20261030.md"
+        "docs/ESTADOS_Y_TRANSPARENCIA_20261030.md",
+        "docs/FORMULARIOS_Y_TABLAS_OCR_20261030.md",
+        "web/src/forms.jsx",
+        "web/src/table-regions.jsx",
+        "scripts/smoke_commercial_forms_tables.mjs"
       ],
-      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y migración del recorrido gráfico histórico extendido. Recorrido cotidiano actualizado y aprobado, selección por cuadriláteros y protección de transparencia incorporadas."
+      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados."
     },
     {
       "id": "text_images",
@@ -120,28 +124,37 @@
     {
       "id": "forms",
       "weight": 6,
-      "maturity": 70,
+      "maturity": 80,
       "evidence": [
         "backend/form_import.py",
         "backend/form_calculations.py",
         "tests/test_form_import.py",
         "backend/xfdf.py",
-        "tests/test_xfdf_working_copy.py"
+        "tests/test_xfdf_working_copy.py",
+        "docs/FORMULARIOS_Y_TABLAS_OCR_20261030.md",
+        "backend/form_actions.py",
+        "tests/test_form_standard_actions.py",
+        "scripts/smoke_commercial_native.py"
       ],
-      "remaining": "XFA, JavaScript de formularios, comportamientos complejos y corpus comercial."
+      "remaining": "Cálculos nativos PDF/CO y AFSimple_Calculate, XFA, JavaScript general y validaciones/eventos fuera de la lista; formatos adicionales, fuentes no compatibles, corpus externo y aceptación. Formatos/validadores estándar declarativos y revisión visual de obligatorios incorporados; no se ejecuta código PDF."
     },
     {
       "id": "ocr_conversion",
       "weight": 9,
-      "maturity": 70,
+      "maturity": 80,
       "evidence": [
         "backend/ocr.py",
         "backend/docx_import.py",
         "backend/docx_export.py",
         "backend/region_ocr.py",
-        "tests/test_structure_preflight_regions.py"
+        "tests/test_structure_preflight_regions.py",
+        "docs/FORMULARIOS_Y_TABLAS_OCR_20261030.md",
+        "backend/table_regions.py",
+        "tests/test_table_regions.py",
+        "web/src/table-grid.js",
+        "tests/test_table_grid.mjs"
       ],
-      "remaining": "OCR de tablas y perspectiva; fidelidad Office compleja; corpus multilingüe. El OCR no transforma la imagen en texto original editable."
+      "remaining": "Perspectiva/deskew general, tablas con celdas combinadas y diseños complejos, OCR multilingüe/corpus representativo y fidelidad Office general (incluidas notas al pie/finales y otras partes aún omitidas). CSV y Word editables desde tabla regional revisada incorporados; no convierte los píxeles del PDF en texto original editable."
     },
     {
       "id": "security_signatures",
@@ -314,20 +327,36 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261030-before-text-states.json",
-    "before_weighted": 76.24,
-    "after_weighted": 76.4,
-    "new_points": 0.16,
+    "baseline": "docs/progress/20261030-before-forms-ocr-tables.json",
+    "before_weighted": 76.4,
+    "after_weighted": 78.0,
+    "new_points": 1.6,
     "changes": [
       {
-        "id": "text_images",
-        "before": 96,
-        "after": 97,
-        "points": 0.16,
-        "reason": "Edición por segmentos con posiciones Tm independientes y estados originales de fuente/color/alpha; transparencia normal y grupos aislados RGB/Gray sin máscaras ni mezclas especiales. Verificación de opacidad y protección frente a sustitución de fuente que descarte la composición."
+        "id": "interface",
+        "before": 92.5,
+        "after": 94,
+        "points": 0.105,
+        "reason": "Selección de campos con ratón, vista previa automática, revisión de obligatorios y cuadrícula/celdas de tablas revisables."
+      },
+      {
+        "id": "forms",
+        "before": 70,
+        "after": 80,
+        "points": 0.6,
+        "reason": "Interpretación declarativa de AFNumber/AFPercent/AFDateEx y AFRange, conservación de acciones y valores nativos, formatos y apariencias compartidas, entrada visual y borradores parciales."
+      },
+      {
+        "id": "ocr_conversion",
+        "before": 70,
+        "after": 80,
+        "points": 0.9,
+        "reason": "Extracción tabular regional digital/OCR real, eliminación de líneas solo en copia de reconocimiento, cuadrícula automática/manual, corrección y CSV protegido/Word editable con reimportación comprobada."
       }
     ],
-    "unrounded_after_weighted": "76.395",
+    "unrounded_before_weighted": "76.395",
+    "unrounded_after_weighted": "78.00",
+    "unrounded_delta": "1.605",
     "all_weights_and_scope_unchanged": true
   }
 }

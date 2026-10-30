@@ -250,6 +250,27 @@ async def inspect_print(doc_id:str,request:Request):
     p=await read_payload(request)
     return await run_in_threadpool(preflight.inspect,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('min_dpi',150))
 
+@app.post('/api/documents/{doc_id}/extract-table-region')
+async def extract_table_region(doc_id:str,request:Request):
+    from .table_regions import extract
+    p=await read_payload(request)
+    if not OCR_LOCK.acquire(blocking=False):raise DocumentError('Ya hay un reconocimiento en curso. Espera a que termine.')
+    try:return await run_in_threadpool(extract,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('grid'),p.get('mode','auto'),p.get('language','spa+eng'),p.get('dpi',200),p.get('orientation',0))
+    finally:OCR_LOCK.release()
+
+
+@app.post('/api/documents/{doc_id}/export-region-table')
+async def export_region_table(doc_id:str,request:Request):
+    from .table_regions import csv_bytes,docx_bytes
+    p=await read_payload(request)
+    with open_pdf(document_path(doc_id).read_bytes()) as doc:
+        if not doc.permissions & pymupdf.PDF_PERM_COPY:raise DocumentError('El documento no permite extraer tablas.')
+    if p.get('format')=='csv':data=csv_bytes(p.get('cells'));mime='text/csv; charset=utf-8';ext='csv'
+    elif p.get('format')=='docx':data=docx_bytes(p.get('cells'),p.get('header',True));mime='application/vnd.openxmlformats-officedocument.wordprocessingml.document';ext='docx'
+    else:raise DocumentError('Elige CSV o Word para exportar la tabla revisada.')
+    return Response(data,media_type=mime,headers={'Content-Disposition':f'attachment; filename="reapdf-tabla.{ext}"'})
+
+
 @app.post('/api/documents/{doc_id}/ocr-regions')
 async def recognize_regions(doc_id:str,request:Request):
     p=await read_payload(request)
@@ -391,7 +412,10 @@ async def read_forms(doc_id: str, request: Request):
     if fill:
         values={(entry['page'],entry['xref']):entry['value'] for entry in expand_values(model['fields'],fill['values'])}
         for row in model['fields']:row['value']=values.get((row['page'],row['xref']),row['value'])
+    from .form_actions import value as formatted_value
     for row in model['fields']:
+        if row.get('format') and fill and (row['page'],row['xref']) in values and isinstance(row['value'],str):
+            row['display_value']=formatted_value(row['format'],row['value'])[1];row['format_issue']=''
         row['base_editable']=row['editable'];row['calculated']=row['group'] in targets
         if row['calculated']:row.update(editable=False,reason='Campo calculado por reglas de este proyecto. Cambia sus fuentes o edita las reglas.')
     model['calculation_reports']=reports
