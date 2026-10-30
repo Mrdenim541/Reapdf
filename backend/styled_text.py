@@ -82,6 +82,7 @@ class TrueType:
             tag,_,start,length=struct.unpack_from('>4sIII',data,12+16*i)
             if start+length>len(data):raise DocumentError('Tabla de fuente fuera de límites.')
             tables[tag]=data[start:start+length]
+        if b'fvar' in tables:raise DocumentError('La fuente TrueType variable necesita una instancia estática verificada; no se elige un eje de forma implícita.')
         self.names=set()
         try:
             names=tables.get(b'name',b'');records=struct.unpack_from('>H',names,2)[0];offset=struct.unpack_from('>H',names,4)[0]
@@ -137,6 +138,9 @@ class OriginalFont:
     def __init__(self,doc,item):
         self.xref,self.ext,self.type,self.name,self.resource,*_=item;self.base=None;self.options=defaultdict(list);self.aliases={normal_name(self.name)};self.program_bytes=0;self.code_bytes=2;self.trace_cid=False
         self.restricted=bool(re.match(r'^[A-Z]{6}\+',self.name))
+        if self.type=='Type3':
+            from .type3_fonts import load
+            load(self,doc);return
         if self.type=='Type1' and self.name in BASE_FONTS:
             if doc.xref_get_key(self.xref,'FontDescriptor/FontFile3')[0]=='xref':self.load_simple(doc,cff=True);return
             if any(doc.xref_get_key(self.xref,'FontDescriptor/'+key)[0]!='null' for key in ['FontFile','FontFile2','FontFile3']):raise DocumentError('Las fuentes Type1 incrustadas requieren otro tratamiento; no se sustituyen por una fuente base.')
@@ -278,7 +282,7 @@ def styled_model(doc,number,box,font_cache=None):
         multiple=False;transformed=False
         try:objects=placements(content)['texts'];multiple=any(o['shows'][0].kind=='operator-array' for o in objects);transformed=any(tuple(o['matrix'])!=(1.,0.,0.,1.,0.,0.) for o in objects) or any(op=='Tm' and [t.value for t in args[:4]]!=[1,0,0,1] for op,args,_ in content_operations(content))
         except DocumentError:transformed=bool(re.search(rb'(?<![A-Za-z])(?:cm|Tm)(?![A-Za-z])',content))
-        cache['_route_native']=bool(transformed or multiple or kerned or page.get_xobjects() or any(i[1] in ['cff','otf','cid'] for i in page.get_fonts()) or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz)(?![A-Za-z])',content))
+        cache['_route_native']=bool(transformed or multiple or kerned or page.get_xobjects() or any(i[1] in ['cff','otf','cid'] or i[2]=='Type3' for i in page.get_fonts()) or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz)(?![A-Za-z])',content))
     if cache['_route_native']:
         from .native_text import native_model
         return native_model(doc,number,rect,cache)

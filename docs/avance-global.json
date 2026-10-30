@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "review_date": "2026-10-29",
-  "status": "provisional_affine_original_text",
+  "review_date": "2026-10-30",
+  "status": "provisional_type3_static_cff2",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 76.08,
+  "weighted_percent": 76.24,
   "reported_percent": 76,
   "subjective_range_percent": [
     60,
@@ -55,7 +55,7 @@
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 95,
+      "maturity": 96,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -85,9 +85,17 @@
         "tests/test_cff_forms_mixed.py",
         "scripts/smoke_cff_forms_mixed.mjs",
         "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md",
-        "docs/TEXTO_AFIN_20261029.md"
+        "docs/TEXTO_AFIN_20261029.md",
+        "backend/type3_fonts.py",
+        "tests/test_type3_fonts.py",
+        "tests/test_static_cff2.py",
+        "scripts/smoke_font_compatibility.mjs",
+        "scripts/smoke_fonts_native.py",
+        "docs/FUENTES_TYPE3_CFF2_20261030.md",
+        "backend/affine_text.py",
+        "tests/test_inherited_text_font.py"
       ],
-      "remaining": "CFF2/variables/Type3, escritura vertical/RTL compleja, grupos con transparencia o estructura semántica y estados intermedios. Reflujo de texto afín y sustitución de su fuente siguen fuera. Falta corpus externo y aceptación personal."
+      "remaining": "Fuentes variables (instancias/ejes), CFF2 con VarStore o formato crudo, Type3 con color/imágenes/recursos y matrices internas generales; escritura vertical/RTL compleja, grupos con transparencia o estructura semántica y estados intermedios. Reflujo afín y sustitución de su fuente siguen fuera. Falta corpus externo y aceptación personal. Type3 vectoriales simples y CFF2 OpenType estáticas de 1000 unidades incorporadas."
     },
     {
       "id": "annotations",
@@ -298,27 +306,20 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261029-before-affine-text.json",
-    "before_weighted": 75.5,
-    "after_weighted": 76.08,
-    "new_points": 0.58,
+    "baseline": "docs/progress/20261030-before-type3-cff2.json",
+    "before_weighted": 76.08,
+    "after_weighted": 76.24,
+    "new_points": 0.16,
     "changes": [
       {
-        "id": "interface",
-        "before": 90,
-        "after": 92.5,
-        "points": 0.175,
-        "reason": "Selección por contorno transformado, contorno activo y editor legible sobre la página; se bloquean alternativas que descartarían la transformación."
-      },
-      {
         "id": "text_images",
-        "before": 92.5,
-        "after": 95,
-        "points": 0.4,
-        "reason": "Edición afín por matriz de texto y de Form (giro/inclinación/reflexión) con fuentes base/TrueType/CFF, recortes poligonales y verificación del resultado antes de publicar."
+        "before": 95,
+        "after": 96,
+        "points": 0.16,
+        "reason": "Type3 vectoriales sin color y CFF2 OpenType estáticas editables con programas originales, mapas y geometría verificados; integración con edición sobre página y buscar/reemplazar. Casos variables continúan pendientes y se rechazan explícitamente."
       }
     ],
-    "unrounded_after_weighted": "76.075",
+    "unrounded_after_weighted": "76.235",
     "all_weights_and_scope_unchanged": true
   }
 }

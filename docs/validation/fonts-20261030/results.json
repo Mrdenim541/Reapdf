@@ -1,0 +1,21 @@
+{
+  "date_utc": "2026-10-30",
+  "base_commit": "4e6cba9195337da4a0a2cee1bb1373a7e9b14e09",
+  "python_full": {
+    "passed": 2841,
+    "warnings": 3,
+    "seconds": 299.46
+  },
+  "python_targeted": 303,
+  "new_fonts": 97,
+  "literal_replace_integration": 131,
+  "inherited_font_and_docx_targets": 10,
+  "chromium": "passed: Type3 direct/shared and static CFF2 shared; mouse editing, undo/redo/export",
+  "qt_linux": "passed: own window, original Type3 shared occurrence editing and atomic native save",
+  "windows": "not run",
+  "external_acrobat_nitro": "not run",
+  "private_pdf": "not used in this advance",
+  "new_package": false,
+  "javascript_build": "unchanged frontend; existing production bundle used in graphical checks",
+  "prior_full_regression": "Detected 2 DOCX paragraph regressions; both fixed in font inheritance/orientation proof before final full run."
+}

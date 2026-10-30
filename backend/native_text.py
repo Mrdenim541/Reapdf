@@ -50,7 +50,10 @@ def native_model(doc,number,rect,font_cache=None):
             except (DocumentError,ValueError,UnicodeError) as exc:cache[xref]=str(exc)
         if isinstance(cache[xref],OriginalFont):compatible[(scope,resource)]=cache[xref]
     if len(compatible)>100 or sum(font.program_bytes for font in {v.xref:v for v in compatible.values()}.values())>64*1024*1024:raise DocumentError('Los recursos de fuente superan el presupuesto de edición.')
-    if not compatible:raise DocumentError('No se encontró una fuente original compatible en el contenido seleccionado.')
+    if not compatible:
+        reasons=list(dict.fromkeys(cache[xref] for xref in metadata if isinstance(cache.get(xref),str)))
+        detail=' '+reasons[0] if len(reasons)==1 else ''
+        raise DocumentError('No se encontró una fuente original compatible en el contenido seleccionado.'+detail)
     rows=[]
     for bi,block in enumerate(page.get_text('rawdict',sort=True,flags=f.TEXTFLAGS_TEXT)['blocks']):
         for li,line in enumerate(block.get('lines',[])):

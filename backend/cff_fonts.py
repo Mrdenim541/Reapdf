@@ -1,4 +1,4 @@
-"""Bounded CFF1 font maps; original programs are never rewritten."""
+"""Bounded CFF1 and static OpenType CFF2 font maps; original programs are never rewritten."""
 from io import BytesIO
 import re
 from fontTools.cffLib import CFFFontSet
@@ -23,20 +23,23 @@ class Outline(T2OutlineExtractor):
 
 class CFFFace:
     def __init__(self,data,subtype):
-        self.remaining=200000;self.cache={};self.cid_to_gid={};self.names=set()
+        self.remaining=200000;self.cache={};self.cid_to_gid={};self.names=set();self.cff2=False
         try:
             if subtype=='OpenType':
                 if data[:4]!=b'OTTO':raise ValueError('OpenType sin cabecera OTTO')
                 font=TTFont(BytesIO(data),lazy=True)
-                if 'CFF ' not in font or 'CFF2' in font or 'fvar' in font or font['head'].unitsPerEm!=1000:raise ValueError('OpenType CFF1 de 1000 unidades requerido')
-                cff=font['CFF '].cff
+                if 'fvar' in font:raise DocumentError('La fuente CFF variable necesita una instancia estática verificada; no se elige un eje de forma implícita.')
+                self.cff2='CFF2' in font
+                if ('CFF ' in font)==self.cff2 or font['head'].unitsPerEm!=1000:raise ValueError('OpenType CFF único de 1000 unidades requerido')
+                cff=font['CFF2' if self.cff2 else 'CFF '].cff
                 for record in font['name'].names:
                     if record.nameID in [1,4,6]:self.names.add(record.toUnicode())
             elif subtype in ['Type1C','CIDFontType0C']:
                 cff=CFFFontSet();cff.decompile(BytesIO(data),None)
             else:raise ValueError('Subtipo CFF no admitido')
-            if cff.major!=1 or len(cff.fontNames)!=1:raise ValueError('CFF1 de una sola fuente requerido')
+            if cff.major!=(2 if self.cff2 else 1) or len(cff.fontNames)!=1:raise ValueError('CFF de una sola fuente requerido')
             self.top=cff[cff.fontNames[0]];self.order=list(self.top.charset);self.count=len(self.order)
+            if self.cff2 and hasattr(self.top,'VarStore'):raise DocumentError('CFF2 con variaciones necesita una instancia estática verificada.')
             if not 1<self.count<=65536 or len(set(self.order))!=self.count:raise ValueError('Charset CFF no válido')
             self.names.update(str(getattr(self.top,k,'')) for k in ['FullName','FamilyName','FontName'])
             standard=[.001,0,0,.001,0,0]
@@ -55,7 +58,7 @@ class CFFFace:
                     self.cid_to_gid[cid]=gid
             else:self.cid_to_gid={i:i for i in range(self.count)}
         except DocumentError:raise
-        except Exception as exc:raise DocumentError('El programa CFF1 no tiene una estructura verificable compatible.') from exc
+        except Exception as exc:raise DocumentError('El programa CFF no tiene una estructura verificable compatible.') from exc
 
     def has_outline(self,gid):
         if gid in self.cache:return self.cache[gid]

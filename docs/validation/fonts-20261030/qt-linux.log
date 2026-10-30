@@ -1,0 +1,9 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+Fontconfig error: No writable cache directories
+[428744:428764:1030/000459.767997:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 428765: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: actual Qt window opened a sheared shared Type3 Form, edited original text on page and saved atomically; original file/glyph programs/rotation/crop/other occurrence and page preserved.

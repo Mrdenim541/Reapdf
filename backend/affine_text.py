@@ -121,6 +121,40 @@ def obstacles(page):
     return result
 
 
+def horizontal_content(page):
+    """Prove all direct text orientations, including multiple Tm/Tf per BT.
+
+    This proof permits paragraph substitution only; it grants no native byte
+    editing and never infers glyph positions after intermediate text operators.
+    """
+    from .pdf_content import operations,numbers
+    if page.get_xobjects():return False
+    matrix=f.Matrix(1,1);tm=f.Matrix(1,1);stack=[];scale=100;inside=False;seen=False
+    for op,args,_ in operations(page.read_contents()):
+        if op=='q':
+            stack.append((f.Matrix(matrix),scale))
+            if len(stack)>100:return False
+        elif op=='Q':
+            if not stack:return False
+            matrix,scale=stack.pop()
+        elif op=='cm':matrix=f.Matrix(*numbers(args,6))*matrix
+        elif op=='BT':
+            if inside:return False
+            inside=True;tm=f.Matrix(1,1)
+        elif op=='ET':
+            if not inside:return False
+            inside=False
+        elif op=='Tm':
+            if not inside:return False
+            tm=f.Matrix(*numbers(args,6))
+        elif op=='Tz':scale=numbers(args,1)[0]
+        elif op in ['Tj','TJ',"'",'"']:
+            if not inside or not 10<=scale<=400:return False
+            g=frame(tm*matrix*page.transformation_matrix,f.Point(0,0));seen=True
+            if max(abs(a-b) for a,b in zip(g['matrix'][:4],[1,0,0,-1]))>1e-5:return False
+    return seen and not inside and not stack
+
+
 def require_horizontal(page,spans):
     """A paragraph rewrite must not silently remove an unverified text matrix."""
     from .pdf_content import placements,operations
@@ -131,6 +165,7 @@ def require_horizontal(page,spans):
     try:
         objects=placements(content)['texts'];unsafe=any((op=='Tm' and [t.value for t in args[:4]]!=[1,0,0,1]) or op=='cm' and [t.value for t in args[:4]]!=[1,0,0,1] for op,args,_ in operations(content))
     except DocumentError as exc:raise DocumentError('No se pudo verificar la geometría del bloque para sustituir su fuente.') from exc
+    if horizontal_content(page):return
     for key,span,_ in spans:
         if key in cells:continue
         matched=False

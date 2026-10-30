@@ -1,6 +1,6 @@
 # Reapdf
 
-Estado vigente: [texto girado, inclinado y reflejado](docs/TEXTO_AFIN_20261029.md), **≈76 % del programa completo** (estimación de madurez; Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
+Estado vigente: [fuentes Type3 y CFF2 estáticas](docs/FUENTES_TYPE3_CFF2_20261030.md), **≈76 % del programa completo** (estimación de madurez; Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 

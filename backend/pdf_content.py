@@ -124,25 +124,28 @@ def numbers(args,count):
 
 def placements(data):
     """Locate direct invocations and bounded single-show text, including spacing."""
-    matrix=f.Matrix(1,1);stack=[];images=[];texts=[];text=None
+    matrix=f.Matrix(1,1);stack=[];images=[];texts=[];text=None;font=None;size=0
     state={'char':0.,'word':0.,'scale':100.,'render':0.,'rise':0.}
     parameter={'Tc':'char','Tw':'word','Tz':'scale','Tr':'render','Ts':'rise'}
     for op,args,token in operations(data):
         if text is not None and op not in ['BT','ET','Tf','Td','Tm','Tj','TJ','Tc','Tw','Tz','Tr','Ts'] and not (not text['shows'] and op in ['q','Q','rg','RG','g','G','k','K','cs','CS','sc','SC','scn','SCN','gs','TL']):
             text['simple']=False
         if op=='q':
-            stack.append((f.Matrix(matrix),dict(state)))
+            stack.append((f.Matrix(matrix),dict(state),font,size))
             if len(stack)>100:raise DocumentError('Demasiados estados gráficos anidados.')
         elif op=='Q':
             if not stack:raise DocumentError('Estado gráfico PDF desequilibrado.')
-            matrix,state=stack.pop()
+            matrix,state,font,size=stack.pop()
+            if text is not None:
+                if text['shows']:text['simple']=False
+                else:text['font']=font;text['size']=size
         elif op=='cm':matrix=f.Matrix(*numbers(args,6))*matrix
         elif op in parameter:
             value=numbers(args,1)[0];state[parameter[op]]=value
             if text is not None and text['shows']:text['simple']=False
         elif op=='BT':
             if text is not None:raise DocumentError('Objetos de texto anidados.')
-            text={'origin':f.Point(0,0),'matrix':f.Matrix(matrix),'font':None,'size':0,'shows':[],'parts':[],'show_ends':[],'simple':True}
+            text={'origin':f.Point(0,0),'matrix':f.Matrix(matrix),'font':font,'size':size,'shows':[],'parts':[],'show_ends':[],'simple':True}
         elif op=='ET' and text is not None:
             if text['simple'] and text['shows'] and text['font']:
                 if len(text['shows'])>1:
@@ -155,7 +158,8 @@ def placements(data):
         elif text is not None:
             if op=='Tf' and len(args)==2 and args[0].kind=='name' and args[1].kind=='number':
                 if text['shows']:text['simple']=False
-                text['font']=args[0].value;text['size']=args[1].value
+                font=args[0].value;size=args[1].value
+                text['font']=font;text['size']=size
             elif op=='Td' and not text['shows']:
                 x,y=numbers(args,2);text['origin']+=f.Point(x,y)
             elif op=='Tm' and not text['shows']:

@@ -1,0 +1,13 @@
+{
+  "backend/type3_fonts.py": "beda790f71ed07b5f8c9155838a9291cb569e1db332cbfa2e1585c00301b3027",
+  "backend/cff_fonts.py": "32b14b8ae61c6356f24d628fecb1ad5f8551d2bd14dda5677cb1a434bf03f899",
+  "backend/styled_text.py": "e0c53359de304b5c746abd7346d13a32859e24f1003890dcc5910042f9999103",
+  "backend/native_text.py": "7bf49ec01e0c8f24b5a3759b1bf3647ba0f3340402c3ed948041a2b1ad03209a",
+  "backend/pdf_content.py": "77785facdf5a2fe6773608dd55b8b13215c879c3d52a5be661c6e1ccd8ada40a",
+  "backend/affine_text.py": "9b788c2d6a4137b71d99bf80cadaa1c8f597768116bac5e91879abf25cf7f34f",
+  "tests/test_type3_fonts.py": "8384e719632531835905dcb42896edf07d82fc861df64709785125adb5a45c0a",
+  "tests/test_static_cff2.py": "96100bd58f3cc24596c9250d8259135985364bbd6c2d73bed86e95aa0dd918f6",
+  "tests/test_inherited_text_font.py": "945c4404c2655f22e09f5a0cf4b7c7a15d4cdf19dbb1a71c524083950843a636",
+  "scripts/smoke_font_compatibility.mjs": "c170d203564384a0bce99349c4ef79137e99ee1876f0d29099afbf0b2d2b323c",
+  "scripts/smoke_fonts_native.py": "4c86f3628b3c9b6e8625ecf5d6021c9b7a6e7bc0d8bd5ad85d5949d14f73d58d"
+}
