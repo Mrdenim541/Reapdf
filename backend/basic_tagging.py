@@ -1,4 +1,4 @@
-"""Reviewed initial text tagging for simple, previously untagged PDFs."""
+"""Reviewed initial direct-content tagging, including image occurrences and text links."""
 import hashlib,math
 import pymupdf as f
 from .engine import open_pdf,export_pdf,DocumentError
@@ -13,16 +13,30 @@ def plans(doc):
     if len(doc)>20:raise DocumentError('El etiquetado inicial admite hasta 20 páginas.')
     catalog=doc.pdf_catalog()
     if doc.xref_get_key(catalog,'StructTreeRoot')[0]!='null' or doc.xref_get_key(catalog,'MarkInfo/Marked')[1]=='true':raise DocumentError('El documento ya tiene estructura o declara etiquetas. Usa su editor existente.')
-    result=[];total=0;total_bytes=0
+    if doc.xref_get_key(catalog,'AcroForm/XFA')[0]!='null':raise DocumentError('Los formularios XFA requieren otro tratamiento.')
+    result=[];total=0;total_bytes=0;image_pixels=0
     for page in doc:
-        if doc.xref_get_key(page.xref,'StructParents')[0]!='null' or list(page.annots() or []) or list(page.widgets() or []) or page.get_links():raise DocumentError('El etiquetado inicial no admite estructura parcial, anotaciones, formularios ni enlaces.')
+        if doc.xref_get_key(page.xref,'StructParents')[0]!='null' or list(page.annots() or []) or list(page.widgets() or []):raise DocumentError('El etiquetado inicial no admite estructura parcial, anotaciones adicionales ni formularios.')
+        from .link_editing import link_model
+        link_info=link_model(doc,page.number)
+        if link_info['truncated'] or len(link_info['links'])>100 or any(not link['editable'] or doc.xref_get_key(link['xref'],'StructParent')[0]!='null' for link in link_info['links']):raise DocumentError('Hay enlaces bloqueados, parciales o con acciones no compatibles.')
+        images={item[7]:item for item in page.get_images(full=True) if item[9]==0};occurrences=page.get_image_info();image_index=0
         content=page.read_contents();total_bytes+=len(content)
         if total_bytes>16*1024*1024:raise DocumentError('El contenido de etiquetado supera 16 MB.')
         digest=hashlib.sha256(content).digest();parts=[];start=None;shown=False
         for op,args,token in operations(content):
             begin=args[0].start if args else token.start
-            if op in ['BMC','BDC','EMC','MP','DP','Do']:raise DocumentError('El etiquetado inicial necesita texto directo sin marcas previas, imágenes ni Forms. Conserva el original.')
-            if op=='BT':
+            if op in ['BMC','BDC','EMC','MP','DP']:raise DocumentError('El etiquetado inicial necesita contenido directo sin marcas previas. Conserva el original.')
+            if op=='Do':
+                if start is not None or len(args)!=1 or args[0].kind!='name' or args[0].value not in images or image_index>=len(occurrences):raise DocumentError('Solo se etiquetan imágenes directas; Forms y llamadas ambiguas necesitan otro tratamiento.')
+                image=images[args[0].value];item=occurrences[image_index];image_index+=1
+                if (image[2],image[3])!=(item['width'],item['height']):raise DocumentError('Las apariciones de imagen no tienen una asociación verificable.')
+                image_pixels+=image[2]*image[3]
+                if image[2]*image[3]>16_000_000 or image_pixels>64_000_000:raise DocumentError('Las imágenes superan el presupuesto de 16 MP por aparición/64 MP total.')
+                rect=f.Rect(item['bbox'])*page.rotation_matrix
+                if rect.is_empty or not page.rect.contains(rect):raise DocumentError('Una imagen queda recortada fuera de la página; requiere revisión especializada.')
+                parts.append({'start':begin,'end':token.end,'kind':'image','box':[rect.x0,rect.y0,rect.width,rect.height],'text':f'Imagen {image_index} · {image[2]} × {image[3]} px'})
+            elif op=='BT':
                 if start is not None:raise DocumentError('Objeto de texto anidado.')
                 start=begin;shown=False
             elif op in ['Tj','TJ',"'",'"']:
@@ -31,36 +45,47 @@ def plans(doc):
             elif op=='ET':
                 if start is None:raise DocumentError('Fin de objeto de texto sin inicio.')
                 if shown:
-                    parts.append({'start':start,'end':token.end,'id':hashlib.sha256(f'{page.number}:{start}:{token.end}:'.encode()+digest).hexdigest()[:32]})
+                    parts.append({'start':start,'end':token.end,'kind':'text'})
                 start=None
         if start is not None:raise DocumentError('Objeto de texto incompleto.')
+        if image_index!=len(occurrences):raise DocumentError('No se pudo asociar cada aparición de imagen al contenido directo.')
+        for part in parts:part['id']=hashlib.sha256(f'{page.number}:{part["start"]}:{part["end"]}:'.encode()+digest).hexdigest()[:32]
         total+=len(parts)
         if len(parts)>200 or total>500:raise DocumentError('Hasta 200 objetos de texto por página y 500 por documento.')
-        result.append({'page':page.number,'content':content,'parts':parts})
-    if not total:raise DocumentError('No se encontraron objetos de texto directo. El etiquetado no realiza OCR.')
+        result.append({'page':page.number,'content':content,'parts':parts,'links':link_info['links']})
+    if not total:raise DocumentError('No se encontraron objetos directos compatibles. El etiquetado no realiza OCR.')
     return result
 
 
 def build(doc,prepared,selection=None,language='es'):
     def new(value):
         x=doc.get_new_xref();doc.update_object(x,value);return x
-    root=new('<< /Type /StructTreeRoot >>');document=new(f'<< /Type /StructElem /S /Document /P {root} 0 R /Lang {pdf_string(language)} >>');sections=[];parentnums=[]
+    root=new('<< /Type /StructTreeRoot >>');document=new(f'<< /Type /StructElem /S /Document /P {root} 0 R /Lang {pdf_string(language)} >>');sections=[];parentnums=[];annotation_nums=[];next_key=len(prepared)
     for plan in prepared:
         page=doc[plan['page']];parts=plan['parts'];section=new(f'<< /Type /StructElem /S /Sect /P {document} 0 R /Pg {page.xref} 0 R >>');sections.append(section);refs=[];content=[];previous=0;mapping={}
-        for mcid,part in enumerate(parts):
-            role=selection[part['id']]['role'] if selection else 'P'
-            identity=new(f'<< /Type /StructElem /S /{role} /P {section} 0 R /Pg {page.xref} 0 R /K {mcid} >>');refs.append(identity);mapping[part['id']]=identity
+        for part in parts:
+            settings=selection[part['id']] if selection else {'role':'Figure' if part['kind']=='image' else 'P','alt':''}
+            role=settings['role'];mcid=len(refs)
+            if role!='Artifact':
+                alt=' /Alt '+pdf_string(settings.get('alt','')) if role in ['Figure','Link'] else ''
+                kids=str(mcid)
+                if role=='Link':kids=f'[{mcid} << /Type /OBJR /Obj {settings["annotation"]} 0 R /Pg {page.xref} 0 R >>]'
+                identity=new(f'<< /Type /StructElem /S /{role} /P {section} 0 R /Pg {page.xref} 0 R /K {kids}{alt} >>');refs.append(identity);mapping[part['id']]=identity
+                if role=='Link':
+                    doc.xref_set_key(settings['annotation'],'StructParent',str(next_key));doc.xref_set_key(settings['annotation'],'Contents',pdf_string(settings['alt']))
+                    annotation_nums.append(str(next_key)+f' {identity} 0 R');next_key+=1;doc.xref_set_key(page.xref,'Tabs','/S')
             before=plan['content'][previous:part['start']]
             if before.strip():content.extend([b'/Artifact BMC\n',before,b'\nEMC\n'])
-            content.extend([f'/{role} <</MCID {mcid}>> BDC\n'.encode(),plan['content'][part['start']:part['end']],b'\nEMC\n']);previous=part['end']
+            marker=b'/Artifact BMC\n' if role=='Artifact' else f'/{role} <</MCID {mcid}>> BDC\n'.encode()
+            content.extend([marker,plan['content'][part['start']:part['end']],b'\nEMC\n']);previous=part['end']
         tail=plan['content'][previous:]
         if tail.strip():content.extend([b'/Artifact BMC\n',tail,b'\nEMC\n'])
         stream=new('<<>>');doc.update_stream(stream,b''.join(content));page.set_contents(stream)
         ordered=sorted(parts,key=lambda p:selection[p['id']]['position']) if selection else parts
-        doc.xref_set_key(section,'K','['+' '.join(f'{mapping[p["id"]]} 0 R' for p in ordered)+']')
+        doc.xref_set_key(section,'K','['+' '.join(f'{mapping[p["id"]]} 0 R' for p in ordered if p['id'] in mapping)+']')
         doc.xref_set_key(page.xref,'StructParents',str(page.number));parentnums.append(str(page.number)+' ['+' '.join(f'{r} 0 R' for r in refs)+']')
     doc.xref_set_key(document,'K','['+' '.join(f'{r} 0 R' for r in sections)+']')
-    tree=new('<< /Nums ['+' '.join(parentnums)+'] >>');doc.xref_set_key(root,'K',f'[{document} 0 R]');doc.xref_set_key(root,'ParentTree',f'{tree} 0 R');doc.xref_set_key(root,'ParentTreeNextKey',str(len(prepared)))
+    tree=new('<< /Nums ['+' '.join(parentnums+annotation_nums)+'] >>');doc.xref_set_key(root,'K',f'[{document} 0 R]');doc.xref_set_key(root,'ParentTree',f'{tree} 0 R');doc.xref_set_key(root,'ParentTreeNextKey',str(next_key))
     catalog=doc.pdf_catalog();doc.xref_set_key(catalog,'StructTreeRoot',f'{root} 0 R');doc.xref_set_key(catalog,'MarkInfo','<< /Marked true >>');doc.xref_set_key(catalog,'Lang',pdf_string(language))
 
 
@@ -88,13 +113,23 @@ def candidates(base,ops):
             walk(page.get_text('dict',flags=f.TEXT_COLLECT_STRUCTURE|f.TEXT_PRESERVE_WHITESPACE)['blocks'])
             for i,part in enumerate(plan['parts']):
                 item=found.get(i);text='\n'.join(item['lines']).strip() if item else ''
+                if part['kind']=='image':
+                    entries.append({'id':part['id'],'page':page.number,'kind':'image','role':'Figure','alt':'','text':part['text'],'box':part['box']});continue
                 if not text or len(text)>4000:raise DocumentError('Un objeto no tiene texto extraíble o supera 4000 caracteres. No se crearon etiquetas parciales.')
                 rect=f.Rect()
                 for box in item['boxes']:rect|=box
                 rect*=page.rotation_matrix
-                entries.append({'id':part['id'],'page':page.number,'role':'P','text':text,'box':[rect.x0,rect.y0,rect.width,rect.height]})
+                entries.append({'id':part['id'],'page':page.number,'kind':'text','role':'P','text':text,'box':[rect.x0,rect.y0,rect.width,rect.height]})
+            for link in plan['links']:
+                rect=f.Rect(link['box']);targets=[]
+                for entry in entries:
+                    if entry['page']!=page.number:continue
+                    x,y,w,h=entry['box'];box=f.Rect(x,y,x+w,y+h)
+                    if (rect&box).get_area()>.1:targets.append((entry,box))
+                if len(targets)!=1 or targets[0][0]['kind']!='text' or not (rect+(-1,-1,1,1)).contains(targets[0][1]):raise DocumentError('Cada enlace debe cubrir un único objeto de texto completo y no compartirlo con otros enlaces.')
+                entry=targets[0][0];entry.update(kind='link',role='Link',alt=entry['text'] if len(entry['text'])<=2000 else '',annotation=link['xref'],destination=link.get('url') if link['destination']=='web' else 'Página '+str(link['target_page']+1))
         if sum(len(e['text']) for e in entries)>100000:raise DocumentError('La revisión supera 100000 caracteres.')
-        return {'entries':entries,'pages':len(doc),'review_required':True,'scope':'Etiquetas de texto directo por objeto BT/ET; gráficos vectoriales restantes se consideran decorativos solo tras tu revisión. No reconoce tablas, listas ni figuras y no acredita PDF/UA.'}
+        return {'entries':entries,'pages':len(doc),'review_required':True,'scope':'Texto directo, imágenes por aparición y enlaces que cubren un objeto completo. Revisa alternativas, orden y gráficos decorativos. No crea tablas/listas semánticas ni acredita PDF/UA.'}
 
 
 def create(base,ops,entries,language='es',reviewed=False):
@@ -105,8 +140,13 @@ def create(base,ops,entries,language='es',reviewed=False):
     if not isinstance(entries,list) or len(entries)!=len(expected):raise DocumentError('Incluye todos los objetos de texto de la revisión actual.')
     selection={}
     for position,entry in enumerate(entries):
-        if not isinstance(entry,dict) or set(entry)!={'id','role'} or not isinstance(entry['id'],str) or entry['id'] not in expected or entry['id'] in selection or not isinstance(entry['role'],str) or entry['role'] not in ROLES:raise DocumentError('La revisión contiene objetos repetidos, obsoletos o roles no compatibles.')
-        selection[entry['id']]={'role':entry['role'],'position':position}
+        if not isinstance(entry,dict) or set(entry) not in [{'id','role'},{'id','role','alt'}] or not isinstance(entry['id'],str) or entry['id'] not in expected or entry['id'] in selection or not isinstance(entry['role'],str):raise DocumentError('La revisión contiene objetos repetidos, obsoletos o roles no compatibles.')
+        original=expected[entry['id']];kind=original['kind'];role=entry['role'];alt=entry.get('alt','')
+        allowed=ROLES if kind=='text' else {'Figure','Artifact'} if kind=='image' else {'Link'}
+        if role not in allowed:raise DocumentError('El rol no corresponde al tipo de objeto original.')
+        if role in ['Figure','Link'] and (not isinstance(alt,str) or not 1<=len(alt.strip())<=2000 or any(ord(c)<32 and c not in '\n\t' or 0xd800<=ord(c)<=0xdfff for c in alt)):raise DocumentError('Escribe una alternativa o descripción de 1 a 2000 caracteres sin controles.')
+        selection[entry['id']]={'role':role,'position':position,'alt':alt.strip() if role in ['Figure','Link'] else ''}
+        if kind=='link':selection[entry['id']]['annotation']=original['annotation']
     page_order=[expected[e['id']]['page'] for e in entries]
     if page_order!=sorted(page_order):raise DocumentError('El orden se puede cambiar dentro de cada página, conservando la secuencia de páginas.')
     edited=export_pdf(base,ops)
@@ -116,4 +156,4 @@ def create(base,ops,entries,language='es',reviewed=False):
             for a,b in zip(before,saved):
                 scale=min(.75,math.sqrt(4_000_000/max(1,a.rect.get_area())))
                 if a.get_text()!=b.get_text() or a.get_pixmap(matrix=f.Matrix(scale,scale),alpha=False).samples!=b.get_pixmap(matrix=f.Matrix(scale,scale),alpha=False).samples:raise DocumentError('Las etiquetas alteraron contenido o apariencia. Se conserva el original.')
-    return result,{'tagged_objects':len(entries),'pages':info['pages'],'language':language,'pdf_ua_validated':False}
+    return result,{'tagged_objects':sum(v['role']!='Artifact' for v in selection.values()),'decorative_images':sum(v['role']=='Artifact' for v in selection.values()),'figures':sum(v['role']=='Figure' for v in selection.values()),'links':sum(v['role']=='Link' for v in selection.values()),'pages':info['pages'],'language':language,'pdf_ua_validated':False}

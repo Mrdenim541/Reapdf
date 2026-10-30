@@ -1,6 +1,6 @@
 # Reapdf
 
-Estado vigente: [etiquetado inicial, combinaciones automáticas y Type3 con color](docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md), **80,17 % del programa completo** (estimación de madurez; Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
+Estado vigente: [imágenes/enlaces etiquetados, inclinación OCR y trazos Type3](docs/IMAGENES_ENLACES_INCLINACION_Y_TRAZOS_20261029.md), **80,54 % del programa completo (≈81 %)**, estimación de madurez con Windows pendiente. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 

@@ -31,7 +31,9 @@ def open_pdf(data: bytes):
 def spans(page):
     from .text_style import SOURCE_FONTS
     result = [];targets=[]
-    for bi, block in enumerate(page.get_text("dict")["blocks"]):
+    from .type3_text import merge_lines
+    blocks=merge_lines(page.parent,page,page.get_text("dict")["blocks"])
+    for bi, block in enumerate(blocks):
         for li, line in enumerate(block.get("lines", [])):
             for si, span in enumerate(line["spans"]):
                 # Solo líneas simples, horizontales, sin rotación y con fuente base conocida.

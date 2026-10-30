@@ -54,7 +54,7 @@ def test_review_and_stale_or_invalid_selection_cannot_create_partial_tags(kind):
     with pytest.raises(DocumentError):create(base,[],entries,language,reviewed)
 
 
-@pytest.mark.parametrize('kind',['image','form','link','annotation','widget','marked','partial','signed','no_copy','no_modify','incomplete','nested','empty','pages'])
+@pytest.mark.parametrize('kind',['form','annotation','widget','marked','partial','signed','no_copy','no_modify','incomplete','nested','empty','pages'])
 def test_unsupported_documents_refused_before_tag_publication(kind):
     with f.open(stream=source(pages=1)) as d:
         p=d[0]

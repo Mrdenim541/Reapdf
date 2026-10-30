@@ -31,7 +31,7 @@ def test_original_colored_vectors_edit_in_page_and_isolate_forms(rotation,form,t
         if form:assert 'ABC ABC' in b[1].get_text() and a[1].get_pixmap().samples==b[1].get_pixmap().samples
 
 
-@pytest.mark.parametrize('tail',[b'2 0 0 rg 0 0 100 100 re f',b'0 0 100 100 re f',b'q 1 0 0 rg 0 0 10 10 re f',b'Q',b'0 0 1 rg /G gs',b'0 0 1 rg /X Do',b'0 0 1 rg 0 0 10 10 re S',b'0 0 1 rg 1 0 0 1 0 0 cm',b'0 0 1 rg 0 0 2000 20 re f'])
+@pytest.mark.parametrize('tail',[b'2 0 0 rg 0 0 100 100 re f',b'0 0 100 100 re f',b'q 1 0 0 rg 0 0 10 10 re f',b'Q',b'0 0 1 rg /G gs',b'0 0 1 rg /X Do',b'0 0 1 rg 0 0 10 10 re S',b'0 0 1 rg 0 0 2000 20 re f'])
 def test_unverified_colored_program_stays_protected(tail):
     with f.open(stream=source(tail=tail)) as d:
         with pytest.raises(DocumentError):OriginalFont(d,next(v for v in d[0].get_fonts(full=True) if v[2]=='Type3'))

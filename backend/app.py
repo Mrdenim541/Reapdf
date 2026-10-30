@@ -295,6 +295,14 @@ async def export_region_table(doc_id:str,request:Request):
     return Response(data,media_type=mime,headers={'Content-Disposition':f'attachment; filename="reapdf-tabla.{ext}"'})
 
 
+@app.post('/api/documents/{doc_id}/detect-skew')
+async def detect_skew(doc_id:str,request:Request):
+    from .deskew import inspect
+    p=await read_payload(request)
+    if not OCR_LOCK.acquire(blocking=False):raise DocumentError('Ya hay un reconocimiento en curso. Espera a que termine.')
+    try:return await run_in_threadpool(inspect,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('orientation',0))
+    finally:OCR_LOCK.release()
+
 @app.post('/api/documents/{doc_id}/ocr-regions')
 async def recognize_regions(doc_id:str,request:Request):
     p=await read_payload(request)

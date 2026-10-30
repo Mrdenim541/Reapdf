@@ -1,0 +1,21 @@
+{
+  "backend/affine_text.py": "d3878e5b1c001ac6869fcfdcc4a619deedcddbe7596e09ecc3f30d224fed9554",
+  "backend/app.py": "b34bb171cc509f2f52745e100c7b6a2c7d0f66fcbef97641296c60055d7ee1e0",
+  "backend/basic_tagging.py": "51d365703ae84c727b8f3d66532863495492e1dedc13cf7d1bef53e4ab8057cb",
+  "backend/deskew.py": "bf489a40b496b0c92a160852b518b40a11125c0f8d6ca5a086993aa28b89a43d",
+  "backend/engine.py": "66fe4a28ba7eacdf0d642ded494f1eb4adb7a861e1c375ac6c9c84c2c945b8d9",
+  "backend/native_text.py": "025f90f3c1531ca395ca1ff91d88e07e213797e64acbb0d169dd0696b5ed1bb7",
+  "backend/styled_text.py": "9d8695a7295f0d273b2e40ae4da93d605e1ac62bfe386ec82dfa95c993ff74bc",
+  "backend/type3_fonts.py": "fbd765a54cf658ff2f38269d2a112580e29d3f4757757b3b56ed35c03a96083f",
+  "backend/type3_text.py": "3281bf4aa864675e65e8f2edd16b9023fa977c531be07cd77fb60583d2e9cfb5",
+  "scripts/smoke_media_tags_skew.mjs": "8eabc5c2e2e115e74816f8e6d0c4069377d79a488f996b32e3e6719071ac3987",
+  "scripts/smoke_media_tags_skew_qt.py": "936a9593693ff4069f1e24c50cf4b8afbbc4b42eef98f9fa295ba28a4f3976bb",
+  "tests/test_basic_tagging.py": "4922b1cb34d4651796eb5bddd855f578959ca94163c86a260cfca27c6ed3539d",
+  "tests/test_colored_type3.py": "b26a88197e8835135f34d30b4b1a365938dfd6e971fd69d6d8badd22b2d665ae",
+  "tests/test_deskew.py": "62ae70d3c1ad71ca70df542bfc04c114b568d86bc7dc379db146d1967aaa8140",
+  "tests/test_media_tagging.py": "d1d30c54030d31da31908133ac8b871f168d0978c5ab76a323c897ad3421285d",
+  "tests/test_type3_fonts.py": "49fb23962d81a445f58269daaa2cb27462d9a39d43c03779177738d7a4545078",
+  "tests/test_type3_strokes.py": "93472edf8353e6bec77affb47b8450ec99f55d43e59ede4f24d69d956f46f513",
+  "web/src/initial-tagging.jsx": "11d22bb805b81167b1779163ea8467f072e97209abd7149f9ca598e7d249e13a",
+  "web/src/region-ocr.jsx": "942dda6b9a46e415ad5dee1d76686e076ad086fc5265190b44c3ccc409ec1e90"
+}

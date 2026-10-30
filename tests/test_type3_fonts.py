@@ -72,8 +72,8 @@ def test_invalid_type3_stays_readonly(key,value):
 
 @pytest.mark.parametrize('tail',[
  b'0 0 1 rg 0 0 20 20 re f',b'/X Do',b'BI ID xyz EI',b'BT (A) Tj ET',b'/G gs',b'0 0 m 2000 0 l h f',
- b'0 0 30 30 re S',b'q 0 0 20 20 re f Q',b'0 0 m',b'0 0 l f',b'0 0 m 10 10 l',b'0 0 m f d1',
- b'0 0 20 20 re W n',b'1 0 0 1 0 0 cm',b'0 0 m '+b'1 1 l '*2001+b'f'])
+ b'0 0 30 30 re S',b'0 0 m',b'0 0 l f',b'0 0 m 10 10 l',b'0 0 m f d1',
+ b'0 0 20 20 re W n',b'0 0 m '+b'1 1 l '*2001+b'f'])
 def test_complex_type3_programs_refused(tail):
     bad=mutate(type3_pdf(),None,None,proc=b'600 0 0 -200 600 800 d1 '+tail)
     with f.open(stream=bad) as d:

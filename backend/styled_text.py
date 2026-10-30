@@ -357,6 +357,8 @@ def replace_styled(base,operations,number,box,changes,expand=False):
 
 def prepare_changes(doc,number,rect,rows,changes,expand=False):
     model={r['id']:r for r in rows};seen=set();prepared=[];total=0
+    from .type3_text import merge_lines
+    neighbor_blocks=merge_lines(doc,doc[number],doc[number].get_text('dict',flags=fitz.TEXTFLAGS_TEXT)['blocks'])
     for change in changes:
         if not isinstance(change,dict) or set(change)!={'id','text'} or not isinstance(change.get('id'),str) or change['id'] not in model or change['id'] in seen:raise DocumentError('Fragmento inexistente, repetido o con propiedades no compatibles.')
         seen.add(change['id']);row=model[change['id']];text=change['text']
@@ -376,7 +378,7 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
             if width and any(not contains(clip,target) for clip in row.get('_clips',[])):raise DocumentError('El texto nuevo sale del recorte del objeto Form.')
             if any(overlap(target,obstacle)>.1 for obstacle in row.get('_obstacles',[])):raise DocumentError('El texto nuevo cruza una imagen, campo o anotación.')
             original=polygon(g)
-            for block in doc[number].get_text('dict',flags=fitz.TEXTFLAGS_TEXT)['blocks']:
+            for block in neighbor_blocks:
                 for line in block.get('lines',[]):
                     for span in line['spans']:
                         if span['origin']==tuple(row['origin']) and span['font']==row['font'] and span['text']==row['text']:continue
@@ -448,7 +450,8 @@ def replace_styled_regions(base,operations,regions):
 def page_contains(page,row,width):
     target=fitz.Rect(row['bbox']);target.x1=row['origin'][0]+width
     if width and not page.rect.contains(target):return False
-    for block in page.get_text('dict',flags=fitz.TEXTFLAGS_TEXT)['blocks']:
+    from .type3_text import merge_lines
+    for block in merge_lines(page.parent,page,page.get_text('dict',flags=fitz.TEXTFLAGS_TEXT)['blocks']):
         for line in block.get('lines',[]):
             for span in line['spans']:
                 if span['origin']==tuple(row['origin']) and span['font']==row['font'] and span['text']==row['text']:continue

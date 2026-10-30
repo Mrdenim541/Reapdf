@@ -79,34 +79,63 @@ def validate(data,fontbox):
     if colored:box=list(fontbox)
     if not all(math.isfinite(v) and abs(v)<=10000 for v in [width,vertical,*box]) or vertical!=0 or width<=0:fail()
     if box[0]>box[2] or box[1]>box[3] or any(box[i]<fontbox[i]-.01 for i in [0,1]) or any(box[i]>fontbox[i]+.01 for i in [2,3]):fail()
-    path=False;paint=False;color=False;stack=[]
-    arities={'m':2,'l':2,'c':6,'v':4,'y':4,'re':4,'h':0,'f':0,'f*':0,'n':0}
+    path=False;paint=False;stack=[];points=[]
+    state={'matrix':f.Matrix(1,1),'fill':False,'stroke':False,'width':None,'cap':None,'join':None,'miter':None}
+    arities={'m':2,'l':2,'c':6,'v':4,'y':4,'re':4,'h':0,'f':0,'f*':0,'n':0,'S':0,'s':0,'B':0,'B*':0,'b':0,'b*':0}
     for op,args,_ in ops[1:]:
-        if colored and op in ['g','rg','k','q','Q']:
-            if op in ['q','Q']:
-                if args or path:fail()
-                if op=='q':
-                    if len(stack)>=16:fail()
-                    stack.append(color)
-                else:
-                    if not stack:fail()
-                    color=stack.pop()
+        values=[t.value for t in args if t.kind=='number']
+        if len(values)!=len(args) or any(not math.isfinite(v) or abs(v)>10000 for v in values):fail()
+        if op in ['q','Q']:
+            if args or path:fail()
+            if op=='q':
+                if len(stack)>=16:fail()
+                stack.append(dict(state))
             else:
-                if len(args)!={'g':1,'rg':3,'k':4}[op] or any(t.kind!='number' or not math.isfinite(t.value) or not 0<=t.value<=1 for t in args):fail()
-                color=True
+                if not stack:fail()
+                state=stack.pop()
             continue
-        if op not in arities or len(args)!=arities[op] or any(t.kind!='number' for t in args):fail()
-        values=[t.value for t in args]
-        if any(not math.isfinite(v) or abs(v)>10000 for v in values):fail()
+        if op=='cm':
+            if path or len(values)!=6:fail()
+            matrix=f.Matrix(*values)*state['matrix'];det=matrix.a*matrix.d-matrix.b*matrix.c
+            if not 1e-8<=abs(det)<=1e8 or max(abs(v) for v in matrix)>10000:fail()
+            state['matrix']=matrix;continue
+        if op in ['w','J','j','M']:
+            if len(values)!=1:fail()
+            value=values[0]
+            if op=='w':
+                if not 0<value<=1000:fail()
+                state['width']=value
+            elif op in ['J','j']:
+                if value not in [0,1,2]:fail()
+                state['cap' if op=='J' else 'join']=value
+            else:
+                if not 1<=value<=100:fail()
+                state['miter']=value
+            continue
+        if op in ['g','rg','k','G','RG','K']:
+            if not colored or len(values)!={'g':1,'rg':3,'k':4,'G':1,'RG':3,'K':4}[op] or any(not 0<=v<=1 for v in values):fail()
+            state['stroke' if op[0].isupper() else 'fill']=True;continue
+        if op not in arities or len(values)!=arities[op]:fail()
         if op=='re':
-            x,y,w,h=values;points=[(x,y),(x+w,y+h)]
-        else:points=list(zip(values[::2],values[1::2]))
-        if any(not box[0]-.01<=x<=box[2]+.01 or not box[1]-.01<=y<=box[3]+.01 for x,y in points):fail()
+            x,y,w,h=values;current=[(x,y),(x+w,y),(x+w,y+h),(x,y+h)]
+        else:current=list(zip(values[::2],values[1::2]))
+        transformed=[f.Point(p)*state['matrix'] for p in current]
+        if any(not box[0]-.01<=p.x<=box[2]+.01 or not box[1]-.01<=p.y<=box[3]+.01 for p in transformed):fail()
+        points.extend(transformed)
         if op in ['m','re']:path=True
         elif op in ['l','c','v','y','h'] and not path:fail()
-        elif op in ['f','f*','n']:
+        elif op in ['f','f*','n','S','s','B','B*','b','b*']:
             if not path:fail()
-            if colored and op!='n' and not color:fail()
-            paint=paint or op!='n';path=False
+            stroke=op in ['S','s','B','B*','b','b*'];fill=op in ['f','f*','B','B*','b','b*']
+            if colored and (stroke and not state['stroke'] or fill and not state['fill']):fail()
+            if stroke:
+                if any(state[k] is None for k in ['width','cap','join']) or state['join']==0 and state['miter'] is None:fail()
+                # Frobenius norm bounds any transformed pen radius. Include
+                # miter extension explicitly; no guessed inherited pen state.
+                matrix=state['matrix'];radius=state['width']/2*math.sqrt(sum(v*v for v in [matrix.a,matrix.b,matrix.c,matrix.d]))
+                if state['join']==0:radius*=state['miter']
+                if state['cap']==2:radius*=math.sqrt(2)
+                if not points or any(p.x-radius<box[0]-.01 or p.x+radius>box[2]+.01 or p.y-radius<box[1]-.01 or p.y+radius>box[3]+.01 for p in points):fail()
+            paint=paint or op!='n';path=False;points=[]
     if path or stack:fail()
     return width,paint

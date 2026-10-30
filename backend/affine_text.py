@@ -100,7 +100,9 @@ def verify(data,prepared):
     from .styled_text import normal_name
     with open_pdf(data) as doc:
         for number,rows in prepared.items():
-            page=doc[number];page.set_rotation(0);traces=page.get_texttrace();spans=[s for b in page.get_text('dict')['blocks'] for line in b.get('lines',[]) for s in line['spans']]
+            page=doc[number];page.set_rotation(0);traces=page.get_texttrace()
+            from .type3_text import merge_lines,trace as type3_trace
+            blocks=merge_lines(doc,page,page.get_text('rawdict')['blocks']);spans=[{**s,'text':''.join(c['c'] for c in s['chars'])} for b in blocks for line in b.get('lines',[]) for s in line['spans']]
             for row,_ in rows:
                 if '_geometry' not in row:continue
                 matches=[s for s in spans if math.dist(s['origin'],row['origin'])<.02 and normal_name(s['font'])==normal_name(row['font'])]
@@ -111,6 +113,8 @@ def verify(data,prepared):
                 if len(matches)!=1 or matches[0]['text']!=text:raise DocumentError('La comprobación del texto transformado detectó diferencias. No se publicó el cambio.')
                 if row.get('opacity') is not None:
                     appearances=[t for t in traces if t['chars'] and math.dist(t['chars'][0][2],row['origin'])<.02 and ''.join(chr(c[0]) for c in t['chars'])==text]
+                    if row['_font'].type=='Type3':
+                        checked=type3_trace(row['_font'],matches[0],traces);appearances=[checked] if checked else []
                     if len(appearances)!=1 or appearances[0]['type']!=0 or abs(appearances[0]['opacity']-row['opacity'])>1e-6:raise DocumentError('La transparencia del texto cambió al guardar. No se publicó el cambio.')
                 expected=bounds(polygon(row['_geometry'],row['_replacement_width']))
                 if max(abs(a-b) for a,b in zip(expected,matches[0]['bbox']))>.3 or matches[0]['color']!=row['color'] or matches[0].get('alpha',255)!=row.get('alpha',255):raise DocumentError('La geometría o el color cambió después de guardar. No se publicó el cambio.')

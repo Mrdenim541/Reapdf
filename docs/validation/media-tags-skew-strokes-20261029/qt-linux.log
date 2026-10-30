@@ -1,0 +1,9 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+Fontconfig error: No writable cache directories
+[520658:520678:1030/103602.648392:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 520679: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: own Qt window reviewed figure/decorative image occurrences and native text link label, saved atomically preserving pixels/destinations/original; detected skew reviewed and used for OCR, native save preserved scan pixels and recognized text.

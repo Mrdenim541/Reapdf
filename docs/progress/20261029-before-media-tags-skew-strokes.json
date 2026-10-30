@@ -1,0 +1,384 @@
+{
+  "schema": 1,
+  "review_date": "2026-10-29",
+  "status": "provisional_initial_text_tags_auto_merges_colored_type3",
+  "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
+  "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
+  "weighted_percent": 80.17,
+  "reported_percent": 80,
+  "subjective_range_percent": [
+    61,
+    84
+  ],
+  "anchors": {
+    "0": "Sin implementación",
+    "25": "Prototipo o subconjunto pequeño",
+    "50": "Cobertura parcial utilizable",
+    "75": "Cobertura amplia con huecos",
+    "90": "Casi todo el alcance con aceptación pendiente",
+    "100": "Alcance implementado, comprobado y aceptado"
+  },
+  "categories": [
+    {
+      "id": "reader_pages",
+      "weight": 7,
+      "maturity": 90,
+      "evidence": [
+        "backend/viewer.py",
+        "backend/pages.py",
+        "backend/bookmarks.py",
+        "backend/engine.py",
+        "scripts/smoke_advanced_workflows.mjs"
+      ],
+      "remaining": "Corpus extenso, rendimiento en equipos reales y aceptación de lectura."
+    },
+    {
+      "id": "interface",
+      "weight": 7,
+      "maturity": 96,
+      "evidence": [
+        "web/src/main.jsx",
+        "web/src/paragraph-editor.jsx",
+        "scripts/smoke-recovered-editing.mjs",
+        "web/src/inline-text.jsx",
+        "web/src/document-links.jsx",
+        "web/src/inline-paragraph.jsx",
+        "scripts/smoke_revision_quick_text.mjs",
+        "web/src/inline-caret.js",
+        "tests/test_inline_caret.mjs",
+        "scripts/smoke_cff_forms_mixed.mjs",
+        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md",
+        "docs/TEXTO_AFIN_20261029.md",
+        "scripts/smoke_core_workflows.mjs",
+        "docs/ESTADOS_Y_TRANSPARENCIA_20261030.md",
+        "docs/FORMULARIOS_Y_TABLAS_OCR_20261030.md",
+        "web/src/forms.jsx",
+        "web/src/table-regions.jsx",
+        "scripts/smoke_commercial_forms_tables.mjs",
+        "docs/CALCULOS_NATIVOS_Y_NOTAS_WORD_20261030.md",
+        "web/src/forms.jsx",
+        "web/src/word-import.jsx",
+        "scripts/smoke_native_calcs_notes.mjs",
+        "docs/OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md",
+        "web/src/reading-preview.jsx"
+      ],
+      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados."
+    },
+    {
+      "id": "text_images",
+      "weight": 16,
+      "maturity": 97.5,
+      "evidence": [
+        "backend/styled_text.py",
+        "backend/text_flow.py",
+        "backend/image_editing.py",
+        "tests/test_styled_text.py",
+        "backend/find_replace.py",
+        "tests/test_find_replace.py",
+        "tests/test_find_replace_more.py",
+        "scripts/smoke_find_replace.mjs",
+        "tests/test_styled_simple_truetype.py",
+        "tests/test_find_replace_fragments.py",
+        "scripts/smoke_split_replacement.mjs",
+        "backend/native_text.py",
+        "backend/pdf_content.py",
+        "tests/test_native_content.py",
+        "scripts/check_pdf_editing_qt.py",
+        "backend/text_spacing.py",
+        "backend/original_reflow.py",
+        "backend/quick_text.py",
+        "tests/test_original_reflow.py",
+        "tests/test_revision_quick_spacing.py",
+        "tests/test_scaled_groups.py",
+        "scripts/smoke_scaled_manual.mjs",
+        "backend/cff_fonts.py",
+        "backend/form_text.py",
+        "backend/original_mixed_reflow.py",
+        "tests/test_cff_forms_mixed.py",
+        "scripts/smoke_cff_forms_mixed.mjs",
+        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md",
+        "docs/TEXTO_AFIN_20261029.md",
+        "backend/type3_fonts.py",
+        "tests/test_type3_fonts.py",
+        "tests/test_static_cff2.py",
+        "scripts/smoke_font_compatibility.mjs",
+        "scripts/smoke_fonts_native.py",
+        "docs/FUENTES_TYPE3_CFF2_20261030.md",
+        "backend/affine_text.py",
+        "tests/test_inherited_text_font.py",
+        "backend/text_compositing.py",
+        "tests/test_text_states_compositing.py",
+        "scripts/smoke_text_states.mjs",
+        "scripts/smoke_text_states_native.py",
+        "docs/ESTADOS_Y_TRANSPARENCIA_20261030.md",
+        "docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md",
+        "tests/test_colored_type3.py"
+      ],
+      "remaining": "Fuentes variables y sus instancias/ejes; CFF2 con VarStore o formato crudo; Type3 con imágenes, recursos, trazos o matrices no estándar. Reflujo afín/cambio de fuente con composición compleja, máscaras, mezclas especiales, grupos no aislados/knockout y corpus representativo. Type3 d0 de rellenos vectoriales con color literal ya incorporado; no implica edición de sus colores internos."
+    },
+    {
+      "id": "annotations",
+      "weight": 7,
+      "maturity": 85,
+      "evidence": [
+        "backend/existing_annotations.py",
+        "backend/comments.py",
+        "backend/xfdf.py",
+        "tests/test_xfdf_working_copy.py",
+        "docs/PRECISION_Y_XFDF_20261029.md"
+      ],
+      "remaining": "XFDF completo (hilos/estados/acciones y apariencias avanzadas), texto libre con más fuentes/estilos, adjuntos y otros subtipos; corpus externo representativo. No volver a anunciar respuestas/estados internos ya presentes."
+    },
+    {
+      "id": "forms",
+      "weight": 6,
+      "maturity": 87.5,
+      "evidence": [
+        "backend/form_import.py",
+        "backend/form_calculations.py",
+        "tests/test_form_import.py",
+        "backend/xfdf.py",
+        "tests/test_xfdf_working_copy.py",
+        "docs/FORMULARIOS_Y_TABLAS_OCR_20261030.md",
+        "backend/form_actions.py",
+        "tests/test_form_standard_actions.py",
+        "scripts/smoke_commercial_native.py",
+        "docs/CALCULOS_NATIVOS_Y_NOTAS_WORD_20261030.md",
+        "backend/native_calculations.py",
+        "tests/test_native_calculations.py",
+        "scripts/smoke_native_calcs_notes.mjs",
+        "scripts/smoke_native_calcs_notes_qt.py"
+      ],
+      "remaining": "XFA, JavaScript general, otras acciones/validadores y variantes fuera de la lista, fórmulas arbitrarias, fuentes de campos no compatibles, grafos mixtos que usen salidas nativas en reglas del proyecto, corpus externo y aceptación. Cálculos AFSimple_Calculate compatibles, CO/dependencias/ciclos y reparación de orden ya incorporados."
+    },
+    {
+      "id": "ocr_conversion",
+      "weight": 9,
+      "maturity": 90,
+      "evidence": [
+        "backend/ocr.py",
+        "backend/docx_import.py",
+        "backend/docx_export.py",
+        "backend/region_ocr.py",
+        "tests/test_structure_preflight_regions.py",
+        "docs/FORMULARIOS_Y_TABLAS_OCR_20261030.md",
+        "backend/table_regions.py",
+        "tests/test_table_regions.py",
+        "web/src/table-grid.js",
+        "tests/test_table_grid.mjs",
+        "docs/CALCULOS_NATIVOS_Y_NOTAS_WORD_20261030.md",
+        "backend/docx_notes.py",
+        "tests/test_docx_notes.py",
+        "docs/OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md",
+        "backend/scan_geometry.py",
+        "docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md",
+        "backend/table_detection.py"
+      ],
+      "remaining": "Detección automática de ángulo/esquinas; tablas sin líneas, perspectivas de tablas y diseños irregulares; OCR multilingüe/corpus representativo y fidelidad Office general. Combinaciones rectangulares automáticas por bordes verificables ya incorporadas como sugerencias revisables, sin garantía de OCR. La capa geométrica invisible aproxima palabras afínmente. Notas Word partidas, marcas personalizadas y reinicio por página siguen fuera."
+    },
+    {
+      "id": "security_signatures",
+      "weight": 7,
+      "maturity": 60,
+      "evidence": [
+        "backend/digital_signatures.py",
+        "backend/redaction.py",
+        "backend/document_tools.py",
+        "backend/working_copy.py",
+        "tests/test_xfdf_working_copy.py"
+      ],
+      "remaining": "Revocación/TSA/LT/LTA/tokens, censura compleja y aceptación independiente."
+    },
+    {
+      "id": "standards_optimization",
+      "weight": 5,
+      "maturity": 55,
+      "evidence": [
+        "backend/standards.py",
+        "backend/compression.py",
+        "backend/preflight.py",
+        "tests/test_structure_preflight_regions.py"
+      ],
+      "remaining": "PDF/X y preflight exhaustivo, tintas planas, sobreimpresión y aceptación de imprenta."
+    },
+    {
+      "id": "accessibility",
+      "weight": 3,
+      "maturity": 70,
+      "evidence": [
+        "backend/accessibility.py",
+        "backend/structure_editing.py",
+        "tests/test_structure_preflight_regions.py",
+        "docs/OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md",
+        "tests/test_reading_preview.py",
+        "docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md",
+        "backend/basic_tagging.py"
+      ],
+      "remaining": "Etiquetado general de imágenes/Forms/enlaces/anotaciones, listas y tablas semánticas; reparación general de estructuras existentes y MCID ambiguos; espacios de nombres PDF 2, lector de pantalla y PDF/UA integral. Creación inicial revisada de etiquetas para texto directo simple sin estructura, roles/idiomas y vista de lectura ya incorporadas."
+    },
+    {
+      "id": "automation_linking",
+      "weight": 9,
+      "maturity": 90,
+      "evidence": [
+        "backend/automation.py",
+        "backend/batch_tools.py",
+        "backend/document_sets.py",
+        "web/src/document-links.jsx",
+        "tests/test_document_workspaces.py",
+        "scripts/smoke_document_workspaces.mjs",
+        "web/src/document-revision.jsx",
+        "tests/test_revision_quick_spacing.py",
+        "web/src/manual-links.jsx",
+        "tests/test_manual_document_links.py",
+        "scripts/smoke_scaled_manual.mjs"
+      ],
+      "remaining": "Corpus real amplio y aceptación personal, revisiones con identificadores cambiados, lotes mayores y automatizaciones profesionales restantes. Áreas manuales, persistencia, compilación y remarcado explícito en revisión incorporados."
+    },
+    {
+      "id": "desktop_distribution",
+      "weight": 6,
+      "maturity": 70,
+      "evidence": [
+        "portable/native_window.py",
+        "portable/native_print.py",
+        "portable/native_save.py",
+        "scripts/smoke_native_save.py",
+        "portable/single_instance.py",
+        "portable/windows_association.py",
+        "scripts/smoke_single_instance.py",
+        "scripts/smoke_native_readiness.py",
+        "scripts/smoke_native_launcher.py",
+        "tests/test_desktop.py",
+        "scripts/smoke_vector_print.py",
+        "scripts/smoke_native_document_set.py",
+        "portable/desktop.py",
+        "scripts/check_desktop_candidate.py",
+        "scripts/smoke_parent_exit.py",
+        ".github/workflows/desktop-source.yml",
+        "scripts/smoke_text_states_native.py"
+      ],
+      "remaining": "Ejecución Windows y consulta de sus resultados, DPI/asociaciones/impresión física, ensamblado/aceptación del paquete final. Configurar CI no equivale a superarlo."
+    },
+    {
+      "id": "migration_interoperability",
+      "weight": 4,
+      "maturity": 67.5,
+      "evidence": [
+        "backend/projects.py",
+        "tests/test_projects.py",
+        "backend/xfdf.py",
+        "backend/document_sets.py",
+        "docs/PRECISION_Y_XFDF_20261029.md"
+      ],
+      "remaining": "Corpus en Acrobat/Nitro y plataformas externas, migración entre versiones y subtipos XFDF restantes. La relectura independiente no acredita aceptación en esos programas."
+    },
+    {
+      "id": "performance_reliability",
+      "weight": 4,
+      "maturity": 77.5,
+      "evidence": [
+        "backend/projects.py",
+        "portable/native_save.py",
+        "tests/test_native_save.py",
+        "backend/native_text.py",
+        "portable/native_print.py",
+        "backend/document_sets.py",
+        "scripts/smoke_parent_exit.py",
+        "scripts/check_desktop_candidate.py",
+        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md"
+      ],
+      "remaining": "Carga sostenida y memoria de corpus grande, pérdida de energía, borradores y estrés/recuperación Windows. Corregido el aborto al finalizar tras carga fallida en Qt Linux; sondeo Windows aún pendiente allí."
+    },
+    {
+      "id": "measurement",
+      "weight": 3,
+      "maturity": 90,
+      "evidence": [
+        "docs/FUNCIONES.md",
+        "backend/measurements.py",
+        "web/src/measurements.jsx",
+        "tests/test_document_workspaces.py",
+        "docs/PRECISION_Y_XFDF_20261029.md"
+      ],
+      "remaining": "Aceptación técnica y corpus de planos reales; intersecciones/curvas y mediciones angulares; compatibilidad externa de medidas y migración editable de mediciones antiguas. Nuevas mediciones ancladas al PDF, edición de vértices y escalas por región ya incorporadas."
+    },
+    {
+      "id": "portfolios_layers",
+      "weight": 3,
+      "maturity": 80,
+      "evidence": [
+        "backend/pro_tools.py",
+        "docs/FUNCIONES.md",
+        "backend/layers.py",
+        "backend/document_sets.py",
+        "tests/test_document_workspaces.py",
+        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md"
+      ],
+      "remaining": "Carpetas de portfolio y edición general de esquemas externos, configuraciones OCG avanzadas y edición del contenido de capas. Interoperabilidad externa pendiente."
+    },
+    {
+      "id": "collaboration_services",
+      "weight": 3,
+      "maturity": 0,
+      "evidence": [
+        "docs/FUNCIONES.md"
+      ],
+      "remaining": "Compartir, sincronización, revisión y solicitud remota de firmas."
+    },
+    {
+      "id": "ai_assistance",
+      "weight": 1,
+      "maturity": 0,
+      "evidence": [
+        "docs/FUNCIONES.md"
+      ],
+      "remaining": "Asistencia dentro del producto con referencias y costes definidos."
+    }
+  ],
+  "completion_gates": [
+    "Fuente completa respaldada y restauración limpia comprobada",
+    "Flujos cotidianos aceptados por el usuario",
+    "Ejecución y distribución Windows verificadas",
+    "Integridad de documentos, recuperación y compatibilidad representativas",
+    "Alcance y licencias de distribución resueltos"
+  ],
+  "historical_reference": {
+    "reported_percent": 61.3,
+    "code_version": "0.55",
+    "available_now": false,
+    "note": "No ratificado con archivos actuales. Esta revisión evalúa 0.43 recuperado y sus mejoras nuevas."
+  },
+  "accepted_complete": false,
+  "last_change": {
+    "baseline": "docs/progress/20261029-before-initial-tags-auto-merges.json",
+    "before_weighted": 79.61,
+    "after_weighted": 80.17,
+    "new_points": 0.56,
+    "changes": [
+      {
+        "id": "text_images",
+        "before": 97,
+        "after": 97.5,
+        "points": 0.08,
+        "reason": "Type3 d0 vectoriales con color literal g/rg/k y q/Q balanceados, conservando programas y apariciones compartidas en edición sobre página."
+      },
+      {
+        "id": "ocr_conversion",
+        "before": 88,
+        "after": 90,
+        "points": 0.18,
+        "reason": "Sugerencias automáticas de combinaciones rectangulares por separadores parciales digitales/escaneados, máscara del texto y rechazo de bordes ambiguos/no rectangulares."
+      },
+      {
+        "id": "accessibility",
+        "before": 60,
+        "after": 70,
+        "points": 0.3,
+        "reason": "Creación inicial revisada de StructTreeRoot, MCID y ParentTree para texto directo sin estructura, con orden/encabezados/idioma, gráficos decorativos y persistencia."
+      }
+    ],
+    "unrounded_after_weighted": "80.17",
+    "all_weights_and_scope_unchanged": true
+  }
+}

@@ -55,7 +55,9 @@ def native_model(doc,number,rect,font_cache=None):
         detail=' '+reasons[0] if len(reasons)==1 else ''
         raise DocumentError('No se encontró una fuente original compatible en el contenido seleccionado.'+detail)
     rows=[]
-    for bi,block in enumerate(page.get_text('rawdict',sort=True,flags=f.TEXTFLAGS_TEXT)['blocks']):
+    from .type3_text import merge_lines,trace as type3_trace
+    blocks=merge_lines(doc,page,page.get_text('rawdict',sort=True,flags=f.TEXTFLAGS_TEXT)['blocks'],objects,list(compatible.values()))
+    for bi,block in enumerate(blocks):
         for li,line in enumerate(block.get('lines',[])):
             for si,span in enumerate(line['spans']):
                 bounds=f.Rect(span['bbox'])
@@ -80,6 +82,9 @@ def native_model(doc,number,rect,font_cache=None):
                     if not (rect+(-.05,-.05,.05,.05)).contains(bounds):raise DocumentError('La región corta este fragmento de texto.')
                     if line.get('wmode',0)!=0:raise DocumentError('La escritura vertical requiere otro tratamiento.')
                     trace=[t for t in traces if ''.join(chr(c[0]) for c in t['chars'])==text and t['chars'] and math.dist(t['chars'][0][2],span['origin'])<.02]
+                    if font.type=='Type3':
+                        verified=type3_trace(font,span,traces)
+                        trace=[verified] if verified else []
                     if len(trace)!=1 or trace[0]['type']!=0 or not 0<trace[0]['opacity']<=1 or trace[0]['layer']:raise DocumentError('El texto no tiene una apariencia visible única y verificable.')
                     if any(c[1] not in ({font.base.has_glyph(c[0],fallback=0)} if font.base else {entry[0] if font.trace_cid else entry[2] for entry in font.options.get(chr(c[0]),[])}) for c in trace[0]['chars']):raise DocumentError('El mapa de glifos no coincide con el texto representado.')
                     from .text_spacing import source_layout

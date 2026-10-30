@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "review_date": "2026-10-29",
-  "status": "provisional_initial_text_tags_auto_merges_colored_type3",
+  "status": "provisional_media_tags_deskew_type3_strokes",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 80.17,
-  "reported_percent": 80,
+  "weighted_percent": 80.54,
+  "reported_percent": 81,
   "subjective_range_percent": [
     61,
     84
@@ -67,7 +67,7 @@
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 97.5,
+      "maturity": 97.75,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -112,9 +112,11 @@
         "scripts/smoke_text_states_native.py",
         "docs/ESTADOS_Y_TRANSPARENCIA_20261030.md",
         "docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md",
-        "tests/test_colored_type3.py"
+        "tests/test_colored_type3.py",
+        "docs/IMAGENES_ENLACES_INCLINACION_Y_TRAZOS_20261029.md",
+        "backend/type3_text.py"
       ],
-      "remaining": "Fuentes variables y sus instancias/ejes; CFF2 con VarStore o formato crudo; Type3 con imágenes, recursos, trazos o matrices no estándar. Reflujo afín/cambio de fuente con composición compleja, máscaras, mezclas especiales, grupos no aislados/knockout y corpus representativo. Type3 d0 de rellenos vectoriales con color literal ya incorporado; no implica edición de sus colores internos."
+      "remaining": "Fuentes variables y sus instancias/ejes; CFF2 con VarStore o formato crudo; Type3 con imágenes, recursos, dash, clipping o FontMatrix no estándar. Reflujo afín/cambio de fuente con composición compleja, máscaras, mezclas especiales, grupos no aislados/knockout y corpus representativo. Rellenos/colores d0 y trazos/cm internos verificados ya incorporados; no implica edición de colores o dibujos del glifo."
     },
     {
       "id": "annotations",
@@ -154,7 +156,7 @@
     {
       "id": "ocr_conversion",
       "weight": 9,
-      "maturity": 90,
+      "maturity": 92,
       "evidence": [
         "backend/ocr.py",
         "backend/docx_import.py",
@@ -172,9 +174,11 @@
         "docs/OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md",
         "backend/scan_geometry.py",
         "docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md",
-        "backend/table_detection.py"
+        "backend/table_detection.py",
+        "docs/IMAGENES_ENLACES_INCLINACION_Y_TRAZOS_20261029.md",
+        "backend/deskew.py"
       ],
-      "remaining": "Detección automática de ángulo/esquinas; tablas sin líneas, perspectivas de tablas y diseños irregulares; OCR multilingüe/corpus representativo y fidelidad Office general. Combinaciones rectangulares automáticas por bordes verificables ya incorporadas como sugerencias revisables, sin garantía de OCR. La capa geométrica invisible aproxima palabras afínmente. Notas Word partidas, marcas personalizadas y reinicio por página siguen fuera."
+      "remaining": "Detección automática de esquinas y orientación ortogonal; tablas sin líneas, perspectivas de tablas y diseños irregulares; OCR multilingüe/corpus representativo y fidelidad Office general. Inclinación automática ±15° con revisión y sugerencias rectangulares por bordes ya incorporadas, sin garantía de OCR. La capa geométrica invisible aproxima palabras afínmente. Notas Word partidas, marcas personalizadas y reinicio por página siguen fuera."
     },
     {
       "id": "security_signatures",
@@ -204,7 +208,7 @@
     {
       "id": "accessibility",
       "weight": 3,
-      "maturity": 70,
+      "maturity": 75,
       "evidence": [
         "backend/accessibility.py",
         "backend/structure_editing.py",
@@ -212,9 +216,11 @@
         "docs/OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md",
         "tests/test_reading_preview.py",
         "docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md",
-        "backend/basic_tagging.py"
+        "backend/basic_tagging.py",
+        "docs/IMAGENES_ENLACES_INCLINACION_Y_TRAZOS_20261029.md",
+        "tests/test_media_tagging.py"
       ],
-      "remaining": "Etiquetado general de imágenes/Forms/enlaces/anotaciones, listas y tablas semánticas; reparación general de estructuras existentes y MCID ambiguos; espacios de nombres PDF 2, lector de pantalla y PDF/UA integral. Creación inicial revisada de etiquetas para texto directo simple sin estructura, roles/idiomas y vista de lectura ya incorporadas."
+      "remaining": "Contenido dentro de Forms, imágenes inline/recortes complejos, enlaces ambiguos/remotos/de varios objetos, otras anotaciones, listas y tablas semánticas; reparación general de estructuras existentes, MCID ambiguos y espacios de nombres PDF 2; lector de pantalla y PDF/UA integral. Creación inicial de texto/imágenes directas y enlaces simples con revisión ya incorporada."
     },
     {
       "id": "automation_linking",
@@ -351,34 +357,34 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261029-before-initial-tags-auto-merges.json",
-    "before_weighted": 79.61,
-    "after_weighted": 80.17,
-    "new_points": 0.56,
+    "baseline": "docs/progress/20261029-before-media-tags-skew-strokes.json",
+    "before_weighted": 80.17,
+    "after_weighted": 80.54,
+    "new_points": 0.37,
     "changes": [
       {
         "id": "text_images",
-        "before": 97,
-        "after": 97.5,
-        "points": 0.08,
-        "reason": "Type3 d0 vectoriales con color literal g/rg/k y q/Q balanceados, conservando programas y apariciones compartidas en edición sobre página."
+        "before": 97.5,
+        "after": 97.75,
+        "points": 0.04,
+        "reason": "Type3 con trazos y cm internos acotados, pen explícito y reensamblado probado de fragmentos/trazas; edición sobre página y verificación de guardado sin relajar texto oculto/ambiguo."
       },
       {
         "id": "ocr_conversion",
-        "before": 88,
-        "after": 90,
+        "before": 90,
+        "after": 92,
         "points": 0.18,
-        "reason": "Sugerencias automáticas de combinaciones rectangulares por separadores parciales digitales/escaneados, máscara del texto y rechazo de bordes ambiguos/no rectangulares."
+        "reason": "Sugerencia automática de inclinación por perfil geométrico acotado, orientación ortogonal explícita, casos ambiguos sin sugerencia y revisión antes de reconocer sin alterar la imagen."
       },
       {
         "id": "accessibility",
-        "before": 60,
-        "after": 70,
-        "points": 0.3,
-        "reason": "Creación inicial revisada de StructTreeRoot, MCID y ParentTree para texto directo sin estructura, con orden/encabezados/idioma, gráficos decorativos y persistencia."
+        "before": 70,
+        "after": 75,
+        "points": 0.15,
+        "reason": "Imágenes directas por aparición con alternativa o Artifact; enlaces de un objeto completo con MCID/OBJR/StructParent/ParentTree y etiqueta descriptiva, destino conservado."
       }
     ],
-    "unrounded_after_weighted": "80.17",
+    "unrounded_after_weighted": "80.54",
     "all_weights_and_scope_unchanged": true
   }
 }
