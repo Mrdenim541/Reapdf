@@ -1,0 +1,39 @@
+{
+  "local_date": "2026-10-29",
+  "timezone": "America/Bogota",
+  "baseline_commit": "60faebec9f5cdecabd6dcc671b537b6d7db7d049",
+  "scope": "Reviewed initial direct-text tagging, automatic rectangular table merge suggestions and explicitly coloured Type3 vector glyph editing",
+  "python_full": {
+    "passed": 3150,
+    "warnings": 3,
+    "seconds": 281.07,
+    "stage": "final backend and tests"
+  },
+  "javascript": {
+    "passed": 123
+  },
+  "build": "passed",
+  "chromium": "passed: all-page tag review, heading/order, PDF/project/history, scanned horizontal/vertical merges with Word correction/export, on-page colored Type3 edit",
+  "qt_linux_offscreen": "passed: own window, two-page tag review and native atomic PDF save, original text/pixels/source preserved, scanned merge suggestions and native Word download",
+  "windows": "not run",
+  "external_acrobat_nitro_word": "not run",
+  "screen_reader_pdfua_acceptance": "not run; no conformance claim",
+  "physical_printing": "not run",
+  "user_acceptance": "deferred",
+  "installer_portable": "not generated",
+  "fixtures": "synthetic only",
+  "progress": {
+    "before": 79.61,
+    "after": 80.17,
+    "stable_categories": 17,
+    "stable_weights": true
+  },
+  "logs": [
+    "python-full.log",
+    "javascript.log",
+    "build.log",
+    "chromium.log",
+    "qt-linux.log"
+  ],
+  "log_normalization": "Trailing whitespace and ANSI styling removed from copied logs."
+}

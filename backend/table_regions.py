@@ -59,7 +59,8 @@ def assign(words,columns,rows):
     return [[text(cell) for cell in row] for row in cells],crossing
 
 
-def extract(base,ops,number,box,grid=None,mode='auto',language='spa+eng',dpi=200,orientation=0):
+def extract(base,ops,number,box,grid=None,mode='auto',language='spa+eng',dpi=200,orientation=0,detect_merges=False):
+    if type(detect_merges) is not bool:raise DocumentError('La detección de combinaciones debe ser verdadera o falsa.')
     if mode not in ['auto','digital','ocr'] or language not in ['eng','spa','spa+eng'] or type(dpi) is not int or dpi not in [150,200,300] or type(orientation) is not int or orientation not in [0,90,180,270]:raise DocumentError('Configuración de extracción no válida.')
     with open_pdf(base) as source:
         if not source.permissions&f.PDF_PERM_COPY:raise DocumentError('El documento no permite extraer tablas.')
@@ -73,7 +74,12 @@ def extract(base,ops,number,box,grid=None,mode='auto',language='spa+eng',dpi=200
         scale=dpi/72
         if math.ceil(w*scale)*math.ceil(h*scale)>16_000_000 or max(w,h)*scale>8192:raise DocumentError('La región supera 16 millones de píxeles; reduce área o resolución.')
         preview=page.get_pixmap(matrix=f.Matrix(scale,scale),clip=visible,colorspace=f.csGRAY,alpha=False,annots=False)
-        if grid is None:columns,rows,detected=detect_lines(preview,visible)
+        if grid is None:
+            columns,rows,detected=detect_lines(preview,visible)
+            if detect_merges:
+                from .table_detection import candidates
+                found=candidates(preview,visible)
+                if found is not None:columns,rows=found;detected=len(columns)>2 and len(rows)>2
         else:
             if not isinstance(grid,dict) or set(grid)!={'columns','rows'}:raise DocumentError('Cuadrícula no válida.')
             columns=boundaries(grid['columns'],visible.x0,visible.x1,30);rows=boundaries(grid['rows'],visible.y0,visible.y1,100);detected=False
@@ -97,9 +103,16 @@ def extract(base,ops,number,box,grid=None,mode='auto',language='spa+eng',dpi=200
         finally:page.set_rotation(rotation)
         if not words:raise DocumentError('No se encontró texto. Prueba OCR o corrige la región, idioma u orientación.')
         if len(words)>10000 or sum(len(word['text']) for word in words)>100000:raise DocumentError('La tabla supera el límite de texto. Reduce la región.')
-        cells,crossing=assign(words,columns,rows)
+        cells,crossing=assign(words,columns,rows);spans=[]
+        if detect_merges:
+            from .table_detection import suggestions,apply,crossings
+            spans,notes=suggestions(preview,visible,columns,rows,words);warnings.extend(notes)
+            try:cells=apply(words,cells,columns,rows,spans)
+            except ValueError as exc:raise DocumentError(str(exc)) from exc
+            crossing=crossings(words,columns,rows,spans)
+            if spans:warnings.append(f'{len(spans)} combinaciones sugeridas por bordes. Revisa geometría y texto antes de exportar.')
         if crossing:warnings.append(f'{crossing} palabras cruzan separadores; revisa o mueve la cuadrícula.')
-        return {'page':number,'box':box,'columns':columns,'rows':rows,'cells':cells,'words':words,'method':'ocr' if use_ocr else 'digital','detected_grid':detected,'warnings':warnings,'review_required':True,'source_modified':False}
+        return {'page':number,'box':box,'columns':columns,'rows':rows,'cells':cells,'words':words,'method':'ocr' if use_ocr else 'digital','detected_grid':detected,'warnings':warnings,'review_required':True,'source_modified':False,'spans':spans}
 
 
 def csv_bytes(cells,spans=None):

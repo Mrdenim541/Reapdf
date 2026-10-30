@@ -238,6 +238,19 @@ async def inspect_structure(doc_id:str,request:Request):
     p=await read_payload(request)
     return await run_in_threadpool(structure_editing.model,document_path(doc_id).read_bytes(),p.get('operations',[]))
 
+@app.post('/api/documents/{doc_id}/tagging-candidates')
+async def tagging_candidates(doc_id:str,request:Request):
+    from .basic_tagging import candidates
+    p=await read_payload(request)
+    return await run_in_threadpool(candidates,document_path(doc_id).read_bytes(),p.get('operations',[]))
+
+@app.post('/api/documents/{doc_id}/create-basic-tags')
+async def create_basic_tags(doc_id:str,request:Request):
+    from .basic_tagging import create
+    p=await read_payload(request)
+    data,report=await run_in_threadpool(create,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('entries'),p.get('language','es'),p.get('reviewed',False))
+    return {**store_document(data),'tagging_report':report}
+
 @app.post('/api/documents/{doc_id}/reading-preview')
 async def reading_preview(doc_id:str,request:Request):
     p=await read_payload(request)
@@ -266,7 +279,7 @@ async def extract_table_region(doc_id:str,request:Request):
     from .table_regions import extract
     p=await read_payload(request)
     if not OCR_LOCK.acquire(blocking=False):raise DocumentError('Ya hay un reconocimiento en curso. Espera a que termine.')
-    try:return await run_in_threadpool(extract,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('grid'),p.get('mode','auto'),p.get('language','spa+eng'),p.get('dpi',200),p.get('orientation',0))
+    try:return await run_in_threadpool(extract,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('grid'),p.get('mode','auto'),p.get('language','spa+eng'),p.get('dpi',200),p.get('orientation',0),p.get('detect_merges',False))
     finally:OCR_LOCK.release()
 
 

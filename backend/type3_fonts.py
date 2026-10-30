@@ -1,4 +1,4 @@
-"""Verified, uncoloured vector Type3 glyphs; resources and programs stay intact."""
+"""Verified uncoloured or explicitly coloured vector Type3 glyphs; resources and programs stay intact."""
 import math
 import re
 import pymupdf as f
@@ -69,17 +69,32 @@ def load(font,doc):
 
 
 def validate(data,fontbox):
-    def fail():raise DocumentError('Type3: el glifo necesita vectores simples sin color, imágenes, texto ni estados externos.')
+    def fail():raise DocumentError('Type3: el glifo usa un programa vectorial, color o estado fuera del subconjunto verificado.')
     ops=list(operations(data))
     if not ops or len(ops)>2000:fail()
     op,args,_=ops[0]
-    if op!='d1' or len(args)!=6 or any(t.kind!='number' for t in args):fail()
+    colored=op=='d0'
+    if op not in ['d0','d1'] or len(args)!=(2 if colored else 6) or any(t.kind!='number' for t in args):fail()
     width,vertical,*box=[t.value for t in args]
+    if colored:box=list(fontbox)
     if not all(math.isfinite(v) and abs(v)<=10000 for v in [width,vertical,*box]) or vertical!=0 or width<=0:fail()
     if box[0]>box[2] or box[1]>box[3] or any(box[i]<fontbox[i]-.01 for i in [0,1]) or any(box[i]>fontbox[i]+.01 for i in [2,3]):fail()
-    path=False;paint=False
+    path=False;paint=False;color=False;stack=[]
     arities={'m':2,'l':2,'c':6,'v':4,'y':4,'re':4,'h':0,'f':0,'f*':0,'n':0}
     for op,args,_ in ops[1:]:
+        if colored and op in ['g','rg','k','q','Q']:
+            if op in ['q','Q']:
+                if args or path:fail()
+                if op=='q':
+                    if len(stack)>=16:fail()
+                    stack.append(color)
+                else:
+                    if not stack:fail()
+                    color=stack.pop()
+            else:
+                if len(args)!={'g':1,'rg':3,'k':4}[op] or any(t.kind!='number' or not math.isfinite(t.value) or not 0<=t.value<=1 for t in args):fail()
+                color=True
+            continue
         if op not in arities or len(args)!=arities[op] or any(t.kind!='number' for t in args):fail()
         values=[t.value for t in args]
         if any(not math.isfinite(v) or abs(v)>10000 for v in values):fail()
@@ -91,6 +106,7 @@ def validate(data,fontbox):
         elif op in ['l','c','v','y','h'] and not path:fail()
         elif op in ['f','f*','n']:
             if not path:fail()
+            if colored and op!='n' and not color:fail()
             paint=paint or op!='n';path=False
-    if path:fail()
+    if path or stack:fail()
     return width,paint

@@ -1,0 +1,16 @@
+{
+  "backend/app.py": "df074fe3d8f6f7a258592b20b117c48461e561b12ce5ea3618243b99ee24222d",
+  "backend/basic_tagging.py": "d1a67a4e5d04edce9f48e284363adeb97622017b9d63287fe5f81ff28bc28f4d",
+  "backend/table_detection.py": "80f1fe65894752363559922425ba89c1271a608df6e3d10ccb7b661b52cf56fe",
+  "backend/table_regions.py": "ae258eac1d1dd34ca541cb95b9661c250369ec81f116d432d2307fe3f182612d",
+  "backend/type3_fonts.py": "2c0a5f7cdd2bf513cf9bd8b063efc0b2952fc795c7f0903986ae47b6eddd19ce",
+  "scripts/smoke_initial_tags_auto_merges.mjs": "69bf6343c7d357c1c1ad38e93b46dcd28f3cdf281a5e6e6859da451d44b419e3",
+  "scripts/smoke_initial_tags_auto_merges_qt.py": "8122be04dec4aad040aef4bbba3d3e471d25613d8bad307ba88f468980cda830",
+  "tests/test_auto_table_merges.py": "d5758086ff39370e15d9183b3794ba6bd40290a87954548229238f2095c306ae",
+  "tests/test_basic_tagging.py": "9ce576b5044d082d7dc4c8416852d8319ecae42743f894f714a7662ff1882219",
+  "tests/test_colored_type3.py": "bfe8582d7f846309b6243f99a7dbaba6e07d45267417260114d45d861b2df19d",
+  "web/src/initial-tagging.jsx": "8cab70fe7a4929bd65708fd563f27af02f453adf098cbe98b67f33cbbbec3546",
+  "web/src/main.jsx": "7979ce3a6b8cfd630d5de5ccbf7a370244f395dca2477890323516f726bda591",
+  "web/src/structure-preflight.jsx": "50dd4d731377e7ca2c4c3a5c33c34e34c31654d2cbe24d25b6d9b6ccc7825896",
+  "web/src/table-regions.jsx": "7a665d9da69a131a20ee029c2aea1bad6d3df68a07b93523f1a0851017425d88"
+}

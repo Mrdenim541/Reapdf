@@ -1,14 +1,14 @@
 {
   "schema": 1,
   "review_date": "2026-10-29",
-  "status": "provisional_ocr_geometry_table_merges_reading",
+  "status": "provisional_initial_text_tags_auto_merges_colored_type3",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 79.61,
+  "weighted_percent": 80.17,
   "reported_percent": 80,
   "subjective_range_percent": [
     61,
-    83
+    84
   ],
   "anchors": {
     "0": "Sin implementación",
@@ -67,7 +67,7 @@
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 97,
+      "maturity": 97.5,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -110,9 +110,11 @@
         "tests/test_text_states_compositing.py",
         "scripts/smoke_text_states.mjs",
         "scripts/smoke_text_states_native.py",
-        "docs/ESTADOS_Y_TRANSPARENCIA_20261030.md"
+        "docs/ESTADOS_Y_TRANSPARENCIA_20261030.md",
+        "docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md",
+        "tests/test_colored_type3.py"
       ],
-      "remaining": "Fuentes variables (instancias/ejes), CFF2 con VarStore/crudo, Type3 con color/imágenes/recursos o matrices generales; escritura vertical/RTL compleja. Estados sin posición absoluta que dependen del avance anterior, máscaras, mezclas especiales, grupos no aislados/knockout/colores complejos y estructura semántica. Reflujo afín y sustitución de su fuente siguen fuera. Falta corpus externo y aceptación personal. Estados de fuente/color/alpha separados por Tm, opacidad normal visible y grupos aislados RGB/Gray sencillos incorporados."
+      "remaining": "Fuentes variables y sus instancias/ejes; CFF2 con VarStore o formato crudo; Type3 con imágenes, recursos, trazos o matrices no estándar. Reflujo afín/cambio de fuente con composición compleja, máscaras, mezclas especiales, grupos no aislados/knockout y corpus representativo. Type3 d0 de rellenos vectoriales con color literal ya incorporado; no implica edición de sus colores internos."
     },
     {
       "id": "annotations",
@@ -152,7 +154,7 @@
     {
       "id": "ocr_conversion",
       "weight": 9,
-      "maturity": 88,
+      "maturity": 90,
       "evidence": [
         "backend/ocr.py",
         "backend/docx_import.py",
@@ -168,9 +170,11 @@
         "backend/docx_notes.py",
         "tests/test_docx_notes.py",
         "docs/OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md",
-        "backend/scan_geometry.py"
+        "backend/scan_geometry.py",
+        "docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md",
+        "backend/table_detection.py"
       ],
-      "remaining": "Deskew automático y detección automática de esquinas; detección automática de combinaciones, tablas sin líneas y diseños complejos; OCR multilingüe/corpus representativo y fidelidad Office general. Corrección manual de inclinación/perspectiva y combinaciones rectangulares revisadas ya incorporadas. La capa invisible aproxima cada palabra afínmente y no convierte píxeles en tipografía editable. Notas Word partidas, marcas personalizadas y reinicio por página siguen fuera."
+      "remaining": "Detección automática de ángulo/esquinas; tablas sin líneas, perspectivas de tablas y diseños irregulares; OCR multilingüe/corpus representativo y fidelidad Office general. Combinaciones rectangulares automáticas por bordes verificables ya incorporadas como sugerencias revisables, sin garantía de OCR. La capa geométrica invisible aproxima palabras afínmente. Notas Word partidas, marcas personalizadas y reinicio por página siguen fuera."
     },
     {
       "id": "security_signatures",
@@ -200,15 +204,17 @@
     {
       "id": "accessibility",
       "weight": 3,
-      "maturity": 60,
+      "maturity": 70,
       "evidence": [
         "backend/accessibility.py",
         "backend/structure_editing.py",
         "tests/test_structure_preflight_regions.py",
         "docs/OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md",
-        "tests/test_reading_preview.py"
+        "tests/test_reading_preview.py",
+        "docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md",
+        "backend/basic_tagging.py"
       ],
-      "remaining": "Creación/reparación general de etiquetas/MCID y tablas, asociaciones ambiguas, espacios de nombres PDF 2, aceptación asistiva y PDF/UA integral. Vista de lectura de texto etiquetado y edición conservadora de rol/idioma existentes ya incorporadas; texto sin etiquetas y figuras requieren revisión aparte."
+      "remaining": "Etiquetado general de imágenes/Forms/enlaces/anotaciones, listas y tablas semánticas; reparación general de estructuras existentes y MCID ambiguos; espacios de nombres PDF 2, lector de pantalla y PDF/UA integral. Creación inicial revisada de etiquetas para texto directo simple sin estructura, roles/idiomas y vista de lectura ya incorporadas."
     },
     {
       "id": "automation_linking",
@@ -345,34 +351,34 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261029-before-geometry-tables-reading.json",
-    "before_weighted": 78.97,
-    "after_weighted": 79.61,
-    "new_points": 0.64,
+    "baseline": "docs/progress/20261029-before-initial-tags-auto-merges.json",
+    "before_weighted": 79.61,
+    "after_weighted": 80.17,
+    "new_points": 0.56,
     "changes": [
       {
-        "id": "interface",
-        "before": 95,
-        "after": 96,
-        "points": 0.07,
-        "reason": "Separación de vista de lectura y edición de etiquetas, selección de esquinas OCR y revisión de combinaciones de celdas."
+        "id": "text_images",
+        "before": 97,
+        "after": 97.5,
+        "points": 0.08,
+        "reason": "Type3 d0 vectoriales con color literal g/rg/k y q/Q balanceados, conservando programas y apariciones compartidas en edición sobre página."
       },
       {
         "id": "ocr_conversion",
-        "before": 85,
-        "after": 88,
-        "points": 0.27,
-        "reason": "Corrección por inclinación y homografía de cuatro esquinas con coordenadas de texto coherentes; combinaciones rectangulares revisadas y exportación Word/CSV sin ocultar contenido."
+        "before": 88,
+        "after": 90,
+        "points": 0.18,
+        "reason": "Sugerencias automáticas de combinaciones rectangulares por separadores parciales digitales/escaneados, máscara del texto y rechazo de bordes ambiguos/no rectangulares."
       },
       {
         "id": "accessibility",
-        "before": 50,
-        "after": 60,
+        "before": 60,
+        "after": 70,
         "points": 0.3,
-        "reason": "Vista de texto y geometría por rutas/índices de estructura; cambio conservador de rol de párrafo/encabezado e idioma por etiqueta existente."
+        "reason": "Creación inicial revisada de StructTreeRoot, MCID y ParentTree para texto directo sin estructura, con orden/encabezados/idioma, gráficos decorativos y persistencia."
       }
     ],
-    "unrounded_after_weighted": "79.61",
+    "unrounded_after_weighted": "80.17",
     "all_weights_and_scope_unchanged": true
   }
 }

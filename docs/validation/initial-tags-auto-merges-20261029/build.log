@@ -1,0 +1,37 @@
+
+> reapdf@0.43.0 build
+> vite build --config web/vite.config.js
+
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 98 modules transformed.
+rendering chunks...
+computing gzip size...
+web/dist/index.html                               0.36 kB │ gzip:   0.26 kB
+web/dist/assets/portfolio-C2fDs-mY.css            0.23 kB │ gzip:   0.17 kB
+web/dist/assets/word-import-BeLwxWcJ.css          1.06 kB │ gzip:   0.49 kB
+web/dist/assets/text-flow-C97hApAu.css            1.43 kB │ gzip:   0.65 kB
+web/dist/assets/automation-BSplge_a.css           2.13 kB │ gzip:   0.79 kB
+web/dist/assets/index-BM7pWg8W.css               65.17 kB │ gzip:  13.32 kB
+web/dist/assets/portfolio-DgPB7YsS.js             5.18 kB │ gzip:   2.07 kB
+web/dist/assets/compression-B66AU7A6.js           6.24 kB │ gzip:   2.48 kB
+web/dist/assets/form-calculations-BB1716BG.js     6.75 kB │ gzip:   2.59 kB
+web/dist/assets/form-rules-D2VF69fk.js            6.76 kB │ gzip:   2.58 kB
+web/dist/assets/word-import-D6u9e3ff.js           8.72 kB │ gzip:   3.34 kB
+web/dist/assets/standards-C8_0vvmr.js            11.67 kB │ gzip:   4.04 kB
+web/dist/assets/digital-signatures-Dw-FoVUk.js   12.55 kB │ gzip:   4.59 kB
+web/dist/assets/text-flow-Baviav9p.js            18.76 kB │ gzip:   6.17 kB
+web/dist/assets/automation-DFPVi3Wc.js           19.61 kB │ gzip:   6.39 kB
+web/dist/assets/index-D1rcWUaF.js               598.35 kB │ gzip: 166.23 kB
+
+✓ built in 386ms
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
