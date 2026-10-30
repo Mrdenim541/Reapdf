@@ -1,0 +1,18 @@
+{
+  "backend/text_compositing.py": "1dfbc9c90d2157b9fbca3b5fdc59ace9ae5eefd106b518ac15a00f07eeba3e0b",
+  "backend/pdf_content.py": "7428c5f599b109bb5a925491351e19bf01ba44fe9dd5ddf79221d226b33ad395",
+  "backend/native_text.py": "a0461393938d7938ecd4e2b03350d6edbdf6f6c8bf686f4ad6a33bb637b0a8fc",
+  "backend/form_text.py": "2f04698eb0e33b799e7d6fcdc076112bda04eea3510fcf9a5e852b4e2812f3e9",
+  "backend/styled_text.py": "7147cf7856de1748727547be3ac93901496df4544cf589f19989fed3eda33497",
+  "backend/engine.py": "2a07db5f51498eeb894b5274cc8eb85c20d37f93cb2f69a7e90d4721912ff6bd",
+  "backend/affine_text.py": "35b5cf04605e26986d296b14f0e2a025d204d9f053adae8af68747ed17e4f9b3",
+  "web/src/inline-text.jsx": "3ed97b3c2dda1b079a2d36bd382e66cf72702505c0887ee92b34bfbae600c06b",
+  "tests/test_text_states_compositing.py": "d254b83427bcb6931c15c88bfbae8b4a17b27d3782c0f4525078c8271757c166",
+  "tests/test_native_content.py": "54d906e6b5362bd87dce70d7b3aadcbba051a78cb95b7106f31500216a973d22",
+  "tests/test_styled_text.py": "98ecd2e02772c88f088ffec8dafe92641d739ac2b31935f2277a91bde2d92486",
+  "scripts/smoke_text_states.mjs": "ce7590cd1f2470847d6654757156b21c92bc8c80161f012b71daa1a5f10cea7e",
+  "scripts/smoke_text_states_native.py": "6a069f38d3c172fb9949c9db9da9cf9b577c29a14752a8c62a95b0bb7835cfa6",
+  "scripts/smoke_core_workflows.mjs": "bef9a34e40f5b5e0947f4fef3fd8718535a4463a637f55558b03ab802be03e74",
+  "scripts/check_desktop_candidate.py": "73763d73874dd943de1801a4a154042d573aebba0d37261d9522e01f6f3bb62a",
+  "package.json": "ed34d2718b31e47d3bda7c7df1aeac62c2f2b81881e3437a7a0a2ec029affee8"
+}

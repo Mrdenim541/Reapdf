@@ -1,0 +1,24 @@
+{
+  "date_utc": "2026-10-30",
+  "base_commit": "fd1c6c95da45d91302b748ac3acbe59d495cbc3c",
+  "python_full": {
+    "passed": 2899,
+    "warnings": 3,
+    "seconds": 259.48
+  },
+  "python_targeted_final": 453,
+  "engine_api": 63,
+  "styled_text": 67,
+  "javascript": 116,
+  "build": "passed",
+  "chromium_transparency": "passed: five cases including an opaque isolated group; original-only UI, mouse editing, undo/redo/export",
+  "chromium_core": "passed: everyday historical subset migrated; not the extended historical smoke",
+  "qt_linux": "passed: own window, transparent CFF shared isolated group, intermediate states and atomic native save",
+  "aggregate_desktop_suite": "ninth check configured; complete nine-check run not repeated",
+  "windows": "not run",
+  "external_acrobat_nitro": "not run",
+  "physical_print": "not run",
+  "private_pdf": "not used",
+  "new_package": false,
+  "initial_regression": "One obsolete styled_text expectation required all transparency anywhere on the page to block editing; updated to verify unchanged neighboring transparency. Final full suite passes."
+}

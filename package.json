@@ -13,7 +13,8 @@
     "test:bookmarks": "node --test tests/test_bookmarks.mjs",
     "test:images": "node --test tests/test_image_data.mjs",
     "test:catalog": "node --test tests/test_tool_catalog.mjs",
-    "test:recipes": "node --test tests/test_recipes.mjs"
+    "test:recipes": "node --test tests/test_recipes.mjs",
+    "test:ui:core": "node scripts/smoke_core_workflows.mjs"
   },
   "dependencies": {
     "react": "19.1.0",

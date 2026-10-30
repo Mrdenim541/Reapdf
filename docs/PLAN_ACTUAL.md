@@ -1,6 +1,6 @@
 # Plan vigente
 
-Referencia: **≈76 % del programa completo (76,24 ponderado)**, con alcance y diecisiete pesos estables. [Último avance](FUENTES_TYPE3_CFF2_20261030.md), [matriz](avance-global.json) y [prueba personal prevista](PRUEBA_PERSONAL_ESCRITORIO.md).
+Referencia: **≈76 % del programa completo (76,40 ponderado)**, con alcance y diecisiete pesos estables. [Último avance](ESTADOS_Y_TRANSPARENCIA_20261030.md), [matriz](avance-global.json) y [prueba personal prevista](PRUEBA_PERSONAL_ESCRITORIO.md).
 
 Entregables anteriores ya incorporados: edición de espaciados TJ/Tc/Tw compatibles; inserción de texto con clic, altura automática y Unicode; reflujo uniforme de párrafos con fuente original sobre la página; actualización de documentos vinculados con revisión y deshacer; comparación lado a lado; cierre del hijo Qt tras muerte del padre; ocho pruebas Qt agrupadas y workflow Windows/Linux. No repetir estos entregables como futuros.
 
@@ -16,11 +16,15 @@ Nuevo bloque terminado: matrices afines de texto y de Forms (giro/inclinación/r
 
 Nuevo bloque terminado: Type3 vectoriales simples sin color y CFF2 OpenType estáticas, con programas originales, edición de línea afín, aislamiento de Forms y buscar/reemplazar. Las fuentes variables se detectan y requieren instancia verificada. Corregida la continuidad de fuente entre objetos de texto y la protección de geometría en párrafos importados desde Word. Límites en el último informe.
 
+Nuevo bloque terminado: posiciones Tm independientes dentro de BT con cambios de fuente/color/espaciado/alpha; edición con transparencia normal y grupos aislados RGB/Gray verificados. Se conserva composición y se impide descartarla mediante sustitución. Recorrido cotidiano de lectura/edición/anotación/búsqueda/exportación/organización migrado; recorrido histórico extendido pendiente.
+
+Prioridad del siguiente avance: ampliar cobertura de formularios complejos y fidelidad Office/OCR tras revisar lo ya implementado. La edición de texto está en 97 dentro de su área; completar solo sus casos más raros aportaría pocos puntos globales. Los huecos técnicos siguientes permanecen pendientes y no se consideran resueltos.
+
 Próximos bloques:
 
 1. **Fuentes restantes.** Instancias/ejes de fuentes variables, CFF2 con VarStore o formato crudo y Type3 con color/imágenes/recursos o matrices generales. Type3 vectoriales simples y CFF2 OpenType estáticas ya editables; no repetirlas como pendientes. Evaluar cada programa y mapa sin sustituciones silenciosas.
-2. **Estados y estructura de Forms.** Transparencia, semántica y estados intermedios aún protegidos. No repetir giro/inclinación/reflexión ya admitidos. Reflujo afín y cambio de fuente siguen pendientes.
-3. **Candidato Windows.** Migrar el recorrido gráfico histórico. Obtener informe Windows y corregir DPI, asociaciones, recuperación e impresión. Ejecutar el paquete en Windows limpio antes de entregar. Verificación personal aplazada por el usuario; Chromium/Qt Linux no la sustituyen.
+2. **Estados y estructura de Forms restantes.** Dependencias de avance sin Tm absoluto, máscaras, mezclas especiales, grupos no aislados/knockout/colores complejos y semántica. Ya incorporados los segmentos con Tm independiente, la opacidad normal visible y los grupos aislados RGB/Gray sencillos. No repetir esos casos ni giro/inclinación/reflexión como pendientes. Reflujo afín y cambio de fuente siguen pendientes.
+3. **Candidato Windows.** Completar la migración del recorrido gráfico histórico extendido; el recorrido cotidiano ya está actualizado y aprobado. Obtener informe Windows y corregir DPI, asociaciones, recuperación e impresión. Ejecutar el paquete en Windows limpio antes de entregar. Verificación personal aplazada por el usuario; Chromium/Qt Linux no la sustituyen.
 4. **Alcance comercial restante.** Formularios complejos, Office/OCR avanzada, portfolios con carpetas/esquemas externos, accesibilidad general, TSA/revocación y estándares/preflight, servicios y licencias. Interoperabilidad en Acrobat/Nitro y corpus técnico real. Mantener las áreas de la matriz separadas.
 
 Medición: intersecciones/curvas, ángulos, migración de registros antiguos y aceptación técnica. XFDF: fuentes/estilos adicionales, hilos/estados y apariencias complejas; no confundir esos pendientes con las respuestas/estados internos ya implementados.

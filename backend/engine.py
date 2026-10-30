@@ -42,7 +42,7 @@ def spans(page):
                 result.append({"id": f"{bi}:{li}:{si}", "text": span["text"],
                                "bbox": list(span["bbox"]), "origin": list(span["origin"]),
                                "size": span["size"], "font": span["font"],
-                               "color": span["color"], "font_key": SOURCE_FONTS.get(span["font"]), "editable": editable})
+                               "color": span["color"], "alpha":span.get("alpha",255), "font_key": SOURCE_FONTS.get(span["font"]), "editable": editable})
                 targets.append((f"{bi}:{li}:{si}",span,line["dir"]))
     from .affine_text import pointer_targets
     cells=pointer_targets(page,targets)

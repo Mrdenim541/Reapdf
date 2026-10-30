@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "review_date": "2026-10-30",
-  "status": "provisional_type3_static_cff2",
+  "status": "provisional_intermediate_states_normal_alpha",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 76.24,
+  "weighted_percent": 76.4,
   "reported_percent": 76,
   "subjective_range_percent": [
     60,
@@ -48,14 +48,16 @@
         "tests/test_inline_caret.mjs",
         "scripts/smoke_cff_forms_mixed.mjs",
         "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md",
-        "docs/TEXTO_AFIN_20261029.md"
+        "docs/TEXTO_AFIN_20261029.md",
+        "scripts/smoke_core_workflows.mjs",
+        "docs/ESTADOS_Y_TRANSPARENCIA_20261030.md"
       ],
-      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y migración del recorrido gráfico histórico. Selección por cuadriláteros y edición de texto afín incorporadas."
+      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y migración del recorrido gráfico histórico extendido. Recorrido cotidiano actualizado y aprobado, selección por cuadriláteros y protección de transparencia incorporadas."
     },
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 96,
+      "maturity": 97,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -93,9 +95,14 @@
         "scripts/smoke_fonts_native.py",
         "docs/FUENTES_TYPE3_CFF2_20261030.md",
         "backend/affine_text.py",
-        "tests/test_inherited_text_font.py"
+        "tests/test_inherited_text_font.py",
+        "backend/text_compositing.py",
+        "tests/test_text_states_compositing.py",
+        "scripts/smoke_text_states.mjs",
+        "scripts/smoke_text_states_native.py",
+        "docs/ESTADOS_Y_TRANSPARENCIA_20261030.md"
       ],
-      "remaining": "Fuentes variables (instancias/ejes), CFF2 con VarStore o formato crudo, Type3 con color/imágenes/recursos y matrices internas generales; escritura vertical/RTL compleja, grupos con transparencia o estructura semántica y estados intermedios. Reflujo afín y sustitución de su fuente siguen fuera. Falta corpus externo y aceptación personal. Type3 vectoriales simples y CFF2 OpenType estáticas de 1000 unidades incorporadas."
+      "remaining": "Fuentes variables (instancias/ejes), CFF2 con VarStore/crudo, Type3 con color/imágenes/recursos o matrices generales; escritura vertical/RTL compleja. Estados sin posición absoluta que dependen del avance anterior, máscaras, mezclas especiales, grupos no aislados/knockout/colores complejos y estructura semántica. Reflujo afín y sustitución de su fuente siguen fuera. Falta corpus externo y aceptación personal. Estados de fuente/color/alpha separados por Tm, opacidad normal visible y grupos aislados RGB/Gray sencillos incorporados."
     },
     {
       "id": "annotations",
@@ -211,7 +218,8 @@
         "portable/desktop.py",
         "scripts/check_desktop_candidate.py",
         "scripts/smoke_parent_exit.py",
-        ".github/workflows/desktop-source.yml"
+        ".github/workflows/desktop-source.yml",
+        "scripts/smoke_text_states_native.py"
       ],
       "remaining": "Ejecución Windows y consulta de sus resultados, DPI/asociaciones/impresión física, ensamblado/aceptación del paquete final. Configurar CI no equivale a superarlo."
     },
@@ -306,20 +314,20 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261030-before-type3-cff2.json",
-    "before_weighted": 76.08,
-    "after_weighted": 76.24,
+    "baseline": "docs/progress/20261030-before-text-states.json",
+    "before_weighted": 76.24,
+    "after_weighted": 76.4,
     "new_points": 0.16,
     "changes": [
       {
         "id": "text_images",
-        "before": 95,
-        "after": 96,
+        "before": 96,
+        "after": 97,
         "points": 0.16,
-        "reason": "Type3 vectoriales sin color y CFF2 OpenType estáticas editables con programas originales, mapas y geometría verificados; integración con edición sobre página y buscar/reemplazar. Casos variables continúan pendientes y se rechazan explícitamente."
+        "reason": "Edición por segmentos con posiciones Tm independientes y estados originales de fuente/color/alpha; transparencia normal y grupos aislados RGB/Gray sin máscaras ni mezclas especiales. Verificación de opacidad y protección frente a sustitución de fuente que descarte la composición."
       }
     ],
-    "unrounded_after_weighted": "76.235",
+    "unrounded_after_weighted": "76.395",
     "all_weights_and_scope_unchanged": true
   }
 }

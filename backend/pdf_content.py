@@ -127,7 +127,23 @@ def placements(data):
     matrix=f.Matrix(1,1);stack=[];images=[];texts=[];text=None;font=None;size=0
     state={'char':0.,'word':0.,'scale':100.,'render':0.,'rise':0.}
     parameter={'Tc':'char','Tw':'word','Tz':'scale','Tr':'render','Ts':'rise'}
-    for op,args,token in operations(data):
+    ops=list(operations(data))
+    if len(ops)>100000:raise DocumentError('Demasiadas operaciones para editar el contenido PDF.')
+    boundaries=[None]*len(ops);following=None
+    for index in range(len(ops)-1,-1,-1):
+        boundaries[index]=following
+        if ops[index][0] in ['Tm','Tj','TJ',"'",'"','ET']:following=ops[index][0]
+    def new_text(simple=True):
+        return {'origin':f.Point(0,0),'matrix':f.Matrix(matrix),'font':font,'size':size,'shows':[],'parts':[],'show_ends':[],'simple':simple}
+    def finish(value):
+        if not value['simple'] or not value['shows'] or not value['font']:return
+        if len(value['shows'])>1:
+            shows=value['shows'];value['shows']=[Token('operator-array',b''.join(v.value for v in shows),shows[0].start,value['show_ends'][-1])]
+        texts.append(value)
+    transitions=['Tf','Tc','Tw','Tz','Tr','Ts','rg','RG','g','G','k','K','cs','CS','sc','SC','scn','SCN','gs','TL']
+    for index,(op,args,token) in enumerate(ops):
+        if text is not None and text['shows'] and op in transitions and boundaries[index] in ['Tm','ET']:
+            finish(text);text=new_text(False)
         if text is not None and op not in ['BT','ET','Tf','Td','Tm','Tj','TJ','Tc','Tw','Tz','Tr','Ts'] and not (not text['shows'] and op in ['q','Q','rg','RG','g','G','k','K','cs','CS','sc','SC','scn','SCN','gs','TL']):
             text['simple']=False
         if op=='q':
@@ -145,12 +161,9 @@ def placements(data):
             if text is not None and text['shows']:text['simple']=False
         elif op=='BT':
             if text is not None:raise DocumentError('Objetos de texto anidados.')
-            text={'origin':f.Point(0,0),'matrix':f.Matrix(matrix),'font':font,'size':size,'shows':[],'parts':[],'show_ends':[],'simple':True}
+            text=new_text()
         elif op=='ET' and text is not None:
-            if text['simple'] and text['shows'] and text['font']:
-                if len(text['shows'])>1:
-                    shows=text['shows'];text['shows']=[Token('operator-array',b''.join(s.value for s in shows),shows[0].start,text['show_ends'][-1])]
-                texts.append(text)
+            finish(text)
             text=None
         elif op=='Do':
             if len(args)!=1 or args[0].kind!='name':raise DocumentError('Invocación de objeto no válida.')
@@ -162,7 +175,9 @@ def placements(data):
                 text['font']=font;text['size']=size
             elif op=='Td' and not text['shows']:
                 x,y=numbers(args,2);text['origin']+=f.Point(x,y)
-            elif op=='Tm' and not text['shows']:
+            elif op=='Tm':
+                if text['shows']:finish(text)
+                text=new_text()
                 a,b,c,d,e,g=numbers(args,6)
                 linear=f.Matrix(a,b,c,d,0,0)
                 if abs(a*d-b*c)<1e-8:text['simple']=False

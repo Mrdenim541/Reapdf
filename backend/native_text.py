@@ -80,7 +80,7 @@ def native_model(doc,number,rect,font_cache=None):
                     if not (rect+(-.05,-.05,.05,.05)).contains(bounds):raise DocumentError('La región corta este fragmento de texto.')
                     if line.get('wmode',0)!=0:raise DocumentError('La escritura vertical requiere otro tratamiento.')
                     trace=[t for t in traces if ''.join(chr(c[0]) for c in t['chars'])==text and t['chars'] and math.dist(t['chars'][0][2],span['origin'])<.02]
-                    if len(trace)!=1 or trace[0]['type']!=0 or trace[0]['opacity']!=1 or trace[0]['layer']:raise DocumentError('El texto no tiene una apariencia opaca única y verificable.')
+                    if len(trace)!=1 or trace[0]['type']!=0 or not 0<trace[0]['opacity']<=1 or trace[0]['layer']:raise DocumentError('El texto no tiene una apariencia visible única y verificable.')
                     if any(c[1] not in ({font.base.has_glyph(c[0],fallback=0)} if font.base else {entry[0] if font.trace_cid else entry[2] for entry in font.options.get(chr(c[0]),[])}) for c in trace[0]['chars']):raise DocumentError('El mapa de glifos no coincide con el texto representado.')
                     from .text_spacing import source_layout
                     actual_size=g['size']
@@ -93,7 +93,8 @@ def native_model(doc,number,rect,font_cache=None):
                     if any(overlap(cell,obstacle)>.1 for obstacle in cache['_obstacles']):raise DocumentError('El fragmento cruza una imagen, campo o anotación.')
                     show=obj['shows'][0];native=[show.start,show.end,show.kind]
                 except DocumentError as exc:reason=str(exc)
-                row={'id':f'{bi}:{li}:{si}','text':text,'font':span['font'],'size':actual_size,'display_size':span['size'],'color':span['color'],'origin':list(span['origin']),'bbox':list(bounds),'editable':not reason,'reason':reason,'subset':bool(font and font.restricted),'method':'form-occurrence' if native and obj['path'] else 'direct-content','_font':font,'_native':native,'_spacing':spacing,'_native_path':obj['path'] if native else [],'_clips':obj['clips'] if native else [],'_obstacles':cache['_obstacles'],'_geometry':g if native else None,'quad':polygon(g) if g else None,'transformed':g['transformed'] if g else tuple(line['dir'])!=(1.,0.)}
+                from .text_compositing import original_only
+                row={'original_only':bool(native and (trace[0]['opacity']<1 or original_only(doc,obj))),'id':f'{bi}:{li}:{si}','text':text,'font':span['font'],'size':actual_size,'display_size':span['size'],'color':span['color'],'alpha':span.get('alpha',255),'opacity':trace[0]['opacity'] if native else None,'origin':list(span['origin']),'bbox':list(bounds),'editable':not reason,'reason':reason,'subset':bool(font and font.restricted),'method':'form-occurrence' if native and obj['path'] else 'direct-content','_font':font,'_native':native,'_spacing':spacing,'_native_path':obj['path'] if native else [],'_clips':obj['clips'] if native else [],'_obstacles':cache['_obstacles'],'_geometry':g if native else None,'quad':polygon(g) if g else None,'transformed':g['transformed'] if g else tuple(line['dir'])!=(1.,0.)}
                 if native is None:row.pop('_geometry')
                 rows.append(row)
     if len(rows)>100:raise DocumentError('Hasta 100 fragmentos por región.')

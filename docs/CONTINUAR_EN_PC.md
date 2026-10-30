@@ -44,7 +44,7 @@ Después de cerrar esa ventana:
 node --test tests/*.mjs
 ```
 
-`verify` inicia/cierra un servidor propio en el puerto 8000 y ejecuta ocho recorridos Qt sin pantalla; los resultados privados quedan en `.local-state/desktop-validation/desktop-report.json`. No detener un servidor ajeno si ese puerto está ocupado. Su informe Windows permite cerrar parte de la verificación automática, pero no acredita la prueba visual, DPI, asociaciones ni impresión física. Recorrido humano: `docs/PRUEBA_PERSONAL_ESCRITORIO.md`. El antiguo `scripts/smoke-ui.mjs` sigue pendiente de migrar a controles actuales.
+`verify` inicia/cierra un servidor propio en el puerto 8000 y ejecuta nueve recorridos Qt sin pantalla; los resultados privados quedan en `.local-state/desktop-validation/desktop-report.json`. No detener un servidor ajeno si ese puerto está ocupado. Su informe Windows permite cerrar parte de la verificación automática, pero no acredita la prueba visual, DPI, asociaciones ni impresión física. Recorrido humano: `docs/PRUEBA_PERSONAL_ESCRITORIO.md`. El recorrido cotidiano actualizado se ejecuta con `npm run test:ui:core`; requiere Chromium/Playwright disponible. El recorrido extendido antiguo `scripts/smoke-ui.mjs` continúa pendiente de migrar.
 
 Si alguna herramienta externa de estándares no está disponible en Windows, registrar la limitación y el error; no dar por aprobado lo que se omitió. El diagnóstico `check` informa versiones, Qt y compilación; no promete que todas las funciones externas estén listas.
 

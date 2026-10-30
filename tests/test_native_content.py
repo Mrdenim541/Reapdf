@@ -45,21 +45,21 @@ def test_native_original_font_preserves_marked_bytes_program_and_other_page(rota
         assert a.extract_font(a[0].get_fonts()[0][0])[3]==b.extract_font(b[0].get_fonts()[0][0])[3]
 
 
-@pytest.mark.parametrize('kind',['missing','wide','actual_text','transparent'])
+@pytest.mark.parametrize('kind',['missing','wide','actual_text','blend'])
 def test_unsupported_native_edits_leave_original_unchanged(kind):
     base=custom_source()
     if kind not in ['missing','wide']:
         with f.open(stream=base) as doc:
             page=doc[0];data=page.read_contents()
             if kind=='actual_text':data=data.replace(b'/MCID 7',b'/MCID 7 /ActualText (BARANDA)')
-            elif kind=='transparent':
-                resources=int(doc.xref_get_key(page.xref,'Resources')[1].split()[0]);doc.xref_set_key(resources,'ExtGState','<</Alpha<</ca 0.5>>>>');data=data.replace(b'BT',b'/Alpha gs BT')
+            elif kind=='blend':
+                resources=int(doc.xref_get_key(page.xref,'Resources')[1].split()[0]);doc.xref_set_key(resources,'ExtGState','<</Alpha<</ca 0.5/BM/Multiply>>>>');data=data.replace(b'BT',b'/Alpha gs BT')
             elif kind=='tracking':data=data.replace(b'BT',b'BT 2 Tc')
             else:data=data.replace(b'Tj ET',b'Tj <01> Tj ET')
             doc.update_stream(page.get_contents()[0],data);base=doc.tobytes()
     try:row=inspect_styled(base,[],0,BOX)['runs'][0]
     except DocumentError:
-        assert kind in ['actual_text','tracking','two_shows','transparent'];return
+        assert kind in ['actual_text','tracking','two_shows','blend'];return
     if kind in ['missing','wide']:
         with pytest.raises(DocumentError):replace_styled(base,[],0,BOX,[{'id':row['id'],'text':'Z' if kind=='missing' else 'B'*100}])
     else:assert not row['editable']

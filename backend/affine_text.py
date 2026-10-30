@@ -84,10 +84,12 @@ def pointer_targets(page,spans):
                         if abs(origin.x-x)>.02 or abs(origin.y-y)>.02:continue
                         try:g=geometry(obj,page,span)
                         except DocumentError:continue
-                        if math.dist(g['direction'],direction)<.001:candidates.append(g)
+                        if math.dist(g['direction'],direction)<.001:
+                            from .text_compositing import original_only
+                            g['original_only']=original_only(page.parent,obj);candidates.append(g)
             unique={tuple(round(v,5) for v in g['matrix']):g for g in candidates}
             if len(unique)==1:
-                g=next(iter(unique.values()));result[key]={'quad':polygon(g),'transformed':g['transformed']}
+                g=next(iter(unique.values()));result[key]={'quad':polygon(g),'transformed':g['transformed'],'original_only':any(v.get('original_only') for v in candidates)}
     except (DocumentError,ValueError,RuntimeError):pass
     finally:page.set_rotation(rotation)
     return result
@@ -98,7 +100,7 @@ def verify(data,prepared):
     from .styled_text import normal_name
     with open_pdf(data) as doc:
         for number,rows in prepared.items():
-            page=doc[number];page.set_rotation(0);spans=[s for b in page.get_text('dict')['blocks'] for line in b.get('lines',[]) for s in line['spans']]
+            page=doc[number];page.set_rotation(0);traces=page.get_texttrace();spans=[s for b in page.get_text('dict')['blocks'] for line in b.get('lines',[]) for s in line['spans']]
             for row,_ in rows:
                 if '_geometry' not in row:continue
                 matches=[s for s in spans if math.dist(s['origin'],row['origin'])<.02 and normal_name(s['font'])==normal_name(row['font'])]
@@ -107,8 +109,11 @@ def verify(data,prepared):
                     if matches:raise DocumentError('La comprobación detectó texto residual. No se publicó el cambio.')
                     continue
                 if len(matches)!=1 or matches[0]['text']!=text:raise DocumentError('La comprobación del texto transformado detectó diferencias. No se publicó el cambio.')
+                if row.get('opacity') is not None:
+                    appearances=[t for t in traces if t['chars'] and math.dist(t['chars'][0][2],row['origin'])<.02 and ''.join(chr(c[0]) for c in t['chars'])==text]
+                    if len(appearances)!=1 or appearances[0]['type']!=0 or abs(appearances[0]['opacity']-row['opacity'])>1e-6:raise DocumentError('La transparencia del texto cambió al guardar. No se publicó el cambio.')
                 expected=bounds(polygon(row['_geometry'],row['_replacement_width']))
-                if max(abs(a-b) for a,b in zip(expected,matches[0]['bbox']))>.3 or matches[0]['color']!=row['color']:raise DocumentError('La geometría o el color cambió después de guardar. No se publicó el cambio.')
+                if max(abs(a-b) for a,b in zip(expected,matches[0]['bbox']))>.3 or matches[0]['color']!=row['color'] or matches[0].get('alpha',255)!=row.get('alpha',255):raise DocumentError('La geometría o el color cambió después de guardar. No se publicó el cambio.')
 
 
 def obstacles(page):
@@ -159,6 +164,7 @@ def require_horizontal(page,spans):
     """A paragraph rewrite must not silently remove an unverified text matrix."""
     from .pdf_content import placements,operations
     cells=pointer_targets(page,spans)
+    if any(g.get('original_only') for g in cells.values()):raise DocumentError('El grupo de transparencia requiere editar con su fuente original para conservar la composición.')
     if any(g['transformed'] for g in cells.values()):raise DocumentError('El bloque usa giro, inclinación o reflexión. Edita su línea con la fuente original para conservar la geometría.')
     if all(key in cells for key,_,_ in spans):return
     content=page.read_contents()

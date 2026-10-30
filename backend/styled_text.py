@@ -279,10 +279,10 @@ def styled_model(doc,number,box,font_cache=None):
             try:kerned=any(op=='TJ' and len(args)==1 and args[0].kind=='array' and any(t.kind=='number' and t.value!=0 for t in args[0].value) for op,args,_ in content_operations(content))
             except DocumentError:pass
         from .pdf_content import placements,operations as content_operations
-        multiple=False;transformed=False
-        try:objects=placements(content)['texts'];multiple=any(o['shows'][0].kind=='operator-array' for o in objects);transformed=any(tuple(o['matrix'])!=(1.,0.,0.,1.,0.,0.) for o in objects) or any(op=='Tm' and [t.value for t in args[:4]]!=[1,0,0,1] for op,args,_ in content_operations(content))
+        multiple=False;transformed=False;segmented=False
+        try:objects=placements(content)['texts'];segmented=len(objects)>sum(op=='BT' for op,_,_ in content_operations(content));multiple=any(o['shows'][0].kind=='operator-array' for o in objects);transformed=any(tuple(o['matrix'])!=(1.,0.,0.,1.,0.,0.) for o in objects) or any(op=='Tm' and [t.value for t in args[:4]]!=[1,0,0,1] for op,args,_ in content_operations(content))
         except DocumentError:transformed=bool(re.search(rb'(?<![A-Za-z])(?:cm|Tm)(?![A-Za-z])',content))
-        cache['_route_native']=bool(transformed or multiple or kerned or page.get_xobjects() or any(i[1] in ['cff','otf','cid'] or i[2]=='Type3' for i in page.get_fonts()) or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz)(?![A-Za-z])',content))
+        cache['_route_native']=bool(transformed or segmented or multiple or kerned or page.get_xobjects() or any(i[1] in ['cff','otf','cid'] or i[2]=='Type3' for i in page.get_fonts()) or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz|gs)(?![A-Za-z])',content))
     if cache['_route_native']:
         from .native_text import native_model
         return native_model(doc,number,rect,cache)

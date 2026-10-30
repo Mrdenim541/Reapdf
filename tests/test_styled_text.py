@@ -127,11 +127,14 @@ def test_complex_regions_are_protected(kind):
             x=p.get_contents()[1];d.update_stream(x,d.xref_stream(x).replace(b'BT',b'BT 2 Tc'))
         else:p.insert_text((50,200),'Solapado',fontsize=12)
         base=d.tobytes()
-    if kind in ['form','clip','tracking']:
+    if kind in ['form','clip','tracking','transparency']:
         rows=runs(base);assert all(r['editable'] for r in rows)
         out=replace_styled(base,[],0,BOX,[{'id':rows[0]['id'],'text':'Texto'}])
         assert runs(out)[0]['text']=='Texto'
-        with f.open(stream=base) as a,f.open(stream=out) as b:assert a[1].get_pixmap().samples==b[1].get_pixmap().samples
+        with f.open(stream=base) as a,f.open(stream=out) as b:
+            assert a[1].get_pixmap().samples==b[1].get_pixmap().samples
+            if kind=='transparency':
+                rect=a[0].search_for('Transparente')[0];assert a[0].get_pixmap(clip=rect).samples==b[0].get_pixmap(clip=rect).samples
     elif kind=='overlap':
         rows=runs(base)
         row=next(r for r in rows if r['text']=='Texto original en negrita')

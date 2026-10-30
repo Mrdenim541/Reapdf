@@ -24,6 +24,8 @@ def structure(doc,page):
             if not path:raise DocumentError('Las propiedades de marcado necesitan revisión de alternativas antes de editar.')
             return
         if 'ActualText' in names(data):return
+        from .text_compositing import graphics
+        graphics(doc,owner,data)
         parsed=placements(data)
         for obj in parsed['texts']:
             combined=obj['matrix']*parent
@@ -40,7 +42,9 @@ def structure(doc,page):
             target=int(value.split()[0])
             if doc.xref_get_key(target,'Subtype')!=('name','/Form'):continue
             if target in ancestors:continue
-            if any(doc.xref_get_key(target,k)[0]!='null' for k in ['Group','OC','Ref','StructParent','StructParents']):continue
+            from .text_compositing import group
+            if not group(doc,target):continue
+            if any(doc.xref_get_key(target,k)[0]!='null' for k in ['OC','Ref','StructParent','StructParents']):continue
             if doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null':continue
             if doc.xref_get_key(target,'Resources')[0] not in ['dict','xref']:continue
             try:
