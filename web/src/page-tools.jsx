@@ -43,29 +43,4 @@ export function Cropper({doc,currentPage,operations,busy,error,onClose,onApply})
   </dialog>;
 }
 
-export function Splitter({doc,busy,error,onClose,onSplit}) {
-  const dialog=useRef(null),[mode,setMode]=useState('blocks'),[size,setSize]=useState(1),[draft,setDraft]=useState(`1-${doc.pages.length}`),[status,setStatus]=useState('');
-  let groups=[],validation='';
-  try {
-    if(mode==='blocks') {
-      if(!Number.isInteger(size)||size<1||size>doc.pages.length)throw new Error('Indica un tamaño de bloque válido.');
-      groups=Array.from({length:Math.ceil(doc.pages.length/size)},(_,i)=>Array.from({length:Math.min(size,doc.pages.length-i*size)},(_,j)=>i*size+j));
-    }else {
-      groups=draft.split('\n').map(line=>parsePageRange(line,doc.pages.length));
-      const flat=groups.flat();
-      if(flat.length!==doc.pages.length||new Set(flat).size!==doc.pages.length)throw new Error('Incluye cada página exactamente una vez entre todos los grupos.');
-    }
-  }catch(e){validation=e.message;}
-  useEffect(()=>{dialog.current.showModal();const el=dialog.current;return()=>el.close();},[]);
-  return <dialog ref={dialog} className="organizer page-tool-dialog" aria-labelledby="split-title" onCancel={e=>{e.preventDefault();if(!busy)onClose();}}>
-    <div className="organizer-heading"><h2 id="split-title">Dividir PDF</h2><button aria-label="Cerrar división" disabled={busy} onClick={onClose}>×</button></div>
-    <p className="organizer-intro">Descarga las partes en un ZIP. El documento abierto y su historial se conservan.</p>
-    <div className="page-tool-fields"><label>Modo<select aria-label="Modo de división" value={mode} disabled={busy} onChange={e=>{setMode(e.target.value);setStatus('');}}><option value="blocks">Bloques de tamaño fijo</option><option value="groups">Grupos personalizados</option></select></label>
-    {mode==='blocks'?<label>Páginas por archivo<input aria-label="Páginas por archivo" type="number" min="1" max={doc.pages.length} value={Number.isNaN(size)?'':size} disabled={busy} onChange={e=>{setSize(e.target.valueAsNumber);setStatus('');}}/></label>:<label>Un archivo por línea<textarea aria-label="Grupos para dividir" rows="5" maxLength="5000" value={draft} disabled={busy} onChange={e=>{setDraft(e.target.value);setStatus('');}} placeholder={'1-3\n4, 6\n5'}/></label>}</div>
-    {(error||validation)&&<p role="alert" className="organizer-error">{error||validation}</p>}
-    {!validation&&<p role="status">{groups.length} archivos PDF · {doc.pages.length} páginas incluidas</p>}
-    {status&&<p role="status">{status}</p>}
-    <p className="organizer-note">Los grupos personalizados deben cubrir todas las páginas, sin repetirlas. Se conserva el orden escrito en cada grupo. Los enlaces a páginas de otra parte se retiran. Máximo 100 MB de PDF de salida.</p>
-    <div className="organizer-footer"><button disabled={busy} onClick={onClose}>Cerrar</button><button className="primary" disabled={busy||!!validation} onClick={async()=>{setStatus('');if(await onSplit(mode==='blocks'?{size}:{groups}))setStatus('ZIP preparado para descargar. El documento abierto no cambió.');}}>Descargar partes ZIP</button></div>
-  </dialog>;
-}
+export {Splitter} from './splitter.jsx';

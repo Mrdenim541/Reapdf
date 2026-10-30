@@ -1,0 +1,19 @@
+{
+  "backend/app.py": "e04d848d5561786983e2a90c3ab1b249a3f3dd0e36bacc991c7a69c8b4c10295",
+  "backend/basic_tagging.py": "0e6dd28c10ff7c31439dfb12b95892af5e17aa1413fc2e5d4838dbb7e1bf7992",
+  "backend/page_tools.py": "022210ceb795f9dddc8e062543dc1ae07b6176d00baf29bba09e2b1ac6c11768",
+  "backend/pages.py": "d78a9e21aa2fc462a2f7682d46b0813af756e992a239139f112c9eb27cce8eb9",
+  "backend/split_plan.py": "5382450850bfafcd46579bf21ad3a6f753db39d607542682e57f6875ff2a50bd",
+  "backend/structure_partition.py": "bde6659fd55a2fbf5a5d69afac753e1c87c64b3968265f0600f44e5b4dcdbb27",
+  "scripts/smoke_named_split_lists.mjs": "592a3cb39b61b0d19003b840e9bf8420ba11dcfff32a073e149342cd1d93e0ed",
+  "scripts/smoke_named_split_lists_qt.py": "c50db726cfca021f0b6f032fd738c7673a8c2abea26e55001d09c89bb38a5565",
+  "tests/test_list_tags_partition.py": "87e14fb1ede8cfef37713c0b675e55625a99b121de8b4688283a8578eb560e1f",
+  "tests/test_named_split.py": "118c3d4be5ebcf1b81ac95dbbf2cbb37d56352d0346de494e6768b68f49fc7a5",
+  "tests/test_split_plan.mjs": "51df72d323ce95af8195ba6a7c24fe16c87ebe7a2e34f2c86e77c2a6c1001772",
+  "web/src/initial-tagging.jsx": "4aa07abb872ae5e26c7a59fdd9b2711f5325ee25613c6d11dae34f3ebc082459",
+  "web/src/main.jsx": "e0b2e839767dab7881bb16c92b740e72dfb8832f1b777be01b4e579f6800edee",
+  "web/src/page-tools.jsx": "c558d9df1be0a42e57a4f134dedb4154cf2552358c524c42fff7bc4562815041",
+  "web/src/split-plan.js": "b3371b17a81486588db013f9ef226673460dc098f7378ebd80722eb9cfa4b834",
+  "web/src/splitter.jsx": "5664b97a27eba378c6bcaf6cad8670a0aa02426cef4a30c0ce8b725671e6c49f",
+  "web/src/tool-catalog.js": "22ee3233525ef7a8e5a476b5ee3117d31fa927af37bd6e8f10a4a0af75c6ed45"
+}

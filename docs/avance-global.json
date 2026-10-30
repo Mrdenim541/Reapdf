@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "review_date": "2026-10-29",
-  "status": "provisional_media_tags_deskew_type3_strokes",
+  "status": "provisional_named_pdf_parts_lists_tag_partition",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 80.54,
+  "weighted_percent": 80.98,
   "reported_percent": 81,
   "subjective_range_percent": [
     61,
@@ -22,20 +22,22 @@
     {
       "id": "reader_pages",
       "weight": 7,
-      "maturity": 90,
+      "maturity": 93,
       "evidence": [
         "backend/viewer.py",
         "backend/pages.py",
         "backend/bookmarks.py",
         "backend/engine.py",
-        "scripts/smoke_advanced_workflows.mjs"
+        "scripts/smoke_advanced_workflows.mjs",
+        "docs/DIVISION_CON_NOMBRES_Y_LISTAS_20261029.md",
+        "backend/split_plan.py"
       ],
-      "remaining": "Corpus extenso, rendimiento en equipos reales y aceptación de lectura."
+      "remaining": "Corpus de documentos complejos y aceptación; variantes protegidas de división (árboles de etiquetas complejos/ActualText/atributos, capas, XFA y cálculos/scripts), modos adicionales por contenido. División por rangos/bloques/marcadores y nombres personalizados incorporada."
     },
     {
       "id": "interface",
       "weight": 7,
-      "maturity": 96,
+      "maturity": 97,
       "evidence": [
         "web/src/main.jsx",
         "web/src/paragraph-editor.jsx",
@@ -60,7 +62,9 @@
         "web/src/word-import.jsx",
         "scripts/smoke_native_calcs_notes.mjs",
         "docs/OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md",
-        "web/src/reading-preview.jsx"
+        "web/src/reading-preview.jsx",
+        "docs/DIVISION_CON_NOMBRES_Y_LISTAS_20261029.md",
+        "web/src/splitter.jsx"
       ],
       "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados."
     },
@@ -208,7 +212,7 @@
     {
       "id": "accessibility",
       "weight": 3,
-      "maturity": 75,
+      "maturity": 77,
       "evidence": [
         "backend/accessibility.py",
         "backend/structure_editing.py",
@@ -218,9 +222,11 @@
         "docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md",
         "backend/basic_tagging.py",
         "docs/IMAGENES_ENLACES_INCLINACION_Y_TRAZOS_20261029.md",
-        "tests/test_media_tagging.py"
+        "tests/test_media_tagging.py",
+        "docs/DIVISION_CON_NOMBRES_Y_LISTAS_20261029.md",
+        "tests/test_list_tags_partition.py"
       ],
-      "remaining": "Contenido dentro de Forms, imágenes inline/recortes complejos, enlaces ambiguos/remotos/de varios objetos, otras anotaciones, listas y tablas semánticas; reparación general de estructuras existentes, MCID ambiguos y espacios de nombres PDF 2; lector de pantalla y PDF/UA integral. Creación inicial de texto/imágenes directas y enlaces simples con revisión ya incorporada."
+      "remaining": "Tablas semánticas, listas anidadas/etiquetas de viñeta separadas, contenido dentro de Forms, imágenes inline/recortes complejos y enlaces ambiguos/remotos/de varios objetos; otras anotaciones, reparación general, MCID ambiguos/PDF 2, lector de pantalla y PDF/UA integral. Listas simples revisadas e inicialización de texto/imágenes/enlaces compatibles incorporadas."
     },
     {
       "id": "automation_linking",
@@ -269,15 +275,17 @@
     {
       "id": "migration_interoperability",
       "weight": 4,
-      "maturity": 67.5,
+      "maturity": 70,
       "evidence": [
         "backend/projects.py",
         "tests/test_projects.py",
         "backend/xfdf.py",
         "backend/document_sets.py",
-        "docs/PRECISION_Y_XFDF_20261029.md"
+        "docs/PRECISION_Y_XFDF_20261029.md",
+        "docs/DIVISION_CON_NOMBRES_Y_LISTAS_20261029.md",
+        "backend/structure_partition.py"
       ],
-      "remaining": "Corpus en Acrobat/Nitro y plataformas externas, migración entre versiones y subtipos XFDF restantes. La relectura independiente no acredita aceptación en esos programas."
+      "remaining": "Corpus en Acrobat/Nitro y plataformas externas, migración entre versiones, XFDF restante y partición de estructuras etiquetadas complejas (IDTree/ClassMap/Namespaces/atributos/ActualText y referencias especiales). Poda/reconstrucción de estructuras acotadas para partes ya incorporada; no acredita aceptación externa."
     },
     {
       "id": "performance_reliability",
@@ -357,34 +365,41 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261029-before-media-tags-skew-strokes.json",
-    "before_weighted": 80.17,
-    "after_weighted": 80.54,
-    "new_points": 0.37,
+    "baseline": "docs/progress/20261029-before-named-split-lists.json",
+    "before_weighted": 80.54,
+    "after_weighted": 80.98,
+    "new_points": 0.44,
     "changes": [
       {
-        "id": "text_images",
-        "before": 97.5,
-        "after": 97.75,
-        "points": 0.04,
-        "reason": "Type3 con trazos y cm internos acotados, pen explícito y reensamblado probado de fragmentos/trazas; edición sobre página y verificación de guardado sin relajar texto oculto/ambiguo."
+        "id": "reader_pages",
+        "before": 90,
+        "after": 93,
+        "points": 0.21,
+        "reason": "División por bloques/grupos con nombres personalizados, preparación por marcadores, revisión de partición completa y límites de salida."
       },
       {
-        "id": "ocr_conversion",
-        "before": 90,
-        "after": 92,
-        "points": 0.18,
-        "reason": "Sugerencia automática de inclinación por perfil geométrico acotado, orientación ortogonal explícita, casos ambiguos sin sugerencia y revisión antes de reconocer sin alterar la imagen."
+        "id": "interface",
+        "before": 96,
+        "after": 97,
+        "points": 0.07,
+        "reason": "Revisión por archivo de páginas y nombres, validación inmediata, numeración por prefijo, secciones por marcadores y guardado ZIP nativo."
       },
       {
         "id": "accessibility",
-        "before": 70,
-        "after": 75,
-        "points": 0.15,
-        "reason": "Imágenes directas por aparición con alternativa o Artifact; enlaces de un objeto completo con MCID/OBJR/StructParent/ParentTree y etiqueta descriptiva, destino conservado."
+        "before": 75,
+        "after": 77,
+        "points": 0.06,
+        "reason": "Listas simples L/LI/LBody/P revisadas, orden y persistencia; partición conserva sus claves/etiquetas retenidas sin arrastrar ramas de otras páginas."
+      },
+      {
+        "id": "migration_interoperability",
+        "before": 67.5,
+        "after": 70,
+        "points": 0.1,
+        "reason": "Poda de árboles acotados y reconstrucción ParentTree/StructParent antes/después de seleccionar páginas; MCR/OBJR retenidos y asociaciones comprobadas independientemente."
       }
     ],
-    "unrounded_after_weighted": "80.54",
+    "unrounded_after_weighted": "80.98",
     "all_weights_and_scope_unchanged": true
   }
 }

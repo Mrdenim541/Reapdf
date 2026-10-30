@@ -48,36 +48,39 @@ def crop_pdf(data, operations, pages, margins=None, *, reset=False):
         return output.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4, deflate=True)
 
 
-def split_pdf(data, operations, *, size=None, groups=None):
+def prepare_split(data,operations,*,size=None,groups=None,names=None,bookmark_level=None):
+    from .split_plan import plan
     with open_pdf(data) as source:
-        if source.get_sigflags() > 0 or not source.permissions & fitz.PDF_PERM_COPY:
-            raise DocumentError('El documento no permite dividir páginas o contiene indicadores de firma.')
-        _check_source(source)
-        _check_bookmarks(source)
-        _incoming_links(source)  # Rechazar acciones no verificadas antes de producir partes.
-        count = len(source)
-        rotations = [p.rotation for p in source]
-        if groups is None:
-            if type(size) is not int or not 1 <= size <= count:
-                raise DocumentError('El tamaño del bloque debe estar entre 1 y el número de páginas.')
-            groups = [list(range(start, min(start+size, count))) for start in range(0, count, size)]
-        else:
-            if size is not None or not isinstance(groups, list) or not 1 <= len(groups) <= MAX_PAGES:
-                raise DocumentError('Configura bloques o grupos de páginas, sin mezclar ambos modos.')
-            for group in groups:
-                _selection(group, count)
-            flattened = [p for group in groups for p in group]
-            if sorted(flattened) != list(range(count)):
-                raise DocumentError('Los grupos deben incluir cada página del documento exactamente una vez.')
-    edited = export_pdf(data, operations)
-    buffer = BytesIO()
-    total = 0
-    with ZipFile(buffer, 'w', ZIP_DEFLATED) as archive:
-        for index, group in enumerate(groups, 1):
-            plan = [{'page': p, 'rotation': rotations[p]} for p in group]
-            result = organize_pdf(edited, [], plan, extract=True)
-            total += len(result)
-            if total > MAX_SPLIT_BYTES:
-                raise DocumentError('La división supera 100 MB de PDF de salida. Reduce el documento antes de dividirlo.')
-            archive.writestr(f'parte-{index:03d}.pdf', result)
+        if source.get_sigflags()>0:raise DocumentError('Crea una copia de trabajo antes de dividir un PDF firmado; sus firmas no serían válidas en las partes.')
+        if not source.permissions&fitz.PDF_PERM_COPY:raise DocumentError('El documento no permite dividir o copiar páginas.')
+        _check_source(source);_check_bookmarks(source);_incoming_links(source)
+    edited=export_pdf(data,operations)
+    with open_pdf(edited) as doc:
+        # Pending changes must pass the same partition guards as the original.
+        _check_source(doc);_check_bookmarks(doc);_incoming_links(doc)
+        from .structure_partition import partition
+        partition(doc,[p.xref for p in doc])
+        result=plan(doc,size=size,groups=groups,names=names,bookmark_level=bookmark_level)
+        result['rotations']=[p.rotation for p in doc]
+    return edited,result
+
+
+def inspect_split(data,operations,**options):
+    _,result=prepare_split(data,operations,**options)
+    result.pop('rotations');return result
+
+
+def split_pdf(data, operations, *, size=None, groups=None,names=None,bookmark_level=None,manifest=False):
+    import json,hashlib
+    if type(manifest) is not bool:raise DocumentError('La opción de relación de archivos debe ser verdadera o falsa.')
+    edited,review=prepare_split(data,operations,size=size,groups=groups,names=names,bookmark_level=bookmark_level)
+    buffer=BytesIO();total=0;records=[]
+    with ZipFile(buffer,'w',ZIP_DEFLATED) as archive:
+        for part in review['parts']:
+            group=part['pages'];plan=[{'page':p,'rotation':review['rotations'][p]} for p in group]
+            result=organize_pdf(edited,[],plan,extract=True,partition_tags=True);total+=len(result)
+            if total>MAX_SPLIT_BYTES:raise DocumentError('La división supera 100 MB de PDF de salida. Reduce el documento antes de dividirlo.')
+            archive.writestr(part['name'],result)
+            records.append({'name':part['name'],'source_pages':[p+1 for p in group],'pages':len(group),'bytes':len(result),'sha256':hashlib.sha256(result).hexdigest()})
+        if manifest:archive.writestr('reapdf-division.json',json.dumps({'format':'reapdf-split-receipt','version':1,'source_sha256':hashlib.sha256(edited).hexdigest(),'source_pages':review['pages'],'parts':records},ensure_ascii=False,indent=2).encode('utf-8'))
     return buffer.getvalue()

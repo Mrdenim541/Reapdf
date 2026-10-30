@@ -62,7 +62,7 @@ export const tools = [
  entry('duplicate','Duplicar páginas','Crea copias de páginas compatibles.','pages','duplicate'),
  entry('blank','Página en blanco','Inserta una página vacía.','pages','blank'),
  entry('crop','Recortar páginas','Ajusta el área visible; no elimina el contenido oculto.','pages'),
- entry('split','Dividir PDF','Genera varios PDF según rangos de páginas.','pages','extract'),
+ entry('split','Dividir PDF','Divide por bloques, rangos o marcadores con nombres personalizados y descarga un ZIP.','pages','extract'),
  entry('labels','Etiquetas de página','Configura números romanos, letras y prefijos de navegación.','pages'),
  entry('bookmarks','Editar marcadores','Edita el índice jerárquico y sus destinos.','pages'),
  entry('headers','Encabezados y pies','Añade texto en los márgenes con vista previa.','pages'),

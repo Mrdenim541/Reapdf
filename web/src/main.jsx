@@ -762,7 +762,7 @@ function App() {
     {doc&&(pageTool==='headers'||pageTool==='numbering')&&<HeaderFooterEditor doc={doc} page={page} operations={operations} numbering={pageTool==='numbering'} busy={busy} error={error} onClose={()=>setPageTool(null)} onApply={plan=>applyDocumentTool('header_footer',plan)}/>}
     {doc&&(pageTool==='blank'||pageTool==='duplicate')&&<PageCreation mode={pageTool} doc={doc} currentPage={page} busy={busy} error={error} onClose={()=>setPageTool(null)} onApply={createPages}/>}
     {doc&&pageTool==='crop'&&<Cropper doc={doc} currentPage={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onApply={cropPages}/>}
-    {doc&&pageTool==='split'&&<Splitter doc={doc} busy={busy} error={error} onClose={()=>setPageTool(null)} onSplit={splitPages}/>}
+    {doc&&pageTool==='split'&&<Splitter doc={doc} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onSplit={splitPages}/>}
     {commandsOpen&&<CommandPalette reason={toolReason} onRun={runCatalogTool} onClose={()=>setCommandsOpen(false)}/>}
     {helpOpen&&<WorkspaceHelp onClose={()=>setHelpOpen(false)}/>}
     {doc&&pageTool==='review'&&<DocumentReview doc={doc} operations={operations} onSignatures={()=>runCatalogTool(catalogTools.find(t=>t.id==='verify_signatures'))} onClose={()=>setPageTool(null)} onPage={next=>{setPageTool(null);setPage(next);paperScroll.current?.scrollTo(0,0);}}/>}

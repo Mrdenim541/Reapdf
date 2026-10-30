@@ -1,6 +1,6 @@
 # Plan vigente
 
-Referencia: **80,54 % del programa completo (≈81 %)**, con alcance y diecisiete pesos estables. [Último avance](IMAGENES_ENLACES_INCLINACION_Y_TRAZOS_20261029.md), [matriz](avance-global.json) y [prueba personal prevista](PRUEBA_PERSONAL_ESCRITORIO.md).
+Referencia: **80,98 % del programa completo (≈81 %)**, con alcance y diecisiete pesos estables. [Último avance](DIVISION_CON_NOMBRES_Y_LISTAS_20261029.md), [matriz](avance-global.json) y [prueba personal prevista](PRUEBA_PERSONAL_ESCRITORIO.md).
 
 Entregables anteriores ya incorporados: edición de espaciados TJ/Tc/Tw compatibles; inserción de texto con clic, altura automática y Unicode; reflujo uniforme de párrafos con fuente original sobre la página; actualización de documentos vinculados con revisión y deshacer; comparación lado a lado; cierre del hijo Qt tras muerte del padre; ocho pruebas Qt agrupadas y workflow Windows/Linux. No repetir estos entregables como futuros.
 
@@ -28,7 +28,9 @@ Bloque del plan terminado: sugerencias automáticas de combinaciones rectangular
 
 Bloque del plan terminado: imágenes directas por aparición con Figure/alternativa o Artifact, enlaces simples de un objeto completo con Link/MCID/OBJR y ParentTree/StructParent; revisión/persistencia con destino y píxeles conservados. Sugerencia automática de inclinación por perfil acotado con orientación explícita, revisión y OCR posterior. Type3 con trazos/cm internos y pen explícito, reensamblado/verificación de texto fragmentado sin relajar casos ocultos/ambiguos. Chromium y Qt Linux aprobados. Ver límites del informe; no Forms, listas/tablas semánticas ni fuentes variables.
 
-Próximo avance agrupado recomendado: listas/tablas semánticas, contenido dentro de Forms y fuentes variables, tras auditar variantes y delimitar compatibilidad. No repetir imágenes directas/enlaces simples, inclinación automática revisable, trazos/cm Type3 verificados, creación inicial de etiquetas de texto, combinaciones por bordes, CO o notas Word compatibles. Windows y aceptación personal siguen aplazados y no se consideran superados por Qt Linux.
+Bloque ampliado terminado a petición del usuario: división en PDFs independientes con nombres personalizados y revisión por archivo, rangos/bloques, nombres numerados por prefijo, secciones por marcadores y relación JSON opcional. Poda de etiquetas de páginas excluidas y reconstrucción ParentTree/StructParent en estructuras acotadas. Listas semánticas iniciales L/LI/LBody/P revisadas, persistentes y con orden real. Chromium y guardado/descarga Qt Linux aprobados; límites y variantes protegidas en el informe.
+
+Próximo avance agrupado recomendado: tablas semánticas revisadas, contenido dentro de Forms y fuentes variables, tras auditar variantes y delimitar compatibilidad. Ampliar partición de árboles complejos solo con conservación probada. No repetir nombres personalizados, marcadores para dividir, listas simples, imágenes/enlaces compatibles, inclinación automática revisable, trazos/cm Type3 verificados, combinaciones por bordes, CO ni notas Word compatibles. Windows y aceptación personal siguen aplazados y no se consideran superados por Qt Linux.
 
 Próximos bloques:
 

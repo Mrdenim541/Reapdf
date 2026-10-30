@@ -6,7 +6,7 @@ from .document_tools import editable
 from .pdf_content import operations
 from .form_structure import pdf_string
 
-ROLES={'P','H','H1','H2','H3','H4','H5','H6'}
+ROLES={'P','H','H1','H2','H3','H4','H5','H6','LI'}
 
 
 def plans(doc):
@@ -63,14 +63,27 @@ def build(doc,prepared,selection=None,language='es'):
     root=new('<< /Type /StructTreeRoot >>');document=new(f'<< /Type /StructElem /S /Document /P {root} 0 R /Lang {pdf_string(language)} >>');sections=[];parentnums=[];annotation_nums=[];next_key=len(prepared)
     for plan in prepared:
         page=doc[plan['page']];parts=plan['parts'];section=new(f'<< /Type /StructElem /S /Sect /P {document} 0 R /Pg {page.xref} 0 R >>');sections.append(section);refs=[];content=[];previous=0;mapping={}
+        ordered=sorted(parts,key=lambda p:selection[p['id']]['position']) if selection else parts
+        leaf_parents={};section_order=[];list_children={};current_list=None
+        for part in ordered:
+            role=selection[part['id']]['role'] if selection else 'Figure' if part['kind']=='image' else 'P'
+            if role=='LI':
+                if current_list is None:
+                    current_list=new(f'<< /Type /StructElem /S /L /P {section} 0 R /Pg {page.xref} 0 R >>');section_order.append(('node',current_list));list_children[current_list]=[]
+                item=new(f'<< /Type /StructElem /S /LI /P {current_list} 0 R /Pg {page.xref} 0 R >>');body=new(f'<< /Type /StructElem /S /LBody /P {item} 0 R /Pg {page.xref} 0 R >>')
+                doc.xref_set_key(item,'K',f'[{body} 0 R]');list_children[current_list].append(item);leaf_parents[part['id']]=body
+            else:
+                current_list=None;section_order.append(('part',part['id']))
+        for node,children in list_children.items():doc.xref_set_key(node,'K','['+' '.join(f'{child} 0 R' for child in children)+']')
         for part in parts:
             settings=selection[part['id']] if selection else {'role':'Figure' if part['kind']=='image' else 'P','alt':''}
-            role=settings['role'];mcid=len(refs)
+            role=settings['role'];is_item=role=='LI';role='P' if is_item else role;mcid=len(refs);parent=leaf_parents.get(part['id'],section)
             if role!='Artifact':
                 alt=' /Alt '+pdf_string(settings.get('alt','')) if role in ['Figure','Link'] else ''
                 kids=str(mcid)
                 if role=='Link':kids=f'[{mcid} << /Type /OBJR /Obj {settings["annotation"]} 0 R /Pg {page.xref} 0 R >>]'
-                identity=new(f'<< /Type /StructElem /S /{role} /P {section} 0 R /Pg {page.xref} 0 R /K {kids}{alt} >>');refs.append(identity);mapping[part['id']]=identity
+                identity=new(f'<< /Type /StructElem /S /{role} /P {parent} 0 R /Pg {page.xref} 0 R /K {kids}{alt} >>');refs.append(identity);mapping[part['id']]=identity
+                if is_item:doc.xref_set_key(parent,'K',f'[{identity} 0 R]')
                 if role=='Link':
                     doc.xref_set_key(settings['annotation'],'StructParent',str(next_key));doc.xref_set_key(settings['annotation'],'Contents',pdf_string(settings['alt']))
                     annotation_nums.append(str(next_key)+f' {identity} 0 R');next_key+=1;doc.xref_set_key(page.xref,'Tabs','/S')
@@ -81,8 +94,8 @@ def build(doc,prepared,selection=None,language='es'):
         tail=plan['content'][previous:]
         if tail.strip():content.extend([b'/Artifact BMC\n',tail,b'\nEMC\n'])
         stream=new('<<>>');doc.update_stream(stream,b''.join(content));page.set_contents(stream)
-        ordered=sorted(parts,key=lambda p:selection[p['id']]['position']) if selection else parts
-        doc.xref_set_key(section,'K','['+' '.join(f'{mapping[p["id"]]} 0 R' for p in ordered if p['id'] in mapping)+']')
+        section_refs=[value if kind=='node' else mapping[value] for kind,value in section_order if kind=='node' or value in mapping]
+        doc.xref_set_key(section,'K','['+' '.join(f'{ref} 0 R' for ref in section_refs)+']')
         doc.xref_set_key(page.xref,'StructParents',str(page.number));parentnums.append(str(page.number)+' ['+' '.join(f'{r} 0 R' for r in refs)+']')
     doc.xref_set_key(document,'K','['+' '.join(f'{r} 0 R' for r in sections)+']')
     tree=new('<< /Nums ['+' '.join(parentnums+annotation_nums)+'] >>');doc.xref_set_key(root,'K',f'[{document} 0 R]');doc.xref_set_key(root,'ParentTree',f'{tree} 0 R');doc.xref_set_key(root,'ParentTreeNextKey',str(next_key))
@@ -129,7 +142,7 @@ def candidates(base,ops):
                 if len(targets)!=1 or targets[0][0]['kind']!='text' or not (rect+(-1,-1,1,1)).contains(targets[0][1]):raise DocumentError('Cada enlace debe cubrir un único objeto de texto completo y no compartirlo con otros enlaces.')
                 entry=targets[0][0];entry.update(kind='link',role='Link',alt=entry['text'] if len(entry['text'])<=2000 else '',annotation=link['xref'],destination=link.get('url') if link['destination']=='web' else 'Página '+str(link['target_page']+1))
         if sum(len(e['text']) for e in entries)>100000:raise DocumentError('La revisión supera 100000 caracteres.')
-        return {'entries':entries,'pages':len(doc),'review_required':True,'scope':'Texto directo, imágenes por aparición y enlaces que cubren un objeto completo. Revisa alternativas, orden y gráficos decorativos. No crea tablas/listas semánticas ni acredita PDF/UA.'}
+        return {'entries':entries,'pages':len(doc),'review_required':True,'scope':'Texto directo, imágenes por aparición y enlaces que cubren un objeto completo. Revisa alternativas, orden y gráficos decorativos. Los elementos consecutivos pueden formar listas simples revisadas; no crea tablas semánticas ni acredita PDF/UA.'}
 
 
 def create(base,ops,entries,language='es',reviewed=False):
@@ -156,4 +169,4 @@ def create(base,ops,entries,language='es',reviewed=False):
             for a,b in zip(before,saved):
                 scale=min(.75,math.sqrt(4_000_000/max(1,a.rect.get_area())))
                 if a.get_text()!=b.get_text() or a.get_pixmap(matrix=f.Matrix(scale,scale),alpha=False).samples!=b.get_pixmap(matrix=f.Matrix(scale,scale),alpha=False).samples:raise DocumentError('Las etiquetas alteraron contenido o apariencia. Se conserva el original.')
-    return result,{'tagged_objects':sum(v['role']!='Artifact' for v in selection.values()),'decorative_images':sum(v['role']=='Artifact' for v in selection.values()),'figures':sum(v['role']=='Figure' for v in selection.values()),'links':sum(v['role']=='Link' for v in selection.values()),'pages':info['pages'],'language':language,'pdf_ua_validated':False}
+    return result,{'tagged_objects':sum(v['role']!='Artifact' for v in selection.values()),'decorative_images':sum(v['role']=='Artifact' for v in selection.values()),'figures':sum(v['role']=='Figure' for v in selection.values()),'links':sum(v['role']=='Link' for v in selection.values()),'list_items':sum(v['role']=='LI' for v in selection.values()),'pages':info['pages'],'language':language,'pdf_ua_validated':False}

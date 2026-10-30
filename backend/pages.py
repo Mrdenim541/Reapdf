@@ -5,7 +5,7 @@ from .form_fields import select_pages
 from .engine import open_pdf, export_pdf, DocumentError, MAX_PAGES
 
 
-def organize_pdf(data, operations, pages, *, extract=False):
+def organize_pdf(data, operations, pages, *, extract=False,partition_tags=False):
     with open_pdf(data) as source:
         if source.get_sigflags() > 0:
             raise DocumentError('No se organizan ni extraen PDF firmados en este prototipo.')
@@ -32,7 +32,14 @@ def organize_pdf(data, operations, pages, *, extract=False):
         labels = [visible_labels(doc)[item['page']] for item in pages] if has_labels else []
         # select actualiza destinos locales de enlaces/marcadores y conserva las
         # anotaciones. No se reconstruyen las páginas como imágenes.
+        if partition_tags:
+            from .structure_partition import partition
+            partition(doc,[doc[item['page']].xref for item in pages])
         select_pages(doc, [item['page'] for item in pages])
+        if partition_tags:
+            # MuPDF select rewrites parent-tree keys; rebuild them against the
+            # retained native page/annotation references before serializing.
+            partition(doc,[p.xref for p in doc])
         for index, item in enumerate(pages):
             doc[index].set_rotation(item['rotation'])
         if has_labels:

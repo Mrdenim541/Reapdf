@@ -1171,11 +1171,17 @@ async def crop(doc_id: str, request: Request):
                       payload.get("pages"), payload.get("margins"), reset=payload.get("reset", False))
     return store_project_version(base, operations, result)
 
+@app.post('/api/documents/{doc_id}/split-plan')
+async def split_plan(doc_id:str,request:Request):
+    from .page_tools import inspect_split
+    p=await read_payload(request)
+    return await run_in_threadpool(inspect_split,document_path(doc_id).read_bytes(),p.get('operations',[]),size=p.get('size'),groups=p.get('groups'),names=p.get('names'),bookmark_level=p.get('bookmark_level'))
+
 @app.post("/api/documents/{doc_id}/split")
 async def split(doc_id: str, request: Request):
     payload = await read_payload(request)
-    result = split_pdf(document_path(doc_id).read_bytes(), payload.get("operations", []),
-                       size=payload.get("size"), groups=payload.get("groups"))
+    result = await run_in_threadpool(split_pdf,document_path(doc_id).read_bytes(), payload.get("operations", []),
+                       size=payload.get("size"), groups=payload.get("groups"),names=payload.get("names"),bookmark_level=payload.get("bookmark_level"),manifest=payload.get("manifest",False))
     return Response(result, media_type="application/zip", headers={"Content-Disposition": 'attachment; filename="reapdf-dividido.zip"'})
 
 @app.post("/api/documents/{doc_id}/extract")
