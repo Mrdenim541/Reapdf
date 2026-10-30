@@ -102,16 +102,21 @@ def extract(base,ops,number,box,grid=None,mode='auto',language='spa+eng',dpi=200
         return {'page':number,'box':box,'columns':columns,'rows':rows,'cells':cells,'words':words,'method':'ocr' if use_ocr else 'digital','detected_grid':detected,'warnings':warnings,'review_required':True,'source_modified':False}
 
 
-def csv_bytes(cells):
+def csv_bytes(cells,spans=None):
     if not isinstance(cells,list) or not 1<=len(cells)<=100 or any(not isinstance(row,list) or not 1<=len(row)<=30 for row in cells) or len({len(r) for r in cells})!=1 or any(not isinstance(v,str) or len(v)>4000 for row in cells for v in row) or sum(len(v) for row in cells for v in row)>100000:raise DocumentError('Tabla CSV no válida o demasiado grande.')
+    from .table_spans import validate
+    validate(cells,spans)
     out=StringIO(newline='');writer=csv.writer(out)
     for row in cells:writer.writerow(["'"+v if v.lstrip().startswith(('=','+','-','@')) else v for v in row])
     return out.getvalue().encode('utf-8-sig')
 
 
-def docx_bytes(cells,header=True):
-    csv_bytes(cells)  # Shared dimensions/text budgets; this conversion uses literal text.
+def docx_bytes(cells,header=True,spans=None):
+    csv_bytes(cells,spans)  # Shared dimensions/text budgets; this conversion uses literal text.
     if type(header) is not bool:raise DocumentError('La opción de encabezado debe ser verdadera o falsa.')
+    from .table_spans import validate
+    anchors,covered=validate(cells,spans)
+    if header and any(r==0 and v['rowspan']>1 for (r,c),v in anchors.items()):raise DocumentError('Un encabezado repetido no puede combinarse con filas del cuerpo. Desactiva la opción de encabezado.')
     from io import BytesIO
     from zipfile import ZipFile,ZIP_DEFLATED
     from xml.etree.ElementTree import Element,SubElement
@@ -124,8 +129,14 @@ def docx_bytes(cells,header=True):
     for ri,row in enumerate(cells):
         tr=element(table,'tr')
         if header and ri==0:element(element(tr,'trPr'),'tblHeader')
-        for value_ in row:
-            cell=element(tr,'tc');pr=element(cell,'tcPr');element(pr,'tcW',{'w':colwidth,'type':'dxa'})
+        for c,value_ in enumerate(row):
+            anchor=covered.get((ri,c))
+            merge=anchors.get((ri,c)) or (anchors.get(anchor) if anchor else None)
+            if anchor and c!=anchor[1]:continue
+            spanwidth=merge['colspan'] if merge else 1
+            cell=element(tr,'tc');pr=element(cell,'tcPr');element(pr,'tcW',{'w':colwidth*spanwidth,'type':'dxa'})
+            if spanwidth>1:element(pr,'gridSpan',{'val':spanwidth})
+            if merge and merge['rowspan']>1:element(pr,'vMerge',{'val':'continue' if anchor else 'restart'})
             if header and ri==0:element(pr,'shd',{'val':'clear','fill':'EDF2F3'})
             for line in value_.split('\n'):
                 p=element(cell,'p');text_run(p,line,{'font':'Arial','size':10,'flags':16 if header and ri==0 else 0,'color':0})

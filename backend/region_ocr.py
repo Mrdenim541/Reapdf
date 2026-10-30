@@ -6,10 +6,11 @@ from .ocr import ocr_status,TESSDATA
 from .document_tools import editable
 
 
-def recognize(base,ops,regions,language='spa+eng',dpi=200,orientation=0):
+def recognize(base,ops,regions,language='spa+eng',dpi=200,orientation=0,correction=None):
     if language not in ['eng','spa','spa+eng'] or type(dpi) is not int or dpi not in [150,200,300] or type(orientation) is not int or orientation not in [0,90,180,270]:raise DocumentError('Idioma, resolución u orientación OCR no válidos.')
     if any(lang not in ocr_status()['languages'] for lang in language.split('+')):raise DocumentError('Faltan idiomas OCR verificados.')
     if not isinstance(regions,list) or not 1<=len(regions)<=10:raise DocumentError('Hasta 10 regiones OCR por operación.')
+    if correction is not None and len(regions)!=1:raise DocumentError('La corrección geométrica se aplica a una región por operación.')
     with open_pdf(base) as source:
         editable(source)
         if not source.permissions&f.PDF_PERM_COPY:raise DocumentError('El documento no permite lectura para OCR.')
@@ -21,6 +22,10 @@ def recognize(base,ops,regions,language='spa+eng',dpi=200,orientation=0):
             if not isinstance(box,list) or len(box)!=4 or any(not finite(v) for v in box):raise DocumentError('Coordenadas OCR no válidas.')
             x,y,w,h=box;visible=f.Rect(x,y,x+w,y+h)
             if min(w,h)<10 or not page.rect.contains(visible):raise DocumentError('La región OCR debe quedar dentro de la página y medir al menos 10 × 10 pt.')
+            if correction is not None:
+                from .scan_geometry import corners
+                points=corners(visible,correction,page.rect)
+                visible=f.Quad(points[0],points[1],points[3],points[2]).rect
             rect=visible*page.derotation_matrix
             if any(n==number and (rect&other).get_area()>.1 for n,other in prepared):raise DocumentError('Las regiones OCR no deben solaparse.')
             for block in page.get_text('dict')['blocks']:
@@ -30,9 +35,15 @@ def recognize(base,ops,regions,language='spa+eng',dpi=200,orientation=0):
             pixels=math.ceil(rect.width*dpi/72)*math.ceil(rect.height*dpi/72);total+=pixels
             if pixels>16_000_000 or total>64_000_000 or max(rect.width,rect.height)*dpi/72>8192:raise DocumentError('El OCR supera el presupuesto de resolución; reduce el área o los ppp.')
             prepared.append((number,rect))
-        report={'regions':[],'language':language,'dpi':dpi,'orientation':orientation,'words':0}
+        report={'regions':[],'language':language,'dpi':dpi,'orientation':orientation,'words':0,'correction':correction}
         for number,rect in prepared:
-            page=doc[number];rotation=page.rotation;page.set_rotation(0)
+            page=doc[number]
+            if correction is not None:
+                from .scan_geometry import recognize as corrected_ocr,overlay
+                words,_=corrected_ocr(page,points,language,dpi,orientation);overlay(page,words)
+                report['words']+=len(words);report['regions'].append({'page':number,'rect':list(rect),'words':len(words),'mapped_words':words,'geometry':'projective per word; affine invisible glyph placement'})
+                continue
+            rotation=page.rotation;page.set_rotation(0)
             try:
                 pix=page.get_pixmap(matrix=f.Matrix(dpi/72,dpi/72).prerotate(orientation),clip=rect,alpha=False,annots=False)
                 try:data=pix.pdfocr_tobytes(language=language,tessdata=str(TESSDATA))

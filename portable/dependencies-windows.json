@@ -144,6 +144,12 @@
       "sha256": "2b2f1d2d42ec152ca90ccb5682f3e051fb55986e1b170ebde472b133713e7085"
     },
     {
+      "name": "pillow",
+      "version": "13.0.0",
+      "filename": "pillow-13.0.0-cp313-cp313-win_amd64.whl",
+      "sha256": "9dda0788a9932776a75d8bcc020076edc308ce2508b51f6739a45e3158b3fc42"
+    },
+    {
       "name": "propcache",
       "version": "0.5.4",
       "filename": "propcache-0.5.4-cp313-cp313-win_amd64.whl",

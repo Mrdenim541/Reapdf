@@ -1,6 +1,6 @@
 # Reapdf
 
-Estado vigente: [cálculos nativos de PDF y notas de Word](docs/CALCULOS_NATIVOS_Y_NOTAS_WORD_20261030.md), **≈79 % del programa completo** (estimación de madurez; Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
+Estado vigente: [OCR geométrico, tablas combinadas y vista de lectura](docs/OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md), **≈80 % del programa completo** (79,61 ponderado; estimación de madurez, Windows pendiente). [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 

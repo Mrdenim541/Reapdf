@@ -1,14 +1,14 @@
 {
   "schema": 1,
-  "review_date": "2026-10-30",
-  "status": "provisional_native_calculations_word_notes",
+  "review_date": "2026-10-29",
+  "status": "provisional_ocr_geometry_table_merges_reading",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 78.97,
-  "reported_percent": 79,
+  "weighted_percent": 79.61,
+  "reported_percent": 80,
   "subjective_range_percent": [
-    60,
-    82
+    61,
+    83
   ],
   "anchors": {
     "0": "Sin implementación",
@@ -35,7 +35,7 @@
     {
       "id": "interface",
       "weight": 7,
-      "maturity": 95,
+      "maturity": 96,
       "evidence": [
         "web/src/main.jsx",
         "web/src/paragraph-editor.jsx",
@@ -58,7 +58,9 @@
         "docs/CALCULOS_NATIVOS_Y_NOTAS_WORD_20261030.md",
         "web/src/forms.jsx",
         "web/src/word-import.jsx",
-        "scripts/smoke_native_calcs_notes.mjs"
+        "scripts/smoke_native_calcs_notes.mjs",
+        "docs/OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md",
+        "web/src/reading-preview.jsx"
       ],
       "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados."
     },
@@ -150,7 +152,7 @@
     {
       "id": "ocr_conversion",
       "weight": 9,
-      "maturity": 85,
+      "maturity": 88,
       "evidence": [
         "backend/ocr.py",
         "backend/docx_import.py",
@@ -164,9 +166,11 @@
         "tests/test_table_grid.mjs",
         "docs/CALCULOS_NATIVOS_Y_NOTAS_WORD_20261030.md",
         "backend/docx_notes.py",
-        "tests/test_docx_notes.py"
+        "tests/test_docx_notes.py",
+        "docs/OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md",
+        "backend/scan_geometry.py"
       ],
-      "remaining": "Perspectiva/deskew general, tablas con celdas combinadas y diseños complejos, OCR multilingüe/corpus representativo y fidelidad Office general. Notas partidas entre páginas, marcas personalizadas, numeración reiniciada por página y otros formatos Word siguen fuera. Notas al pie/finales compatibles en PDF incorporadas; no se promete reconstrucción semántica de notas al volver a DOCX."
+      "remaining": "Deskew automático y detección automática de esquinas; detección automática de combinaciones, tablas sin líneas y diseños complejos; OCR multilingüe/corpus representativo y fidelidad Office general. Corrección manual de inclinación/perspectiva y combinaciones rectangulares revisadas ya incorporadas. La capa invisible aproxima cada palabra afínmente y no convierte píxeles en tipografía editable. Notas Word partidas, marcas personalizadas y reinicio por página siguen fuera."
     },
     {
       "id": "security_signatures",
@@ -196,13 +200,15 @@
     {
       "id": "accessibility",
       "weight": 3,
-      "maturity": 50,
+      "maturity": 60,
       "evidence": [
         "backend/accessibility.py",
         "backend/structure_editing.py",
-        "tests/test_structure_preflight_regions.py"
+        "tests/test_structure_preflight_regions.py",
+        "docs/OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md",
+        "tests/test_reading_preview.py"
       ],
-      "remaining": "Creación/reparación general de etiquetas, tablas/MCID, aceptación asistiva y PDF/UA integral."
+      "remaining": "Creación/reparación general de etiquetas/MCID y tablas, asociaciones ambiguas, espacios de nombres PDF 2, aceptación asistiva y PDF/UA integral. Vista de lectura de texto etiquetado y edición conservadora de rol/idioma existentes ya incorporadas; texto sin etiquetas y figuras requieren revisión aparte."
     },
     {
       "id": "automation_linking",
@@ -339,34 +345,34 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261030-before-native-calcs-notes.json",
-    "before_weighted": 78.0,
-    "after_weighted": 78.97,
-    "new_points": 0.97,
+    "baseline": "docs/progress/20261029-before-geometry-tables-reading.json",
+    "before_weighted": 78.97,
+    "after_weighted": 79.61,
+    "new_points": 0.64,
     "changes": [
       {
         "id": "interface",
-        "before": 94,
-        "after": 95,
+        "before": 95,
+        "after": 96,
         "points": 0.07,
-        "reason": "Actualización explícita de cálculos nativos, resultados protegidos y corrección de orden CO desde el formulario; revisión de notas importadas y edición sobre la página comprobadas."
-      },
-      {
-        "id": "forms",
-        "before": 80,
-        "after": 87.5,
-        "points": 0.45,
-        "reason": "AFSimple_Calculate SUM/PRD/AVG/MIN/MAX con dependencias, ciclos y CO, reparación explícita del orden, campos compartidos, valores/formato originales, persistencia y protección de fuentes necesarias."
+        "reason": "Separación de vista de lectura y edición de etiquetas, selección de esquinas OCR y revisión de combinaciones de celdas."
       },
       {
         "id": "ocr_conversion",
-        "before": 80,
-        "after": 85,
-        "points": 0.45,
-        "reason": "Importación Word de notas al pie en la página de referencia y notas finales, numeración compatible por sección, enlaces de ida/retorno, imágenes/enlaces propios, comprobación de texto y paginación acotada."
+        "before": 85,
+        "after": 88,
+        "points": 0.27,
+        "reason": "Corrección por inclinación y homografía de cuatro esquinas con coordenadas de texto coherentes; combinaciones rectangulares revisadas y exportación Word/CSV sin ocultar contenido."
+      },
+      {
+        "id": "accessibility",
+        "before": 50,
+        "after": 60,
+        "points": 0.3,
+        "reason": "Vista de texto y geometría por rutas/índices de estructura; cambio conservador de rol de párrafo/encabezado e idioma por etiqueta existente."
       }
     ],
-    "unrounded_after_weighted": "78.97",
+    "unrounded_after_weighted": "79.61",
     "all_weights_and_scope_unchanged": true
   }
 }

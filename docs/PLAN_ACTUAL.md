@@ -1,6 +1,6 @@
 # Plan vigente
 
-Referencia: **≈79 % del programa completo (78,97 ponderado)**, con alcance y diecisiete pesos estables. [Último avance](CALCULOS_NATIVOS_Y_NOTAS_WORD_20261030.md), [matriz](avance-global.json) y [prueba personal prevista](PRUEBA_PERSONAL_ESCRITORIO.md).
+Referencia: **≈80 % del programa completo (79,61 ponderado)**, con alcance y diecisiete pesos estables. [Último avance](OCR_GEOMETRIA_TABLAS_Y_LECTURA_20261029.md), [matriz](avance-global.json) y [prueba personal prevista](PRUEBA_PERSONAL_ESCRITORIO.md).
 
 Entregables anteriores ya incorporados: edición de espaciados TJ/Tc/Tw compatibles; inserción de texto con clic, altura automática y Unicode; reflujo uniforme de párrafos con fuente original sobre la página; actualización de documentos vinculados con revisión y deshacer; comparación lado a lado; cierre del hijo Qt tras muerte del padre; ocho pruebas Qt agrupadas y workflow Windows/Linux. No repetir estos entregables como futuros.
 
@@ -22,7 +22,9 @@ Bloque amplio terminado: formatos estándar numéricos/porcentajes/fechas y rang
 
 Bloque del plan terminado: AFSimple_Calculate SUM/PRD/AVG/MIN/MAX, CO/dependencias/ciclos, reparación explícita del orden, resultados protegidos y compartidos, recálculo/persistencia y protección de páginas/fuentes. Word: notas al pie en su página y notas finales compatibles, numeración por sección, enlaces de ida/retorno, contenido propio y comprobación de texto/posiciones. Recorridos Chromium y guardado Qt Linux aprobados; los límites del último informe permanecen explícitos.
 
-Próximo avance agrupado recomendado: OCR con inclinación/perspectiva y tablas más complejas, junto con accesibilidad/orden de lectura tras auditar su cobertura actual. Incluir implementación, geometría, integridad y recorridos en el mismo bloque. No repetir como futuros los cálculos nativos compatibles, CO o las notas Word ya incorporadas. La aceptación Windows/personal continúa aplazada y no se considera superada por Qt Linux.
+Bloque del plan terminado: OCR regional con inclinación manual y homografía de cuatro esquinas, mapa coherente imagen/texto y originales visualmente intactos; combinaciones rectangulares revisadas, corrección y Word con gridSpan/vMerge; vista de lectura por rutas/índices de estructura, cambio conservador de rol de párrafo/encabezado e idioma de etiquetas existentes. Vista y edición separadas, diálogo de tablas sin botón tapado. Chromium y ventana Qt Linux comprobados. Ver límites: no detección automática de ángulo/esquinas/combinaciones ni creación general de etiquetas/MCID.
+
+Próximo avance agrupado recomendado: detección automática de combinaciones de tablas, creación controlada de etiquetas/MCID en PDFs sin estructura y fuentes originales restantes. Auditar y delimitar cada caso antes de ampliar; incluir implementación y recorridos en el mismo bloque. No repetir OCR geométrico manual, combinaciones revisadas, roles/idiomas existentes, CO ni notas Word compatibles. Windows y la aceptación personal siguen aplazados y no se consideran superados por Qt Linux.
 
 Próximos bloques:
 

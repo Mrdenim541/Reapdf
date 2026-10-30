@@ -1,0 +1,55 @@
+{
+  "local_date": "2026-10-29",
+  "timezone": "America/Bogota",
+  "baseline_commit": "8b3a9baf8d5096cd2ddd006311330fa1f442435e",
+  "scope": "Geometric OCR, reviewed rectangular table merges, structured reading preview and conservative tag semantics",
+  "python_full": {
+    "passed": 3080,
+    "warnings": 3,
+    "seconds": 299.26,
+    "stage": "before final Pillow projective sampler, marker test and dependency locks"
+  },
+  "python_targeted_final": {
+    "passed": 163,
+    "warnings": 2,
+    "seconds": 26.62,
+    "stage": "final sampler, projective marker test, scan geometry, tables, structure, projects and desktop; overlaps general suite"
+  },
+  "distribution_source": {
+    "passed": 25,
+    "stage": "source packaging/local-workspace checks, no Windows execution"
+  },
+  "javascript": {
+    "passed": 123
+  },
+  "build": "passed",
+  "chromium": "passed with final source sampler",
+  "qt_linux_offscreen": "passed with final source sampler; own window, atomic PDF saves and native Word download",
+  "windows": "not run",
+  "external_acrobat_nitro_word": "not run",
+  "physical_printing": "not run",
+  "user_acceptance": "deferred",
+  "installer_portable": "not generated",
+  "fixtures": "synthetic only",
+  "dependencies": {
+    "pillow": "13.0.0",
+    "linux_installed": true,
+    "windows_cp313_wheel": "downloaded and hash pinned only; not executed"
+  },
+  "progress": {
+    "before": 78.97,
+    "after": 79.61,
+    "stable_categories": 17,
+    "stable_weights": true
+  },
+  "logs": [
+    "python-full.log",
+    "targeted-final.log",
+    "distribution-source.log",
+    "javascript.log",
+    "build.log",
+    "chromium.log",
+    "qt-linux.log"
+  ],
+  "log_normalization": "Trailing whitespace and ANSI styling removed from copied logs."
+}

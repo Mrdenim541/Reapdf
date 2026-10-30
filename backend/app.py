@@ -238,6 +238,17 @@ async def inspect_structure(doc_id:str,request:Request):
     p=await read_payload(request)
     return await run_in_threadpool(structure_editing.model,document_path(doc_id).read_bytes(),p.get('operations',[]))
 
+@app.post('/api/documents/{doc_id}/reading-preview')
+async def reading_preview(doc_id:str,request:Request):
+    p=await read_payload(request)
+    return await run_in_threadpool(structure_editing.reading_preview,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'))
+
+@app.post('/api/documents/{doc_id}/structure-properties')
+async def structure_properties(doc_id:str,request:Request):
+    p=await read_payload(request)
+    data=await run_in_threadpool(structure_editing.properties,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('id'),p.get('role'),p.get('language'))
+    return store_document(data)
+
 @app.post('/api/documents/{doc_id}/structure/{action}')
 async def edit_structure(doc_id:str,action:str,request:Request):
     p=await read_payload(request)
@@ -265,8 +276,8 @@ async def export_region_table(doc_id:str,request:Request):
     p=await read_payload(request)
     with open_pdf(document_path(doc_id).read_bytes()) as doc:
         if not doc.permissions & pymupdf.PDF_PERM_COPY:raise DocumentError('El documento no permite extraer tablas.')
-    if p.get('format')=='csv':data=csv_bytes(p.get('cells'));mime='text/csv; charset=utf-8';ext='csv'
-    elif p.get('format')=='docx':data=docx_bytes(p.get('cells'),p.get('header',True));mime='application/vnd.openxmlformats-officedocument.wordprocessingml.document';ext='docx'
+    if p.get('format')=='csv':data=csv_bytes(p.get('cells'),p.get('spans'));mime='text/csv; charset=utf-8';ext='csv'
+    elif p.get('format')=='docx':data=docx_bytes(p.get('cells'),p.get('header',True),p.get('spans'));mime='application/vnd.openxmlformats-officedocument.wordprocessingml.document';ext='docx'
     else:raise DocumentError('Elige CSV o Word para exportar la tabla revisada.')
     return Response(data,media_type=mime,headers={'Content-Disposition':f'attachment; filename="reapdf-tabla.{ext}"'})
 
@@ -275,7 +286,7 @@ async def export_region_table(doc_id:str,request:Request):
 async def recognize_regions(doc_id:str,request:Request):
     p=await read_payload(request)
     if not OCR_LOCK.acquire(blocking=False):raise DocumentError('Ya hay un OCR en curso. Espera a que termine.')
-    try:data,report=await run_in_threadpool(region_ocr.recognize,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('regions'),p.get('language','spa+eng'),p.get('dpi',200),p.get('orientation',0))
+    try:data,report=await run_in_threadpool(region_ocr.recognize,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('regions'),p.get('language','spa+eng'),p.get('dpi',200),p.get('orientation',0),p.get('correction'))
     finally:OCR_LOCK.release()
     return {**store_document(data),'ocr_report':report}
 

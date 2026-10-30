@@ -31,8 +31,8 @@ export function areaChangeReason(state={}){
 const entry=(id,label,description,group,permission='edit',target='dialog',keywords='')=>({id,label,description,group,permission,target,keywords,area:toolArea(id)?.id});
 export const tools = [
  entry('table_region','Extraer tabla por región','Reconoce tablas digitales o escaneadas, permite revisar celdas y exportar CSV o Word.','document','copy','dialog','tabla escaneada excel OCR celdas word'),
- entry('region_ocr','OCR de región','Reconoce una zona escaneada dentro de páginas con contenido mixto.','document','edit_copy'),
- entry('structure','Etiquetas y orden de lectura','Edita alternativas de figuras etiquetadas y orden de etiquetas hermanas.','read','read'),
+ entry('region_ocr','OCR de región','Reconoce zonas escaneadas y corrige inclinación o perspectiva sin cambiar su imagen.','document','edit_copy'),
+ entry('structure','Etiquetas y orden de lectura','Revisa el flujo de texto y edita alternativas, roles, idiomas y orden de etiquetas hermanas.','read','read'),
  entry('preflight','Inspección de impresión','Revisa resolución efectiva, fuentes, cajas y colores antes de imprimir.','document','read'),
  entry('xfdf','Intercambiar XFDF','Importa y exporta anotaciones y datos compatibles de otros lectores.','document','copy'),
  entry('working_copy','Copia de trabajo sin firmas','Crea una copia editable identificada, sin trasladar validez de firmas digitales.','document','copy'),
