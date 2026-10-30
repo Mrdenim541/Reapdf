@@ -99,11 +99,12 @@ def export_pdf(data, operations):
                 from .watermarks import prepare_watermark
                 if not doc.permissions & fitz.PDF_PERM_MODIFY or kind in seen:raise DocumentError('No se permite esta marca de agua o existe otra configuración.')
                 seen.add(kind);prepared.append((number,kind,prepare_watermark(doc,op),None))
-            elif kind=='form_fill':
+            elif kind in ['form_fill','form_recalculate']:
                 from .forms import prepare_fill
-                if kind in seen:raise DocumentError('Solo se admite una configuración de formulario.')
-                seen.add(kind)
-                prepared.append((number,kind,prepare_fill(doc,op.get('values')),None))
+                if 'form_fill' in seen:raise DocumentError('Solo se admite una configuración de formulario.')
+                seen.add('form_fill')
+                if kind=='form_recalculate' and (set(op)!={'type','page'} or number!=0):raise DocumentError('Configuración de recálculo no válida.')
+                prepared.append((number,'form_fill',prepare_fill(doc,[] if kind=='form_recalculate' else op.get('values'),recalculate=kind=='form_recalculate'),None))
             elif kind in {'bookmarks','header_footer'}:
                 if not doc.permissions & fitz.PDF_PERM_MODIFY:
                     raise DocumentError('El documento no permite modificar el índice o el contenido de página.')

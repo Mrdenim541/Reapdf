@@ -15,6 +15,7 @@ from .docx_headers import running_parts,PAGE_TOKEN,TOTAL_TOKEN
 from .docx_fields import normalize_fields,PageFields,PREFIX
 from .docx_tables import table_plan
 from .docx_sections import sections
+from .docx_notes import Notes,checked_text
 
 W='http://schemas.openxmlformats.org/wordprocessingml/2006/main'
 R='http://schemas.openxmlformats.org/officeDocument/2006/relationships'
@@ -65,7 +66,9 @@ def import_docx(data,paper='source'):
         for rel in parse_xml(package['word/_rels/document.xml.rels']):
             if rel.attrib.get('Id') in relationships:raise DocumentError('Relaciones Word repetidas.')
             relationships[rel.attrib.get('Id')]=rel.attrib
-    if any(name.startswith(('word/footnotes','word/endnotes','word/comments')) for name in package):warnings.add('Notas al pie, notas finales y comentarios no se incorporan.')
+    if any(name.startswith('word/comments') for name in package):warnings.add('Los comentarios de Word no se incorporan.')
+    notes=Notes(package,relationships,parse_xml,warnings)
+    notes.active={kind for kind in ['footnote','endnote'] if any(n.tag==tag(kind+'Reference') for n in body.iter())}
     if any(any(token.encode() in raw for token in [PAGE_TOKEN,TOTAL_TOKEN,PREFIX,BREAK_TOKEN]) for raw in package.values()):raise DocumentError('El Word contiene un marcador interno reservado.')
     in_running=False;dynamic_fields=0;manual_breaks=0;page_fields=PageFields();complex_nodes=set();forced_cached=set();char_formats={}
     field_stats={"complex_fields":0,"complex_page_fields":0,"cached_fields":0}
@@ -129,10 +132,14 @@ def import_docx(data,paper='source'):
         for child in node:
             if child.tag==tag('t'):parts.append(field_token if field_token is not None else text(child.text))
             elif child.tag in {tag('br'),tag('cr')}:
+                expected.append(' ')
                 if child.attrib.get(tag('type'))=='page':
                     if in_running:raise DocumentError('No se admiten saltos de página dentro de encabezados/pies Word.')
                     manual_breaks+=1;parts.append('</span>'+BREAK_TOKEN+'<span style="'+';'.join(style)+'">')
                 else:parts.append('<br/>')
+            elif child.tag in {tag('footnoteReference'),tag('endnoteReference')}:parts.append(notes.reference(child,in_running))
+            elif child.tag in {tag('footnoteRef'),tag('endnoteRef')}:
+                if not notes.inside:raise DocumentError('Marcador de nota fuera de su definición.')
             elif child.tag==tag('tab'):parts.append(text('    '));warnings.add('Las tabulaciones se convierten en espacios.')
             elif child.tag in {tag('drawing'),tag('pict')}:parts.append(image(child))
             elif child.tag in {tag('instrText'),tag('fldChar')}:warnings.add('Los campos automáticos se importan como su resultado de texto disponible, sin actualización.')
@@ -142,6 +149,7 @@ def import_docx(data,paper='source'):
         nonlocal paragraphs,dynamic_fields,manual_breaks
         paragraphs+=1
         if paragraphs>3000:raise DocumentError('Hasta 3000 párrafos por importación.')
+        expected_start=len(expected)
         pieces=[];css=[];props,inherited=styles.paragraph(node)
         marker,depth=styles.marker(props)
         if marker:pieces.append(text(marker)+'&#160;');css.append(f'margin-left:{18*(depth+1)}pt')
@@ -197,6 +205,7 @@ def import_docx(data,paper='source'):
             if child.tag!=tag('pPr'):warnings.add('Elemento de párrafo no compatible omitido.')
             return ''
         pieces.extend(inline(child) for child in node)
+        expected[expected_start:]=[''.join(expected[expected_start:])]
         fragments=''.join(pieces).split(BREAK_TOKEN)
         return ''.join('<p style="'+';'.join(css+(['page-break-before:always'] if index else []))+'">'+(fragment or '<br/>')+'</p>' for index,fragment in enumerate(fragments))
     def blocks(nodes):
@@ -240,15 +249,27 @@ def import_docx(data,paper='source'):
         finally:
             del expected[start:]
             relationships=previous;in_running=False;styles.counters=counters
-    for segment in segments:
+    def render_note(root,rels):
+        nonlocal relationships,complex_nodes,forced_cached,char_formats
+        previous=relationships;old=(complex_nodes,forced_cached,char_formats);relationships=rels
+        root,complex_nodes,forced_cached,char_formats=normalize_fields(root);field_stats['complex_fields']+=len(complex_nodes)
+        counters=styles.counters;styles.counters={}
+        try:return blocks(root)
+        finally:relationships=previous;styles.counters=counters;complex_nodes,forced_cached,char_formats=old
+    for segment_index,segment in enumerate(segments):
+        notes.begin(segment['properties'],segment_index)
         size=segment['size'];margins=segment['margins'];section=segment['properties']
         page_fields=PageFields()
         segment['content']=blocks(segment['nodes'])
         segment['fields']=page_fields
         segment['running']=running_parts(package,section,relationships,parse_xml,render_running,warnings,page_fields)
+    expected_references=sum(node.tag in {tag('footnoteReference'),tag('endnoteReference')} for node in body.iter())
+    if expected_references!=len(notes.used):raise DocumentError('Hay referencias de notas en estructuras Word no compatibles. No se omiten sus notas ni se entrega un PDF incompleto.')
+    notes.render(render_note)
+    for index,segment in enumerate(segments):segment['content']+=notes.end_content(index,len(segments)-1)
     if len(segments)>1:warnings.discard('Encabezados/pies sin referencia en la sección importada no se incorporan.')
     if not characters and not images and not dynamic_fields:raise DocumentError('No hay texto ni imágenes compatibles para importar.')
-    css='''@font-face{font-family:Reapdf;src:url(DejaVuSans.ttf)}@font-face{font-family:Reapdf;src:url(DejaVuSans-Bold.ttf);font-weight:bold}@font-face{font-family:Reapdf;src:url(DejaVuSans-Oblique.ttf);font-style:italic}@font-face{font-family:Reapdf;src:url(DejaVuSans-BoldOblique.ttf);font-weight:bold;font-style:italic}body{font-family:Reapdf;font-size:12pt;margin:0}p{margin:0 0 8pt 0}table{border-collapse:collapse;width:100%;margin-bottom:10pt}td{border:0.5pt solid #888;padding:4pt}a{color:#23644f}'''
+    css='''@font-face{font-family:Reapdf;src:url(DejaVuSans.ttf)}@font-face{font-family:Reapdf;src:url(DejaVuSans-Bold.ttf);font-weight:bold}@font-face{font-family:Reapdf;src:url(DejaVuSans-Oblique.ttf);font-style:italic}@font-face{font-family:Reapdf;src:url(DejaVuSans-BoldOblique.ttf);font-weight:bold;font-style:italic}body{font-family:Reapdf;font-size:12pt;margin:0}p{margin:0 0 8pt 0}table{border-collapse:collapse;width:100%;margin-bottom:10pt}td{border:0.5pt solid #888;padding:4pt}a{color:#23644f}.word-note p{margin:0 0 4pt 0}.word-note{font-size:10pt;margin-bottom:4pt}.word-note-label{font-weight:bold}.word-footnotes{border-top:.5pt solid #888;padding-top:4pt}.word-endnotes{margin-top:14pt}'''
     section_report=[];page_labels=[];total=0;previous_format='decimal'
     try:
         for index,segment in enumerate(segments):
@@ -265,15 +286,9 @@ def import_docx(data,paper='source'):
                 configured=E.Element(tag('sectPr'));configured.append(numbering);fields.configure(configured)
             previous_format=fields.format
             top,bottom=running.prepare(width,height,left,right,top,bottom,css,archive)
-            story=f.Story('<html><body>'+segment['content']+'</body></html>',user_css=css,archive=archive)
-            def rectangle(n,filled):
-                if total+n>=50:raise DocumentError('El Word necesita más de 50 páginas o tiene contenido que no cabe.')
-                return f.Rect(0,0,width,height),f.Rect(left,top,width-right,height-bottom),None
-            count=[0]
-            def measure(n,filled):
-                count[0]=n+1;return rectangle(n,filled)
-            story.write(None,measure);story.reset()
-            segment.update(story=story,count=count[0],offset=total)
+            note_plan=notes.prepare(index,segment['content'],css,archive,width,height,left,top,right,bottom,50-total)
+            story=note_plan['story'];count=[note_plan['count']]
+            segment.update(story=story,count=count[0],offset=total,note_plan=note_plan)
             # Store geometry rather than a closure over the loop's variables.
             segment['frame']=(width,height,left,top,right,bottom)
             from .docx_fields import number_label
@@ -282,21 +297,37 @@ def import_docx(data,paper='source'):
             section_report.append({'section':index+1,'first_page':total+1,'pages':count[0],'width':width,'height':height,'margins':list(segment['margins']),'number_start':fields.start,'number_format':fields.format,'header_footer_templates':len(running.templates)})
             total+=count[0]
         with f.open() as doc:
+            all_positions=[]
             for segment in segments:
                 width,height,left,top,right,bottom=segment['frame'];running=segment['running']
                 def rectangle(n,filled):
                     if n>=segment['count']:raise DocumentError('La paginación Word cambió durante la conversión.')
-                    return f.Rect(0,0,width,height),f.Rect(left,top,width-right,height-bottom),None
+                    return f.Rect(0,0,width,height),f.Rect(left,top,width-right,height-bottom-segment['note_plan']['reserves'].get(n,0)),None
+                actual_refs={}
+                def position(node):
+                    if node.id in segment['note_plan']['ref_pages'] and node.open_close&1 and not f.Rect(node.rect).is_empty:actual_refs.setdefault(node.id,node.page_num-1)
+                    node.page_num+=segment['offset'];all_positions.append(node)
+                active_page=[0]
                 def pagefn(number,box,device,after):
-                    if not after:running.draw(number,total,device,physical_page=segment['offset']+number,section_total=segment['count'])
-                with segment['story'].write_with_links(rectangle,pagefn=pagefn) as part:
-                    if len(part)!=segment['count']:raise DocumentError('La paginación Word cambió durante la conversión.')
-                    f.Story.add_pdf_links(part,running.positions)
+                    # Story.write reports the next number when closing a prior
+                    # device. Bind bottom notes to the device actually opened.
+                    if not after:
+                        active_page[0]=number;running.draw(number,total,device,physical_page=segment['offset']+number,section_total=segment['count'])
+                    else:notes.draw(segment['note_plan'],active_page[0],width,height,left,right,bottom,css,archive,device,position)
+                stream=BytesIO();writer=f.DocumentWriter(stream)
+                try:segment['story'].write(writer,rectangle,positionfn=position,pagefn=pagefn)
+                finally:writer.close()
+                with f.open(stream=stream.getvalue()) as part:
+                    if len(part)!=segment['count'] or actual_refs!=segment['note_plan']['ref_pages']:raise DocumentError('La paginación de texto/notas Word cambió durante la conversión.')
                     doc.insert_pdf(part)
+                for node in running.positions:node.page_num+=segment['offset'];all_positions.append(node)
+            for node in all_positions:
+                if node.href and f.Rect(node.rect).is_empty:node.href=None
+            f.Story.add_pdf_links(doc,all_positions)
             page_labels_preserved=any(s['properties'].find(tag('pgNumType')) is not None for s in segments) or len(segments)>1
             if page_labels_preserved:doc.set_page_labels(page_labels)
             doc.set_metadata({'title':'Importado desde Word','producer':'Reapdf / DOCX compatible'})
-            result=doc.tobytes(garbage=4,deflate=True);actual='\n'.join(p.get_text() for p in doc);pages=len(doc)
+            result=doc.tobytes(garbage=4,deflate=True);actual=checked_text(doc,all_positions) if notes.used else '\n'.join(p.get_text() for p in doc);pages=len(doc)
     except DocumentError:raise
     except Exception as exc:raise DocumentError('No se pudo distribuir el contenido Word; revisa tablas, imágenes y tamaños.') from exc
     if len(result)>30*1024*1024:raise DocumentError('El PDF importado supera 30 MB.')
@@ -304,8 +335,9 @@ def import_docx(data,paper='source'):
         value=re.sub(r'-\s*\n\s*','',unicodedata.normalize('NFKC',value).replace('\u00ad',''))
         return Counter(re.findall(r'\w+',value,flags=re.UNICODE))
     missing=tokens(' '.join(expected+[value for segment in segments for value in segment['running'].expected]))-tokens(actual)
+    if missing and notes.used:raise DocumentError('La comprobación detectó texto perdido en el documento con notas. No se entrega un PDF incompleto.')
     if missing and table_stats['merged_tables']:raise DocumentError('La comprobación detectó texto perdido en una tabla combinada. Simplifica la tabla antes de importar; no se entrega un PDF incompleto.')
     if missing:warnings.add('La comprobación de texto detectó diferencias; revisa los fragmentos indicados y el PDF completo.')
     warnings.add('Las fuentes originales se sustituyen por DejaVu Sans. La paginación y el diseño pueden cambiar.')
-    report={'schema':'reapdf-docx-import-1','source_sha256':hashlib.sha256(data).hexdigest(),'pdf_sha256':hashlib.sha256(result).hexdigest(),'pages':pages,'paragraphs':paragraphs,'tables':tables,'cells':cells,'images':len(images),'characters':characters,'manual_page_breaks':manual_breaks,'sections':section_report,'section_count':len(segments),'header_footer_templates':sum(len(s['running'].templates) for s in segments),'header_footer_instances':sum(s['running'].drawn for s in segments),'page_fields':dynamic_fields,**field_stats,**table_stats,'page_number_start':segments[0]['fields'].start,'page_number_format':segments[0]['fields'].format,'page_labels_preserved':page_labels_preserved,'styles_applied':len(styles.used),'list_items':styles.list_items,'fonts_replaced':sorted(fonts),'warnings':sorted(warnings),'missing_words':list(missing)[:30],'text_check_passed':not missing,'layout_preserved':False,'output_bytes':len(result)}
+    report={'schema':'reapdf-docx-import-1','source_sha256':hashlib.sha256(data).hexdigest(),'pdf_sha256':hashlib.sha256(result).hexdigest(),'pages':pages,'paragraphs':paragraphs,'tables':tables,'cells':cells,'images':len(images),'characters':characters,'manual_page_breaks':manual_breaks,'sections':section_report,'section_count':len(segments),'header_footer_templates':sum(len(s['running'].templates) for s in segments),'header_footer_instances':sum(s['running'].drawn for s in segments),'page_fields':dynamic_fields,**notes.report(),**field_stats,**table_stats,'page_number_start':segments[0]['fields'].start,'page_number_format':segments[0]['fields'].format,'page_labels_preserved':page_labels_preserved,'styles_applied':len(styles.used),'list_items':styles.list_items,'fonts_replaced':sorted(fonts),'warnings':sorted(warnings),'missing_words':list(missing)[:30],'text_check_passed':not missing,'layout_preserved':False,'output_bytes':len(result)}
     return result,report

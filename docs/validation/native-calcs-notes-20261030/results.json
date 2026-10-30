@@ -1,0 +1,44 @@
+{
+  "date_utc": "2026-10-30",
+  "baseline_commit": "f12616acafbdcc69a884c788ab141069551257f8",
+  "scope": "Native PDF calculations and Word footnotes/endnotes",
+  "python_full": {
+    "passed": 3019,
+    "warnings": 3,
+    "seconds": 297.24,
+    "stage": "before final conservative unsupported-reference guard and shared-result test"
+  },
+  "python_targeted_final": {
+    "passed": 564,
+    "warnings": 2,
+    "seconds": 52.7,
+    "stage": "final source; includes forms, Word and projects; overlaps full suite"
+  },
+  "javascript": {
+    "passed": 120
+  },
+  "build": "passed",
+  "chromium": "passed",
+  "qt_linux_offscreen": "passed; native atomic saves, original sources preserved",
+  "windows": "not run",
+  "external_acrobat_nitro_word": "not run",
+  "physical_printing": "not run",
+  "user_acceptance": "deferred",
+  "installer_portable": "not generated",
+  "fixtures": "synthetic only",
+  "progress": {
+    "before": 78.0,
+    "after": 78.97,
+    "stable_categories": 17,
+    "stable_weights": true
+  },
+  "logs": [
+    "python-full.log",
+    "targeted-final.log",
+    "javascript.log",
+    "build.log",
+    "chromium.log",
+    "qt-linux.log"
+  ],
+  "log_normalization": "Trailing whitespace removed from copied logs; content retained."
+}

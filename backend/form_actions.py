@@ -41,19 +41,28 @@ def integer(value,low,high):
     return int(value)
 
 
-def policy(doc,chain):
+def actions(doc,chain):
     n=f.mupdf;events={}
     for xref in chain:
         obj=n.pdf_load_object(f._as_pdf_document(doc),xref);aa=n.pdf_dict_gets(obj,'AA')
         if n.pdf_is_null(aa):continue
-        if not n.pdf_is_dict(aa) or n.pdf_dict_len(aa)>3:raise DocumentError('Las acciones de este campo necesitan otro tratamiento.')
+        if not n.pdf_is_dict(aa) or n.pdf_dict_len(aa)>4:raise DocumentError('Las acciones de este campo necesitan otro tratamiento.')
         for i in range(n.pdf_dict_len(aa)):
             event=n.pdf_to_name(n.pdf_dict_get_key(aa,i));action=n.pdf_dict_get_val(aa,i)
-            if event not in ['F','K','V'] or event in events or not n.pdf_is_dict(action):raise DocumentError('El campo tiene acciones adicionales o ambiguas.')
+            if event not in ['F','K','V','C'] or event in events or not n.pdf_is_dict(action):raise DocumentError('El campo tiene acciones adicionales o ambiguas.')
             keys={n.pdf_to_name(n.pdf_dict_get_key(action,j)) for j in range(n.pdf_dict_len(action))}
             code=n.pdf_dict_gets(action,'JS')
             if keys!={'S','JS'} or n.pdf_to_name(n.pdf_dict_gets(action,'S'))!='JavaScript' or not n.pdf_is_string(code):raise DocumentError('Solo se interpretan ayudantes estándar explícitos; no se ejecutan scripts.')
-            events[event]=call(n.pdf_to_text_string(code))
+            events[event]=n.pdf_to_text_string(code)
+    return events
+
+
+def policy(doc,chain,events=None):
+    events=actions(doc,chain) if events is None else events
+    if 'C' in events:
+        from .native_calculations import parse
+        parse(events['C'])
+    events={event:call(code) for event,code in events.items() if event!='C'}
     if not events:return None
     result={};fmt=events.get('F');stroke=events.get('K');validation=events.get('V')
     if fmt:

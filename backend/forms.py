@@ -23,13 +23,13 @@ def choices(widget):
     return result
 
 
-def form_model(doc):
-    try:return _form_model(doc)
+def form_model(doc,allow_reorder=False):
+    try:return _form_model(doc,allow_reorder)
     except DocumentError:raise
     except Exception as exc:raise DocumentError('No se pudo interpretar la estructura del formulario. Se conserva el PDF original.') from exc
 
 
-def _form_model(doc):
+def _form_model(doc,allow_reorder=False):
     locations,structure,groups,tree_reason=field_structure(doc)
     rows=[]
     for page in doc:
@@ -39,7 +39,7 @@ def _form_model(doc):
     names=Counter(r['name'] for owner,refs in groups.items() for r in [structure[refs[0]]])
     catalog=doc.pdf_catalog()
     blocked=doc.get_sigflags()>0 or not doc.permissions & fitz.PDF_PERM_FORM
-    special=special_form(doc)
+    special=special_form(doc,calculations=False)
     result=[];policies={}
     for number,w in rows:
         # Keep the Page alive while accessing its Widget.
@@ -50,17 +50,20 @@ def _form_model(doc):
         kind=TYPES.get(w.field_type,'unsupported');flags=w.field_flags
         inherited_readonly=any(doc.xref_get_key(n,'Ff')[0]=='int' and int(doc.xref_get_key(n,'Ff')[1])&1 for n in chain)
         options=choices(w) if kind=='choice' else []
-        fmt=None;action_reason=''
+        fmt=None;native_rule=None;action_reason=''
         if any(doc.xref_get_key(n,'AA')[0]!='null' for n in chain):
             if kind!='text' or flags&4096:action_reason='Los formatos automáticos solo se admiten en texto de una línea.'
             else:
-                from .form_actions import policy
+                from .form_actions import policy,actions
                 identity=tuple(chain)
                 if identity not in policies:
-                    try:policies[identity]=policy(doc,chain)
+                    try:
+                        events=actions(doc,chain);fmt=policy(doc,chain,events)
+                        from .native_calculations import parse
+                        policies[identity]=(fmt,parse(events['C']) if 'C' in events else None)
                     except DocumentError as exc:policies[identity]=str(exc)
                 if isinstance(policies[identity],str):action_reason=policies[identity]
-                else:fmt=policies[identity]
+                else:fmt,native_rule=policies[identity]
 
         if blocked:reason='El documento está firmado o no permite rellenar formularios.'
         elif special:reason='El formulario contiene XFA, cálculos o scripts; se conserva sin rellenar.'
@@ -92,7 +95,7 @@ def _form_model(doc):
         result.append({'page':number,'xref':w.xref,'name':w.field_name,'label':w.field_label or w.field_name,
                        'group':owner,'group_size':len(members),'can_delete':not reason,'required':bool(flags&2),'format':fmt,'display_value':display,'format_issue':format_issue,
                        'can_clear':not bool(flags&16384),'kind':kind,'value':value,'choices':options or [],'multiline':bool(flags & 4096),
-                       'max_length':min(w.text_maxlen or 2000,2000),'rect':list(rect),
+                       'native_rule':native_rule,'native_calculated':False,'calculation_safe':not blocked and not special and not tree_reason and not action_reason and names[info['name']]==1 and not any(doc.xref_get_key(n,key)[0]!='null' for n in chain for key in ['A','OC']) and not flags&(4096|8192|1048576|2097152|16777216|33554432) and isinstance(w.text_font,str) and w.text_font.lower() in BASE_FONTS and finite(w.text_fontsize) and 0<=w.text_fontsize<=144 and page.rect.contains(rect),'max_length':min(w.text_maxlen or 2000,2000),'rect':list(rect),
                        'editable':not reason,'reason':reason})
     # One incompatible member must block the whole logical field, never a
     # partial update with different values/appearances on other pages.
@@ -121,7 +124,21 @@ def _form_model(doc):
                 elif any(doc.xref_get_key(r['xref'],'AS')[1] != stored[1] for r in items):reason='Los valores y apariencias de casilla compartida no coinciden.'
         if reason:
             for row in items:row.update(editable=False,can_delete=False,reason=reason)
-    return {'fields':result}
+    model={'fields':result,'native_calculations':[],'native_calculation_error':''}
+    from .native_calculations import graph
+    try:
+        native=graph(doc,result,allow_reorder=True)
+        model.update(native_calculations=native['rules'],native_calculation_order=native['order'],native_order_issue=native['order_issue'])
+        if native['order_issue'] and not allow_reorder:raise DocumentError('El orden CO no respeta las dependencias de cálculo. Corrige su orden antes de rellenar.')
+        targets={rule['target'] for rule in native['rules']};referenced=targets|{source for rule in native['rules'] for source in rule['source_groups']}
+        for row in result:
+            if row['group'] in referenced:row['can_delete']=False
+            row['native_fillable']=row['group'] in targets
+            if row['native_fillable']:row.update(native_calculated=True,editable=False,can_delete=False,reason='Resultado calculado por el PDF. Modifica sus fuentes y actualiza la vista previa.')
+    except DocumentError as exc:
+        model['native_calculation_error']=str(exc);model['native_calculations']=[]
+        for row in result:row.update(editable=False,can_delete=False,reason=str(exc))
+    return model
 
 
 def fitted_text_size(widget,text,multiline=False):
@@ -141,8 +158,14 @@ def fitted_text_size(widget,text,multiline=False):
     return size
 
 
-def prepare_fill(doc,values):
-    rows=form_model(doc)['fields'];values=expand_values(rows,values)
+def prepare_fill(doc,values,recalculate=False):
+    if not recalculate and (not isinstance(values,list) or not 1<=len(values)<=500):raise DocumentError('Indica de 1 a 500 valores de formulario.')
+    model_=form_model(doc);rows=model_['fields']
+    if recalculate or model_.get('native_calculations'):
+        from .native_calculations import resolve
+        values,_=resolve(doc,model_,values,recalculate)
+        rows=[{**r,'editable':True} if r.get('native_fillable') else r for r in rows]
+    values=expand_values(rows,values)
     model={(row['page'],row['xref']):row for row in rows};result=[]
     for entry in values:
         key=entry['page'],entry['xref'];row=model[key]
@@ -218,6 +241,6 @@ def apply_fill(doc,prepared):
             doc.xref_set_key(xref,'V','null');doc.xref_set_key(xref,'I','null')
 
 
-def special_form(doc):
+def special_form(doc,calculations=True):
     from .form_fields import _references
-    return any(doc.xref_get_key(doc.pdf_catalog(),key)[0]!='null' for key in ['AcroForm/XFA','Names/JavaScript','AA','OpenAction']) or bool(_references(doc,doc.pdf_catalog(),'AcroForm/CO'))
+    return any(doc.xref_get_key(doc.pdf_catalog(),key)[0]!='null' for key in ['AcroForm/XFA','Names/JavaScript','AA','OpenAction']) or calculations and bool(_references(doc,doc.pdf_catalog(),'AcroForm/CO'))

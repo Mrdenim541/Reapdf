@@ -1,0 +1,19 @@
+{
+  "backend/app.py": "ac0269d8c2f4b16b06a762e29516feef379e96710a3269d76b844f11559d72ec",
+  "backend/docx_import.py": "b8f70fb8df525a8c7ff829f9a3364fba6fff040d9f5e08441fc434db5df840ac",
+  "backend/docx_notes.py": "0e92e1831c335ee088c1b3e3f41189049144e175e4f4ae67c4843a263d4a660f",
+  "backend/engine.py": "2f2c8e234c9973d370c2710919f90a7dd097f923e4a78fa815a6d2fa63f01de4",
+  "backend/form_actions.py": "08135c68a4853bcb87a66340449ae88cb0d5b8c9bc21f9acf8851866a76e7e08",
+  "backend/form_data.py": "4c2b4d7b11d3c78709224607d8e87242d576a91a5981dc4f9487ccdec5826581",
+  "backend/form_fields.py": "a7668b7c6c0dc2a9c2ffb5d944a9fc34701177d421e10c57e3b1d02582a05c65",
+  "backend/form_rules.py": "9880dfe3a55f5ca50ebb59ae86c22c44fcc1b67a4e917fad4c75df66980a30a3",
+  "backend/forms.py": "8c94abd9c96f0a3d4bb5b7960e3634d040348055f3d3b19bebed2765256dc913",
+  "backend/native_calculations.py": "e4fa38d1cf76334a7f50d617598efa93760ef86c7c5d5f97e19561eb708606d0",
+  "scripts/smoke_native_calcs_notes.mjs": "6913cb881095eba8638cf3e42350731cff7567f808685da46b482eaa8e203eba",
+  "scripts/smoke_native_calcs_notes_qt.py": "8921fbf65b7e73b1016b97f0b69e768a4f5f2ee81f10049b0e4e571e561655ef",
+  "tests/test_docx_notes.py": "58cda6bdc523601eecb136f9fcf09a7a222ac8806b41eba93c88bc711a0c6c5b",
+  "tests/test_native_calculations.py": "9c7fb1bd856ee173efcbfa7b6eee1087d945a901e760169db0240006f8a8e94b",
+  "web/src/forms.jsx": "04188dcc9538e2c9f5c7105b05ade24da2f897802a688f1262b5d969024c3050",
+  "web/src/main.jsx": "29e7ea282618b1e8c627d59c4a7a6ce712055145ddedfbe2ff7d5c54e62db65b",
+  "web/src/word-import.jsx": "0cf6f564f593c8162c28402379b1a40e3c102afc8f2d908076ed5855262830df"
+}

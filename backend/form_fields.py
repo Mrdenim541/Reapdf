@@ -42,6 +42,13 @@ def select_pages(doc, pages):
         raise DocumentError('Los formularios XFA todavía no se pueden reorganizar.')
     roots = _references(doc, catalog, 'AcroForm/Fields')
     calculations = _references(doc, catalog, 'AcroForm/CO')
+    if calculations:
+        from .forms import form_model
+        model=form_model(doc);rules=model.get('native_calculations',[])
+        if rules:
+            surviving={r['group'] for r in model['fields'] if r['page'] in pages}
+            for rule in rules:
+                if rule['target'] in surviving and any(g not in surviving for g in rule['source_groups']):raise DocumentError('La selección retiraría una fuente de un cálculo nativo que permanece. Conserva sus páginas o aplana una copia.')
     # MuPDF may clear Kids arrays while rearranging recently imported fields.
     # Snapshot the topology before invoking it; reading Kids afterwards can lose
     # retained widgets even though their page annotations and Parent survive.

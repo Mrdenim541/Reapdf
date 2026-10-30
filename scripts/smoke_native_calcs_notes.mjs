@@ -1,0 +1,36 @@
+import {chromium,expect} from '@playwright/test';import {execFileSync} from 'node:child_process';import {mkdtempSync} from 'node:fs';import {join} from 'node:path';import {tmpdir} from 'node:os';import {openTool} from './smoke-tool-navigation.mjs';
+const root=mkdtempSync(join(tmpdir(),'reapdf-native-notes-')),python=process.platform==='win32'?'.venv/Scripts/python.exe':'.venv/bin/python',original=join(root,'Native.pdf'),bad=join(root,'Order.pdf'),word=join(root,'Notes.docx'),pdf=join(root,'Filled.pdf'),fixed=join(root,'Fixed.pdf'),project=join(root,'Native.reapdf'),notesPDF=join(root,'Notes.pdf'),notesEdited=join(root,'NotesEdited.pdf'),notesProject=join(root,'Notes.reapdf');
+execFileSync(python,['-c',`from pathlib import Path
+import sys
+from tests.test_native_calculations import source
+from tests.test_docx_notes import source as notes,p,reference
+Path(sys.argv[1]).write_bytes(source());Path(sys.argv[2]).write_bytes(source(order=['Final','Total']))
+body=p('Texto anterior de prueba. '*140)+reference('footnote',1,'NEARBOUNDARY')+p('Texto posterior de prueba. '*90)+reference('endnote',2,'FINALREFERENCE')
+Path(sys.argv[3]).write_bytes(notes(body=body))`,original,bad,word]);
+const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium'});
+try{const page=await browser.newPage({viewport:{width:1600,height:1150}}),errors=[];page.setDefaultTimeout(25000);page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());await page.goto(process.env.REAPDF_URL||'http://127.0.0.1:8000');
+ async function download(label,path){const saved=page.waitForEvent('download');await page.getByRole('button',{name:label,exact:true}).click();await(await saved).saveAs(path);}
+ await page.getByLabel('Archivo PDF',{exact:true}).setInputFiles(original);await openTool(page,'Rellenar formulario');let dialog=page.getByRole('dialog',{name:'Rellenar formulario',exact:true});await dialog.getByRole('button',{name:'Actualizar cálculos del PDF',exact:true}).click();await expect(dialog.getByRole('button',{name:'Aplicar formulario',exact:true})).toBeEnabled();await dialog.getByRole('button',{name:'Aplicar formulario',exact:true}).click();await expect(dialog).toHaveCount(0);
+ await openTool(page,'Rellenar formulario');dialog=page.getByRole('dialog',{name:'Rellenar formulario',exact:true});const input=dialog.getByLabel('Valor del formulario',{exact:true});await expect(input).toBeEnabled();await input.fill('7.25');await expect(dialog.getByRole('button',{name:'Aplicar formulario',exact:true})).toBeEnabled();await dialog.getByLabel('Campo del formulario',{exact:true}).selectOption('4');await expect(dialog).toContainText('Resultado nativo del PDF:');await expect(dialog).toContainText('20,00');await expect(input).toHaveCount(0);await expect(dialog.getByRole('button',{name:'Aplicar formulario',exact:true})).toBeEnabled();await dialog.getByRole('button',{name:'Aplicar formulario',exact:true}).click();await page.getByRole('button',{name:/Deshacer/}).click();await page.getByRole('button',{name:/Rehacer/}).click();await download('Exportar copia',pdf);await download('Guardar proyecto',project);
+ await page.getByLabel('Archivo PDF',{exact:true}).setInputFiles(bad);await openTool(page,'Rellenar formulario');dialog=page.getByRole('dialog',{name:'Rellenar formulario',exact:true});await dialog.getByRole('button',{name:'Corregir orden de cálculo del PDF',exact:true}).click();await expect(dialog).toHaveCount(0);await openTool(page,'Rellenar formulario');dialog=page.getByRole('dialog',{name:'Rellenar formulario',exact:true});await dialog.getByRole('button',{name:'Actualizar cálculos del PDF',exact:true}).click();await expect(dialog.getByRole('button',{name:'Aplicar formulario',exact:true})).toBeEnabled();await dialog.getByRole('button',{name:'Aplicar formulario',exact:true}).click();await download('Exportar copia',fixed);
+ await page.locator('.file-menu summary').click();await page.getByRole('button',{name:'Crear PDF desde Word',exact:true}).click();const wd=page.getByRole('dialog',{name:'Crear PDF desde Word',exact:true});await wd.getByLabel('Archivo Word para convertir',{exact:true}).setInputFiles(word);await wd.getByRole('button',{name:'Convertir y revisar Word',exact:true}).click();await expect(wd.getByLabel('Resumen de importación Word')).toContainText('1 notas al pie · 1 notas finales');const count=await wd.getByLabel('Página de Word importado',{exact:true}).locator('option').count();for(let i=0;i<count;i++){await wd.getByLabel('Página de Word importado',{exact:true}).selectOption(String(i));const checked=wd.getByLabel(`Revisé Word página ${i+1}`,{exact:true});await expect(checked).toBeEnabled();await checked.check();}await wd.getByLabel('Aceptar diferencias de importación Word',{exact:true}).check();await wd.getByRole('button',{name:'Abrir PDF convertido',exact:true}).click();await expect(wd).toHaveCount(0);await download('Exportar copia',notesPDF);
+ const targetPage=Number(execFileSync(python,['-c',`import sys,pymupdf as f
+with f.open(sys.argv[1]) as d:print(next(p.number for p in d if p.search_for('FOOTNOTEALPHA')))`,notesPDF],{encoding:'utf8'}).trim());await page.getByRole('button',{name:`Ir a página ${targetPage+1}`,exact:true}).click();await openTool(page,'Editar texto');await page.getByRole('button',{name:'Editar en página: FOOTNOTEALPHA contiene detalle tecnico.',exact:true}).click();const edit=page.getByLabel('Texto sobre la página',{exact:true});await expect(edit).toBeEnabled();await edit.fill('FOOTNOTEALPHA detalle tecnico.');await edit.press('Control+Enter');await expect(edit).toHaveCount(0);await download('Exportar copia',notesEdited);await download('Guardar proyecto',notesProject);
+ execFileSync(python,['-c',`from pathlib import Path
+import sys,pymupdf as f
+from backend.engine import export_pdf
+from backend.forms import form_model
+from backend.projects import read_project
+for path,expected in [(sys.argv[1],'20'),(sys.argv[2],'8')]:
+ with f.open(path) as d:
+  assert next(w.field_value for p in d for w in p.widgets() or [] if w.field_name=='Final')==expected
+  assert not form_model(d)['native_calculation_error']
+base,ops,_=read_project(Path(sys.argv[3]).read_bytes())
+with f.open(stream=export_pdf(base,ops)) as d:assert next(w.field_value for p in d for w in p.widgets() or [] if w.field_name=='Final')=='20'
+for path in [sys.argv[4],sys.argv[5]]:
+ with f.open(path) as d:
+  assert next(p.number for p in d if p.search_for('NEARBOUNDARY'))==next(p.number for p in d if p.search_for('FOOTNOTEALPHA'))
+  assert any(p.search_for('ENDNOTEBETA') for p in d) and len([l for p in d for l in p.get_links() if l['kind']==f.LINK_GOTO])>=4
+base,ops,_=read_project(Path(sys.argv[6]).read_bytes())
+with f.open(stream=export_pdf(base,ops)) as d:assert any(p.search_for('FOOTNOTEALPHA detalle tecnico.') for p in d)`,pdf,fixed,project,notesPDF,notesEdited,notesProject]);if(errors.length)throw new Error(errors.join('\n'));console.log('PASS: native PDF recalculate, dependent outputs on another page, explicit CO repair, readonly results, automatic preview, undo/redo/PDF/project persistence; Word foot/endnotes imported and reviewed, correct-page footnote/return links, on-page original-font note edit and project persistence.');
+}catch(e){console.error(e);throw e;}finally{await browser.close();}

@@ -409,15 +409,20 @@ async def read_forms(doc_id: str, request: Request):
     effective,reports,targets=resolve_rules(data,operations)
     fill=next((op for op in effective if op.get('type')=='form_fill'),None)
     for row in model['fields']:row['base_value']=row['value']
-    if fill:
-        values={(entry['page'],entry['xref']):entry['value'] for entry in expand_values(model['fields'],fill['values'])}
+    from .native_calculations import resolve as native_values
+    recalculate=any(op.get('type')=='form_recalculate' for op in effective)
+    native_reports=[]
+    if fill or recalculate:
+        with open_pdf(data) as source:resolved,native_reports=native_values(source,model,fill['values'] if fill else [],recalculate)
+        values={(entry['page'],entry['xref']):entry['value'] for entry in resolved}
         for row in model['fields']:row['value']=values.get((row['page'],row['xref']),row['value'])
     from .form_actions import value as formatted_value
     for row in model['fields']:
-        if row.get('format') and fill and (row['page'],row['xref']) in values and isinstance(row['value'],str):
+        if row.get('format') and (fill or recalculate) and (row['page'],row['xref']) in values and isinstance(row['value'],str):
             row['display_value']=formatted_value(row['format'],row['value'])[1];row['format_issue']=''
-        row['base_editable']=row['editable'];row['calculated']=row['group'] in targets
-        if row['calculated']:row.update(editable=False,reason='Campo calculado por reglas de este proyecto. Cambia sus fuentes o edita las reglas.')
+        row['base_editable']=row['editable'];row['calculated']=row.get('native_calculated',False) or row['group'] in targets
+        if row['group'] in targets:row.update(editable=False,reason='Campo calculado por reglas de este proyecto. Cambia sus fuentes o edita las reglas.')
+    model['native_calculation_reports']=native_reports
     model['calculation_reports']=reports
     return model
 
@@ -580,6 +585,14 @@ async def review_form_rules(doc_id: str, request: Request):
     effective,reports,targets=await run_in_threadpool(resolve_rules,base,next_ops)
     await run_in_threadpool(export_pdf,base,next_ops)
     return {'reports':reports,'target_groups':sorted(targets),'operations':next_ops}
+
+
+@app.post('/api/documents/{doc_id}/repair-calculation-order')
+async def repair_native_calculation_order(doc_id:str,request:Request):
+    from .native_calculations import repair_order
+    payload=await read_payload(request)
+    data,report=await run_in_threadpool(repair_order,document_path(doc_id).read_bytes(),payload.get('operations',[]))
+    return {**store_document(data),'calculation_order_report':report}
 
 
 @app.post('/api/documents/{doc_id}/calculate-fields')

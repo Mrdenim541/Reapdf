@@ -40,7 +40,8 @@ def import_form_data(base,operations,payload):
         merged={(v['page'],v['xref']):v for v in expand_values(list(rows.values()),previous)} if previous else {}
         for entry in incoming:merged[(entry['page'],entry['xref'])]=entry
         result=[v for key,v in merged.items() if v['value']!=rows[key]['value']]
-    next_ops=[op for op in operations if op.get('type')!='form_fill']
+        if form_model(doc).get('native_calculations'):result=list(merged.values())
+    next_ops=[op for op in operations if op.get('type') not in ['form_fill','form_recalculate']]
     if result:next_ops.append({'type':'form_fill','page':0,'values':result})
     export_pdf(base,next_ops)
     return next_ops
@@ -51,11 +52,15 @@ def flatten_form(base,operations):
         if source.get_sigflags()>0 or not source.permissions & fitz.PDF_PERM_MODIFY:raise DocumentError('El documento no permite aplanar formularios o está firmado.')
         rows=form_model(source)['fields']
         if not rows:raise DocumentError('El documento no contiene campos para aplanar.')
-        if any(not r['editable'] and r['reason']!='Campo de solo lectura.' for r in rows):raise DocumentError('El formulario contiene estructuras no compatibles. No se aplanará parcialmente.')
+        if any(not r['editable'] and r['reason']!='Campo de solo lectura.' and not r.get('native_fillable') for r in rows):raise DocumentError('El formulario contiene estructuras no compatibles. No se aplanará parcialmente.')
     with open_pdf(export_pdf(base,operations)) as doc:
+        if form_model(doc).get('native_calculations'):
+            from .forms import apply_fill
+            apply_fill(doc,prepare_fill(doc,[],recalculate=True))
         for page in doc:
             for widget in page.widgets() or []:
                 if doc.xref_get_key(widget.xref,'AP/N')[0]=='null':raise DocumentError('Un campo carece de apariencia. Rellénalo o genera su apariencia antes de aplanar.')
         doc.bake(annots=False,widgets=True)
+        doc.xref_set_key(doc.pdf_catalog(),'AcroForm','null')
         if any(list(p.widgets() or []) for p in doc):raise DocumentError('No se pudieron aplanar todos los campos.')
         return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)

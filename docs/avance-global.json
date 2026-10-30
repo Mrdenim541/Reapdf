@@ -1,14 +1,14 @@
 {
   "schema": 1,
   "review_date": "2026-10-30",
-  "status": "provisional_standard_forms_reviewed_ocr_tables",
+  "status": "provisional_native_calculations_word_notes",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 78.0,
-  "reported_percent": 78,
+  "weighted_percent": 78.97,
+  "reported_percent": 79,
   "subjective_range_percent": [
     60,
-    80
+    82
   ],
   "anchors": {
     "0": "Sin implementación",
@@ -35,7 +35,7 @@
     {
       "id": "interface",
       "weight": 7,
-      "maturity": 94,
+      "maturity": 95,
       "evidence": [
         "web/src/main.jsx",
         "web/src/paragraph-editor.jsx",
@@ -54,7 +54,11 @@
         "docs/FORMULARIOS_Y_TABLAS_OCR_20261030.md",
         "web/src/forms.jsx",
         "web/src/table-regions.jsx",
-        "scripts/smoke_commercial_forms_tables.mjs"
+        "scripts/smoke_commercial_forms_tables.mjs",
+        "docs/CALCULOS_NATIVOS_Y_NOTAS_WORD_20261030.md",
+        "web/src/forms.jsx",
+        "web/src/word-import.jsx",
+        "scripts/smoke_native_calcs_notes.mjs"
       ],
       "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados."
     },
@@ -124,7 +128,7 @@
     {
       "id": "forms",
       "weight": 6,
-      "maturity": 80,
+      "maturity": 87.5,
       "evidence": [
         "backend/form_import.py",
         "backend/form_calculations.py",
@@ -134,14 +138,19 @@
         "docs/FORMULARIOS_Y_TABLAS_OCR_20261030.md",
         "backend/form_actions.py",
         "tests/test_form_standard_actions.py",
-        "scripts/smoke_commercial_native.py"
+        "scripts/smoke_commercial_native.py",
+        "docs/CALCULOS_NATIVOS_Y_NOTAS_WORD_20261030.md",
+        "backend/native_calculations.py",
+        "tests/test_native_calculations.py",
+        "scripts/smoke_native_calcs_notes.mjs",
+        "scripts/smoke_native_calcs_notes_qt.py"
       ],
-      "remaining": "Cálculos nativos PDF/CO y AFSimple_Calculate, XFA, JavaScript general y validaciones/eventos fuera de la lista; formatos adicionales, fuentes no compatibles, corpus externo y aceptación. Formatos/validadores estándar declarativos y revisión visual de obligatorios incorporados; no se ejecuta código PDF."
+      "remaining": "XFA, JavaScript general, otras acciones/validadores y variantes fuera de la lista, fórmulas arbitrarias, fuentes de campos no compatibles, grafos mixtos que usen salidas nativas en reglas del proyecto, corpus externo y aceptación. Cálculos AFSimple_Calculate compatibles, CO/dependencias/ciclos y reparación de orden ya incorporados."
     },
     {
       "id": "ocr_conversion",
       "weight": 9,
-      "maturity": 80,
+      "maturity": 85,
       "evidence": [
         "backend/ocr.py",
         "backend/docx_import.py",
@@ -152,9 +161,12 @@
         "backend/table_regions.py",
         "tests/test_table_regions.py",
         "web/src/table-grid.js",
-        "tests/test_table_grid.mjs"
+        "tests/test_table_grid.mjs",
+        "docs/CALCULOS_NATIVOS_Y_NOTAS_WORD_20261030.md",
+        "backend/docx_notes.py",
+        "tests/test_docx_notes.py"
       ],
-      "remaining": "Perspectiva/deskew general, tablas con celdas combinadas y diseños complejos, OCR multilingüe/corpus representativo y fidelidad Office general (incluidas notas al pie/finales y otras partes aún omitidas). CSV y Word editables desde tabla regional revisada incorporados; no convierte los píxeles del PDF en texto original editable."
+      "remaining": "Perspectiva/deskew general, tablas con celdas combinadas y diseños complejos, OCR multilingüe/corpus representativo y fidelidad Office general. Notas partidas entre páginas, marcas personalizadas, numeración reiniciada por página y otros formatos Word siguen fuera. Notas al pie/finales compatibles en PDF incorporadas; no se promete reconstrucción semántica de notas al volver a DOCX."
     },
     {
       "id": "security_signatures",
@@ -327,36 +339,34 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261030-before-forms-ocr-tables.json",
-    "before_weighted": 76.4,
-    "after_weighted": 78.0,
-    "new_points": 1.6,
+    "baseline": "docs/progress/20261030-before-native-calcs-notes.json",
+    "before_weighted": 78.0,
+    "after_weighted": 78.97,
+    "new_points": 0.97,
     "changes": [
       {
         "id": "interface",
-        "before": 92.5,
-        "after": 94,
-        "points": 0.105,
-        "reason": "Selección de campos con ratón, vista previa automática, revisión de obligatorios y cuadrícula/celdas de tablas revisables."
+        "before": 94,
+        "after": 95,
+        "points": 0.07,
+        "reason": "Actualización explícita de cálculos nativos, resultados protegidos y corrección de orden CO desde el formulario; revisión de notas importadas y edición sobre la página comprobadas."
       },
       {
         "id": "forms",
-        "before": 70,
-        "after": 80,
-        "points": 0.6,
-        "reason": "Interpretación declarativa de AFNumber/AFPercent/AFDateEx y AFRange, conservación de acciones y valores nativos, formatos y apariencias compartidas, entrada visual y borradores parciales."
+        "before": 80,
+        "after": 87.5,
+        "points": 0.45,
+        "reason": "AFSimple_Calculate SUM/PRD/AVG/MIN/MAX con dependencias, ciclos y CO, reparación explícita del orden, campos compartidos, valores/formato originales, persistencia y protección de fuentes necesarias."
       },
       {
         "id": "ocr_conversion",
-        "before": 70,
-        "after": 80,
-        "points": 0.9,
-        "reason": "Extracción tabular regional digital/OCR real, eliminación de líneas solo en copia de reconocimiento, cuadrícula automática/manual, corrección y CSV protegido/Word editable con reimportación comprobada."
+        "before": 80,
+        "after": 85,
+        "points": 0.45,
+        "reason": "Importación Word de notas al pie en la página de referencia y notas finales, numeración compatible por sección, enlaces de ida/retorno, imágenes/enlaces propios, comprobación de texto y paginación acotada."
       }
     ],
-    "unrounded_before_weighted": "76.395",
-    "unrounded_after_weighted": "78.00",
-    "unrounded_delta": "1.605",
+    "unrounded_after_weighted": "78.97",
     "all_weights_and_scope_unchanged": true
   }
 }

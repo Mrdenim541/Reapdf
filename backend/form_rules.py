@@ -37,7 +37,7 @@ def resolve_rules(base,operations):
         try:current,report=calculate_fields(base,current,rules[index],validate_export=False)
         except DocumentError as exc:raise DocumentError(f'Regla {index+1}: {exc}') from exc
         reports.append({'rule':index+1,**report,'automatic':True})
-    other=[v for v in operations if not isinstance(v,dict) or v.get('type') not in {'form_fill','form_rules'}]
+    other=[v for v in operations if not isinstance(v,dict) or v.get('type') not in {'form_fill','form_rules'} and not (current and v.get('type')=='form_recalculate')]
     return other+current,reports,set(targets)
 
 
