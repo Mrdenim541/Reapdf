@@ -1,14 +1,14 @@
 {
   "schema": 1,
   "review_date": "2026-10-31",
-  "status": "provisional_extended_user_journeys",
+  "status": "provisional_function_guide_and_verified_windows_source",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 84.25,
-  "reported_percent": 84,
+  "weighted_percent": 84.88,
+  "reported_percent": 85,
   "subjective_range_percent": [
-    61,
-    86
+    62,
+    87
   ],
   "anchors": {
     "0": "Sin implementación",
@@ -298,7 +298,7 @@
     {
       "id": "desktop_distribution",
       "weight": 6,
-      "maturity": 70,
+      "maturity": 80,
       "evidence": [
         "portable/native_window.py",
         "portable/native_print.py",
@@ -316,9 +316,11 @@
         "scripts/check_desktop_candidate.py",
         "scripts/smoke_parent_exit.py",
         ".github/workflows/desktop-source.yml",
-        "scripts/smoke_text_states_native.py"
+        "scripts/smoke_text_states_native.py",
+        "docs/ENTREGA_TECNICA_Y_GUIA_20261031.md",
+        "docs/validation/delivery-guide-windows-20261031/results.json"
       ],
-      "remaining": "Ejecución Windows y consulta de sus resultados, DPI/asociaciones/impresión física, ensamblado/aceptación del paquete final. Configurar CI no equivale a superarlo."
+      "remaining": "Paquete ejecutable/instalador/portable final en Windows cliente limpio, DPI/asociaciones/impresión física, estabilidad sostenida y aceptación personal al final. Once recorridos de aplicación desde fuente ya verificados en Windows Server 2025 y Linux, con fuente limpia y comprobantes vinculados a Git."
     },
     {
       "id": "migration_interoperability",
@@ -383,7 +385,7 @@
     {
       "id": "portfolios_layers",
       "weight": 3,
-      "maturity": 86,
+      "maturity": 87,
       "evidence": [
         "backend/pro_tools.py",
         "docs/FUNCIONES.md",
@@ -397,9 +399,11 @@
         "scripts/smoke_extended_workflows_qt.py",
         "backend/portfolio_metadata.py",
         "backend/layer_configs.py",
-        "tests/test_portfolio_metadata.py"
+        "tests/test_portfolio_metadata.py",
+        "docs/ENTREGA_TECNICA_Y_GUIA_20261031.md",
+        "docs/validation/delivery-guide-windows-20261031/results.json"
       ],
-      "remaining": "Carpetas y edición del esquema de portfolio; tipos/valores/columnas protegidos restantes, OCG con reglas automáticas AS/uso/estados complejos y edición de contenido de capas. Interoperabilidad externa pendiente. Configuraciones básicas y metadatos S/N/D editables de esquemas existentes incorporados."
+      "remaining": "Carpetas y variantes complejas de esquema de portfolio; tipos/valores/columnas protegidos restantes, OCG con reglas automáticas AS/uso/estados complejos y edición de contenido de capas. Interoperabilidad externa pendiente. Configuraciones básicas y metadatos S/N/D editables de esquemas existentes incorporados. Diseño compatible de columnas S/N/D (crear, renombrar, ordenar y retirar) ya incorporado, sin conversión automática de tipos existentes."
     },
     {
       "id": "collaboration_services",
@@ -435,58 +439,31 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261031-before-extended-workflows.json",
-    "before_weighted": 83.69,
-    "before_unrounded": "83.689",
-    "after_weighted": 84.25,
-    "new_points": 0.56,
-    "unrounded_delta": "0.5635",
-    "unrounded_after_weighted": "84.2525",
+    "baseline": "docs/progress/20261031-before-windows-source.json",
+    "before_weighted": 84.25,
+    "before_unrounded": "84.2525",
+    "after_weighted": 84.88,
+    "new_points": 0.63,
+    "unrounded_delta": "0.6300",
+    "unrounded_after_weighted": "84.8825",
     "changes": [
       {
-        "id": "interface",
-        "before": 97,
-        "after": 97.25,
-        "points": 0.0175,
-        "reason": "Recorridos completos de ángulos, referencia antigua, listas/celdas, configuraciones de capas y columnas externas en los controles del producto."
-      },
-      {
-        "id": "text_images",
-        "before": 98.9,
-        "after": 99,
-        "points": 0.016,
-        "reason": "Grupos Td/TD originales verificados por caracteres, edición independiente y reflujo conjunto afín con restauración de matrices; recorrido real de fuente original en Qt."
-      },
-      {
-        "id": "accessibility",
-        "before": 87,
-        "after": 91,
-        "points": 0.12,
-        "reason": "Lbl separados con su LI/LBody y celdas vacías TH/TD sin MCID inventado, conservadas al dividir y reabrir."
-      },
-      {
-        "id": "migration_interoperability",
-        "before": 77,
-        "after": 79,
-        "points": 0.08,
-        "reason": "Migración de mediciones antiguas y edición de metadatos de portfolios externos con copia independiente de FileSpec/CI compartidos; estructura de celdas vacías conservada."
-      },
-      {
-        "id": "measurement",
-        "before": 90,
-        "after": 95,
-        "points": 0.15,
-        "reason": "Ángulos en grados/radianes sin escala, intersecciones lineales acotadas y migración explícita de medidas v1 con nueva referencia y mismo identificador."
+        "id": "desktop_distribution",
+        "before": 70,
+        "after": 80,
+        "points": 0.6,
+        "reason": "Ejecución real Windows de once recorridos de ventana propia, guardado, impresión controlada, instancias/arranque y funciones nuevas; recibo de fuente limpia, objetos Git y logs comprobados."
       },
       {
         "id": "portfolios_layers",
-        "before": 80,
-        "after": 86,
-        "points": 0.18,
-        "reason": "Configuraciones OCG compatibles como estado inicial, bloqueos/radio preservados y columnas S/N/D de esquemas externos sin reemplazar esquema/adjuntos."
+        "before": 86,
+        "after": 87,
+        "points": 0.03,
+        "reason": "Diseño compatible de columnas de portfolios con eliminación explícita de valores, protección de columnas, conservación de ordenación, adjuntos y portada, probado también en ventana Windows."
       }
     ],
-    "all_weights_and_scope_unchanged": true
+    "all_weights_and_scope_unchanged": true,
+    "no_credit_for_documentation_or_ci_preparation": true
   },
   "technical_complete": false,
   "delivery_policy": {
@@ -507,5 +484,18 @@
   ],
   "user_acceptance_gates": [
     "Revisión personal del programa entregado y registro de observaciones"
-  ]
+  ],
+  "verified_platforms": {
+    "source_commit": "571ee166073523cbdb50fccba54916662d09b16e",
+    "windows": {
+      "platform": "Windows Server 2025",
+      "checks": 11,
+      "evidence": "docs/validation/delivery-guide-windows-20261031/windows/desktop-report.json"
+    },
+    "linux": {
+      "checks": 11,
+      "evidence": "docs/validation/delivery-guide-windows-20261031/linux/desktop-report.json"
+    },
+    "packaged_executable_verified": false
+  }
 }

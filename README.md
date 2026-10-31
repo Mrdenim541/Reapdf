@@ -2,7 +2,7 @@
 
 [Manual de funciones](docs/MANUAL_DE_FUNCIONES.md): acceso, pasos, resultado esperado y límites de cada herramienta. Revisión personal aplazada hasta después de la entrega técnica final; sin paquetes intermedios.
 
-Estado vigente: [recorridos extendidos de edición y escritorio](docs/RECORRIDOS_EXTENDIDOS_20261031.md), **84,25 % del programa completo (≈84 %)**, estimación de madurez con Windows pendiente. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
+Estado vigente: [guía integrada y comprobación Windows](docs/ENTREGA_TECNICA_Y_GUIA_20261031.md), **84,88 % del programa completo (≈85 %)**, estimación de madurez; once recorridos desde fuente aprobados en Windows/Linux, paquete final pendiente. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 

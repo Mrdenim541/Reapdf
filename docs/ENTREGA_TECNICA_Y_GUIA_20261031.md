@@ -17,3 +17,13 @@ El comprobante verifica plataforma Windows, revisión exacta, fuente limpia, obj
 El comprobante se puede recuperar mediante Git desde el mismo repositorio, sin consultar la API de Actions bloqueada en este entorno. Es una salida de la comprobación normal del proyecto; no modifica la política de red del entorno. La publicación utiliza una rama propia con avance normal y no cambia la fuente ni su índice. Los eventos de esa rama de evidencias no vuelven a ejecutar la CI de aplicación.
 
 Estos recorridos comprueban la aplicación desde código fuente. No sustituyen la futura comprobación del ejecutable empaquetado, DPI, asociaciones, impresión física, aceptación externa ni la revisión personal final. La solicitud de 100 % no permite marcar esos pendientes como hechos.
+
+## Resultado real comprobado
+
+La revisión de código **571ee166073523cbdb50fccba54916662d09b16e** pasó los once recorridos de escritorio tanto en **Windows Server 2025 (Python 3.12.10)** como en Linux, con fuente limpia antes/después. Se recuperó el comprobante Windows desde `validation/desktop-windows`, ejecución `41220957405-1`, y se volvió a verificar contra objetos Git y huellas de logs. Incluye la guía integrada con buscador, áreas, 73 herramientas y 15 operaciones generales, atajos de guardado correctos para escritorio y el diseño de columnas. No es un resultado simulado del protocolo.
+
+Evidencia: `validation/delivery-guide-windows-20261031/results.json`, informes Windows/Linux y registros por recorrido. Regresión general: 3616 Python; dirigidas: 91 (con solapamiento); 128 JavaScript; compilación y recorridos Chromium/Qt aprobados. La última ampliación de instrucciones generales de la guía se comprobó por interfaz después de la regresión del backend. Las huellas vinculan el contenido de la guía incorporada al programa con la revisión probada.
+
+La estimación global pasa de 84,25 % a **84,88 % (≈85 %)** por la ejecución real Windows y el diseño compatible de columnas. Se mantienen alcance y pesos; no se suma por documentación o por preparar herramientas. `technical_complete` y `accepted_complete` siguen siendo falsos: faltan funciones y la comprobación del ejecutable empaquetado en Windows cliente. La revisión personal sigue siendo la última etapa, sin impedir el desarrollo independiente.
+
+La consulta directa a la API de Actions continúa bloqueada; ya no impide acreditar estas pruebas mediante el comprobante del propio repositorio. No se cambió la política de red ni se publicó una configuración del entorno. No se generó ni entregó un portable/instalador intermedio.

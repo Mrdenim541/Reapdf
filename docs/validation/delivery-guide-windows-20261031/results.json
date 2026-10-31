@@ -1,0 +1,68 @@
+{
+  "date": "2026-10-31",
+  "validated_source_commit": "571ee166073523cbdb50fccba54916662d09b16e",
+  "source_git_objects": "windows/desktop-report.json",
+  "windows_evidence_ref": "refs/heads/validation/desktop-windows",
+  "windows_evidence_path": "reports/571ee166073523cbdb50fccba54916662d09b16e/41220957405-1/",
+  "windows_verdict": "verified-windows.json",
+  "checks": {
+    "python_full": {
+      "passed": 3616,
+      "warnings": 3,
+      "seconds": 328.95,
+      "command": ".venv/bin/python -m pytest -q",
+      "stage": "Final Python backend and protocol code; the last additions to general manual data/UI were then checked through browser/Qt and Windows."
+    },
+    "python_directed": {
+      "passed": 91,
+      "warnings": 1,
+      "seconds": 2.71,
+      "overlaps_full": true,
+      "command": ".venv/bin/python -m pytest -q tests/test_windows_receipt.py tests/test_portfolio_schema.py tests/test_portfolio_metadata.py tests/test_portfolios.py tests/test_extended_workflows.py"
+    },
+    "javascript": {
+      "passed": 128,
+      "command": "node --test tests/*.mjs"
+    },
+    "manual": {
+      "tools": 73,
+      "general_operations": 15,
+      "passed": true,
+      "command": "node scripts/check_function_manual.mjs"
+    },
+    "build": {
+      "passed": true,
+      "command": "npm run build",
+      "warning": "Main JavaScript bundle exceeds 500 KB; manual is loaded on demand."
+    },
+    "chromium": {
+      "passed": true,
+      "command": "node scripts/smoke_portfolio_schema.mjs",
+      "scope": "Searchable guide and schema create/rename/reorder/fill/remove; immutable attachments/cover checked."
+    },
+    "qt_linux": {
+      "passed": true,
+      "checks": 11,
+      "report": "linux/desktop-report.json",
+      "source_clean_before_after": true
+    },
+    "qt_windows": {
+      "passed": true,
+      "checks": 11,
+      "platform_release": "2025Server",
+      "python": "3.12.10",
+      "report": "windows/desktop-report.json",
+      "source_clean_before_after": true
+    }
+  },
+  "personal_acceptance": false,
+  "technical_complete": false,
+  "distributable_built": false,
+  "scope": "Technical source checks, not an executable delivery or complete commercial feature parity. Personal review remains after the final technical delivery.",
+  "not_verified": [
+    "Packaged executable/installer/portable on a clean Windows client",
+    "Client Windows 10/11 DPI, associations and physical printer",
+    "Remaining functionality in broad blocks 1-8",
+    "Personal acceptance after technical delivery"
+  ]
+}
