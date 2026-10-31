@@ -1,3 +1,13 @@
+# Estado vigente · 31 de octubre de 2026 · RFC3161 y revocación TSA
+
+**85,68 % global provisional (≈86 %)**. `technical_complete` y `accepted_complete` siguen falsos; no quedan solo pruebas personales. Ocho bloques abiertos en `PLAN_ACTUAL.md`. Sin portables intermedios; revisión del usuario al final. Modelo recomendado: **6.1 Sol medio**.
+
+Implementado: solicitud RFC3161 con nonce/huella/confianza y HTTPS limitado, token en firma P12, DocTimeStamp incremental sin P12, verificación separada de sellos/firmas y revocación TSA local CRL/OCSP (incluido OCSP sin AIA). Guardado nativo confirmado y cancelación/reintento de copia sin repetir TSA; token previo dañado bloquea nuevas firmas/sellos. DNS acotado sin bloqueo al cancelar, reutilización de IP comprobada en conexión directa y límite previo de trabajo de claves. Proveedor TSA real, revocación histórica/por red, LT/LTA y renovación de archivo siguen pendientes; no repetir creación básica como próxima implementación.
+
+**3770 Python, 130 JS**, build, regresión Chromium y auditor del manual **74+15** aprobados. Trece recorridos Qt Windows/Linux, fuente limpia antes/después; Reapdf.exe real comprobado en Windows Server 2025 para ventana propia, edición/deshacer/rehacer/exportación/cierre. Fuente **1c3170c08bfe9064b4103a110050181fe6b8e54e**, comprobante **41232766350-1**, objetos Git/logs/huella contrastados. TSA sintética criptográfica y TLS local real; ningún proveedor externo contactado. No acredita todas las funciones empaquetadas ni Windows cliente/DPI/impresión física.
+
+Informe `SELLOS_RFC3161_Y_REVOCACION_TSA_20261031.md`; evidencia `validation/tsa-workflows-20261031/results.json`. Seguridad pasa 71→77, peso7: +0,42 puntos globales, sin variar pesos/alcance. Siguiente pendiente funcional: evidencias DSS/PAdES-LT/LTA y renovación, además de edición avanzada concreta. No inventar servicios ni credenciales. Respaldado en `recovery/editing-20261029`. Las entradas siguientes son históricas.
+
 # Estado vigente · 31 de octubre de 2026 · comodines, curvas y cruces
 
 **85,26 % global provisional (≈85 %)**, pesos/alcance estables; `technical_complete` y `accepted_complete` falsos. No quedan solo revisiones personales: siguen las implementaciones de los ocho bloques. El usuario exige trabajo sostenido, entrega técnicamente completa y sus pruebas al final; sin portables intermedios ni solicitudes de «procede» por cada tarea.

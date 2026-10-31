@@ -1,0 +1,31 @@
+{
+  "source_commit": "1c3170c08bfe9064b4103a110050181fe6b8e54e",
+  "python_passed": 3770,
+  "javascript_passed": 130,
+  "directed_python_passed": 94,
+  "build_passed": true,
+  "existing_signatures_chromium_passed": true,
+  "linux_qt_checks": 13,
+  "windows_qt_checks": 13,
+  "packaged_windows_verified": true,
+  "windows_scope": "Windows Server 2025, compiled Reapdf.exe own Qt window, edit/undo/redo/export/normal close; separate source Qt checks include TSA workflow.",
+  "windows_run": "41232766350-1",
+  "real_external_tsa_contacted": false,
+  "synthetic_cryptographic_tsa_verified": true,
+  "verified_local_https_transport": true,
+  "local_tsa_crl_ocsp_verified": true,
+  "native_save_cancel_retry_without_new_tsa_request": true,
+  "manual_tools": 74,
+  "manual_general_operations": 15,
+  "global_estimated_percent": 85.68,
+  "technical_complete": false,
+  "human_acceptance": false,
+  "intermediate_package_delivered": false,
+  "remaining": "docs/PLAN_ACTUAL.md",
+  "limits": [
+    "No live TSA provider interoperability established",
+    "No historical/online revocation or PAdES-LT/LTA/archive renewal",
+    "No Windows client clean install, physical print or DPI acceptance",
+    "Eight broad functional closure blocks remain open"
+  ]
+}

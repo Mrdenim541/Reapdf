@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "review_date": "2026-10-31",
-  "status": "provisional_verified_wildcards_curved_traces_and_line_cubic_intersections",
+  "status": "provisional_verified_rfc3161_requests_document_timestamps_and_local_tsa_revocation",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 85.26,
-  "reported_percent": 85,
+  "weighted_percent": 85.68,
+  "reported_percent": 86,
   "subjective_range_percent": [
     62,
     87
@@ -229,7 +229,7 @@
     {
       "id": "security_signatures",
       "weight": 7,
-      "maturity": 71,
+      "maturity": 77,
       "evidence": [
         "backend/digital_signatures.py",
         "backend/redaction.py",
@@ -240,9 +240,14 @@
         "tests/test_soft_masks_page_notes_groups.py",
         "tests/test_offline_timestamp_report.py",
         "docs/REFLUJO_PERSPECTIVA_REVOCACION_20261031.md",
-        "tests/test_affine_perspective_revocation.py"
+        "tests/test_affine_perspective_revocation.py",
+        "backend/timestamp_authority.py",
+        "tests/test_timestamp_requests.py",
+        "scripts/smoke_timestamp_qt.py",
+        "docs/SELLOS_RFC3161_Y_REVOCACION_TSA_20261031.md",
+        "docs/validation/tsa-workflows-20261031/results.json"
       ],
-      "remaining": "Revocación, solicitud de sellos a TSA, LT/LTA/sellos documentales de archivo/tokens físicos, censura compleja y aceptación independiente. Verificación local de timestamps de firma incorporada, sin revocación ni acreditación jurídica. CRL/OCSP locales acotados incorporados; pendientes revocación TSA, validación histórica/red y LT/LTA."
+      "remaining": "Revocación por red e histórica, conservación PAdES-LT/LTA y renovación de archivo; variantes certificadas/DocMDP/FieldMDP protegidas, censura compleja y PDF/X/preflight avanzado. Interoperabilidad con TSA y lectores externos pendiente. Solicitud RFC3161, DocTimeStamp básico y revocación TSA local incorporados; no equivalen a conservación de archivo."
     },
     {
       "id": "standards_optimization",
@@ -458,20 +463,20 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261031-before-wildcards-curves.json",
-    "before_weighted": 85.18,
-    "before_unrounded": "85.1825",
-    "after_weighted": 85.26,
-    "new_points": 0.075,
-    "unrounded_delta": "0.0750",
-    "unrounded_after_weighted": "85.2575",
+    "baseline": "docs/progress/20261031-before-tsa.json",
+    "before_weighted": 85.26,
+    "before_unrounded": "85.2575",
+    "after_weighted": 85.68,
+    "new_points": 0.42,
+    "unrounded_delta": "0.4200",
+    "unrounded_after_weighted": "85.6775",
     "changes": [
       {
-        "id": "measurement",
-        "before": 95,
-        "after": 97.5,
-        "points": 0.075,
-        "reason": "Trazado compatible lineal/Bézier, longitud/área con cota de aproximación, cierre de recorridos, proyección del cursor e intersecciones línea–cúbica. Guardado/reapertura, fuente de trazado y regiones comprobados, con recorrido Qt Windows/Linux. Se mantienen variantes generales protegidas y pendientes."
+        "id": "security_signatures",
+        "before": 71,
+        "after": 77,
+        "points": 0.42,
+        "reason": "Solicitud RFC3161 con nonce/huella/confianza, firma con token, DocTimeStamp incremental, revocación TSA local CRL/OCSP y recorrido nativo con cancelación/reintento sin nueva solicitud. Sin crédito por LT/LTA, proveedor real o validación histórica."
       }
     ],
     "all_weights_and_scope_unchanged": true,
@@ -498,16 +503,17 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "571ee166073523cbdb50fccba54916662d09b16e",
+    "source_commit": "1c3170c08bfe9064b4103a110050181fe6b8e54e",
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 11,
-      "evidence": "docs/validation/delivery-guide-windows-20261031/windows/desktop-report.json"
+      "checks": 13,
+      "evidence": "docs/validation/tsa-workflows-20261031/windows/desktop-report.json"
     },
     "linux": {
-      "checks": 11,
-      "evidence": "docs/validation/delivery-guide-windows-20261031/linux/desktop-report.json"
+      "checks": 13,
+      "evidence": "docs/validation/tsa-workflows-20261031/linux/desktop-report.json"
     },
-    "packaged_executable_verified": false
+    "packaged_executable_verified": true,
+    "packaged_scope": "Ventana Qt, edición, deshacer/rehacer, exportación y cierre; no acredita todo el alcance ni aceptación final."
   }
 }

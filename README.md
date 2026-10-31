@@ -2,7 +2,7 @@
 
 [Manual de funciones](docs/MANUAL_DE_FUNCIONES.md): acceso, pasos, resultado esperado y límites de cada herramienta. Revisión personal aplazada hasta después de la entrega técnica final; sin paquetes intermedios.
 
-Estado vigente: [comodines, curvas e intersecciones](docs/BUSQUEDA_Y_CURVAS_20261031.md), **85,26 % del programa completo (≈85 %)**, estimación provisional de madurez. Doce recorridos desde fuente aprobados en Windows/Linux; paquete interno `Reapdf.exe` probado en Windows Server 2025. Persisten implementaciones y verificaciones: no es una entrega final. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
+Estado vigente: [sellos RFC3161 y revocación TSA local](docs/SELLOS_RFC3161_Y_REVOCACION_TSA_20261031.md), **85,68 % del programa completo (≈86 %)**, estimación provisional de madurez. Trece recorridos desde fuente aprobados en Windows/Linux; paquete interno `Reapdf.exe` probado en Windows Server 2025. Persisten implementaciones y verificaciones: no es una entrega final. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 
@@ -66,12 +66,9 @@ Primera versión experimental de un editor PDF personal, con Adobe Acrobat como 
 - Revisar estructura por páginas y descargar un informe JSON sin textos ni valores de campos.
 - Exportar una copia sin modificar el archivo de entrada.
 
-Guía del avance 0.18 y restricciones: [AVANCE_LARGO_018.md](docs/AVANCE_LARGO_018.md). Formularios del avance 0.19: [FORMULARIOS_AVANZADOS.md](docs/FORMULARIOS_AVANZADOS.md). Edición del avance 0.20: [TEXTO_CON_ESTILOS.md](docs/TEXTO_CON_ESTILOS.md). Importación de formularios del avance 0.23: [IMPORTAR_FORMULARIOS.md](docs/IMPORTAR_FORMULARIOS.md). Distribución por áreas del avance 0.22: [AREAS_DE_TRABAJO.md](docs/AREAS_DE_TRABAJO.md). Interfaz y revisión del avance 0.21: [ESPACIO_DE_TRABAJO.md](docs/ESPACIO_DE_TRABAJO.md). Estimación global: **86 % ±5 puntos** del plan propio, sin equivalencia con el catálogo completo de Acrobat.
+Guía del avance 0.18 y restricciones: [AVANCE_LARGO_018.md](docs/AVANCE_LARGO_018.md). Formularios del avance 0.19: [FORMULARIOS_AVANZADOS.md](docs/FORMULARIOS_AVANZADOS.md). Edición del avance 0.20: [TEXTO_CON_ESTILOS.md](docs/TEXTO_CON_ESTILOS.md). Importación de formularios del avance 0.23: [IMPORTAR_FORMULARIOS.md](docs/IMPORTAR_FORMULARIOS.md). Distribución por áreas del avance 0.22: [AREAS_DE_TRABAJO.md](docs/AREAS_DE_TRABAJO.md). Interfaz y revisión del avance 0.21: [ESPACIO_DE_TRABAJO.md](docs/ESPACIO_DE_TRABAJO.md). La estimación vigente está al inicio y en la matriz; estas referencias de versiones son históricas.
 
-No es todavía una alternativa completa a Acrobat. Hay un portable experimental para Windows x64, con intérprete y dependencias incluidos, y una entrega de código para desarrollo. La interfaz se sirve localmente y el portable intenta abrirla en una ventana de Edge/Chrome; hay un modo de navegador normal como alternativa. No utiliza servicios externos para procesar documentos.
-
-Por indicación del usuario, no se generan portables en cada avance. La solicitud más reciente pide una entrega de prueba ahora: 0.43 incorpora `Reapdf.exe` y el motor Windows incluido. Su ventana usa Edge/Chrome instalado; la ejecución gráfica Windows aún necesita verificarse. El paquete 0.20 queda como antecedente. Código actual: 0.43.
-
+No es todavía una alternativa completa a Acrobat. El escritorio actual usa una ventana Qt propia y un motor local; el paquete interno Reapdf.exe se comprueba en Windows Server 2025. Las entregas antiguas con Edge/Chrome son antecedentes. No se entrega un instalador ni portable intermedio. El sellado TSA opcional consulta únicamente el servicio configurado explícitamente y envía huella/nonce; no envía el PDF ni la clave personal. Persisten pendientes técnicos antes de la entrega final.
 Para consultar el portable anterior sin instalar Python ni Node.js, véase [PORTABLE.md](docs/PORTABLE.md). Su ensamblado se comprobó en Linux; todavía no se ejecutó en Windows.
 
 Para probar la entrega de código en Windows con comandos de doble clic y un documento de ejemplo, sigue [la guía de prueba](docs/PROBAR.md). El ZIP generado con `scripts/package_trial.py` incluye código y ejemplo; todavía requiere Python y Node.js.
