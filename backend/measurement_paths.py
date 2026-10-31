@@ -25,14 +25,20 @@ def _bounds(c):
     return lower,upper,deviation
 
 
-def flatten(segments):
+def flatten(segments,budget=None):
     leaves={};heap=[];serial=0;gap=0.
     for index,segment in enumerate(segments):
+        if budget is not None:
+            budget[0]+=1
+            if budget[0]>50000:raise DocumentError('Presupuesto de subdivisión geométrica agotado.')
         c=tuple(f.Point(p) for p in segment)
         lower,upper,deviation=_bounds(c) if len(c)==4 else (abs(c[1]-c[0]),)*2+(0.,)
         key=(index,0.);leaves[key]=(c,lower,upper,deviation,0);gap+=upper-lower
         if len(c)==4:heapq.heappush(heap,(-max((upper-lower)/LENGTH_TOLERANCE,deviation/DEVIATION_TOLERANCE),serial,key));serial+=1
     while heap:
+        if budget is not None:
+            budget[0]+=1
+            if budget[0]>50000:raise DocumentError('Presupuesto de subdivisión geométrica agotado.')
         score,_,key=heapq.heappop(heap);c,lower,upper,deviation,depth=leaves[key]
         if gap<=LENGTH_TOLERANCE and -score<=1:break
         if len(leaves)>=199 or depth>=18:break
@@ -47,29 +53,32 @@ def flatten(segments):
     return points,{'length_lower_pt':sum(v[1] for v in ordered),'length_upper_pt':sum(v[2] for v in ordered),'length_error_pt':max(0,gap)+.0004,'max_deviation_pt':deviation+.000002,'precision_target_met':gap+.0004<=.02 and deviation+.000002<=.05}
 
 
-def paths_on_page(doc,page):
+def paths_on_page(doc,page,private=False):
     if doc.get_ocgs():return {'paths':[],'limited':False,'reason':'Los trazados de capas requieren verificar su visibilidad.'}
     rotation=page.rotation;native,rotate=matrices(page);rect=f.Rect(page.rect)
     try:page.set_rotation(0);drawings=page.get_drawings(extended=True)
     finally:page.set_rotation(rotation)
-    result=[];skipped=0;levels=[];count=0;vertices=0;limited=len(drawings)>20000
+    result=[];skipped=0;levels=[];count=0;vertices=0;limited=len(drawings)>20000;budget=[0];exhausted=False
     def add(segments,closed,curved,index):
-        nonlocal skipped,limited,vertices
+        nonlocal skipped,limited,vertices,exhausted
         if not segments:return
-        if len(result)>=500:limited=True;return
+        if len(result)>=500:limited=True;exhausted=True;return
         try:
             closed=closed or abs(f.Point(segments[-1][-1])-f.Point(segments[0][0]))<.00001
             if closed and abs(f.Point(segments[-1][-1])-f.Point(segments[0][0]))>1e-10:segments=segments+[(segments[-1][-1],segments[0][0])]
-            pts,bounds=flatten(segments)
+            pts,bounds=flatten(segments,budget)
             pts=[[round(v,6) for v in f.Point(p)*rotate] for p in pts]
-            if vertices+len(pts)>20000:limited=True;return
+            if vertices+len(pts)>20000:limited=True;exhausted=True;return
             if any(not rect.contains(f.Point(p)) for p in pts):raise DocumentError('Trazado parcialmente fuera de vista.')
             if len(pts)<2 or bounds['length_lower_pt']<1:raise DocumentError('Trazado mínimo.')
             source_geometry=[[[round(v,3) for v in f.Point(p)*~native] for p in segment] for segment in segments]
             identity=hashlib.sha256(json.dumps([index,source_geometry,closed],separators=(',',':')).encode()).hexdigest()
             result.append({'id':identity,'points':pts,'closed':closed,'curved':curved,**bounds})
+            if private:result[-1]['_segments']=[[[float(v) for v in f.Point(p)*rotate] for p in segment] for segment in segments]
             vertices+=len(pts)
-        except DocumentError:skipped+=1
+        except DocumentError:
+            skipped+=1
+            if budget[0]>50000:limited=True;exhausted=True
     for index,drawing in enumerate(drawings[:20000]):
         level=drawing.get('level',0)
         while levels and levels[-1][0]>=level:levels.pop()
@@ -96,7 +105,7 @@ def paths_on_page(doc,page):
                 add(segments,False,curved,(index,count));segments=[];curved=False
             segments.append(segment);curved|=kind=='c'
         add(segments,bool(drawing.get('closePath')),curved,(index,count,'last'))
-        if limited and (count>20000 or len(result)>=500):break
+        if exhausted or limited and (count>20000 or len(result)>=500):break
     return {'paths':result,'limited':limited,'skipped_paths':skipped,'reason':'Se omiten trazados recortados, fuera de página o que superan la precisión/límites; no se reinterpretan como geometría completa.' if skipped or limited else ''}
 
 

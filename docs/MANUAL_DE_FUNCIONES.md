@@ -980,7 +980,7 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Resultado esperado:** Se guarda trazado y etiqueta anclados al PDF. En curvas compatibles se conserva un margen de aproximación que se vuelve a comprobar al leer su trazado de origen.
 
-**Límites actuales:** La curva se aproxima por hasta 200 vértices con margen explícito; no incluye errores del plano ni de calibración. Se protegen capas, recortes que cortan geometría, trazados excesivos o ambiguos. Los ángulos no requieren escala; intersecciones no lineales y migraciones antiguas ambiguas siguen pendientes.
+**Límites actuales:** La curva se aproxima por hasta 200 vértices con margen explícito; no incluye errores del plano ni de calibración. Se protegen capas, recortes que cortan geometría, trazados excesivos o ambiguos. Los ángulos no requieren escala; Cruces de línea con Bézier compatibles incorporados; cruces entre dos curvas y migraciones antiguas ambiguas siguen pendientes.
 
 <a id="funcion-layers"></a>
 

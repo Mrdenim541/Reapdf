@@ -149,12 +149,32 @@ def targets(base,ops,number):
             if comparisons>250000:break
             active.append((a,b))
         limited=limited or intersections_limited
+        # Curves are taken only from the clip-aware trace model. Intersections
+        # solve the original cubic, not its displayed polyline approximation.
+        from .measurement_paths import paths_on_page
+        from .vector_intersections import line_cubic
+        safe=paths_on_page(doc,page,private=True);safe_lines=[];curves=[];curve_comparisons=0;curve_hits=0;solves=0
+        for path in safe['paths']:
+            for segment in path['_segments']:
+                (curves if len(segment)==4 else safe_lines).append(segment)
+        limited=limited or safe['limited'] or bool(safe.get('skipped_paths')) or len(curves)>500 or len(safe_lines)>2000
+        for curve in curves[:500]:
+            xs=[p[0] for p in curve];ys=[p[1] for p in curve]
+            for line in safe_lines[:2000]:
+                curve_comparisons+=1
+                if curve_comparisons>250000:limited=True;break
+                if max(p[0] for p in line)<min(xs)-1e-6 or min(p[0] for p in line)>max(xs)+1e-6 or max(p[1] for p in line)<min(ys)-1e-6 or min(p[1] for p in line)>max(ys)+1e-6:continue
+                solves+=1
+                if solves>10000:limited=True;break
+                for point in line_cubic(line,curve):
+                    before=len(result);add(point,'curve_intersection');curve_hits+=len(result)-before
+            if curve_comparisons>250000 or solves>10000:break
         images=page.get_image_info()
         if len(images)>1000:limited=True
         for info in images[:1000]:
             matrix=f.Matrix(*info['transform'])
             for p in [(0,0),(1,0),(1,1),(0,1)]:add(f.Point(p)*matrix,'image')
-        return {'points':result,'limited':limited,'intersection_comparisons':comparisons,'reason':'Ajuste parcial: se alcanzó un límite de geometría o de cruces.' if limited else ''}
+        return {'points':result,'limited':limited,'intersection_comparisons':comparisons,'curve_line_comparisons':curve_comparisons,'curve_intersections':curve_hits,'reason':'Ajuste parcial: se omitieron trazados recortados/incompatibles o se alcanzó un límite de geometría o de cruces.' if limited else ''}
 
 
 def native_vertices(page,annot,kind):

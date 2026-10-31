@@ -118,7 +118,7 @@
         "guarda la medición en el PDF y exporta o guarda el documento."
       ],
       "expected": "Se guarda trazado y etiqueta anclados al PDF. En curvas compatibles se conserva un margen de aproximación que se vuelve a comprobar al leer su trazado de origen.",
-      "limits": "La curva se aproxima por hasta 200 vértices con margen explícito; no incluye errores del plano ni de calibración. Se protegen capas, recortes que cortan geometría, trazados excesivos o ambiguos. Los ángulos no requieren escala; intersecciones no lineales y migraciones antiguas ambiguas siguen pendientes."
+      "limits": "La curva se aproxima por hasta 200 vértices con margen explícito; no incluye errores del plano ni de calibración. Se protegen capas, recortes que cortan geometría, trazados excesivos o ambiguos. Los ángulos no requieren escala; Cruces de línea con Bézier compatibles incorporados; cruces entre dos curvas y migraciones antiguas ambiguas siguen pendientes."
     },
     {
       "id": "layers",
