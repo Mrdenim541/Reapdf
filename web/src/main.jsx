@@ -730,7 +730,7 @@ function App() {
     {doc&&organizerOpen&&<Organizer doc={doc} currentPage={page} operations={operations} busy={busy} error={error} onClose={()=>setOrganizerOpen(false)} onApply={organizePages} onExtract={extractPages}/>}
     {doc&&inserterOpen&&<Inserter mode={inserterOpen==='replace'?'replace':'insert'} currentPage={page} doc={doc} busy={busy} error={error} onClearError={()=>setError('')} onClose={()=>setInserterOpen(false)} onApply={insertPages}/>}
     {doc&&['labels','attachments','tables'].includes(pageTool)&&<ProTools kind={pageTool} doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
-    {doc&&['digital_sign','verify_signatures'].includes(pageTool)&&<Suspense fallback={loadingTool}><DigitalSignatures mode={pageTool} doc={doc} page={page} operations={operations} onClose={()=>setPageTool(null)}/></Suspense>}
+    {doc&&['digital_sign','document_timestamp','verify_signatures'].includes(pageTool)&&<Suspense fallback={loadingTool}><DigitalSignatures mode={pageTool} doc={doc} page={page} operations={operations} onClose={()=>setPageTool(null)}/></Suspense>}
     {doc&&pageTool==='signature'&&<SignatureDialog doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
     {doc&&pageTool==='redact'&&<RedactionDialog doc={doc} page={page} operations={operations} onClose={()=>setPageTool(null)}/>}
     {doc&&pageTool==='bates'&&<BatesDialog doc={doc} operations={operations} onClose={()=>setPageTool(null)}/>}

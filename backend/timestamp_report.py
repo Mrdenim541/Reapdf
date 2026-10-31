@@ -4,7 +4,7 @@ from cryptography import x509
 from .certificates import certificate_info
 
 
-def report(status,checked_at=None,signature=None):
+def report(status,checked_at=None,signature=None,imprint_algorithm=None,token_info=None):
     if status is None:return None
     intact=bool(status.intact);valid=bool(status.valid);trusted=bool(status.trusted)
     result={'status':'integrity_failed' if not intact or not valid else 'chain_accepted_offline' if trusted else 'integrity_only','intact':intact,'cryptographically_valid':valid,'chain_accepted':trusted,'time':status.timestamp.isoformat(),'digest_algorithm':status.md_algorithm,'trust_problem':getattr(status.trust_problem_indic,'name',None),'revocation_checked':False,'network_used':False}
@@ -17,12 +17,17 @@ def report(status,checked_at=None,signature=None):
         elif info['key_algorithm']=='RSA' and not 2048<=info['key_bits']<=8192 or info['key_algorithm']=='EC' and info['curve'] not in ['secp256r1','secp384r1','secp521r1'] or info['key_algorithm'] not in ['RSA','EC']:policy='La clave de la autoridad de tiempo queda fuera del alcance admitido.'
         elif not cert.not_valid_before_utc<=status.timestamp<=cert.not_valid_after_utc:policy='La fecha del token queda fuera de la vigencia de su certificado.'
     else:policy='No se identificó el certificado de la autoridad de tiempo.'
-    imprint=None
+    imprint=imprint_algorithm
     try:
         attrs=[a for a in signature.signer_info['unsigned_attrs'] if a['type'].native=='signature_time_stamp_token']
-        if len(attrs)==1 and len(attrs[0]['values'])==1:imprint=attrs[0]['values'][0]['content']['encap_content_info']['content'].parsed['message_imprint']['hash_algorithm']['algorithm'].native
+        if len(attrs)==1 and len(attrs[0]['values'])==1:
+            token_info=attrs[0]['values'][0]['content']['encap_content_info']['content'].parsed
+            imprint=token_info['message_imprint']['hash_algorithm']['algorithm'].native
     except (ValueError,TypeError,KeyError,AttributeError):pass
     result['imprint_algorithm']=imprint
+    if token_info is not None:
+        result['policy_oid']=token_info['policy'].dotted
+        if any(extension['critical'].native for extension in token_info['extensions']):policy='El token contiene extensiones críticas que este verificador no interpreta.'
     if imprint not in ['sha256','sha384','sha512'] or status.md_algorithm not in ['sha256','sha384','sha512']:policy='El token necesita SHA-256, SHA-384 o SHA-512 tanto en el imprint como en su firma CMS.'
     if status.timestamp>(checked_at or datetime.now(timezone.utc))+timedelta(minutes=5):policy='La fecha del token es posterior al reloj de comprobación; revisa ambos relojes.'
     result['certificate_policy_problem']=policy

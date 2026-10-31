@@ -674,12 +674,27 @@
       "area": "forms",
       "availability": "implemented_with_limits",
       "steps": [
-        "Abre Firmar con certificado",
-        "selecciona P12/PFX e introduce su contraseña",
-        "revisa la copia y firma."
+        "Elige tu P12/PFX y escribe su contraseña",
+        "configura la marca visible y, si lo necesitas, activa sello de tiempo e indica TSA y confianza pública",
+        "revisa la copia y firma; el resultado se comprueba antes de guardarlo",
+        "si cancelas el guardado, conserva la copia preparada para guardarla sin volver a firmar."
       ],
-      "expected": "Se entrega una copia firmada y comprobada criptográficamente.",
-      "limits": "Certificado y contraseña no se guardan en el proyecto. TSA remota y firma de larga duración siguen pendientes."
+      "expected": "Se crea una copia firmada con fuente de confianza separada y, opcionalmente, token RFC3161 verificado. El original permanece intacto.",
+      "limits": "Firma local SHA-256, P12/PFX compatible y TSA pública HTTPS opcional con confianza explícita. Creación sin consulta de revocación; revisión posterior con evidencias locales. Sin conservación LT/LTA. DocMDP/FieldMDP y firmas dañadas permanecen protegidos."
+    },
+    {
+      "id": "document_timestamp",
+      "label": "Sellar documento",
+      "area": "forms",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Sellar documento y escribe la URL HTTPS pública de tu TSA",
+        "selecciona los certificados públicos de confianza de la autoridad y revisa la copia sin consultar la red",
+        "sella y guarda la copia; si cancelas el guardado, usa Guardar copia preparada para no repetir la consulta",
+        "abre la copia y comprueba el sello en Verificar firmas digitales con la confianza correspondiente."
+      ],
+      "expected": "Se añade un sello documental RFC3161 incremental con nonce, huella, firma y confianza comprobados, conservando revisiones anteriores.",
+      "limits": "TSA pública HTTPS sin autenticación adicional, con confianza explícita; no configura ni contrata proveedores. Falta comprobar interoperabilidad con un proveedor real. Creación sin consulta de revocación; puedes verificar después con CRL/OCSP locales. Sin conservación PAdES-LT/LTA. Ajustes y claves no se guardan en proyectos."
     },
     {
       "id": "verify_signatures",
@@ -691,8 +706,8 @@
         "selecciona confianza y evidencias locales si corresponde",
         "ejecuta la comprobación."
       ],
-      "expected": "Se separan integridad, revisiones, confianza, sello de tiempo y revocación local.",
-      "limits": "No acredita revocación de TSA, validación histórica, LT/LTA ni validez jurídica universal."
+      "expected": "Se informa por separado de integridad, revisiones, confianza y revocación local de firmantes y TSA, incluidos tokens de firma y sellos documentales RFC3161.",
+      "limits": "Sin red; confianza explícita y CRL/OCSP locales vigentes, con resultados separados de firmante y TSA. No acredita validación histórica ni LT/LTA. Una revisión anterior no se presenta como cobertura actual."
     },
     {
       "id": "signature",

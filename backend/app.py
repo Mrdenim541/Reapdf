@@ -840,11 +840,21 @@ async def certificate_details(file: UploadFile,password: str=Form('')):
 
 
 @app.post('/api/documents/{doc_id}/digital-sign')
-async def digital_signature(doc_id: str,file: UploadFile,password: str=Form(''),payload: str=Form('{}')):
+async def digital_signature(doc_id: str,file: UploadFile,password: str=Form(''),payload: str=Form('{}'),tsa_trust: UploadFile | None=None):
     data=await read_signature_upload(file,MAX_IDENTITY,'Certificado P12/PFX');config=signature_payload(payload)
-    result=await run_in_threadpool(sign_document,document_path(doc_id).read_bytes(),config.get('operations',[]),data,password,config.get('config',{}),config.get('review') is True)
+    roots=await read_signature_upload(tsa_trust,MAX_TRUST,'Confianza de la autoridad de tiempo') if tsa_trust else b''
+    result=await run_in_threadpool(sign_document,document_path(doc_id).read_bytes(),config.get('operations',[]),data,password,config.get('config',{}),config.get('review') is True,config.get('tsa'),roots)
     if config.get('review') is True:return result
     return Response(result,media_type='application/pdf',headers={'Content-Disposition':'attachment; filename="Reapdf-firmado.pdf"'})
+
+
+@app.post('/api/documents/{doc_id}/document-timestamp')
+async def document_timestamp(doc_id:str,payload:str=Form('{}'),tsa_trust:UploadFile | None=None):
+    from .digital_signatures import timestamp_document
+    config=signature_payload(payload);roots=await read_signature_upload(tsa_trust,MAX_TRUST,'Confianza de la autoridad de tiempo') if tsa_trust else b''
+    result=await run_in_threadpool(timestamp_document,document_path(doc_id).read_bytes(),config.get('operations',[]),config.get('tsa'),roots,config.get('review') is True)
+    if config.get('review') is True:return result
+    return Response(result,media_type='application/pdf',headers={'Content-Disposition':'attachment; filename="Reapdf-sellado.pdf"'})
 
 
 @app.post('/api/documents/{doc_id}/verify-signatures')

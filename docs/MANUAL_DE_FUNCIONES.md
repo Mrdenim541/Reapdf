@@ -34,7 +34,7 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Organizar páginas**: [Organizar páginas](#funcion-organizer), [Unir o insertar PDF](#funcion-insert), [Reemplazar páginas](#funcion-replace), [Duplicar páginas](#funcion-duplicate), [Página en blanco](#funcion-blank), [Recortar páginas](#funcion-crop), [Dividir PDF](#funcion-split), [Etiquetas de página](#funcion-labels), [Editar marcadores](#funcion-bookmarks), [Numerar páginas](#funcion-numbering), [Numeración Bates por lotes](#funcion-bates).
 
-**Formularios y firmas**: [Rellenar formulario](#funcion-forms), [Propiedades de campos existentes](#funcion-field_properties), [Crear o eliminar campos](#funcion-field), [Datos de formulario](#funcion-data), [Aplanar formulario](#funcion-flatten), [Firmar con certificado](#funcion-digital_sign), [Verificar firmas digitales](#funcion-verify_signatures), [Firma visual manuscrita](#funcion-signature), [Cálculos automáticos del proyecto](#funcion-form_rules), [Calcular valores de campos](#funcion-calculate).
+**Formularios y firmas**: [Rellenar formulario](#funcion-forms), [Propiedades de campos existentes](#funcion-field_properties), [Crear o eliminar campos](#funcion-field), [Datos de formulario](#funcion-data), [Aplanar formulario](#funcion-flatten), [Firmar con certificado](#funcion-digital_sign), [Sellar documento](#funcion-document_timestamp), [Verificar firmas digitales](#funcion-verify_signatures), [Firma visual manuscrita](#funcion-signature), [Cálculos automáticos del proyecto](#funcion-form_rules), [Calcular valores de campos](#funcion-calculate).
 
 **Convertir y OCR**: [Extraer tabla por región](#funcion-table_region), [OCR de región](#funcion-region_ocr), [Crear copia PDF/A-2b](#funcion-archive), [Reconocer texto (OCR)](#funcion-ocr), [Exportar páginas como imágenes](#funcion-export_images), [Exportar tablas a CSV](#funcion-tables), [Exportar texto a Word](#funcion-docx), [Exportar texto](#funcion-export_text), [Recetas de trabajo](#funcion-automation), [Procesar varios PDF](#funcion-batch), [Reducir imágenes del PDF](#funcion-compress), [Optimizar PDF](#funcion-optimize).
 
@@ -689,13 +689,29 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Acceso:** Formularios y firmas → Firmar con certificado.
 
-1. Abre Firmar con certificado.
-2. selecciona P12/PFX e introduce su contraseña.
-3. revisa la copia y firma.
+1. Elige tu P12/PFX y escribe su contraseña
+2. configura la marca visible y, si lo necesitas, activa sello de tiempo e indica TSA y confianza pública
+3. revisa la copia y firma; el resultado se comprueba antes de guardarlo
+4. si cancelas el guardado, conserva la copia preparada para guardarla sin volver a firmar.
 
-**Resultado esperado:** Se entrega una copia firmada y comprobada criptográficamente.
+**Resultado esperado:** Se crea una copia firmada con fuente de confianza separada y, opcionalmente, token RFC3161 verificado. El original permanece intacto.
 
-**Límites actuales:** Certificado y contraseña no se guardan en el proyecto. TSA remota y firma de larga duración siguen pendientes.
+**Límites actuales:** Firma local SHA-256, P12/PFX compatible y TSA pública HTTPS opcional con confianza explícita. Creación sin consulta de revocación; revisión posterior con evidencias locales. Sin conservación LT/LTA. DocMDP/FieldMDP y firmas dañadas permanecen protegidos.
+
+<a id="funcion-document_timestamp"></a>
+
+### Sellar documento
+
+**Acceso:** Formularios y firmas → Sellar documento.
+
+1. Abre Sellar documento y escribe la URL HTTPS pública de tu TSA
+2. selecciona los certificados públicos de confianza de la autoridad y revisa la copia sin consultar la red
+3. sella y guarda la copia; si cancelas el guardado, usa Guardar copia preparada para no repetir la consulta
+4. abre la copia y comprueba el sello en Verificar firmas digitales con la confianza correspondiente.
+
+**Resultado esperado:** Se añade un sello documental RFC3161 incremental con nonce, huella, firma y confianza comprobados, conservando revisiones anteriores.
+
+**Límites actuales:** TSA pública HTTPS sin autenticación adicional, con confianza explícita; no configura ni contrata proveedores. Falta comprobar interoperabilidad con un proveedor real. Creación sin consulta de revocación; puedes verificar después con CRL/OCSP locales. Sin conservación PAdES-LT/LTA. Ajustes y claves no se guardan en proyectos.
 
 <a id="funcion-verify_signatures"></a>
 
@@ -703,13 +719,13 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Acceso:** Formularios y firmas → Verificar firmas digitales.
 
-1. Abre Verificar firmas digitales.
-2. selecciona confianza y evidencias locales si corresponde.
+1. Abre Verificar firmas digitales
+2. selecciona confianza y evidencias locales si corresponde
 3. ejecuta la comprobación.
 
-**Resultado esperado:** Se separan integridad, revisiones, confianza, sello de tiempo y revocación local.
+**Resultado esperado:** Se informa por separado de integridad, revisiones, confianza y revocación local de firmantes y TSA, incluidos tokens de firma y sellos documentales RFC3161.
 
-**Límites actuales:** No acredita revocación de TSA, validación histórica, LT/LTA ni validez jurídica universal.
+**Límites actuales:** Sin red; confianza explícita y CRL/OCSP locales vigentes, con resultados separados de firmante y TSA. No acredita validación histórica ni LT/LTA. Una revisión anterior no se presenta como cobertura actual.
 
 <a id="funcion-signature"></a>
 

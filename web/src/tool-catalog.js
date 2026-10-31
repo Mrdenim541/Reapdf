@@ -19,7 +19,7 @@ const areaMembers={
  edit:['variable_fonts','find_replace','text','paragraph','flow','textbox','link','existing_links','images','existing_images','watermark','headers'],
  annotate:['comments','select','highlight','underline','strikeout','note','ink','line','arrow','rectangle','stamp'],
  pages:['organizer','insert','replace','duplicate','blank','crop','split','labels','bookmarks','numbering','bates'],
- forms:['form_rules','calculate','forms','field_properties','field','data','flatten','signature','digital_sign','verify_signatures'],
+ forms:['form_rules','calculate','forms','field_properties','field','data','flatten','signature','digital_sign','document_timestamp','verify_signatures'],
  convert:['ocr','region_ocr','table_region','export_images','tables','export_text','optimize','batch','automation','docx','archive','compress'],
  protect:['protect','redact','standards','working_copy','preflight'],
 };
@@ -73,7 +73,8 @@ export const tools = [
  entry('field','Crear o eliminar campos','Diseña campos simples o elimina grupos compatibles.','forms'),
  entry('data','Datos de formulario','Exporta o importa valores en JSON verificado.','forms','copy'),
  entry('flatten','Aplanar formulario','Convierte campos compatibles en contenido visible.','forms'),
- entry('digital_sign','Firmar con certificado','Firma una copia con P12/PFX y comprueba su integridad antes de descargar.','forms','sign','dialog','firma digital certificado criptografía p12 pfx'),
+ entry('digital_sign','Firmar con certificado','Firma una copia con P12/PFX y comprueba su integridad antes de guardar la copia.','forms','sign','dialog','firma digital certificado criptografía p12 pfx'),
+ entry('document_timestamp','Sellar documento','Añade un sello RFC3161 incremental con una autoridad de tiempo y confianza explícitas.','forms','sign','dialog','sello tiempo TSA RFC3161 timestamp fecha documento'),
  entry('verify_signatures','Verificar firmas digitales','Revisa integridad, cambios y confianza explícita de los certificados.','forms','read','dialog','firma digital validación certificado confianza integridad'),
  entry('signature','Firma visual manuscrita','Dibuja una firma visual sin certificado digital.','forms','annotate'),
  entry('ocr','Reconocer texto (OCR)','Añade texto buscable a escaneados en español o inglés.','document','edit_copy','dialog','escáner escaneo digitalizar'),

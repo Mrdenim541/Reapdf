@@ -6,7 +6,7 @@ Windows CI is distinct from human acceptance and physical-printer verification.
 import argparse,hashlib,json,os,platform,subprocess,sys,tempfile,time,urllib.request
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-CHECKS=['smoke_native_save.py','smoke_native_document_set.py','smoke_single_instance.py','smoke_native_window.py','smoke_vector_print.py','smoke_native_readiness.py','smoke_native_launcher.py','smoke_parent_exit.py','smoke_text_states_native.py','smoke_extended_workflows_qt.py','smoke_portfolio_schema_qt.py','smoke_search_curves_qt.py']
+CHECKS=['smoke_native_save.py','smoke_native_document_set.py','smoke_single_instance.py','smoke_native_window.py','smoke_vector_print.py','smoke_native_readiness.py','smoke_native_launcher.py','smoke_parent_exit.py','smoke_text_states_native.py','smoke_extended_workflows_qt.py','smoke_portfolio_schema_qt.py','smoke_search_curves_qt.py','smoke_timestamp_qt.py']
 
 
 def healthy():

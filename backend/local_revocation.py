@@ -61,3 +61,40 @@ def check(signature,roots,crls,ocsps,now):
     revoked=next((r for r in results if r['status']=='revoked'),None)
     if revoked:return revoked
     return next((r for r in results if r['status']!='accepted_offline'),results[0])
+
+
+def check_timestamp(signature,certificate,roots,crls,ocsps,now):
+    """Check the TSA chain at checking time, never the historical signing time."""
+    scope='Cadena TSA a la fecha de comprobación; sin consulta de red ni validación histórica.'
+    if not crls and not ocsps:return {'status':'not_checked','checked':False,'scope':scope}
+    if certificate is None or any(root.sha256==certificate.sha256 for root in roots):return {'status':'unknown','checked':False,'problem':'Falta una cadena TSA independiente del ancla seleccionada.','scope':scope}
+    from pyhanko_certvalidator import ValidationContext
+    from pyhanko.sign import validation
+    def evaluate(crls,ocsps):
+        try:
+            strict=ValidationContext(trust_roots=roots,allow_fetching=False,revocation_mode='require',moment=now,crls=crls,ocsps=ocsps)
+            # The general path checker only considers OCSP if the certificate
+            # advertises AIA. Explicit offline evidence still needs validation
+            # when there is no URL: validate the TSA path, then check each
+            # non-anchor certificate against the supplied OCSP responses.
+            context=ValidationContext(trust_roots=roots,allow_fetching=False,moment=now) if ocsps else strict
+            if signature.sig_object_type=='/DocTimeStamp':result=validation.validate_pdf_timestamp(signature,validation_context=context)
+            else:
+                result=validation.validate_pdf_signature(signature,signer_validation_context=ValidationContext(trust_roots=roots,allow_fetching=False,moment=now),ts_validation_context=context).timestamp_validity
+            if result is None:raise ValueError()
+            if ocsps:
+                import asyncio
+                from pyhanko_certvalidator.revinfo.validate_ocsp import verify_ocsp_response
+                from pyhanko_certvalidator.errors import RevokedError
+                if not result.trusted or not result.valid or not result.intact or result.validation_path is None:raise ValueError()
+                async def validate_explicit():
+                    for cert in result.validation_path.iter_certs(include_root=False):await verify_ocsp_response(cert,result.validation_path,strict)
+                try:asyncio.run(validate_explicit())
+                except RevokedError:return {'status':'revoked','checked':True,'problem':'REVOKED','scope':scope}
+            problem=getattr(result.trust_problem_indic,'name',None);revoked=problem in ['REVOKED','REVOKED_NO_POE','REVOKED_CA_NO_POE'];accepted=bool(result.trusted) and result.intact and result.valid
+            return {'status':'revoked' if revoked else 'accepted_offline' if accepted else 'unknown','checked':bool(revoked or accepted),'problem':problem,'scope':scope}
+        except Exception:return {'status':'unknown','checked':False,'problem':'La evidencia TSA no es suficiente, vigente o verificable.','scope':scope}
+    results=[]
+    if crls:results.append(evaluate(crls,[]))
+    if ocsps:results.append(evaluate([],ocsps))
+    return next((r for r in results if r['status']=='revoked'),None) or next((r for r in results if r['status']!='accepted_offline'),results[0])
