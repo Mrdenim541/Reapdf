@@ -1,6 +1,6 @@
 # Plan vigente
 
-Referencia: **82,25 % del programa completo (≈82 %)**, con alcance y diecisiete pesos estables. [Último avance](AVANCE_CUATRO_BLOQUES_20261030.md), [matriz](avance-global.json) y [prueba personal prevista](PRUEBA_PERSONAL_ESCRITORIO.md).
+Referencia: **82,66 % del programa completo (≈83 %)**, con alcance y diecisiete pesos estables. [Último avance](COMPOSICION_CELDAS_ESTILOS_Y_NOTAS_20261030.md), [matriz](avance-global.json) y [prueba personal prevista](PRUEBA_PERSONAL_ESCRITORIO.md).
 
 Entregables anteriores ya incorporados: edición de espaciados TJ/Tc/Tw compatibles; inserción de texto con clic, altura automática y Unicode; reflujo uniforme de párrafos con fuente original sobre la página; actualización de documentos vinculados con revisión y deshacer; comparación lado a lado; cierre del hijo Qt tras muerte del padre; ocho pruebas Qt agrupadas y workflow Windows/Linux. No repetir estos entregables como futuros.
 
@@ -32,18 +32,20 @@ Bloque ampliado terminado a petición del usuario: división en PDFs independien
 
 Avance conjunto implementado en los bloques 1–4: preparación explícita de instancias variables predeterminadas con texto/posición/píxeles comprobados; Type3 dash/clipping; tablas semánticas y filas combinadas, listas de hasta seis niveles; Forms textuales como unidad por aparición, incluso compartidos/anidados; partición de sus etiquetas/atributos; horas/formatos especiales y aritmética nativa acotada sin JS ejecutable; hilos/estados XFDF; cuatro muestras OCR de orientación, papel contrastado y tablas sin líneas con espacios regulares. No repetir estas variantes como pendientes. Ver informe para límites y comprobaciones.
 
+Nuevo avance incorporado: modos de mezcla estándar por nombre y grupos RGB/Gray no aislados sin knockout con fuente/composición originales; bloqueo de sustitución incluso sin caja nativa identificada. Celdas semánticas con varios objetos originales agrupados explícitamente, MCID/ParentTree/orden/proyecto/división. Doce variantes Helvetica/Times/Courier en texto libre XFDF con métricas y apariencias reales, caja estable, colores/bordes y recursos comprobados. Notas Word con marcas personalizadas acotadas, numeración automática independiente y enlaces conservados. Ver límites del informe. No repetir estos casos compatibles como pendientes.
+
 **Los cuatro bloques amplios no están cerrados al 100 %.** Se mantiene la numeración de ocho bloques comunicada al usuario; no se ocultan sus pendientes trasladándolos a 5–8.
 
 1. **Edición avanzada.** Instancias/ejes no predeterminados o con diferencias de renderizado; CFF2 crudo, Type3 con imágenes/recursos y FontMatrix no estándar; reflujo afín/cambio de fuente, máscaras, mezclas especiales y grupos complejos. Verificar corpus real.
-2. **Accesibilidad y estructura.** Semántica interna general/mixta de Forms, imágenes inline/recortes, enlaces ambiguos, Lbl separados, celdas con múltiples objetos/vacíos sin texto, reparación general y PDF/UA. Lector de pantalla/aceptación externos pendientes.
+2. **Accesibilidad y estructura.** Semántica interna general/mixta de Forms, imágenes inline/recortes, enlaces ambiguos, Lbl separados, celdas vacías sin objeto/contenido mixto, reparación general y PDF/UA. Lector de pantalla/aceptación externos pendientes.
 3. **Formularios, anotaciones e intercambio.** XFA, JavaScript general, fórmulas/acciones adicionales, fuentes/estilos y tipos XFDF restantes, grafos mixtos con reglas de proyecto. Aceptación Acrobat/Nitro pendiente.
-4. **OCR y Office.** Esquinas generales/bajo contraste, tablas en perspectiva/irregulares/multilínea, otros idiomas y fidelidad Office general, notas Word partidas y demás variantes documentadas. Ampliar corpus técnico.
+4. **OCR y Office.** Esquinas generales/bajo contraste, tablas en perspectiva/irregulares/multilínea, otros idiomas y fidelidad Office general, notas Word partidas/reinicio por página y marcas entre fragmentos. Ampliar corpus técnico.
 5. **Firmas, seguridad y estándares.** TSA/revocación/LT/LTA/tokens, censura compleja, PDF/X/preflight avanzado y aceptación de imprenta.
 6. **Planos, vinculación, portfolios y capas.** Ángulos/curvas/intersecciones y migración de medidas, revisiones con identificadores cambiados y lotes mayores, carpetas/esquemas de portfolio y configuraciones/contenido OCG avanzados; aceptación técnica.
 7. **Windows y estabilidad.** Migrar recorrido gráfico histórico extendido, ejecutar paquete en Windows limpio, corregir DPI/asociaciones/impresión/recuperación, carga sostenida/memoria y aceptación personal. Qt Linux no sustituye estas pruebas.
 8. **Servicios e IA.** Sin implementar: compartir/sincronizar/revisión y firmas remotas, asistencia del producto; definir proveedores/costes/licencias.
 
-Siguiente prioridad: composición/fuentes complejas y casos representativos pendientes de 1–4, sin repetir subconjuntos ya aprobados. El objetivo de cerrar cuatro áreas comerciales completas no se considera cumplido por esta pasada. El alcance y las licencias de distribución requieren cierre antes del 100 %.
+Siguiente avance recomendado: máscaras suaves revisadas con conservación de recursos, reinicio de notas Word por página y grupos de revisión XFDF. Mantener los demás pendientes de 1–4 sin repetir los subconjuntos ya aprobados. El objetivo de cerrar cuatro áreas comerciales completas no se considera cumplido por esta pasada. El alcance y las licencias de distribución requieren cierre antes del 100 %.
 
 Sin nuevos portables hasta una entrega candidata cercana al 90 % y verificada. Generación de informes/registros/ensayos excluida. Vinculación con nombres/roles generales. Base 0.43 recuperada y mejoras nuevas respaldadas en `recovery/editing-20261029`; 0.55 sigue histórico no recuperado. Informar pruebas reales, límites, avance total y siguiente modelo. Continuar con **6.1 Sol medio**.
 

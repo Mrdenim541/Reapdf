@@ -53,7 +53,7 @@ def test_unsupported_native_edits_leave_original_unchanged(kind):
             page=doc[0];data=page.read_contents()
             if kind=='actual_text':data=data.replace(b'/MCID 7',b'/MCID 7 /ActualText (BARANDA)')
             elif kind=='blend':
-                resources=int(doc.xref_get_key(page.xref,'Resources')[1].split()[0]);doc.xref_set_key(resources,'ExtGState','<</Alpha<</ca 0.5/BM/Multiply>>>>');data=data.replace(b'BT',b'/Alpha gs BT')
+                resources=int(doc.xref_get_key(page.xref,'Resources')[1].split()[0]);doc.xref_set_key(resources,'ExtGState','<</Alpha<</ca 0.5/BM/UnknownBlend>>>>');data=data.replace(b'BT',b'/Alpha gs BT')
             elif kind=='tracking':data=data.replace(b'BT',b'BT 2 Tc')
             else:data=data.replace(b'Tj ET',b'Tj <01> Tj ET')
             doc.update_stream(page.get_contents()[0],data);base=doc.tobytes()

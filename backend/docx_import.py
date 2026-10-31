@@ -128,8 +128,9 @@ def import_docx(data,paper='source'):
                 style.append(f'font-size:{value}pt')
             if color is not None and re.fullmatch('[0-9a-fA-F]{6}',color.attrib.get(tag('val'),'')):style.append('color:#'+color.attrib[tag('val')])
             if font is not None:fonts.update(v for k,v in font.attrib.items() if k in {tag('ascii'),tag('hAnsi')})
-        parts=[]
-        for child in node:
+        parts=[];children=list(node);consumed=set()
+        for index,child in enumerate(children):
+            if index in consumed:continue
             if child.tag==tag('t'):parts.append(field_token if field_token is not None else text(child.text))
             elif child.tag in {tag('br'),tag('cr')}:
                 expected.append(' ')
@@ -137,7 +138,12 @@ def import_docx(data,paper='source'):
                     if in_running:raise DocumentError('No se admiten saltos de página dentro de encabezados/pies Word.')
                     manual_breaks+=1;parts.append('</span>'+BREAK_TOKEN+'<span style="'+';'.join(style)+'">')
                 else:parts.append('<br/>')
-            elif child.tag in {tag('footnoteReference'),tag('endnoteReference')}:parts.append(notes.reference(child,in_running))
+            elif child.tag in {tag('footnoteReference'),tag('endnoteReference')}:
+                custom=None
+                if child.attrib.get(tag('customMarkFollows'),'0') in ['1','true']:
+                    if index+1>=len(children) or children[index+1].tag!=tag('t'):raise DocumentError('La marca personalizada debe aparecer justo después de la referencia, dentro del mismo fragmento Word.')
+                    custom=children[index+1].text or '';consumed.add(index+1)
+                parts.append(notes.reference(child,in_running,custom))
             elif child.tag in {tag('footnoteRef'),tag('endnoteRef')}:
                 if not notes.inside:raise DocumentError('Marcador de nota fuera de su definición.')
             elif child.tag==tag('tab'):parts.append(text('    '));warnings.add('Las tabulaciones se convierten en espacios.')

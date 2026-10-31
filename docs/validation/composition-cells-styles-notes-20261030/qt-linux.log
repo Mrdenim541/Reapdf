@@ -1,0 +1,11 @@
+Sandboxing disabled by user.
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+WebEngineContext is used before QtWebEngineQuick::initialize() or OpenGL context creation failed.
+Fontconfig error: No writable cache directories
+[608131:608171:1031/002910.970674:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 608172: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: own Qt Linux app edited blended text inside shared non-isolated Form via real page controls, kept original composition and other page, atomically saved; multiple original text objects grouped into one semantic cell and saved/reopened with valid reading structure. Original file hash intact.

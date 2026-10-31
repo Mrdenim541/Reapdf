@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-30",
+  "baseline_commit": "024a024f7cba4af0b6f6f8f8a5e927ded67baaa0",
+  "source_fingerprints": "source-sha256.json",
+  "build_fingerprints": "build-sha256.json",
+  "scope": "Standard named blend modes/non-isolated RGB/Gray groups with original text; confirmed multi-object semantic cells; 12 Latin free-text XFDF styles with native appearances and stable rectangles; custom Word note marks and links. Broad blocks 1-4 remain open. No package generated.",
+  "checks": {
+    "python_full": {
+      "passed": 3427,
+      "warnings": 3,
+      "seconds": 346.55,
+      "command": ".venv/bin/python -m pytest -q",
+      "stage": "Before final missing-styled-appearance exception guard and its additional test; other final guards included."
+    },
+    "python_directed": {
+      "passed": 571,
+      "warnings": 1,
+      "seconds": 41.89,
+      "overlaps_full": true,
+      "stage": "Final source including absent-appearance guard and its extra negative test.",
+      "command": ".venv/bin/python -m pytest tests/test_composition_cells_styles_notes.py tests/test_text_states_compositing.py tests/test_xfdf_appearance.py tests/test_docx_notes.py tests/test_basic_tagging.py tests/test_four_blocks.py tests/test_list_tags_partition.py tests/test_media_tagging.py tests/test_affine_text_editing.py tests/test_cff_forms_mixed.py tests/test_native_content.py -q"
+    },
+    "javascript": {
+      "passed": 128,
+      "command": "node --test tests/*.mjs"
+    },
+    "build": {
+      "passed": true,
+      "command": "npm run build"
+    },
+    "chromium": {
+      "passed": true,
+      "command": "node scripts/smoke_composition_cells_styles_notes.mjs"
+    },
+    "qt_linux": {
+      "passed": true,
+      "command": "QT_QPA_PLATFORM=offscreen QTWEBENGINE_DISABLE_SANDBOX=1 .venv/bin/python -m scripts.smoke_composition_cells_styles_notes_qt"
+    }
+  },
+  "estimated_total_before": 82.25,
+  "estimated_total_after": 82.66,
+  "unrounded_total": "82.655",
+  "weights_and_scope_unchanged": true,
+  "not_verified": [
+    "Windows/DPI/associations/physical printing/package execution",
+    "Acrobat/Nitro acceptance",
+    "Screen-reader and integral PDF/UA acceptance",
+    "Private representative corpus and personal acceptance"
+  ],
+  "remaining": [
+    "Soft masks, knockout, blend arrays, complex group colors/fonts and affine reflow",
+    "Mixed semantic structures, empty cells without source objects and general tag repair",
+    "XFA/general JavaScript, richer/arbitrary annotation appearances/fonts and group interchange",
+    "General Office fidelity, split footnotes and page-based note numbering",
+    "Blocks 5-8 remain open as documented"
+  ],
+  "first_regression_note": "3420 passed, 3 failures: old rejection expectations for now-supported blend/default non-isolated group and historical geometry-error wording. Updated negative cases to unknown blend and knockout and preserved the geometry wording; repeated full regression passed."
+}

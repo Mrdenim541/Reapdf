@@ -167,6 +167,10 @@ def horizontal_content(page):
 def require_horizontal(page,spans):
     """A paragraph rewrite must not silently remove an unverified text matrix."""
     from .pdf_content import placements,operations
+    from .text_compositing import graphics
+    try:original_composition=graphics(page.parent,page.xref,page.read_contents())
+    except DocumentError as exc:raise DocumentError('No se pudo verificar la geometría y la composición del bloque para sustituir su fuente.') from exc
+    if original_composition:raise DocumentError('El modo de mezcla requiere editar con la fuente original para conservar su composición.')
     cells=pointer_targets(page,spans)
     if any(g.get('original_only') for g in cells.values()):raise DocumentError('El grupo de transparencia requiere editar con su fuente original para conservar la composición.')
     if any(g['transformed'] for g in cells.values()):raise DocumentError('El bloque usa giro, inclinación o reflexión. Edita su línea con la fuente original para conservar la geometría.')

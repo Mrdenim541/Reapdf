@@ -97,7 +97,7 @@ def build(doc,prepared,selection=None,language='es'):
             else:
                 current_list=None;list_stack=[];previous_level=0;section_order.append(('part',part['id']))
         for key,node in tables.items():doc.xref_set_key(node,'K','['+' '.join(f'{r} 0 R' for (table,row),r in rows.items() if table==key)+']')
-        row_children={r:[] for r in rows.values()}
+        row_children={r:[] for r in rows.values()};cell_nodes={};cell_mcids={}
         for node,children in list_children.items():doc.xref_set_key(node,'K','['+' '.join(f'{child} 0 R' for child in children)+']')
         for part in parts:
             settings=selection[part['id']] if selection else {'role':'Figure' if part['kind']=='image' else 'P','alt':''}
@@ -109,7 +109,13 @@ def build(doc,prepared,selection=None,language='es'):
                 attributes=''
                 if role in ['TH','TD']:
                     attributes=' /A << /O /Table /RowSpan '+str(settings['rowspan'])+' /ColSpan '+str(settings['colspan'])+(' /Scope /'+settings['scope'] if role=='TH' else '')+' >>'
-                identity=new(f'<< /Type /StructElem /S /{role} /P {parent} 0 R /Pg {page.xref} 0 R /K {kids}{alt}{attributes} >>');refs.append(identity);mapping[part['id']]=identity
+                cell_key=(settings['table'],settings['row'],settings['column']) if role in ['TH','TD'] else None
+                identity=cell_nodes.get(cell_key) if cell_key is not None else None
+                if identity is None:
+                    identity=new(f'<< /Type /StructElem /S /{role} /P {parent} 0 R /Pg {page.xref} 0 R /K {kids}{alt}{attributes} >>')
+                    if cell_key is not None:cell_nodes[cell_key]=identity;cell_mcids[identity]={}
+                refs.append(identity);mapping[part['id']]=identity
+                if cell_key is not None:cell_mcids[identity][part['id']]=mcid
                 if role in ['TH','TD']:row_children[parent].append(identity)
                 if role=='Link':
                     doc.xref_set_key(settings['annotation'],'StructParent',str(next_key));doc.xref_set_key(settings['annotation'],'Contents',pdf_string(settings['alt']))
@@ -119,7 +125,8 @@ def build(doc,prepared,selection=None,language='es'):
             marker=b'/Artifact BMC\n' if role=='Artifact' else f'/{role} <</MCID {mcid}>> BDC\n'.encode()
             content.extend([marker,plan['content'][part['start']:part['end']],b'\nEMC\n']);previous=part['end']
         for node,children in body_children.items():doc.xref_set_key(node,'K','['+' '.join(f'{value if kind=="node" else mapping[value]} 0 R' for kind,value in children)+']')
-        for node in row_children:doc.xref_set_key(node,'K','['+' '.join(f'{mapping[p["id"]]} 0 R' for p in ordered if leaf_parents.get(p['id'])==node)+']')
+        for node in row_children:doc.xref_set_key(node,'K','['+' '.join(f'{identity} 0 R' for identity in dict.fromkeys(mapping[p['id']] for p in ordered if leaf_parents.get(p['id'])==node))+']')
+        for node,mcids in cell_mcids.items():doc.xref_set_key(node,'K','['+' '.join(str(mcids[p['id']]) for p in ordered if p['id'] in mcids)+']')
         tail=plan['content'][previous:]
         if tail.strip():content.extend([b'/Artifact BMC\n',tail,b'\nEMC\n'])
         stream=new('<<>>');doc.update_stream(stream,b''.join(content));page.set_contents(stream)
@@ -182,7 +189,7 @@ def create(base,ops,entries,language='es',reviewed=False):
     if not isinstance(entries,list) or len(entries)!=len(expected):raise DocumentError('Incluye todos los objetos de texto de la revisión actual.')
     selection={}
     for position,entry in enumerate(entries):
-        if not isinstance(entry,dict) or not {'id','role'}<=set(entry)<= {'id','role','alt','table','row','column','rowspan','colspan','scope','level'} or not isinstance(entry['id'],str) or entry['id'] not in expected or entry['id'] in selection or not isinstance(entry['role'],str):raise DocumentError('La revisión contiene objetos repetidos, obsoletos o roles no compatibles.')
+        if not isinstance(entry,dict) or not {'id','role'}<=set(entry)<= {'id','role','alt','table','row','column','rowspan','colspan','scope','level','merge_fragments'} or not isinstance(entry['id'],str) or entry['id'] not in expected or entry['id'] in selection or not isinstance(entry['role'],str):raise DocumentError('La revisión contiene objetos repetidos, obsoletos o roles no compatibles.')
         original=expected[entry['id']];kind=original['kind'];role=entry['role'];alt=entry.get('alt','')
         allowed=ROLES if kind=='text' else {'Figure','Artifact'} if kind=='image' else {'Link'}
         if role not in allowed:raise DocumentError('El rol no corresponde al tipo de objeto original.')
@@ -196,8 +203,9 @@ def create(base,ops,entries,language='es',reviewed=False):
         if role in ['TH','TD']:
             values={k:entry.get(k,1) for k in ['table','row','column','rowspan','colspan']}
             if any(type(v) is not int or not 1<=v<=100 for v in values.values()) or entry.get('scope','Column') not in ['Row','Column','Both']:raise DocumentError('Tabla, fila, columna y combinaciones deben estar entre 1 y 100; revisa el ámbito del encabezado.')
-            selection[entry['id']].update(**values,scope=entry.get('scope','Column'))
-        elif set(entry)&{'table','row','column','rowspan','colspan','scope'}:raise DocumentError('Las coordenadas de tabla corresponden solo a celdas TH/TD.')
+            if type(entry.get('merge_fragments',False)) is not bool:raise DocumentError('La agrupación de fragmentos de celda debe ser verdadera o falsa.')
+            selection[entry['id']].update(**values,scope=entry.get('scope','Column'),merge_fragments=entry.get('merge_fragments',False))
+        elif set(entry)&{'table','row','column','rowspan','colspan','scope','merge_fragments'}:raise DocumentError('Las coordenadas de tabla corresponden solo a celdas TH/TD.')
         if kind=='link':selection[entry['id']]['annotation']=original['annotation']
     page_order=[expected[e['id']]['page'] for e in entries]
     if page_order!=sorted(page_order):raise DocumentError('El orden se puede cambiar dentro de cada página, conservando la secuencia de páginas.')
@@ -210,14 +218,22 @@ def create(base,ops,entries,language='es',reviewed=False):
             if key in closed:raise DocumentError('Cada tabla debe ocupar una secuencia continua de objetos revisados.')
             groups.setdefault(key,[]).append(cfg)
         current=key
+    cell_count=0
     for cells in groups.values():
-        occupied=set();positions=[(c['row'],c['column']) for c in cells]
+        occupied=set();unique={};positions=[(c['row'],c['column']) for c in cells]
         if positions!=sorted(positions):raise DocumentError('Ordena las celdas por fila y columna antes de crear la tabla.')
         for c in cells:
+            key=c['row'],c['column']
+            if key in unique:
+                prior=unique[key]
+                if not c['merge_fragments'] or not prior['merge_fragments'] or any(c[k]!=prior[k] for k in ['role','scope','rowspan','colspan']):raise DocumentError('Dos fragmentos comparten celda: confirma su agrupación y usa el mismo rol, ámbito y combinaciones.')
+                continue
+            unique[key]=c
             for r in range(c['row'],c['row']+c['rowspan']):
                 for col in range(c['column'],c['column']+c['colspan']):
                     if r>100 or col>100 or (r,col) in occupied:raise DocumentError('Las celdas de tabla se superponen o exceden 100 filas/columnas.')
                     occupied.add((r,col))
+        cell_count+=len(unique)
         height=max(r for r,c in occupied);width=max(c for r,c in occupied)
         if len(occupied)!=height*width:raise DocumentError('La tabla tiene huecos. Incluye cada celda, también las vacías, o revisa las combinaciones.')
         if not any(c['role']=='TH' for c in cells):raise DocumentError('Revisa al menos un encabezado TH por tabla.')
@@ -228,4 +244,4 @@ def create(base,ops,entries,language='es',reviewed=False):
             for a,b in zip(before,saved):
                 scale=min(.75,math.sqrt(4_000_000/max(1,a.rect.get_area())))
                 if a.get_text()!=b.get_text() or a.get_pixmap(matrix=f.Matrix(scale,scale),alpha=False).samples!=b.get_pixmap(matrix=f.Matrix(scale,scale),alpha=False).samples:raise DocumentError('Las etiquetas alteraron contenido o apariencia. Se conserva el original.')
-    return result,{'tagged_objects':sum(v['role']!='Artifact' for v in selection.values()),'decorative_images':sum(v['role']=='Artifact' for v in selection.values()),'figures':sum(v['role']=='Figure' for v in selection.values()),'links':sum(v['role']=='Link' for v in selection.values()),'form_occurrences':sum(e.get('form_occurrence',False) for e in expected.values()),'tables':len(groups),'table_cells':sum(v['role'] in ['TH','TD'] for v in selection.values()),'list_items':sum(v['role']=='LI' for v in selection.values()),'pages':info['pages'],'language':language,'pdf_ua_validated':False}
+    return result,{'tagged_objects':sum(v['role']!='Artifact' for v in selection.values()),'decorative_images':sum(v['role']=='Artifact' for v in selection.values()),'figures':sum(v['role']=='Figure' for v in selection.values()),'links':sum(v['role']=='Link' for v in selection.values()),'form_occurrences':sum(e.get('form_occurrence',False) for e in expected.values()),'tables':len(groups),'table_cells':cell_count,'table_fragments':sum(v['role'] in ['TH','TD'] for v in selection.values()),'list_items':sum(v['role']=='LI' for v in selection.values()),'pages':info['pages'],'language':language,'pdf_ua_validated':False}

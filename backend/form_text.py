@@ -17,7 +17,7 @@ def array(doc,xref,key,count,default=None):
 
 def structure(doc,page):
     result=[];budget={'bytes':0,'nodes':0};page_matrix=page.transformation_matrix
-    def walk(owner,data,parent,path,ancestors,clips):
+    def walk(owner,data,parent,path,ancestors,clips,composition=False):
         budget['bytes']+=len(data);budget['nodes']+=1
         if budget['bytes']>32*1024*1024 or budget['nodes']>200 or len(path)>8:raise DocumentError('La página supera los límites de objetos Form para edición.')
         if doc.xref_get_key(owner,'Resources/Properties')[0]!='null':
@@ -25,14 +25,14 @@ def structure(doc,page):
             return
         if 'ActualText' in names(data):return
         from .text_compositing import graphics
-        graphics(doc,owner,data)
+        composition=graphics(doc,owner,data) or composition
         parsed=placements(data)
         for obj in parsed['texts']:
             combined=obj['matrix']*parent
             from .affine_text import frame
             try:values=frame(combined,f.Point(0,0))
             except DocumentError:continue
-            result.append({**obj,'matrix':combined,'scope':owner if path else 0,'path':path,'clips':clips,'factor':values['factor'],'horizontal_factor':values['horizontal']})
+            result.append({**obj,'matrix':combined,'scope':owner if path else 0,'path':path,'clips':clips,'composition_original':composition,'factor':values['factor'],'horizontal_factor':values['horizontal']})
             if len(result)>5000:raise DocumentError('Hasta 5000 grupos de texto por página.')
         for invocation in parsed['images']:
             name=invocation['resource']
@@ -56,7 +56,7 @@ def structure(doc,page):
                 from .styled_text import stream
                 child=stream(doc,target,16*1024*1024)
                 entry={'owner':owner,'target':target,'start':invocation['start'],'end':invocation['end']}
-                walk(target,child,matrix,path+[entry],ancestors|{target},clips+[bounds])
+                walk(target,child,matrix,path+[entry],ancestors|{target},clips+[bounds],composition)
             except DocumentError as exc:
                 # Structural limits are hard page bounds; incompatible local
                 # geometry can remain read-only without blocking direct text.

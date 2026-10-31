@@ -114,7 +114,7 @@ def test_incompatible_forms_stay_readonly(kind):
     base=form_pdf()
     with f.open(stream=base) as d:
         wrappers=[i[0] for i in d[0].get_xobjects() if i[2]==0];target=wrappers[0]
-        if kind=='group':d.xref_set_key(target,'Group','<</S/Transparency>>')
+        if kind=='group':d.xref_set_key(target,'Group','<</S/Transparency/K true>>')
         if kind=='oc':d.xref_set_key(target,'OC','<</Type/OCG/Name(Hidden)>>')
         if kind=='structure':d.xref_set_key(d.pdf_catalog(),'StructTreeRoot','<</Type/StructTreeRoot/K[]>>')
         if kind=='matrix':d.xref_set_key(target,'Matrix','[1 .1 0 1 0 0]')

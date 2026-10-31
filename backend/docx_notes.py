@@ -1,5 +1,6 @@
 """Bounded Word note definitions, numbering, local relationships and foot layout."""
 from copy import deepcopy
+from pathlib import Path
 from collections import defaultdict
 import html,posixpath,re
 from xml.etree import ElementTree as E
@@ -15,7 +16,7 @@ def tag(name):return '{'+W+'}'+name
 
 class Notes:
     def __init__(self,package,rels,parse_xml,warnings):
-        self.package=package;self.parse_xml=parse_xml;self.warnings=warnings;self.definitions={};self.rels={};self.used={};self.by_segment=defaultdict(list);self.current=0;self.counter={'footnote':1,'endnote':1};self.style={'footnote':'decimal','endnote':'lowerRoman'};self.placement={'footnote':'pageBottom','endnote':'docEnd'};self.defaults={};self.rendered={};self.inside=False
+        self.package=package;self.parse_xml=parse_xml;self.warnings=warnings;self.definitions={};self.rels={};self.used={};self.by_segment=defaultdict(list);self.current=0;self.counter={'footnote':1,'endnote':1};self.style={'footnote':'decimal','endnote':'lowerRoman'};self.placement={'footnote':'pageBottom','endnote':'docEnd'};self.defaults={};self.rendered={};self.inside=False;self.marker_font=None
         if any(PREFIX.encode() in raw for raw in package.values()):raise DocumentError('El Word contiene un marcador de notas reservado.')
         if 'word/settings.xml' in package:
             settings=parse_xml(package['word/settings.xml'])
@@ -67,25 +68,40 @@ class Notes:
             if index==0 or restart=='eachSect':self.counter[kind]=int(start)
             self.style[kind]=fmt;self.placement[kind]=placement
 
-    def reference(self,node,in_running=False):
+    def reference(self,node,in_running=False,custom_label=None):
         if self.inside or in_running:raise DocumentError('No se admiten referencias de notas dentro de otras notas, encabezados o pies.')
         kind='footnote' if node.tag==tag('footnoteReference') else 'endnote';raw=node.attrib.get(tag('id'),'')
-        if not re.fullmatch(r'\d{1,9}',raw) or node.attrib.get(tag('customMarkFollows'),'0') not in ['0','false']:raise DocumentError('La referencia de nota necesita un identificador y numeración estándar.')
+        if not re.fullmatch(r'\d{1,9}',raw) or node.attrib.get(tag('customMarkFollows'),'0') not in ['0','false','1','true']:raise DocumentError('La referencia de nota necesita un identificador y marcador compatibles.')
+        custom=node.attrib.get(tag('customMarkFollows'),'0') in ['1','true']
+        if custom!=(custom_label is not None) or custom and (not isinstance(custom_label,str) or not 1<=len(custom_label)<=4 or any(c.isspace() or not c.isprintable() for c in custom_label)):raise DocumentError('El marcador personalizado necesita de uno a cuatro caracteres visibles en el mismo fragmento.')
+        if custom:
+            if self.marker_font is None:self.marker_font=f.Font(fontfile=str(Path(__file__).resolve().parent.parent/'resources/fonts/DejaVuSans.ttf'))
+            if any(not self.marker_font.has_glyph(ord(c),fallback=0) for c in custom_label):raise DocumentError('La fuente incluida no cubre la marca personalizada de la nota.')
         ident=int(raw);key=(kind,ident)
         if key in self.used:raise DocumentError('Una definición de nota tiene referencias repetidas; usa un enlace NOTEREF explícito antes de importar.')
         definition=self.definitions.get(kind,{}).get(ident)
         if definition is None:raise DocumentError('Falta el contenido de una nota referenciada; no se importa un documento incompleto.')
         if len(self.used)>=200:raise DocumentError('Hasta 200 referencias de notas por documento.')
-        label=number_label(self.counter[kind],self.style[kind]);self.counter[kind]+=1
-        stem=PREFIX+kind+'_'+str(ident);item={'kind':kind,'id':ident,'label':label,'ref':stem+'_ref','dest':stem+'_body','node':definition,'segment':self.current,'placement':self.placement[kind]};self.used[key]=item;self.by_segment[self.current].append(item)
+        label=custom_label if custom else number_label(self.counter[kind],self.style[kind])
+        if not custom:self.counter[kind]+=1
+        stem=PREFIX+kind+'_'+str(ident);item={'kind':kind,'id':ident,'custom':custom,'label':label,'ref':stem+'_ref','dest':stem+'_body','node':definition,'segment':self.current,'placement':self.placement[kind]};self.used[key]=item;self.by_segment[self.current].append(item)
         return '<sup><a id="'+item['ref']+'" href="#'+item['dest']+'">'+html.escape(label)+'</a></sup>'
 
     def render(self,render):
         for key,item in self.used.items():
             self.inside=True
-            try:content=render(deepcopy(item['node']),self.rels[item['kind']])
+            try:
+                definition=deepcopy(item['node'])
+                if item['custom']:
+                    first=next(definition.iter(tag('t')),None)
+                    if first is not None and first.text and first.text.startswith(item['label']):
+                        following=first.text[len(item['label']):]
+                        # Remove only an explicit standalone/reviewable mark,
+                        # never an arbitrary prefix of a source word.
+                        if not following or following[0].isspace():first.text=following.lstrip()
+                content=render(definition,self.rels[item['kind']])
             finally:self.inside=False
-            self.rendered[key]='<div class="word-note" id="'+item['dest']+'"><p class="word-note-label"><a href="#'+item['ref']+'">'+html.escape(item['label'])+'.</a></p>'+content+'</div>'
+            self.rendered[key]='<div class="word-note" id="'+item['dest']+'"><p class="word-note-label"><a href="#'+item['ref']+'">'+html.escape(item['label'])+('' if item['custom'] else '.')+'</a></p>'+content+'</div>'
         unused=sum(1 for kind,data in self.definitions.items() for ident,node in data.items() if node is not None and (kind,ident) not in self.used)
         if unused:self.warnings.add(f'{unused} definiciones de notas sin referencia no se incorporan.')
 
@@ -128,7 +144,7 @@ class Notes:
         def record(node):node.page_num=page;position(node)
         story.element_positions(record);story.draw(device)
 
-    def report(self):return {'footnotes':sum(v['kind']=='footnote' for v in self.used.values()),'endnotes':sum(v['kind']=='endnote' for v in self.used.values()),'note_references':len(self.used),'notes_layout':'page_bottom_and_endnotes','notes_code_executed':False}
+    def report(self):return {'footnotes':sum(v['kind']=='footnote' for v in self.used.values()),'endnotes':sum(v['kind']=='endnote' for v in self.used.values()),'custom_note_marks':sum(v['custom'] for v in self.used.values()),'note_references':len(self.used),'notes_layout':'page_bottom_and_endnotes','notes_code_executed':False}
 
 
 def checked_text(doc,positions):

@@ -1,0 +1,22 @@
+{
+  "backend/affine_text.py": "cf13073053fabe023ba71bba1750213d26c04d0ae98700fd30a75f1449869f29",
+  "backend/basic_tagging.py": "3075c1f6509cb5d4f011838ff7ddcf1ba0133a82a3e7b2afe6daddf4014928e6",
+  "backend/docx_import.py": "ffbcdf30aad383a5f35ed2fa221a6a1748e3c574a65346d9b3b06b8804623ab3",
+  "backend/docx_notes.py": "e35a4e0572b30ffedb6981bb909376ae1dc09ea376a7305ea1cbb11d8ce91557",
+  "backend/form_text.py": "a96340513668871a0032cca6098af17a69c073d622a134be8b0bf4602222713b",
+  "backend/text_compositing.py": "71fb9deca55d4b9f9587aeae66d3a439af5dc9ca23fb012c14be80b1a4a70cc5",
+  "backend/xfdf.py": "6b0831815dbb43ddff0d82a9cd6e213023017214a7a421d475706b6111c83924",
+  "backend/xfdf_appearance.py": "d4452af089dc86ee9796d3431470ed50e7e43451a28cf08d6cb6e876132415f1",
+  "backend/xfdf_styled_text.py": "0c0d1732ff2ea7ba00d877b9aa4e396911a760a7d84b452b0c3015eafb7bf574",
+  "scripts/smoke_composition_cells_styles_notes.mjs": "bc721b13d40b5a61d35d56ad69d76f54721cbe7e8dc040ba874161e05c7c09c6",
+  "scripts/smoke_composition_cells_styles_notes_qt.py": "a7145960dcb8789ae56e67818b5ad1b85655096f16d8c922054131f618cd3b18",
+  "tests/test_cff_forms_mixed.py": "b47a635c076311e46efa43e408eae5c35801dd7db8f1f0e4bbf7585cad683368",
+  "tests/test_composition_cells_styles_notes.py": "17b55e39e41a1744e8f998e42d9f8cae24c49ed19af1cdc72fd9a241ef9c01f8",
+  "tests/test_native_content.py": "6d4cea2af57965fdb7e6eb7aacb9d6a0cdd6df684b4748cea9da18a7e9347589",
+  "tests/test_text_states_compositing.py": "d0740b9ea370580f59b3d8f87a48898a73bc18eec27747a94608f053aab8adf4",
+  "tests/test_xfdf_appearance.py": "8ca3e79df45472877dc6bdc92b685a20d2e491caa41c8f69342940a0acb3ae4f",
+  "web/src/initial-tagging.jsx": "eedd88f284d52e9aab993df783e69775a9637d99f950f9c2bd34e2eafb2b1789",
+  "web/src/inline-text.jsx": "5d70c7e01dc9f9c97e201a6d4cc598bb3aee4680d20d2185788194a4ccfb34a0",
+  "web/src/interchange.jsx": "330c2d4032debff1fa5f707a12f81e592fda6ee13112eac1e7ff4d90d478ac89",
+  "web/src/word-import.jsx": "9d2ee1a498de700204cb45fc3ce280a130a3b49da84f943d8defd3c4d006c565"
+}

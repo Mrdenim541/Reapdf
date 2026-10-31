@@ -1,8 +1,9 @@
 """Explicit plain annotation appearance fields; no rich text or resource fetching."""
 import re
+import pymupdf as f
 from .engine import DocumentError
 from .pdf_content import operations,numbers
-FONTS={'Helv':'Helvetica','TiRo':'Times-Roman','Cour':'Courier','Helvetica':'Helvetica','Times-Roman':'Times-Roman','Courier':'Courier'}
+from .xfdf_styled_text import FONTS
 FLAGS={'invisible':1,'hidden':2,'print':4,'nozoom':8,'norotate':16,'noview':32,'readonly':64,'locked':128,'togglenoview':256,'lockedcontents':512}
 ICONS={'Comment','Key','Note','Help','NewParagraph','Paragraph','Insert','Circle','Cross','Check','Star','RightArrow','RightPointer','UpArrow','UpLeftArrow'}
 
@@ -30,11 +31,16 @@ def free_text(doc,a):
     if font not in FONTS or size is None or not 3<=size<=72 or any(not 0<=c<=1 for c in color):raise DocumentError('Fuente o color de texto libre fuera del subconjunto compatible.')
     # The same alias may refer to a different embedded font. Never silently
     # substitute it merely because its resource name resembles a base font.
+    n=f.mupdf;obj=n.pdf_load_object(f._as_pdf_document(doc),a.xref)
     for key in ['Resources/Font/'+font,'AP/N/Resources/Font/'+font]:
-        kind,value=doc.xref_get_key(a.xref,key)
-        if kind=='xref':
-            ref=int(value.split()[0]);base=doc.xref_get_key(ref,'BaseFont')
-            if base!=('name','/'+FONTS[font]) or any(doc.xref_get_key(ref,'FontDescriptor/'+k)[0]!='null' for k in ['FontFile','FontFile2','FontFile3']):raise DocumentError('La fuente incrustada de texto libre necesita otra conversión.')
+        resource=n.pdf_dict_getp(obj,key)
+        if n.pdf_is_null(resource):continue
+        if not n.pdf_is_dict(resource) or n.pdf_to_name(n.pdf_dict_gets(resource,'BaseFont'))!=FONTS[font] or n.pdf_to_name(n.pdf_dict_gets(resource,'Subtype'))!='Type1' or any(not n.pdf_is_null(n.pdf_dict_getp(resource,'FontDescriptor/'+k)) for k in ['FontFile','FontFile2','FontFile3']):raise DocumentError('La fuente incrustada de texto libre necesita otra conversión.')
+    from .xfdf_styled_text import REGULAR
+    if FONTS[font] not in REGULAR:
+        try:actual=[s['font'] for block in a.get_textpage().extractDICT()['blocks'] for line in block.get('lines',[]) for s in line['spans'] if s['text'].strip()]
+        except Exception as exc:raise DocumentError('No se pudo verificar la apariencia tipográfica de la anotación.') from exc
+        if not actual or any(name!=FONTS[font] for name in actual):raise DocumentError('La apariencia de texto libre no coincide con su fuente declarada.')
     kind,q=doc.xref_get_key(a.xref,'Q');align=int(q) if kind=='int' else 0;rotation=a.rotation
     if align not in [0,1,2] or rotation not in [-1,0,90,180,270]:raise DocumentError('Alineación o giro de texto libre no compatible.')
     return {'font':FONTS[font],'size':str(size),'justification':str(align),'rotation':str(max(0,rotation)),'text-color':hex_color(color)}

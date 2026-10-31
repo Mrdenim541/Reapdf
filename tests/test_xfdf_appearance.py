@@ -82,7 +82,7 @@ def test_plain_free_text_fonts_and_annotation_rotation(font,rotation):
 
 
 def test_unsupported_free_text_style_is_rejected_instead_of_substituted():
-    xml,_=xfdf.export(source(),[]);root=E.fromstring(xml);node=root.find('./'+xfdf.tag('annots')+'/'+xfdf.tag('freetext'));node.set('font','Helvetica-Bold')
+    xml,_=xfdf.export(source(),[]);root=E.fromstring(xml);node=root.find('./'+xfdf.tag('annots')+'/'+xfdf.tag('freetext'));node.set('font','Unsupported-Embedded-Bold')
     with pytest.raises(DocumentError):xfdf.import_data(blank(),[],E.tostring(root),confirm=True)
 
 

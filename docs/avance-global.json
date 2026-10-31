@@ -1,11 +1,11 @@
 {
   "schema": 1,
   "review_date": "2026-10-30",
-  "status": "provisional_four_blocks_expanded_not_closed",
+  "status": "provisional_composition_cells_styles_notes",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 82.25,
-  "reported_percent": 82,
+  "weighted_percent": 82.66,
+  "reported_percent": 83,
   "subjective_range_percent": [
     61,
     84
@@ -71,7 +71,7 @@
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 98,
+      "maturity": 98.5,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -120,14 +120,16 @@
         "docs/IMAGENES_ENLACES_INCLINACION_Y_TRAZOS_20261029.md",
         "backend/type3_text.py",
         "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
-        "tests/test_four_blocks.py"
+        "tests/test_four_blocks.py",
+        "docs/COMPOSICION_CELDAS_ESTILOS_Y_NOTAS_20261030.md",
+        "tests/test_composition_cells_styles_notes.py"
       ],
-      "remaining": "Instancias/ejes variables no predeterminados o que alteren renderizado, CFF2 crudo, Type3 con imágenes/recursos y FontMatrix no estándar; reflujo afín/cambio de fuente, máscaras, mezclas especiales y grupos complejos. Preparación estática predeterminada y dash/clipping Type3 compatibles incorporados."
+      "remaining": "Instancias/ejes variables no predeterminados o con diferencias de renderizado; CFF2 crudo, Type3 con imágenes/recursos y FontMatrix no estándar; reflujo afín/cambio de fuente, máscaras, knockout, grupos/colores complejos y arrays de blend. Modos de mezcla estándar por nombre y grupos no aislados RGB/Gray sencillos ya incorporados."
     },
     {
       "id": "annotations",
       "weight": 7,
-      "maturity": 90,
+      "maturity": 92,
       "evidence": [
         "backend/existing_annotations.py",
         "backend/comments.py",
@@ -135,9 +137,11 @@
         "tests/test_xfdf_working_copy.py",
         "docs/PRECISION_Y_XFDF_20261029.md",
         "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
-        "tests/test_four_blocks.py"
+        "tests/test_four_blocks.py",
+        "docs/COMPOSICION_CELDAS_ESTILOS_Y_NOTAS_20261030.md",
+        "tests/test_composition_cells_styles_notes.py"
       ],
-      "remaining": "XFDF restante (agrupaciones/acciones, apariencias avanzadas, estilos/fuentes adicionales, adjuntos y otros subtipos) y corpus externo. Hilos simples de notas/estados en la misma página incorporados; aceptación Acrobat/Nitro pendiente."
+      "remaining": "Fuentes incrustadas arbitrarias, texto enriquecido/llamadas y apariencias avanzadas, agrupaciones/acciones, adjuntos y otros subtipos XFDF; edición general posterior de FreeText y corpus externo. Doce variantes Helvetica/Times/Courier, respuestas/estados simples y bordes compatibles incorporados."
     },
     {
       "id": "forms",
@@ -166,7 +170,7 @@
     {
       "id": "ocr_conversion",
       "weight": 9,
-      "maturity": 95,
+      "maturity": 95.5,
       "evidence": [
         "backend/ocr.py",
         "backend/docx_import.py",
@@ -188,9 +192,11 @@
         "docs/IMAGENES_ENLACES_INCLINACION_Y_TRAZOS_20261029.md",
         "backend/deskew.py",
         "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
-        "tests/test_four_blocks.py"
+        "tests/test_four_blocks.py",
+        "docs/COMPOSICION_CELDAS_ESTILOS_Y_NOTAS_20261030.md",
+        "tests/test_composition_cells_styles_notes.py"
       ],
-      "remaining": "Esquinas generales/bajo contraste, perspectivas de tablas, diseños irregulares/multilínea y otros idiomas; fidelidad Office general y notas Word partidas/marcas personalizadas/reinicio por página. Sugerencias de orientación, papel contrastado y tablas sin líneas con espacios regulares ya incorporadas, sujetas a revisión."
+      "remaining": "Esquinas generales/bajo contraste, tablas en perspectiva/irregulares/multilínea, otros idiomas y fidelidad Office general; notas Word partidas/reinicio por página y marcas entre fragmentos. Marcas personalizadas de uno a cuatro caracteres en el mismo fragmento incorporadas con cobertura tipográfica comprobada."
     },
     {
       "id": "security_signatures",
@@ -220,7 +226,7 @@
     {
       "id": "accessibility",
       "weight": 3,
-      "maturity": 85,
+      "maturity": 87,
       "evidence": [
         "backend/accessibility.py",
         "backend/structure_editing.py",
@@ -234,9 +240,11 @@
         "docs/DIVISION_CON_NOMBRES_Y_LISTAS_20261029.md",
         "tests/test_list_tags_partition.py",
         "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
-        "tests/test_four_blocks.py"
+        "tests/test_four_blocks.py",
+        "docs/COMPOSICION_CELDAS_ESTILOS_Y_NOTAS_20261030.md",
+        "tests/test_composition_cells_styles_notes.py"
       ],
-      "remaining": "Semántica interna general/mixta de Forms, imágenes inline/recortes complejos, enlaces ambiguos/remotos/multiobjeto, otras anotaciones, Lbl separado, tablas con múltiples objetos por celda y vacíos sin texto, reparación general/MCID ambiguos/PDF 2; lector de pantalla y PDF/UA. Tablas revisadas, listas anidadas y Forms textuales por aparición incorporados."
+      "remaining": "Semántica interna general/mixta de Forms, imágenes inline/recortes, enlaces ambiguos/remotos/multiobjeto, otras anotaciones, Lbl separado, celdas vacías sin objeto/contenido mixto y encabezados complejos; reparación general/MCID ambiguos/PDF 2, lector de pantalla/PDF/UA. Fragmentos múltiples agrupados en celdas ya incorporados."
     },
     {
       "id": "automation_linking",
@@ -285,7 +293,7 @@
     {
       "id": "migration_interoperability",
       "weight": 4,
-      "maturity": 74,
+      "maturity": 76,
       "evidence": [
         "backend/projects.py",
         "tests/test_projects.py",
@@ -295,9 +303,11 @@
         "docs/DIVISION_CON_NOMBRES_Y_LISTAS_20261029.md",
         "backend/structure_partition.py",
         "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
-        "tests/test_four_blocks.py"
+        "tests/test_four_blocks.py",
+        "docs/COMPOSICION_CELDAS_ESTILOS_Y_NOTAS_20261030.md",
+        "tests/test_composition_cells_styles_notes.py"
       ],
-      "remaining": "Acrobat/Nitro/plataformas externas, migración entre versiones, XFDF restante y estructuras etiquetadas complejas (IDTree/ClassMap/Namespaces/ActualText/referencias/atributos ajenos al subconjunto Table). No acredita aceptación externa."
+      "remaining": "Aceptación Acrobat/Nitro/plataformas externas, migración entre versiones y XFDF restante; árboles etiquetados complejos (IDTree/ClassMap/Namespaces/ActualText/referencias/atributos no compatibles). No se acredita aceptación comercial por las pruebas locales."
     },
     {
       "id": "performance_reliability",
@@ -377,55 +387,49 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261030-before-four-blocks.json",
-    "before_weighted": 80.98,
-    "after_weighted": 82.25,
-    "new_points": 1.27,
+    "baseline": "docs/progress/20261030-before-composition-cells-styles-notes.json",
+    "before_weighted": 82.25,
+    "after_weighted": 82.66,
+    "new_points": 0.41,
+    "unrounded_delta": "0.405",
     "changes": [
       {
         "id": "text_images",
-        "before": 97.75,
-        "after": 98,
-        "points": 0.04,
-        "reason": "Instancias predeterminadas variables verificadas TrueType/gvar y CFF2/VarStore, edición posterior con mapa original y Type3 dash/clipping acotado."
+        "before": 98,
+        "after": 98.5,
+        "points": 0.08,
+        "reason": "Edición original con modos de mezcla estándar y grupos no aislados RGB/Gray sin knockout, aislamiento de aparición y bloqueo de sustitución que perdería composición."
       },
       {
         "id": "annotations",
-        "before": 85,
-        "after": 90,
-        "points": 0.35,
-        "reason": "XFDF de respuestas y estados Review/Marked con orden de padres, ciclos/conflictos, duplicados y conservación nativa."
-      },
-      {
-        "id": "forms",
-        "before": 87.5,
-        "after": 91,
-        "points": 0.21,
-        "reason": "Horas y formatos especiales nativos, expresiones aritméticas acotadas conservando acciones/CO y recálculo dependiente, sin ejecutar JS."
+        "before": 90,
+        "after": 92,
+        "points": 0.14,
+        "reason": "Doce variantes tipográficas latinas en texto libre XFDF con métricas/apariencias nativas, borde y caja estables y comprobación de recursos/font real."
       },
       {
         "id": "ocr_conversion",
-        "before": 92,
-        "after": 95,
-        "points": 0.27,
-        "reason": "Cuatro pruebas locales de orientación revisables, esquinas de papel contra fondo oscuro y cuadrícula por espacios repetidos en tablas sin líneas, con abstención y exportación."
+        "before": 95,
+        "after": 95.5,
+        "points": 0.045,
+        "reason": "Importación Word de marcas personalizadas de notas, glifos/control imprimible, numeración automática independiente y enlaces/revisión de páginas."
       },
       {
         "id": "accessibility",
-        "before": 77,
-        "after": 85,
-        "points": 0.24,
-        "reason": "Table/TR/TH/TD con combinaciones/Scope y filas cubiertas, listas de seis niveles, Forms textuales por aparición y preservación/persistencia comprobadas."
+        "before": 85,
+        "after": 87,
+        "points": 0.06,
+        "reason": "Un solo TH/TD reúne múltiples MCID de objetos originales por celda tras confirmación, con ParentTree, orden, proyecto y división conservados."
       },
       {
         "id": "migration_interoperability",
-        "before": 70,
-        "after": 74,
-        "points": 0.16,
-        "reason": "Partición conserva atributos Table acotados, listas anidadas y Forms textuales por aparición; XFDF de respuestas/estados y reapertura nativa."
+        "before": 74,
+        "after": 76,
+        "points": 0.08,
+        "reason": "Reapertura/partición de celdas con varios MCID y roundtrip XFDF de estilos reales, bordes/opacidad/recortes y recursos directos/indirectos verificados."
       }
     ],
-    "unrounded_after_weighted": "82.25",
+    "unrounded_after_weighted": "82.655",
     "all_weights_and_scope_unchanged": true
   }
 }

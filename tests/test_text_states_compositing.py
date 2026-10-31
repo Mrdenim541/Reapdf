@@ -76,7 +76,7 @@ def test_translucent_source_cannot_be_rewritten_as_opaque_paragraph():
     with pytest.raises(DocumentError,match='transparente'):replace_paragraph(base,[],0,box,'CBA',size=18)
 
 
-@pytest.mark.parametrize('state',['<</ca 0>>','<</ca 1.1>>','<</ca .5/BM/Multiply>>','<</ca .5/SMask<</S/Alpha>>>>','<</ca .5/Font[/helv 18]>>','<</ca .5/AIS true>>'])
+@pytest.mark.parametrize('state',['<</ca 0>>','<</ca 1.1>>','<</ca .5/BM/Unknown>>','<</ca .5/SMask<</S/Alpha>>>>','<</ca .5/Font[/helv 18]>>','<</ca .5/AIS true>>'])
 def test_unverified_graphics_states_stay_readonly(state):
     base=source()
     with f.open(stream=base) as d:
@@ -84,8 +84,8 @@ def test_unverified_graphics_states_stay_readonly(state):
     with pytest.raises(DocumentError):row_for(bad)
 
 
-@pytest.mark.parametrize('group',['<</S/Transparency>>','<</S/Transparency/I true/K true>>','<</S/Transparency/I true/CS/DeviceCMYK>>','<</S/Transparency/I true/CS[/ICCBased 99 0 R]>>','<</S/Transparency/I true/Extra true>>'])
-def test_nonisolated_knockout_or_complex_color_group_stays_readonly(group):
+@pytest.mark.parametrize('group',['<</S/Transparency/I /Bad>>','<</S/Transparency/I true/K true>>','<</S/Transparency/I true/CS/DeviceCMYK>>','<</S/Transparency/I true/CS[/ICCBased 99 0 R]>>','<</S/Transparency/I true/Extra true>>'])
+def test_knockout_invalid_flags_or_complex_color_group_stays_readonly(group):
     base=source(form=True)
     with f.open(stream=base) as d:
         obj=next(x[0] for x in d[0].get_xobjects() if x[2]==0);d.xref_set_key(obj,'Group',group);bad=d.tobytes()

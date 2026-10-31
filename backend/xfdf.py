@@ -249,6 +249,9 @@ def _annotations(snapshot,nodes,field_count,preview):
             if kind!='freetext':a.set_colors(stroke=rgb,fill=appearance['fill'])
             from .xfdf_appearance import apply_border
             a.set_opacity(opacity);apply_border(doc,a,width,appearance['dashes']);a.set_flags(appearance['flags']);a.update()
+            if kind=='freetext':
+                from .xfdf_styled_text import apply as styled_appearance
+                styled_appearance(doc,a,appearance,rect,content,width,opacity)
             if name:
                 doc.xref_set_key(a.xref,'NM',pdf_string(name));existing_names[(number_page,name)]=sig
             apply_thread(doc,a,node,parent_refs,number_page)
