@@ -1,0 +1,3 @@
+[9600:5320:1031/181525.386:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[9600:5320:1031/181525.386:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: actual Qt window opened an isolated shared transparency group with intermediate CFF text states, edited original text on page and saved atomically; original file/glyph programs/rotation/crop/other occurrence and page preserved.
