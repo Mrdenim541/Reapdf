@@ -65,7 +65,8 @@ def verify_signatures(base,operations,trust=b'',evidence=()):
                 policy=cert['signing_restriction'];accepted=bool(result.trusted) and not policy
             if timestamp:
                 tsa_revocation=check_timestamp(signature,tsa_certificate,roots,crls,ocsps,now);timestamp['revocation']=tsa_revocation;timestamp['revocation_checked']=tsa_revocation['checked']
-                if tsa_revocation['status']=='revoked':timestamp.update(status='certificate_revoked',time_accepted_offline=False,chain_accepted=False)
+                if not timestamp['intact'] or not timestamp['cryptographically_valid']:timestamp.update(status='integrity_failed',time_accepted_offline=False)
+                elif tsa_revocation['status']=='revoked':timestamp.update(status='certificate_revoked',time_accepted_offline=False,chain_accepted=False)
                 elif evidence and tsa_revocation['status']!='accepted_offline':timestamp.update(status='revocation_unknown',time_accepted_offline=False)
                 elif tsa_revocation['status']=='accepted_offline' and timestamp['time_accepted_offline']:timestamp['status']='chain_accepted_with_local_revocation'
                 if document_timestamp:revocation=tsa_revocation;accepted=timestamp['chain_accepted']
@@ -108,7 +109,7 @@ def signing_plan(base,operations,config):
     if reader.root.get('/Perms') or any(sig.docmdp_level is not None or sig.fieldmdp is not None for sig in embedded):raise DocumentError('No se añaden firmas a documentos certificados o con restricciones DocMDP/FieldMDP.')
     if embedded:
         report=verify_signatures(data,[])
-        if any(row['status'] in ['inconclusive','integrity_failed','changes_require_review'] for row in report['signatures']):raise DocumentError('Las firmas existentes no superan la revisión de integridad y cambios. No se añade otra firma.')
+        if any(integrity_failure(row) for row in report['signatures']):raise DocumentError('Las firmas o sellos existentes no superan la revisión de integridad y cambios. No se añade otra firma ni sello.')
     elif source_indicators(data):raise DocumentError('El PDF tiene indicadores o campos de firma sin una firma interpretable; se conserva sin firmar.')
     box=None;number=config.get('page',0)
     with open_pdf(data) as doc:
@@ -125,6 +126,11 @@ def signing_plan(base,operations,config):
 
 def source_indicators(data):
     with open_pdf(data) as doc:return doc.get_sigflags()>0
+
+
+def integrity_failure(row):
+    token=row.get('timestamp')
+    return row['status'] in ['inconclusive','integrity_failed','changes_require_review'] or bool(token and (not token['intact'] or not token['cryptographically_valid']))
 
 
 def sign_document(base,operations,identity,password,config,review=False,tsa=None,tsa_trust=b''):
@@ -152,7 +158,7 @@ def sign_document(base,operations,identity,password,config,review=False,tsa=None
     except Exception:raise DocumentError('No se pudo completar la firma digital. El documento original permanece intacto.') from None
     if len(output)>MAX_SIGNED_BYTES:raise DocumentError('La copia firmada supera 40 MB.')
     checked=verify_signatures(output,[],tsa_trust if authority else b'')
-    if len(checked['signatures'])!=plan['existing_signatures']+1 or any(row['status'] in ['inconclusive','integrity_failed','changes_require_review'] for row in checked['signatures']):raise DocumentError('La copia firmada no superó la comprobación criptográfica. No se entrega.')
+    if len(checked['signatures'])!=plan['existing_signatures']+1 or any(integrity_failure(row) for row in checked['signatures']):raise DocumentError('La copia firmada no superó la comprobación criptográfica. No se entrega.')
     if authority and not next((r for r in checked['signatures'] if r['field']==name),{}).get('timestamp',{}).get('time_accepted_offline'):raise DocumentError('El sello de la nueva firma no quedó validado con la confianza seleccionada.')
     return output
 
@@ -168,5 +174,5 @@ def timestamp_document(base,operations,tsa,trust,review=False):
     except Exception:raise DocumentError('No se pudo incorporar el sello documental. Se conserva el PDF original.') from None
     if len(output)>MAX_SIGNED_BYTES or not output.startswith(data):raise DocumentError('La copia sellada excede el tamaño o no conserva la revisión original.')
     checked=verify_signatures(output,[],trust);new=next((r for r in checked['signatures'] if r['field']==name),{})
-    if len(checked['signatures'])!=plan['existing_signatures']+1 or any(r['status'] in ['inconclusive','integrity_failed','changes_require_review'] for r in checked['signatures']) or not new.get('timestamp',{}).get('time_accepted_offline'):raise DocumentError('La copia no superó la comprobación del sello y las firmas anteriores. No se entrega.')
+    if len(checked['signatures'])!=plan['existing_signatures']+1 or any(integrity_failure(r) for r in checked['signatures']) or not new.get('timestamp',{}).get('time_accepted_offline'):raise DocumentError('La copia no superó la comprobación del sello y las firmas anteriores. No se entrega.')
     return output

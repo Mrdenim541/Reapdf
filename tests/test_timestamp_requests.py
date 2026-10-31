@@ -184,3 +184,20 @@ def test_conflicting_tsa_evidence_never_hides_revocation(monkeypatch):
  tsa,root=authority();monkeypatch.setattr(module,'exchange',transport(tsa));pdf=timestamp_document(document(),[],URL,root)
  row=verify_signatures(pdf,[],root,[revocation('good','ocsp'),revocation('revoked','crl')])['signatures'][0]
  assert row['status']=='certificate_revoked' and row['timestamp']['revocation']['status']=='revoked' and not row['timestamp']['time_accepted_offline']
+
+
+def test_bad_embedded_timestamp_cannot_be_hidden_by_revocation_or_resigned(monkeypatch):
+ from asn1crypto import cms
+ from tests.timestamp_samples import revocation
+ tsa,root=authority();requests=[];monkeypatch.setattr(module,'exchange',transport(tsa,requests));p12,signer_root,_=identity()
+ pdf=sign_document(document(),[],p12,'prueba',{},tsa=URL,tsa_trust=root)
+ signature=PdfFileReader(BytesIO(pdf)).embedded_signatures[0];old=bytes(signature.sig_object['/Contents']);outer=cms.ContentInfo.load(old)
+ token=outer['content']['signer_infos'][0]['unsigned_attrs'][0]['values'][0];si=token['content']['signer_infos'][0];value=si['signature'].native;si['signature']=bytes([value[0]^1])+value[1:]
+ encoded=old.hex().encode();replacement=outer.dump().ljust(len(old),b'\0').hex().encode()
+ if encoded not in pdf:encoded=encoded.upper();replacement=replacement.upper()
+ assert pdf.count(encoded)==1;changed=pdf.replace(encoded,replacement,1)
+ row=verify_signatures(changed,[],root+signer_root,[revocation()])['signatures'][0]
+ assert row['intact'] and row['cryptographically_valid'] and row['timestamp']['status']=='integrity_failed'
+ with pytest.raises(DocumentError,match='firmas o sellos'):timestamp_document(changed,[],URL,root,True)
+ with pytest.raises(DocumentError,match='firmas o sellos'):sign_document(changed,[],p12,'prueba',{},review=True)
+ assert len(requests)==2
