@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "review_date": "2026-10-31",
-  "status": "provisional_function_guide_and_verified_windows_source",
+  "status": "provisional_verified_internal_windows_executable_with_functional_gaps",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 84.88,
+  "weighted_percent": 85.18,
   "reported_percent": 85,
   "subjective_range_percent": [
     62,
@@ -135,9 +135,12 @@
         "docs/RECORRIDOS_EXTENDIDOS_20261031.md",
         "tests/test_extended_workflows.py",
         "scripts/smoke_extended_workflows.mjs",
-        "scripts/smoke_extended_workflows_qt.py"
+        "scripts/smoke_extended_workflows_qt.py",
+        "tests/test_image_occurrences.py",
+        "scripts/smoke_image_occurrences.mjs",
+        "docs/IMAGENES_Y_EJECUTABLE_20261031.md"
       ],
-      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con imágenes/recursos/FontMatrix no estándar, reflujo afín mixto, entre objetos/páginas y con composición especial y cambio de fuente; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas."
+      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con imágenes/recursos/FontMatrix no estándar, reflujo afín mixto, entre objetos/páginas y con composición especial y cambio de fuente; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
     },
     {
       "id": "annotations",
@@ -298,7 +301,7 @@
     {
       "id": "desktop_distribution",
       "weight": 6,
-      "maturity": 80,
+      "maturity": 85,
       "evidence": [
         "portable/native_window.py",
         "portable/native_print.py",
@@ -318,9 +321,13 @@
         ".github/workflows/desktop-source.yml",
         "scripts/smoke_text_states_native.py",
         "docs/ENTREGA_TECNICA_Y_GUIA_20261031.md",
-        "docs/validation/delivery-guide-windows-20261031/results.json"
+        "docs/validation/delivery-guide-windows-20261031/results.json",
+        "scripts/verify_portable_windows.py",
+        "scripts/smoke_packaged_window.mjs",
+        "docs/IMAGENES_Y_EJECUTABLE_20261031.md",
+        "docs/validation/images-executable-20261031/results.json"
       ],
-      "remaining": "Paquete ejecutable/instalador/portable final en Windows cliente limpio, DPI/asociaciones/impresión física, estabilidad sostenida y aceptación personal al final. Once recorridos de aplicación desde fuente ya verificados en Windows Server 2025 y Linux, con fuente limpia y comprobantes vinculados a Git."
+      "remaining": "Windows cliente limpio, DPI/asociaciones/impresión física, recuperación empaquetada y estabilidad/carga sostenida, migración del recorrido histórico extendido y aceptación personal al final. El paquete interno con Reapdf.exe y Python 3.13.16 ya pasó arranque Qt, edición sobre página, deshacer/rehacer, exportación y cierre en Windows Server 2025; once recorridos desde fuente también pasaron en Windows/Linux. No acredita cierre técnico de todo el producto."
     },
     {
       "id": "migration_interoperability",
@@ -439,27 +446,20 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261031-before-windows-source.json",
-    "before_weighted": 84.25,
-    "before_unrounded": "84.2525",
-    "after_weighted": 84.88,
-    "new_points": 0.63,
-    "unrounded_delta": "0.6300",
-    "unrounded_after_weighted": "84.8825",
+    "baseline": "docs/progress/20261031-before-packaged-executable.json",
+    "before_weighted": 84.88,
+    "before_unrounded": "84.8825",
+    "after_weighted": 85.18,
+    "new_points": 0.3,
+    "unrounded_delta": "0.3000",
+    "unrounded_after_weighted": "85.1825",
     "changes": [
       {
         "id": "desktop_distribution",
-        "before": 70,
-        "after": 80,
-        "points": 0.6,
-        "reason": "Ejecución real Windows de once recorridos de ventana propia, guardado, impresión controlada, instancias/arranque y funciones nuevas; recibo de fuente limpia, objetos Git y logs comprobados."
-      },
-      {
-        "id": "portfolios_layers",
-        "before": 86,
-        "after": 87,
-        "points": 0.03,
-        "reason": "Diseño compatible de columnas de portfolios con eliminación explícita de valores, protección de columnas, conservación de ordenación, adjuntos y portada, probado también en ventana Windows."
+        "before": 80,
+        "after": 85,
+        "points": 0.3,
+        "reason": "Paquete interno real ejecutado en Windows Server 2025 con Python incluido 3.13.16: Reapdf.exe, ventana Qt identificada, edición directa, deshacer/rehacer, exportación y cierre normal; fuente y archivo vinculados a comprobante Git. No equivale a Windows cliente limpio ni cierre funcional general."
       }
     ],
     "all_weights_and_scope_unchanged": true,

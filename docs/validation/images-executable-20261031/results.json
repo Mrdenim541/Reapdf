@@ -1,0 +1,94 @@
+{
+  "source_commit": "c24f30573347e5c19c2ca1366787eb3c958a1d58",
+  "python_full": {
+    "passed": 3667,
+    "warnings": 3,
+    "seconds": 318.09,
+    "log": "python-full.log"
+  },
+  "python_directed": {
+    "passed": 189,
+    "overlaps_full": true,
+    "log": "python-directed.log"
+  },
+  "javascript": {
+    "passed": 128,
+    "log": "javascript.log"
+  },
+  "production_build": {
+    "passed": true,
+    "initial_js_kb_before": 619.38,
+    "initial_js_kb_after": 344.78,
+    "log": "build.log"
+  },
+  "browser_checks": [
+    {
+      "script": "scripts/smoke_image_occurrences.mjs",
+      "passed": true,
+      "record_source": "tool_execution_output"
+    },
+    {
+      "script": "scripts/smoke_core_workflows.mjs",
+      "passed": true,
+      "record_source": "tool_execution_output"
+    }
+  ],
+  "linux_qt": {
+    "checks": 11,
+    "passed": true,
+    "report": "linux/desktop-report.json"
+  },
+  "windows_qt": {
+    "checks": 11,
+    "passed": true,
+    "platform": "Windows Server 2025",
+    "report": "windows/desktop-report.json"
+  },
+  "windows_internal_package": {
+    "passed": true,
+    "python": "3.13.16",
+    "report": "windows/packaged-report.json",
+    "receipt": "windows/verified.json",
+    "archive_sha256": "2da3547abe2f7475dea6b67437351e0a232f594eb7ba0be1cec952c7f1115f71",
+    "compiled_exe": true,
+    "external_browser_used": false,
+    "native_save_in_exe_check": false,
+    "physical_print_verified": false,
+    "windows_client_clean_verified": false,
+    "intermediate_delivery": false
+  },
+  "runtime_code_changes_after_validation": false,
+  "documentation_changes_after_validation": true,
+  "technical_complete": false,
+  "human_acceptance": false,
+  "weighted_total_percent": 85.18,
+  "logs_sha256": {
+    "build.log": "3a60332d839c56b8ab1c2af507db74bb1d4f5bbb7dd500243299c3c6e9904b94",
+    "python-directed.log": "634dc500fea7db86d85279e2740e8b7bfc0be8e9b8b68bc0094f84d829b64445",
+    "javascript.log": "75cbb34e78ec6b4e3bbee81a5906427b4a9a839f84b7ce2e1850923a2fa37c8c",
+    "python-full.log": "097a3ac20fd35678165060bb8bd800ef7aa97405238c056256060c8c4216edb7",
+    "linux/smoke_parent_exit.log": "d4672450749b3b3cb89d953432a4762f59f6865af0415d1fa81981d6eeb9890b",
+    "linux/smoke_native_save.log": "97667002c9be411bd12fdc438d2893228a1a578ab57d0f88e940230e3e199b8d",
+    "linux/smoke_extended_workflows_qt.log": "5534a01bad3e9128af19a7548e8deb360fc05438aab16b61bb5c17e8b2916525",
+    "linux/smoke_single_instance.log": "8cfc21a801cf3782acbfe7d7a6a0b3520619b557b4e468e7388dcc58e4af3df2",
+    "linux/smoke_native_readiness.log": "a94bfa5fd0a0ee60d1ee876975c03fca494a94c58206dd3d68f058dff44f685e",
+    "linux/smoke_native_window.log": "943d795c13828610d20cfa2a887c91cd94759783d2f9461a2ce4f4bbf0905d49",
+    "linux/smoke_vector_print.log": "1ce64165c71b3292057500f08bb3187f1a964a32a3c47339d7581ea07186d6ca",
+    "linux/smoke_native_document_set.log": "b70a8b0bb63fb3e50b812d504769170b80661d1f2ee7630a6b667ae31a00c9d0",
+    "linux/smoke_text_states_native.log": "f04844ac2870e1fc997f11637f43c1e0aa3d0cdf857e6c7c4a0847db33913b29",
+    "linux/smoke_portfolio_schema_qt.log": "ae20ca2de625c93275376b17499630d0462b6152041b734b943698bf5c38c844",
+    "linux/smoke_native_launcher.log": "34cd0df917f5e03b7bd28a2a4bffa087ae5a34be72ea4962bdffe9c894960592",
+    "windows/smoke_parent_exit.log": "e51db3cd4f37727c9100681b97d52388df76bb89dba7f6f93787fc27d451b492",
+    "windows/smoke_native_save.log": "fd07b50db60d1b16512c19f67738d22bc21700f5ee6d7d19d26861321ea8807f",
+    "windows/smoke_extended_workflows_qt.log": "b8814ab61244586c445cebbacc679dbc324fc9bb858b3fbe4ecde216e34fa498",
+    "windows/smoke_single_instance.log": "d38da1b0b9fe0087b71f4c6a8766c98fca921fd0bd64c3438ca534e74a84a241",
+    "windows/packaged-check.log": "ea82d0f61593db91d248d91dcee5de3e570c6d6247f7bdbc44aab50f771b487e",
+    "windows/smoke_native_readiness.log": "7721b495414c9f231c91b55b0006839d4fd77be3dd0a37521fdc4a5349ab05b1",
+    "windows/smoke_native_window.log": "186fd7a7a1093bb1a68612434bff8d3d993648daae7327c465293bc704aab756",
+    "windows/smoke_vector_print.log": "90af8797304c2b642d9fd1569983234d35a70fde3f62b7bebd3a50a32b11782a",
+    "windows/smoke_native_document_set.log": "26370de6d14eb469af144da57cf3faad1448ecbaa53e824f1f041a95859bc681",
+    "windows/smoke_text_states_native.log": "82d6bc4914cec5554b5dcbc2656d14581325655ddba7c1e846ff0415b8bd6580",
+    "windows/smoke_portfolio_schema_qt.log": "8cfa5beb0dc0b6d70d8040f771074dd18a88c49ef29943e4b5403ff75225533b",
+    "windows/smoke_native_launcher.log": "8294c006cc03a9b953f6ff16a66cf2bfbcc7f585c7c95d4e40be370d406e1a1d"
+  }
+}

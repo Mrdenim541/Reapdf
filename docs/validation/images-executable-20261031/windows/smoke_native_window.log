@@ -1,0 +1,7 @@
+[2440:5644:1031/172550.424:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[2440:5644:1031/172550.424:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+STAGE: application loaded
+STAGE: PDF loaded
+STAGE: page range printed and cancellation checked
+STAGE: download created
+PASS: Qt window, PDF upload/render, native download, busy guard, cancelled download protection, cancelled close and explicit discard.

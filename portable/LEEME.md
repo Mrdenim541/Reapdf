@@ -1,6 +1,6 @@
-> Guía de la futura distribución Qt. En este avance no se ha ensamblado ni entregado un paquete nuevo. El ZIP histórico 0.43 usa navegador y no contiene estas mejoras.
+> Guía de distribución en preparación. El paquete interno con Reapdf.exe ya se ensambló y comprobó en Windows Server 2025; no es una entrega completa del producto. Las pruebas personales se harán después de la entrega técnica final. El ZIP histórico 0.43 usa navegador y no contiene estas mejoras.
 
-# Reapdf 0.43 — prueba personal Windows x64
+# Reapdf — guía de distribución Windows x64
 
 ## Abrir sin instalar
 
@@ -12,7 +12,7 @@
 
 No necesitas instalar previamente Reapdf, Python, Node ni Tesseract; el paquete incluye el motor y OCR español/inglés. Mantén juntos el ejecutable y las carpetas `runtime`, `app` y el resto del contenido. Este `.exe` es un lanzador portable, no un instalador ni un archivo único que puedas separar del paquete.
 
-La futura distribución requiere Windows 10/11 de 64 bits y las dependencias Qt incluidas en el paquete completo. Su ventana integra el motor web y no depende de Edge/Chrome externo. Esa distribución todavía requiere ensamblado y ejecución real en Windows. El motor trabaja localmente en 127.0.0.1 y elige un puerto disponible. Algunas funciones de estándares requieren Java/Ghostscript, que no se incluyen en este paquete; la interfaz indicará si no están disponibles.
+La futura distribución requiere Windows 10/11 de 64 bits y las dependencias Qt incluidas en el paquete completo. Su ventana integra el motor web y no depende de Edge/Chrome externo. El recorrido del ejecutable interno está comprobado en Windows Server 2025; Windows cliente limpio, DPI, asociaciones y otras verificaciones finales siguen pendientes. El motor trabaja localmente en 127.0.0.1 y elige un puerto disponible. Algunas funciones de estándares requieren Java/Ghostscript, que no se incluyen en este paquete; la interfaz indicará si no están disponibles.
 
 ## Si no abre
 
@@ -30,8 +30,8 @@ La futura distribución requiere Windows 10/11 de 64 bits y las dependencias Qt 
 4. Guarda/reabre un proyecto; aplica un cambio y prueba cerrar/reabrir y recuperar la sesión.
 5. Abre uno de tus PDF habituales y anota qué función usaste, qué esperabas y qué ocurrió. Guarda el archivo original por separado.
 
-Las automatizaciones personales configurables todavía están planificadas: consulta `docs/PLAN_CIERRE_Y_FLUJOS.md`. Esta entrega permite probar el editor actual; no representa el cierre del producto.
+La vinculación configurable entre documentos está incorporada con límites. Los pendientes actuales se consultan en `docs/PLAN_ACTUAL.md`; los planes históricos no sustituyen ese estado. Esta guía no convierte un paquete interno en una entrega final.
 
 ## Estado de validación
 
-El ejecutable se compiló como Windows x64 GUI y se comprobó su estructura, recursos y paquete desde Linux. Los flujos del motor y la interfaz se prueban en Linux. **La ventana y el binario incluidos todavía requieren ejecución real en Windows.** El manifiesto declara esa limitación; compilar un `.exe` no demuestra que se haya probado en tu PC.
+El paquete interno de la revisión c24f305 fue ejecutado en Windows Server 2025 con Python 3.13.16 incluido. Se comprobó Reapdf.exe, su ventana Qt, apertura de un PDF, edición directa, deshacer/rehacer, exportación y cierre normal, además de once recorridos desde fuente Windows/Linux. La exportación del recorrido del ejecutable usa el servidor de la ventana; guardado atómico y diálogos se verifican por separado. No acredita impresión física, DPI, asociaciones, Windows cliente limpio ni cierre de todas las funciones. El resultado del paquete se vincula a su SHA256 mediante un comprobante separado del manifiesto de construcción; véase `docs/IMAGENES_Y_EJECUTABLE_20261031.md`. No es una prueba personal del equipo del usuario.

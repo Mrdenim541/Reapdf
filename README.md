@@ -2,11 +2,11 @@
 
 [Manual de funciones](docs/MANUAL_DE_FUNCIONES.md): acceso, pasos, resultado esperado y límites de cada herramienta. Revisión personal aplazada hasta después de la entrega técnica final; sin paquetes intermedios.
 
-Estado vigente: [guía integrada y comprobación Windows](docs/ENTREGA_TECNICA_Y_GUIA_20261031.md), **84,88 % del programa completo (≈85 %)**, estimación de madurez; once recorridos desde fuente aprobados en Windows/Linux, paquete final pendiente. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
+Estado vigente: [imágenes por aparición y ejecutable Windows comprobado](docs/IMAGENES_Y_EJECUTABLE_20261031.md), **85,18 % del programa completo (≈85 %)**, estimación provisional de madurez. Once recorridos desde fuente aprobados en Windows/Linux; paquete interno `Reapdf.exe` probado en Windows Server 2025. Persisten implementaciones y verificaciones: no es una entrega final. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 
-Ventana propia Qt, edición de fuentes compatibles, vinculación configurable, medición, capas, XFDF y OCR regional comprobados en Linux. No se genera instalador/portable en este avance. La base procede de 0.43 recuperado y mejoras nuevas; 0.55 no se ha recuperado. Generación de informes/registros/ensayos excluida.
+Ventana propia Qt, edición de fuentes compatibles, vinculación configurable, medición, capas, XFDF y OCR regional comprobados en Linux. No se entrega un instalador/portable intermedio; el paquete de comprobación permanece interno de CI. La base procede de 0.43 recuperado y mejoras nuevas; 0.55 no se ha recuperado. Generación de informes/registros/ensayos excluida.
 
 Primera versión experimental de un editor PDF personal, con Adobe Acrobat como referencia funcional. Primero se construye el editor general; la vinculación entre documentos usa archivos y funciones elegidos por el usuario.
 

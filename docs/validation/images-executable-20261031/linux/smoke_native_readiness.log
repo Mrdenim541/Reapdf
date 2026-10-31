@@ -1,0 +1,17 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[33602:33622:1031/172533.111885:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 33623: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[33637:33657:1031/172534.109513:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 33658: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+La interfaz de Reapdf no pudo cargar.
+PASS: real Qt frontend ready, separate child forwards activation, 404 fails before ready and exits.
