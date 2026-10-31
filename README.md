@@ -2,7 +2,7 @@
 
 [Manual de funciones](docs/MANUAL_DE_FUNCIONES.md): acceso, pasos, resultado esperado y límites de cada herramienta. Revisión personal aplazada hasta después de la entrega técnica final; sin paquetes intermedios.
 
-Estado vigente: [imágenes por aparición y ejecutable Windows comprobado](docs/IMAGENES_Y_EJECUTABLE_20261031.md), **85,18 % del programa completo (≈85 %)**, estimación provisional de madurez. Once recorridos desde fuente aprobados en Windows/Linux; paquete interno `Reapdf.exe` probado en Windows Server 2025. Persisten implementaciones y verificaciones: no es una entrega final. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
+Estado vigente: [comodines, curvas e intersecciones](docs/BUSQUEDA_Y_CURVAS_20261031.md), **85,26 % del programa completo (≈85 %)**, estimación provisional de madurez. Doce recorridos desde fuente aprobados en Windows/Linux; paquete interno `Reapdf.exe` probado en Windows Server 2025. Persisten implementaciones y verificaciones: no es una entrega final. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 

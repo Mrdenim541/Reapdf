@@ -1,0 +1,83 @@
+{
+  "source_commit": "dbb770254aacff0ed773d0ee74de3a86aa76726e",
+  "python_full": {
+    "passed": 3721,
+    "warnings": 3,
+    "seconds": 336.52
+  },
+  "javascript": {
+    "passed": 130
+  },
+  "build": {
+    "passed": true
+  },
+  "browser": {
+    "search_curves": true,
+    "everyday": true
+  },
+  "linux_qt": {
+    "passed": true,
+    "checks": 12,
+    "source_clean_before_after": true
+  },
+  "windows_qt": {
+    "passed": true,
+    "checks": 12,
+    "source_clean_before_after": true,
+    "platform": "Windows Server 2025"
+  },
+  "windows_internal_executable": {
+    "passed": true,
+    "archive_sha256": "26c55c0842b60ade24eb1976aea049ad92cf0d46e72b97d16a65ae3ca84d103c",
+    "report": "windows/packaged-report.json",
+    "external_browser_used": false,
+    "intermediate_delivery": false,
+    "physical_print_verified": false,
+    "windows_client_clean_verified": false
+  },
+  "private_pdf_qt": {
+    "passed": true,
+    "native_atomic_save_reopen": true,
+    "original_unchanged": true,
+    "images_drawings_fonts_unchanged": true,
+    "private_details_ignored_and_not_committed": true
+  },
+  "human_acceptance": false,
+  "technical_complete": false,
+  "logs_sha256": {
+    "browser.log": "001d6bc881363b490a88226e29a88320d1a0988e5fd862a1b74a5044bd9001f1",
+    "build.log": "3b0b81e543651d175d2d983780977b05aca931bf339fff65031b9e4b6794b935",
+    "intersections-directed.log": "150c6b5c724d41087c2d378c5f41dd1326e8e9f22289b425b6648abc012b2a87",
+    "javascript.log": "1b4135eb00e7358a5dc97fc5cd949dabd7cf8e6330e304cf09ecffc06a140661",
+    "search-directed.log": "633f885d207c9869465154eafef98eb16952ad75f6885cb41e721b1c19d79603",
+    "python-full.log": "5bc0508dc6c2d102dd7ed359135de3d7b8c666a0b841981b79e909ec45b8e0bc",
+    "browser-core.log": "06fef375acbd3f0b037ebb438cc5cd0fed5fd960decd96493d8d81ae3990bf8c",
+    "linux/smoke_parent_exit.log": "6dcf2fa68c9f00d93f01dde10b3c940bfd6885f0a57cf53aa637decc4ee08e20",
+    "linux/smoke_native_save.log": "aeb16ccca5aeef550d7df00b9313a071356438192399b3836ad5247159e9e253",
+    "linux/smoke_extended_workflows_qt.log": "c43b7df319315e0a7b006dd3a93517b9ab0f72e12d166dc02f481469533322d6",
+    "linux/smoke_single_instance.log": "a6109c87fef3263c38526084667b30ba368b2a03fdc83d836ed1ab97c8a56e7d",
+    "linux/smoke_native_readiness.log": "cb603523c3c71b4539cf27f7f6e5ce782d37c9657d6613a310aad429f8a75522",
+    "linux/smoke_native_window.log": "f8e787e51c6d37fb3f1629445fedee3bce197a7eae318f6a4ec46239e97d3235",
+    "linux/smoke_vector_print.log": "1ce64165c71b3292057500f08bb3187f1a964a32a3c47339d7581ea07186d6ca",
+    "linux/smoke_native_document_set.log": "d2bf007f7f7fc27063129dbb796e50e21dcfaf03a39604d3aab625e73acf9972",
+    "linux/smoke_search_curves_qt.log": "3e26a145b8e77c049644ab5ecd75d0cb831abf63d79ea2e917c34ca59ee36027",
+    "linux/smoke_text_states_native.log": "2a761437e9386414c6c2d086ed2136ec21bae9734236c409b3d8cc9682593f1c",
+    "linux/smoke_portfolio_schema_qt.log": "0c0e98f5dbdf51b72b43c6947637fcf651d9b94ce05aa3ae00d06e9cbdbf768d",
+    "linux/smoke_native_launcher.log": "34cd0df917f5e03b7bd28a2a4bffa087ae5a34be72ea4962bdffe9c894960592",
+    "windows/smoke_parent_exit.log": "3bd1e484023028a4e997b014ec20a9953e9d6165347cb0b71a04def941d8517d",
+    "windows/smoke_native_save.log": "41ff4a2f99298a2a78516fe5abfea1244aa1c9129945bb79e2b7f86f186850b7",
+    "windows/smoke_extended_workflows_qt.log": "8499d3fd2f5b48d24a4a74cc41ac83ad5f284cf54aaa67e71f63180185e09be1",
+    "windows/smoke_single_instance.log": "13a4d0a3e3e62ec050b5718a6c8e12375c6c1123e538e8b9ee37b82cc96b9769",
+    "windows/packaged-check.log": "19e1b8199581125940b2eb77edf69a3159ddcc073acc93a157927adc1938bb5f",
+    "windows/smoke_native_readiness.log": "a10f27d6d9746ec820f02b57d25bc5497a6710bf68e0495f4024d89c0ba3d7f3",
+    "windows/smoke_native_window.log": "0da656e80d0b0059acf32b0109e808f09be1871469868bfb511f9e3c0d6b39b6",
+    "windows/smoke_vector_print.log": "90af8797304c2b642d9fd1569983234d35a70fde3f62b7bebd3a50a32b11782a",
+    "windows/smoke_native_document_set.log": "621b005ac7a921341969fb605b07608ba1a2aea1922b10d26832603b3bb80ea6",
+    "windows/smoke_search_curves_qt.log": "640dcfb084e8962003a8166ce5e7a8c830360becd178bfd58e4d5ae0604d2a4f",
+    "windows/smoke_text_states_native.log": "6b89e3e0c9540dc07a71298b403ced7af065f16bb443615f1da2b15c7e59ed66",
+    "windows/smoke_portfolio_schema_qt.log": "6ae156396f8b1d0bd4830fd84838365e02fa2819a8aff7bbbece890a6e5c53a0",
+    "windows/smoke_native_launcher.log": "8294c006cc03a9b953f6ff16a66cf2bfbcc7f585c7c95d4e40be370d406e1a1d"
+  },
+  "weighted_total_percent": 85.26,
+  "runtime_code_changes_after_validation": false
+}

@@ -1,0 +1,1 @@
+PASS: actual launcher confirms loaded Qt frontend, secondary exits normally, own backend stops, first remains available.

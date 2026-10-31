@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "review_date": "2026-10-31",
-  "status": "provisional_verified_internal_windows_executable_with_functional_gaps",
+  "status": "provisional_verified_wildcards_curved_traces_and_line_cubic_intersections",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 85.18,
+  "weighted_percent": 85.26,
   "reported_percent": 85,
   "subjective_range_percent": [
     62,
@@ -138,7 +138,11 @@
         "scripts/smoke_extended_workflows_qt.py",
         "tests/test_image_occurrences.py",
         "scripts/smoke_image_occurrences.mjs",
-        "docs/IMAGENES_Y_EJECUTABLE_20261031.md"
+        "docs/IMAGENES_Y_EJECUTABLE_20261031.md",
+        "backend/text_search.py",
+        "tests/test_wildcard_search.py",
+        "scripts/smoke_search_curves_qt.py",
+        "docs/BUSQUEDA_Y_CURVAS_20261031.md"
       ],
       "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con imágenes/recursos/FontMatrix no estándar, reflujo afín mixto, entre objetos/páginas y con composición especial y cambio de fuente; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
     },
@@ -375,7 +379,7 @@
     {
       "id": "measurement",
       "weight": 3,
-      "maturity": 95,
+      "maturity": 97.5,
       "evidence": [
         "docs/FUNCIONES.md",
         "backend/measurements.py",
@@ -385,9 +389,17 @@
         "docs/RECORRIDOS_EXTENDIDOS_20261031.md",
         "tests/test_extended_workflows.py",
         "scripts/smoke_extended_workflows.mjs",
-        "scripts/smoke_extended_workflows_qt.py"
+        "scripts/smoke_extended_workflows_qt.py",
+        "backend/measurement_paths.py",
+        "backend/vector_intersections.py",
+        "tests/test_measurement_paths.py",
+        "tests/test_vector_intersections.py",
+        "scripts/smoke_search_curves.mjs",
+        "scripts/smoke_search_curves_qt.py",
+        "docs/BUSQUEDA_Y_CURVAS_20261031.md",
+        "docs/validation/wildcards-curves-20261031/results.json"
       ],
-      "remaining": "Curvas y longitudes de trazados curvos, intersecciones no lineales, migración de geometrías antiguas ambiguas o fuera de vista, corpus técnico e interoperabilidad externa. Ángulos, cruces de segmentos y referencia explícita v1 compatibles ya incorporados."
+      "remaining": "Cruces entre dos curvas, trazados recortados o de capas no verificadas, geometrías que exceden los presupuestos/precisión, migraciones antiguas ambiguas o fuera de vista y corpus/interoperabilidad externos. Longitudes y áreas de trazados lineales/Bézier compatibles con margen explícito, recorridos cerrados, proyección del cursor y cruces línea–cúbica ya incorporados; no se consideran equivalentes a curvas exactas generales."
     },
     {
       "id": "portfolios_layers",
@@ -446,20 +458,20 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261031-before-packaged-executable.json",
-    "before_weighted": 84.88,
-    "before_unrounded": "84.8825",
-    "after_weighted": 85.18,
-    "new_points": 0.3,
-    "unrounded_delta": "0.3000",
-    "unrounded_after_weighted": "85.1825",
+    "baseline": "docs/progress/20261031-before-wildcards-curves.json",
+    "before_weighted": 85.18,
+    "before_unrounded": "85.1825",
+    "after_weighted": 85.26,
+    "new_points": 0.075,
+    "unrounded_delta": "0.0750",
+    "unrounded_after_weighted": "85.2575",
     "changes": [
       {
-        "id": "desktop_distribution",
-        "before": 80,
-        "after": 85,
-        "points": 0.3,
-        "reason": "Paquete interno real ejecutado en Windows Server 2025 con Python incluido 3.13.16: Reapdf.exe, ventana Qt identificada, edición directa, deshacer/rehacer, exportación y cierre normal; fuente y archivo vinculados a comprobante Git. No equivale a Windows cliente limpio ni cierre funcional general."
+        "id": "measurement",
+        "before": 95,
+        "after": 97.5,
+        "points": 0.075,
+        "reason": "Trazado compatible lineal/Bézier, longitud/área con cota de aproximación, cierre de recorridos, proyección del cursor e intersecciones línea–cúbica. Guardado/reapertura, fuente de trazado y regiones comprobados, con recorrido Qt Windows/Linux. Se mantienen variantes generales protegidas y pendientes."
       }
     ],
     "all_weights_and_scope_unchanged": true,

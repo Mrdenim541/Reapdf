@@ -1,0 +1,8 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[40908:40927:1031/181433.236244:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 40928: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: own Qt Linux window angle creation, multi-group affine reflow, separate list labels/empty cells, OCG configurations and foreign portfolio columns; atomic PDF save and reopen of all outputs. Windows not verified.
