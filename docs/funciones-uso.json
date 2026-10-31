@@ -951,5 +951,202 @@
       "expected": "Se entrega una copia saneada solo si supera las comprobaciones previstas.",
       "limits": "Un rectángulo, tachado o recorte no sustituye esta operación; composiciones complejas no verificables quedan protegidas."
     }
+  ],
+  "general_functions": [
+    {
+      "id": "general_open",
+      "label": "Abrir PDF",
+      "area": "workspace",
+      "access": "Archivo → Abrir / Ctrl+O",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Selecciona un PDF",
+        "Introduce contraseña si corresponde"
+      ],
+      "expected": "El documento se abre en la ventana propia de Reapdf.",
+      "limits": "El archivo debe ser interpretable; abrir no concede permiso para editar."
+    },
+    {
+      "id": "general_save",
+      "label": "Guardar PDF",
+      "area": "workspace",
+      "access": "Archivo → Guardar PDF / Ctrl+S en escritorio",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Aplica los cambios pendientes",
+        "Guarda y comprueba la confirmación"
+      ],
+      "expected": "La escritura se confirma y el estado aplicado queda guardado.",
+      "limits": "Cancelar o fallar mantiene cambios pendientes; en vista web utiliza Exportar copia."
+    },
+    {
+      "id": "general_save_as",
+      "label": "Guardar PDF como",
+      "area": "workspace",
+      "access": "Archivo → Guardar PDF como / Ctrl+Mayús+S en escritorio",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige otro destino",
+        "Confirma la escritura y conserva el original si lo necesitas"
+      ],
+      "expected": "Se crea el PDF aplicado en la ruta elegida.",
+      "limits": "Cambiar de nombre no vuelve válida una firma invalidada; en vista web utiliza Exportar copia."
+    },
+    {
+      "id": "general_export",
+      "label": "Exportar copia PDF",
+      "area": "workspace",
+      "access": "Exportar copia",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Aplica o cancela el borrador actual",
+        "Exporta el documento editado"
+      ],
+      "expected": "Se genera una copia con los cambios aplicados.",
+      "limits": "El original se conserva; los borradores sin aplicar no se incorporan silenciosamente."
+    },
+    {
+      "id": "general_project",
+      "label": "Guardar y abrir proyecto",
+      "area": "workspace",
+      "access": "Guardar proyecto / Abrir proyecto",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Guarda la sesión editable",
+        "Abre el proyecto para recuperar su estado verificado"
+      ],
+      "expected": "Se conserva el PDF y el estado del proyecto compatible.",
+      "limits": "El proyecto no sustituye la copia PDF para otros lectores."
+    },
+    {
+      "id": "general_recovery",
+      "label": "Recuperar trabajo",
+      "area": "workspace",
+      "access": "Recuperación al iniciar",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Revisa la recuperación disponible",
+        "Restaura el trabajo y guarda una copia"
+      ],
+      "expected": "Se recupera trabajo aplicado sin sobrescribir silenciosamente el origen.",
+      "limits": "No acredita recuperación de todos los borradores o de cualquier fallo físico."
+    },
+    {
+      "id": "general_history",
+      "label": "Deshacer y rehacer",
+      "area": "workspace",
+      "access": "Controles Deshacer / Rehacer",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Revisa la operación que vas a revertir",
+        "Deshaz o rehace y comprueba la página"
+      ],
+      "expected": "Se cambia la versión o el conjunto de operaciones de la sesión.",
+      "limits": "Dentro de un campo de texto, sus atajos pueden actuar sobre el texto del campo."
+    },
+    {
+      "id": "general_print",
+      "label": "Imprimir PDF",
+      "area": "workspace",
+      "access": "Archivo → Imprimir / Ctrl+P",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Prepara el PDF editado",
+        "Selecciona impresora y páginas en el diálogo de escritorio"
+      ],
+      "expected": "Se envía la versión aplicada al destino seleccionado.",
+      "limits": "La prueba con impresora PDF no acredita una impresora física; el paquete final aún debe verificarse."
+    },
+    {
+      "id": "general_navigate",
+      "label": "Navegar y ampliar páginas",
+      "area": "read",
+      "access": "Página, miniaturas, índice y zoom",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige la página o marcador",
+        "Ajusta zoom, ancho o página completa"
+      ],
+      "expected": "La vista mantiene coordenadas y orientación del documento.",
+      "limits": "Aumentar el zoom no inventa detalle en una imagen de baja resolución."
+    },
+    {
+      "id": "general_copy",
+      "label": "Seleccionar y copiar texto",
+      "area": "read",
+      "access": "Leer / selección con ratón / Ctrl+C",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Selecciona texto digital en la página",
+        "Cópialo al portapapeles"
+      ],
+      "expected": "Se copia el texto seleccionado permitido por el PDF.",
+      "limits": "Los escaneados requieren OCR y los permisos del documento pueden limitar la copia."
+    },
+    {
+      "id": "general_search",
+      "label": "Buscar en el documento",
+      "area": "read",
+      "access": "Buscar / Ctrl+F",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Introduce el texto",
+        "Recorre coincidencias y su ubicación"
+      ],
+      "expected": "La búsqueda localiza texto extraíble del documento editado.",
+      "limits": "Una imagen sin OCR no contiene texto buscable."
+    },
+    {
+      "id": "general_images",
+      "label": "Crear PDF desde imágenes",
+      "area": "convert",
+      "access": "Archivo → Crear PDF desde imágenes",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Carga y ordena PNG o JPEG",
+        "Configura papel y márgenes y crea el PDF"
+      ],
+      "expected": "Se crea un PDF con las imágenes en el orden indicado.",
+      "limits": "La calidad depende de las imágenes originales."
+    },
+    {
+      "id": "general_word",
+      "label": "Crear PDF desde Word",
+      "area": "convert",
+      "access": "Archivo → Crear PDF desde Word",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Carga un DOCX",
+        "Convierte y revisa páginas y diferencias antes de abrir el resultado"
+      ],
+      "expected": "Se obtiene un PDF del contenido y maquetación compatibles.",
+      "limits": "No se promete fidelidad universal de Office; las diferencias se informan."
+    },
+    {
+      "id": "general_tools",
+      "label": "Buscar herramientas y favoritos",
+      "area": "read",
+      "access": "Buscar herramienta / Ctrl+K / estrella",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Busca por tarea o elige un área",
+        "Abre la herramienta o márcala como favorita"
+      ],
+      "expected": "Se accede a la herramienta sin mostrar todas las funciones simultáneamente.",
+      "limits": "Aplica o cancela borradores antes de cambiar de tarea; la persistencia de preferencias depende del modo de ejecución."
+    },
+    {
+      "id": "general_instance",
+      "label": "Abrir otro documento y cerrar",
+      "area": "workspace",
+      "access": "Archivo → Abrir / cierre de ventana",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre otro archivo en la aplicación",
+        "Resuelve operaciones o borradores pendientes al cerrar"
+      ],
+      "expected": "La instancia recibe el archivo y protege trabajo pendiente.",
+      "limits": "No confirmes el descarte si necesitas conservar cambios sin guardar."
+    }
   ]
 }
