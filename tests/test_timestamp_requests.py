@@ -149,9 +149,8 @@ def test_https_transport_rejects_redirects_wrong_content_and_oversized_reply(mon
 
 def test_public_hostname_resolving_to_private_address_is_rejected(monkeypatch):
  async def run():
-  loop=asyncio.get_running_loop()
   async def resolve(*a,**kw):return [(2,1,6,'',('127.0.0.1',443))]
-  monkeypatch.setattr(loop,'getaddrinfo',resolve)
+  monkeypatch.setattr(module,'_resolve',resolve)
   await module._check_public_host('public-name.example',443)
  with pytest.raises(DocumentError,match='local|reservada'):asyncio.run(run())
 
@@ -201,3 +200,34 @@ def test_bad_embedded_timestamp_cannot_be_hidden_by_revocation_or_resigned(monke
  with pytest.raises(DocumentError,match='firmas o sellos'):timestamp_document(changed,[],URL,root,True)
  with pytest.raises(DocumentError,match='firmas o sellos'):sign_document(changed,[],p12,'prueba',{},review=True)
  assert len(requests)==2
+
+
+def test_blocking_system_dns_does_not_hold_operation_after_deadline(monkeypatch):
+ import socket,time
+ def blocked(*a,**kw):time.sleep(.5);return [(socket.AF_INET,socket.SOCK_STREAM,6,'',('8.8.8.8',443))]
+ monkeypatch.setattr(module.socket,'getaddrinfo',blocked);monkeypatch.setattr(module,'REQUEST_TIMEOUT',.02)
+ start=time.monotonic()
+ with pytest.raises(DocumentError):asyncio.run(module.exchange(URL['url'],b'request'))
+ assert time.monotonic()-start<.4
+
+
+def test_checked_public_addresses_are_reused_without_dns_rebinding(monkeypatch):
+ async def run():
+  async def fail(*a,**kw):raise AssertionError('Unexpected second DNS resolution')
+  monkeypatch.setattr(module,'_resolve',fail);resolver=module._Resolver('tsa.example',[(2,1,6,'',('8.8.8.8',443))])
+  rows=await resolver.resolve('tsa.example',443)
+  assert rows[0]['host']=='8.8.8.8' and rows[0]['hostname']=='tsa.example'
+ asyncio.run(run())
+
+
+def test_oversized_public_key_is_refused_before_cms_verification(monkeypatch):
+ tsa,root=authority();stamper=VerifiedTimeStamper(URL,root);monkeypatch.setattr(module,'exchange',transport(tsa))
+ class Key:key_size=16384
+ class Certificate:
+  def public_key(self):return Key()
+ monkeypatch.setattr(module.x509,'load_der_x509_certificate',lambda data:Certificate())
+ called=[]
+ async def forbidden(*a,**kw):called.append(True);raise AssertionError('Expensive verifier must not run')
+ monkeypatch.setattr(module.generic_cms,'validate_tst_signed_data',forbidden)
+ with pytest.raises(DocumentError):asyncio.run(stamper.async_timestamp(hashlib.sha256(b'test').digest(),'sha256'))
+ assert not called

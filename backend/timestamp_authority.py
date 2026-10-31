@@ -1,9 +1,10 @@
 """Explicit-trust RFC3161 requests over bounded, verified public HTTPS."""
-import asyncio,hashlib,ipaddress,secrets,socket
+import asyncio,hashlib,ipaddress,secrets,socket,threading
 from datetime import datetime,timezone
 from urllib.parse import urlsplit
 import aiohttp
 from asn1crypto import tsp
+from cryptography import x509
 from pyhanko.sign.timestamps import TimeStamper
 from pyhanko.sign.validation import generic_cms
 from pyhanko.sign.validation.status import TimestampSignatureStatus
@@ -36,18 +37,49 @@ def settings(config,trust):
     return url,roots
 
 
+async def _resolve(host,port,family=socket.AF_UNSPEC):
+    # A cancelled getaddrinfo task in the default executor can keep
+    # asyncio.run waiting for its worker during shutdown. Use a daemon resolver
+    # and deliver results only while its event loop/future still exists.
+    loop=asyncio.get_running_loop();future=loop.create_future()
+    def complete(value,error):
+        if not future.done():
+            if error:future.set_exception(error)
+            else:future.set_result(value)
+    def run():
+        try:value=socket.getaddrinfo(host,port,family=family,type=socket.SOCK_STREAM);error=None
+        except Exception as exc:value=None;error=exc
+        try:loop.call_soon_threadsafe(complete,value,error)
+        except RuntimeError:pass
+    threading.Thread(target=run,daemon=True).start()
+    return await future
+
+
 async def _check_public_host(host,port):
-    try:addresses=await asyncio.get_running_loop().getaddrinfo(host,port,type=socket.SOCK_STREAM)
+    try:addresses=await _resolve(host,port)
     except OSError:raise DocumentError('No se pudo resolver la autoridad de tiempo.') from None
     if not addresses or any(not ipaddress.ip_address(row[4][0]).is_global for row in addresses):raise DocumentError('La autoridad de tiempo no puede apuntar a una dirección local o reservada.')
+    return addresses
+
+
+class _Resolver(aiohttp.abc.AbstractResolver):
+    def __init__(self,host,addresses):self.host=host;self.addresses=addresses
+    async def resolve(self,host,port=0,family=socket.AF_INET):
+        # Direct connections reuse the public addresses already checked. Proxy
+        # hostnames still follow the configured environment, without a second
+        # uncancellable system resolver or changing the request destination.
+        rows=self.addresses if host==self.host else await _resolve(host,port,family)
+        return [{'hostname':host,'host':r[4][0],'port':port,'family':r[0],'proto':r[2],'flags':socket.AI_NUMERICHOST} for r in rows]
+    async def close(self):pass
 
 
 async def exchange(url,request):
     p=urlsplit(url)
     try:
         async with asyncio.timeout(REQUEST_TIMEOUT):
-            await _check_public_host(p.hostname,p.port or 443)
-            async with aiohttp.ClientSession(trust_env=True,timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT,connect=5),auto_decompress=False) as session:
+            addresses=await _check_public_host(p.hostname,p.port or 443)
+            connector={'connector':aiohttp.TCPConnector(resolver=_Resolver(p.hostname,addresses))} if addresses else {}
+            async with aiohttp.ClientSession(trust_env=True,timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT,connect=5),auto_decompress=False,**connector) as session:
                 async with session.post(url,data=request,headers={'Content-Type':'application/timestamp-query','Accept':'application/timestamp-reply','Accept-Encoding':'identity'},allow_redirects=False) as response:
                     if response.status!=200:raise DocumentError('La autoridad de tiempo no devolvió una respuesta válida; no se siguen redirecciones.')
                     if response.headers.get('Content-Type','').split(';')[0].strip().lower()!='application/timestamp-reply' or response.headers.get('Content-Encoding','identity').lower() not in ['identity','']:raise DocumentError('La autoridad no devolvió un sello RFC3161 binario compatible.')
@@ -79,6 +111,14 @@ class VerifiedTimeStamper(TimeStamper):
             if response['status']['status'].native not in ['granted','granted_with_mods']:raise ValueError()
             token=response['time_stamp_token'];data=token['content'];info=data['encap_content_info']['content'].parsed
             if token['content_type'].native!='signed_data' or info['version'].native!='v1' or len(data['signer_infos'])!=1 or len(data['certificates'])>20:raise ValueError()
+            if data['signer_infos'][0]['digest_algorithm']['algorithm'].native not in ['sha256','sha384','sha512'] or len(data['signer_infos'][0]['signature'].native)>8192:raise ValueError()
+            # Bound public-key work before the cryptographic verifier runs,
+            # rather than discovering an oversized RSA key after verification.
+            for choice in data['certificates']:
+                encoded=choice.chosen.dump()
+                if choice.name!='certificate' or len(encoded)>65536:raise ValueError()
+                public=x509.load_der_x509_certificate(encoded).public_key()
+                if getattr(public,'key_size',0)>8192:raise ValueError()
             imprint=info['message_imprint']
             if info['nonce'].native!=nonce or imprint['hash_algorithm']['algorithm'].native!='sha256' or imprint['hashed_message'].native!=message_digest:raise ValueError()
             now=datetime.now(timezone.utc)
