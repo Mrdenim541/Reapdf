@@ -9,6 +9,18 @@ from .engine import DocumentError
 from .pdf_content import placements
 
 
+def matching_traces(traces,text,origin):
+    result=[]
+    if not text:return result
+    for trace in traces:
+        chars=trace['chars']
+        for at,char in enumerate(chars):
+            if char[0]!=ord(text[0]) or math.dist(char[2],origin)>=.02:continue
+            sample=chars[at:at+len(text)]
+            if ''.join(chr(c[0]) for c in sample)==text:result.append({**trace,'chars':sample})
+    return result
+
+
 def native_model(doc,number,rect,font_cache=None):
     from .styled_text import OriginalFont,normal_name
     page=doc[number]
@@ -81,7 +93,7 @@ def native_model(doc,number,rect,font_cache=None):
                     font,obj,g=found[0]
                     if not (rect+(-.05,-.05,.05,.05)).contains(bounds):raise DocumentError('La región corta este fragmento de texto.')
                     if line.get('wmode',0)!=0:raise DocumentError('La escritura vertical requiere otro tratamiento.')
-                    trace=[t for t in traces if ''.join(chr(c[0]) for c in t['chars'])==text and t['chars'] and math.dist(t['chars'][0][2],span['origin'])<.02]
+                    trace=matching_traces(traces,text,span['origin'])
                     if font.type=='Type3':
                         verified=type3_trace(font,span,traces)
                         trace=[verified] if verified else []
@@ -99,7 +111,7 @@ def native_model(doc,number,rect,font_cache=None):
                     show=obj['shows'][0];native=[show.start,show.end,show.kind]
                 except DocumentError as exc:reason=str(exc)
                 from .text_compositing import original_only
-                row={'original_only':bool(native and (trace[0]['opacity']<1 or original_only(doc,obj))),'id':f'{bi}:{li}:{si}','text':text,'font':span['font'],'size':actual_size,'display_size':span['size'],'color':span['color'],'alpha':span.get('alpha',255),'opacity':trace[0]['opacity'] if native else None,'origin':list(span['origin']),'bbox':list(bounds),'editable':not reason,'reason':reason,'subset':bool(font and font.restricted),'method':'form-occurrence' if native and obj['path'] else 'direct-content','_font':font,'_native':native,'_spacing':spacing,'_native_path':obj['path'] if native else [],'_clips':obj['clips'] if native else [],'_obstacles':cache['_obstacles'],'_line_matrix':list(obj['line_matrix']) if native else None,'_geometry':g if native else None,'quad':polygon(g) if g else None,'transformed':g['transformed'] if g else tuple(line['dir'])!=(1.,0.)}
+                row={'original_only':bool(native and (trace[0]['opacity']<1 or original_only(doc,obj))),'id':f'{bi}:{li}:{si}','text':text,'font':span['font'],'size':actual_size,'display_size':span['size'],'color':span['color'],'alpha':span.get('alpha',255),'opacity':trace[0]['opacity'] if native else None,'origin':list(span['origin']),'bbox':list(bounds),'editable':not reason,'reason':reason,'subset':bool(font and font.restricted),'method':'form-occurrence' if native and obj['path'] else 'direct-content','_font':font,'_native':native,'_spacing':spacing,'_native_path':obj['path'] if native else [],'_clips':obj['clips'] if native else [],'_obstacles':cache['_obstacles'],'_text_object':obj['object'] if native else None,'_line_matrix':list(obj['line_matrix']) if native else None,'_geometry':g if native else None,'quad':polygon(g) if g else None,'transformed':g['transformed'] if g else tuple(line['dir'])!=(1.,0.)}
                 if native is None:row.pop('_geometry')
                 rows.append(row)
     if len(rows)>100:raise DocumentError('Hasta 100 fragmentos por región.')

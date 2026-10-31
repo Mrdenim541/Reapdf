@@ -1,0 +1,19 @@
+Sandboxing disabled by user.
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[19162:19181:1031/155158.376750:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 19182: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+Sandboxing disabled by user.
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[19196:19215:1031/155159.320383:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 19216: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+La interfaz de Reapdf no pudo cargar.
+PASS: real Qt frontend ready, separate child forwards activation, 404 fails before ready and exits.

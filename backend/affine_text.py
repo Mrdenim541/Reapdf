@@ -112,7 +112,8 @@ def verify(data,prepared):
                     continue
                 if len(matches)!=1 or matches[0]['text']!=text:raise DocumentError('La comprobación del texto transformado detectó diferencias. No se publicó el cambio.')
                 if row.get('opacity') is not None:
-                    appearances=[t for t in traces if t['chars'] and math.dist(t['chars'][0][2],row['origin'])<.02 and ''.join(chr(c[0]) for c in t['chars'])==text]
+                    from .native_text import matching_traces
+                    appearances=matching_traces(traces,text,row['origin'])
                     if row['_font'].type=='Type3':
                         checked=type3_trace(row['_font'],matches[0],traces);appearances=[checked] if checked else []
                     if len(appearances)!=1 or appearances[0]['type']!=0 or abs(appearances[0]['opacity']-row['opacity'])>1e-6:raise DocumentError('La transparencia del texto cambió al guardar. No se publicó el cambio.')

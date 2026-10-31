@@ -70,7 +70,7 @@ def partition(doc,kept):
             if not n.pdf_is_null(scope) and (not n.pdf_is_name(scope) or n.pdf_to_name(scope) not in ['Row','Column','Both']):fail()
         child=children(n.pdf_dict_gets(value,'K'),identity,page,depth+1)
         if child is None:
-            if page in keep and n.pdf_to_name(n.pdf_dict_gets(value,'S'))=='TR' and n.pdf_is_array(n.pdf_dict_gets(value,'K')) and n.pdf_array_len(n.pdf_dict_gets(value,'K'))==0:return value
+            if page in keep and n.pdf_to_name(n.pdf_dict_gets(value,'S')) in ['TR','TH','TD'] and n.pdf_is_array(n.pdf_dict_gets(value,'K')) and n.pdf_array_len(n.pdf_dict_gets(value,'K'))==0:return value
             return None
         n.pdf_dict_puts(value,'K',child)
         if page in keep:n.pdf_dict_puts(value,'Pg',ref(page))

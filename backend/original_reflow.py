@@ -26,7 +26,14 @@ def uniform(doc,number,box):
 def inspect(base,ops,number,origin,text):
     with open_pdf(base) as source:editable(source)
     with open_pdf(export_pdf(base,ops)) as doc:
-        page,_=prepare_text_page(doc,number);compatible_page(doc,page);matches=[]
+        page,_=prepare_text_page(doc,number)
+        from .affine_text import pointer_targets
+        spans=[(str(i),span,line['dir']) for i,block in enumerate(page.get_text('dict')['blocks']) for line in block.get('lines',[]) for span in line['spans'] if list(span['origin'])==origin and span['text']==text]
+        geometry=pointer_targets(page,spans)
+        if any(v['transformed'] for v in geometry.values()):
+            from .affine_reflow import inspect as inspect_affine
+            return inspect_affine(doc,number,origin,text)
+        compatible_page(doc,page);matches=[]
         for block in page.get_text('dict',sort=True,flags=f.TEXTFLAGS_TEXT)['blocks']:
             for line in block.get('lines',[]):
                 for span in line['spans']:

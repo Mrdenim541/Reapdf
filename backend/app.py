@@ -203,7 +203,7 @@ async def reflow_original(doc_id:str,request:Request):
 async def reflow_affine(doc_id:str,request:Request):
     from .affine_reflow import reflow
     p=await read_payload(request)
-    result=await run_in_threadpool(reflow,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('id'),p.get('text'),p.get('width'),p.get('height'),p.get('preview') is True)
+    result=await run_in_threadpool(reflow,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('id'),p.get('text'),p.get('width'),p.get('height'),p.get('preview') is True,p.get('ids'))
     if p.get('preview') is True:return result
     data,report=result
     return {**store_document(data),'reflow_report':report}
@@ -271,7 +271,7 @@ async def tagging_candidates(doc_id:str,request:Request):
 async def create_basic_tags(doc_id:str,request:Request):
     from .basic_tagging import create
     p=await read_payload(request)
-    data,report=await run_in_threadpool(create,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('entries'),p.get('language','es'),p.get('reviewed',False))
+    data,report=await run_in_threadpool(create,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('entries'),p.get('language','es'),p.get('reviewed',False),p.get('empty_cells'))
     return {**store_document(data),'tagging_report':report}
 
 @app.post('/api/documents/{doc_id}/reading-preview')
@@ -357,7 +357,7 @@ def measurement_list(doc_id:str,page:int=0):
 @app.post('/api/documents/{doc_id}/measure')
 async def add_measurement(doc_id:str,request:Request):
     p=await read_payload(request)
-    result=await run_in_threadpool(measurements.measure,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('kind'),p.get('points'),p.get('calibration'),p.get('unit','m'),p.get('preview') is True,p.get('id'),p.get('profile'))
+    result=await run_in_threadpool(measurements.measure,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('kind'),p.get('points'),p.get('calibration'),p.get('unit','m'),p.get('preview') is True,p.get('id'),p.get('profile'),p.get('migrate',False))
     return result if p.get('preview') is True else store_document(result)
 
 @app.post('/api/documents/{doc_id}/measurement-model')
@@ -391,7 +391,7 @@ async def inspect_layers(doc_id:str,request:Request):
 @app.post('/api/documents/{doc_id}/set-layers')
 async def change_layers(doc_id:str,request:Request):
     p=await read_payload(request)
-    result=await run_in_threadpool(layers.apply,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('visible'))
+    result=await run_in_threadpool(layers.apply,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('visible'),p.get('configuration'))
     if p.get('preview') is True:
         image,_=await run_in_threadpool(paragraph_preview,result,[],p.get('page',0),1)
         return Response(image,media_type='image/png')
@@ -932,6 +932,19 @@ async def configure_portfolio(doc_id: str, request: Request):
     payload=await read_payload(request)
     result=await run_in_threadpool(configure,document_path(doc_id).read_bytes(),payload.get('operations',[]),payload.get('enabled'),payload.get('view','details'),payload.get('files'))
     return store_document(result)
+
+@app.post('/api/documents/{doc_id}/portfolio-metadata')
+async def portfolio_metadata(doc_id:str,request:Request):
+    from .portfolio_metadata import model
+    p=await read_payload(request)
+    return await run_in_threadpool(model,document_path(doc_id).read_bytes(),p.get('operations',[]))
+
+@app.post('/api/documents/{doc_id}/edit-portfolio-metadata')
+async def edit_portfolio_metadata(doc_id:str,request:Request):
+    from .portfolio_metadata import edit
+    p=await read_payload(request)
+    data=await run_in_threadpool(edit,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('changes'))
+    return store_document(data)
 
 @app.get('/api/documents/{doc_id}/attachments')
 def attachments(doc_id: str):return {'files':attachment_model(document_path(doc_id).read_bytes())}

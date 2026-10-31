@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-31",
+  "baseline_commit": "e2ea7079523fdae3df63a422a7b95f06c8c1ed08",
+  "source_fingerprints": "source-sha256.json",
+  "build_fingerprints": "build-sha256.json",
+  "desktop_report": "desktop-report.json",
+  "scope": "Extended complete UI journeys across native relative/affine text, measurements, initial semantics, OCG configurations and foreign collection metadata. No distributable. Broad blocks remain open.",
+  "estimated_total_before": 83.69,
+  "estimated_total_after": 84.25,
+  "all_weights_and_scope_unchanged": true,
+  "checks": {
+    "python_full": {
+      "passed": 3582,
+      "warnings": 3,
+      "seconds": 325.72,
+      "command": ".venv/bin/python -m pytest -q",
+      "stage": "Final pre-column-module source. Foreign collection metadata was added afterward and tested independently below."
+    },
+    "python_directed_final": {
+      "passed": 111,
+      "seconds": 8.57,
+      "overlaps_full": true,
+      "command": ".venv/bin/python -m pytest -q tests/test_portfolio_metadata.py tests/test_extended_workflows.py tests/test_scaled_groups.py",
+      "stage": "Final backend source, including new column module; the new GUI was subsequently built and exercised."
+    },
+    "javascript": {
+      "passed": 128,
+      "command": "node --test tests/*.mjs"
+    },
+    "build": {
+      "passed": true,
+      "command": "npm run build",
+      "warning": "Main JS chunk over 500 KB."
+    },
+    "chromium_extended": {
+      "passed": true,
+      "command": "node scripts/smoke_extended_workflows.mjs"
+    },
+    "chromium_everyday": {
+      "passed": true,
+      "command": "node scripts/smoke_core_workflows.mjs"
+    },
+    "qt_extended": {
+      "passed": true,
+      "command": "PYTHONPATH=. QT_QPA_PLATFORM=offscreen QTWEBENGINE_CHROMIUM_FLAGS='--no-sandbox --disable-dev-shm-usage' .venv/bin/python -u scripts/smoke_extended_workflows_qt.py"
+    },
+    "desktop_linux": {
+      "passed": true,
+      "checks": 10,
+      "command": "QTWEBENGINE_DISABLE_SANDBOX=1 .venv/bin/python scripts/check_desktop_candidate.py --reuse-server --output /tmp/reapdf-extended-desktop-final",
+      "stage": "Dirty worktree measured by full source fingerprints in desktop-report.json; no personal files in fixtures or logs."
+    },
+    "private_pdf_qt": {
+      "passed": true,
+      "scope": "Directed original-font on-page text edit, atomic PDF save and reopen; source unchanged and image/drawing/font-program preservation checked. Private inputs, artifacts and detailed report excluded from Git. Not full corpus/user acceptance."
+    }
+  },
+  "not_verified": [
+    "Windows package, DPI, associations, recovery and physical printer",
+    "Personal acceptance and external interoperability",
+    "Full commercial feature scope of blocks 1-8",
+    "General tagged/mixed transformed reflow, complex fonts/composition",
+    "PDF/UA, general structure repair and screen reader",
+    "General XFA/JavaScript/XFDF/Office/irregular OCR",
+    "TSA, historical revocation, LT/LTA and advanced print standards",
+    "Curves, advanced OCG, portfolio folders/schema authoring",
+    "Remote collaboration/signature/AI providers and distribution licensing"
+  ],
+  "windows_actions_query": {
+    "verified": false,
+    "result": "Forbidden",
+    "configuration_changed": false
+  }
+}

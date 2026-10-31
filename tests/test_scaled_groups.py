@@ -67,7 +67,13 @@ def test_intervening_state_or_mark_changes_are_not_absorbed(mutation):
         d.update_stream(x,data);bad=d.tobytes()
     try:rows=inspect_styled(bad,[],0,region(bad))['runs']
     except DocumentError:return
-    assert not rows[0]['editable']
+    if mutation==b'10 0 Td':
+        # Td now starts a separately verified group. It must never be absorbed
+        # into the preceding show, and these overlapping source cells remain
+        # protected by the write-time collision check.
+        with f.open(stream=bad) as doc:assert len(placements(doc[0].read_contents())['texts'])==3
+        with pytest.raises(DocumentError):replace_styled(bad,[],0,region(bad),[{'id':rows[0]['id'],'text':'AV'}])
+    else:assert not rows[0]['editable']
 
 
 @pytest.mark.parametrize('scale',[10,400])

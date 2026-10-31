@@ -6,7 +6,7 @@ from .document_tools import editable
 from .pdf_content import operations
 from .form_structure import pdf_string
 
-ROLES={'P','H','H1','H2','H3','H4','H5','H6','LI','TH','TD'}
+ROLES={'P','H','H1','H2','H3','H4','H5','H6','LI','Lbl','TH','TD'}
 
 
 def plans(doc):
@@ -63,16 +63,27 @@ def plans(doc):
     return result
 
 
-def build(doc,prepared,selection=None,language='es'):
+def build(doc,prepared,selection=None,language='es',empty_cells=()):
     def new(value):
         x=doc.get_new_xref();doc.update_object(x,value);return x
     root=new('<< /Type /StructTreeRoot >>');document=new(f'<< /Type /StructElem /S /Document /P {root} 0 R /Lang {pdf_string(language)} >>');sections=[];parentnums=[];annotation_nums=[];next_key=len(prepared)
     for plan in prepared:
         page=doc[plan['page']];parts=plan['parts'];section=new(f'<< /Type /StructElem /S /Sect /P {document} 0 R /Pg {page.xref} 0 R >>');sections.append(section);refs=[];content=[];previous=0;mapping={}
         ordered=sorted(parts,key=lambda p:selection[p['id']]['position']) if selection else parts
-        leaf_parents={};section_order=[];list_children={};current_list=None;tables={};rows={};list_stack=[];body_children={};previous_level=0
+        extras=[p for p in empty_cells if p['page']==page.number]
+        if extras:
+            expanded=[];seen_tables=set()
+            for part in ordered:
+                cfg=selection[part['id']];key=cfg.get('table') if cfg['role'] in ['TH','TD'] else None
+                if key is None:expanded.append(part)
+                elif key not in seen_tables:
+                    seen_tables.add(key);members=[p for p in ordered if selection[p['id']]['role'] in ['TH','TD'] and selection[p['id']]['table']==key]+[p for p in extras if selection[p['id']]['table']==key]
+                    expanded.extend(sorted(members,key=lambda p:(selection[p['id']]['row'],selection[p['id']]['column'],selection[p['id']]['position'])))
+            ordered=expanded
+        leaf_parents={};section_order=[];list_children={};current_list=None;tables={};rows={};list_stack=[];body_children={};previous_level=0;pending_label=None;item_labels={}
         for part in ordered:
             role=selection[part['id']]['role'] if selection else 'Figure' if part['kind']=='image' else 'P'
+            if role=='Lbl':pending_label=part;continue
             if role in ['TH','TD']:
                 current_list=None;list_stack=[];previous_level=0;settings=selection[part['id']];key=settings['table'];row=settings['row']
                 if key not in tables:
@@ -93,7 +104,10 @@ def build(doc,prepared,selection=None,language='es'):
                 else:list_stack=list_stack[:level]
                 current_list=list_stack[-1]
                 item=new(f'<< /Type /StructElem /S /LI /P {current_list} 0 R /Pg {page.xref} 0 R >>');body=new(f'<< /Type /StructElem /S /LBody /P {item} 0 R /Pg {page.xref} 0 R >>')
-                doc.xref_set_key(item,'K',f'[{body} 0 R]');list_children[current_list].append(item);leaf_parents[part['id']]=body;body_children[body]=[('part',part['id'])];previous_body=body;previous_level=level
+                doc.xref_set_key(item,'K',f'[{body} 0 R]')
+                if pending_label is not None:
+                    leaf_parents[pending_label['id']]=item;item_labels[item]=(pending_label['id'],body);pending_label=None
+                list_children[current_list].append(item);leaf_parents[part['id']]=body;body_children[body]=[('part',part['id'])];previous_body=body;previous_level=level
             else:
                 current_list=None;list_stack=[];previous_level=0;section_order.append(('part',part['id']))
         for key,node in tables.items():doc.xref_set_key(node,'K','['+' '.join(f'{r} 0 R' for (table,row),r in rows.items() if table==key)+']')
@@ -124,6 +138,10 @@ def build(doc,prepared,selection=None,language='es'):
             if before.strip():content.extend([b'/Artifact BMC\n',before,b'\nEMC\n'])
             marker=b'/Artifact BMC\n' if role=='Artifact' else f'/{role} <</MCID {mcid}>> BDC\n'.encode()
             content.extend([marker,plan['content'][part['start']:part['end']],b'\nEMC\n']);previous=part['end']
+        for part in extras:
+            settings=selection[part['id']];parent=leaf_parents[part['id']];attributes=' /A << /O /Table /RowSpan '+str(settings['rowspan'])+' /ColSpan '+str(settings['colspan'])+(' /Scope /'+settings['scope'] if settings['role']=='TH' else '')+' >>'
+            mapping[part['id']]=new(f'<< /Type /StructElem /S /{settings["role"]} /P {parent} 0 R /Pg {page.xref} 0 R /K []{attributes} >>')
+        for item,(label,body) in item_labels.items():doc.xref_set_key(item,'K',f'[{mapping[label]} 0 R {body} 0 R]')
         for node,children in body_children.items():doc.xref_set_key(node,'K','['+' '.join(f'{value if kind=="node" else mapping[value]} 0 R' for kind,value in children)+']')
         for node in row_children:doc.xref_set_key(node,'K','['+' '.join(f'{identity} 0 R' for identity in dict.fromkeys(mapping[p['id']] for p in ordered if leaf_parents.get(p['id'])==node))+']')
         for node,mcids in cell_mcids.items():doc.xref_set_key(node,'K','['+' '.join(str(mcids[p['id']]) for p in ordered if p['id'] in mcids)+']')
@@ -181,7 +199,7 @@ def candidates(base,ops):
         return {'entries':entries,'pages':len(doc),'review_required':True,'scope':'Texto directo y Forms de solo texto como una unidad por aparición, imágenes por aparición y enlaces que cubren un objeto completo. Revisa alternativas, orden y gráficos decorativos. Los elementos consecutivos pueden formar listas revisadas de hasta seis niveles; permite tablas semánticas con celdas revisadas y no acredita PDF/UA.'}
 
 
-def create(base,ops,entries,language='es',reviewed=False):
+def create(base,ops,entries,language='es',reviewed=False,empty_cells=None):
     from .accessibility import LANGUAGE
     if reviewed is not True:raise DocumentError('Revisa orden, roles y gráficos decorativos antes de crear las etiquetas.')
     if not isinstance(language,str) or len(language)>63 or not LANGUAGE.fullmatch(language):raise DocumentError('Idioma BCP 47 básico no válido.')
@@ -207,6 +225,8 @@ def create(base,ops,entries,language='es',reviewed=False):
             selection[entry['id']].update(**values,scope=entry.get('scope','Column'),merge_fragments=entry.get('merge_fragments',False))
         elif set(entry)&{'table','row','column','rowspan','colspan','scope','merge_fragments'}:raise DocumentError('Las coordenadas de tabla corresponden solo a celdas TH/TD.')
         if kind=='link':selection[entry['id']]['annotation']=original['annotation']
+    for i,entry in enumerate(entries):
+        if entry['role']=='Lbl' and (i+1==len(entries) or entries[i+1]['role']!='LI' or expected[entry['id']]['page']!=expected[entries[i+1]['id']]['page']):raise DocumentError('Cada etiqueta Lbl debe preceder inmediatamente a su cuerpo LI en la misma página.')
     page_order=[expected[e['id']]['page'] for e in entries]
     if page_order!=sorted(page_order):raise DocumentError('El orden se puede cambiar dentro de cada página, conservando la secuencia de páginas.')
     # Each table is a contiguous reviewed region with row-major, complete cells.
@@ -218,8 +238,14 @@ def create(base,ops,entries,language='es',reviewed=False):
             if key in closed:raise DocumentError('Cada tabla debe ocupar una secuencia continua de objetos revisados.')
             groups.setdefault(key,[]).append(cfg)
         current=key
+    from .tagging_empty import validate as empty_plan
+    virtual=empty_plan(empty_cells,groups,selection,len(entries))
     cell_count=0
-    for cells in groups.values():
+    for group_key,cells in groups.items():
+        real_positions=[(c['row'],c['column']) for c in cells]
+        if real_positions!=sorted(real_positions):raise DocumentError('Ordena las celdas por fila y columna antes de crear la tabla.')
+        cells.extend(selection[p['id']] for p in virtual if (p['page'],selection[p['id']]['table'])==group_key)
+        cells.sort(key=lambda c:(c['row'],c['column']))
         occupied=set();unique={};positions=[(c['row'],c['column']) for c in cells]
         if positions!=sorted(positions):raise DocumentError('Ordena las celdas por fila y columna antes de crear la tabla.')
         for c in cells:
@@ -239,9 +265,9 @@ def create(base,ops,entries,language='es',reviewed=False):
         if not any(c['role']=='TH' for c in cells):raise DocumentError('Revisa al menos un encabezado TH por tabla.')
     edited=export_pdf(base,ops)
     with open_pdf(edited) as before,open_pdf(edited) as doc:
-        prepared=plans(doc);build(doc,prepared,selection,language);result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        prepared=plans(doc);build(doc,prepared,selection,language,virtual);result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
         with open_pdf(result) as saved:
             for a,b in zip(before,saved):
                 scale=min(.75,math.sqrt(4_000_000/max(1,a.rect.get_area())))
                 if a.get_text()!=b.get_text() or a.get_pixmap(matrix=f.Matrix(scale,scale),alpha=False).samples!=b.get_pixmap(matrix=f.Matrix(scale,scale),alpha=False).samples:raise DocumentError('Las etiquetas alteraron contenido o apariencia. Se conserva el original.')
-    return result,{'tagged_objects':sum(v['role']!='Artifact' for v in selection.values()),'decorative_images':sum(v['role']=='Artifact' for v in selection.values()),'figures':sum(v['role']=='Figure' for v in selection.values()),'links':sum(v['role']=='Link' for v in selection.values()),'form_occurrences':sum(e.get('form_occurrence',False) for e in expected.values()),'tables':len(groups),'table_cells':cell_count,'table_fragments':sum(v['role'] in ['TH','TD'] for v in selection.values()),'list_items':sum(v['role']=='LI' for v in selection.values()),'pages':info['pages'],'language':language,'pdf_ua_validated':False}
+    return result,{'tagged_objects':sum(v['role']!='Artifact' for v in selection.values()),'decorative_images':sum(v['role']=='Artifact' for v in selection.values()),'figures':sum(v['role']=='Figure' for v in selection.values()),'links':sum(v['role']=='Link' for v in selection.values()),'form_occurrences':sum(e.get('form_occurrence',False) for e in expected.values()),'tables':len(groups),'table_cells':cell_count,'table_fragments':sum(v['role'] in ['TH','TD'] for v in selection.values()),'empty_cells':len(virtual),'list_labels':sum(v['role']=='Lbl' for v in selection.values()),'list_items':sum(v['role']=='LI' for v in selection.values()),'pages':info['pages'],'language':language,'pdf_ua_validated':False}

@@ -9,11 +9,17 @@ def model(base,ops):
         groups=doc.get_ocgs();config=doc.get_layer(-1) if groups else {}
         if len(groups)>200:raise DocumentError('Hasta 200 capas en esta herramienta.')
         locked=set(config.get('locked',[]));on=set(config.get('on',[]));off=set(config.get('off',[]));base_on=config.get('basestate','ON')!='OFF'
-        return {'layers':[{'id':xref,'name':g['name'],'visible':xref in on or xref not in off and base_on,'locked':xref in locked} for xref,g in groups.items()],'radio_groups':config.get('rbgroups',[])}
+        from .layer_configs import describe
+        return {'configurations':describe(doc),'layers':[{'id':xref,'name':g['name'],'visible':xref in on or xref not in off and base_on,'locked':xref in locked} for xref,g in groups.items()],'radio_groups':config.get('rbgroups',[])}
 
 
-def apply(base,ops,visible):
-    info=model(base,ops);groups={r['id']:r for r in info['layers']}
+def apply(base,ops,visible,configuration=None):
+    data=export_pdf(base,ops)
+    if configuration is not None:
+        with open_pdf(data) as doc:
+            from .layer_configs import select
+            select(doc,configuration);data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP)
+    info=model(data,[]);groups={r['id']:r for r in info['layers']}
     if not isinstance(visible,list) or any(type(i) is not int or i not in groups for i in visible) or len(set(visible))!=len(visible):raise DocumentError('Selección de capas no válida.')
     chosen=set(visible)
     for row in groups.values():
@@ -21,7 +27,7 @@ def apply(base,ops,visible):
     for group in info['radio_groups']:
         if len(chosen.intersection(group))>1:raise DocumentError('Ese grupo de capas permite solo una visible.')
     with open_pdf(base) as source:editable(source)
-    with open_pdf(export_pdf(base,ops)) as doc:
+    with open_pdf(data) as doc:
         if not groups:raise DocumentError('El PDF no contiene capas opcionales.')
         doc.set_layer(-1,on=list(chosen),off=list(set(groups)-chosen))
         return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)

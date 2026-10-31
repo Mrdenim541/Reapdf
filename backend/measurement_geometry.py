@@ -50,13 +50,13 @@ def decode(page,record):
         if record['version']==2:cal=cal_to_view(page,cal)
         calibration(cal,page,allow_outside=True)
     kind=record.get('kind');unit=record.get('unit');value=record.get('value')
-    if kind not in ['distance','perimeter','area','count'] or not isinstance(unit,str) or not finite(value) or value<0:raise DocumentError('Registro de medición no válido.')
-    result_unit='' if kind=='count' else unit.removesuffix('²')
-    if kind=='count' and unit!='' or kind!='count' and result_unit not in UNITS:raise DocumentError('Unidad de medición guardada no válida.')
-    if kind!='count' and cal is None:raise DocumentError('Falta la escala original de la medición.')
+    if kind not in ['distance','perimeter','area','count','angle'] or not isinstance(unit,str) or not finite(value) or value<0:raise DocumentError('Registro de medición no válido.')
+    result_unit='' if kind=='count' else ('deg' if unit=='°' else unit) if kind=='angle' else unit.removesuffix('²')
+    if kind=='count' and unit!='' or kind=='angle' and result_unit not in ['deg','rad'] or kind not in ['count','angle'] and result_unit not in UNITS:raise DocumentError('Unidad de medición guardada no válida.')
+    if kind not in ['count','angle'] and cal is None:raise DocumentError('Falta la escala original de la medición.')
     inside=all(page.rect.contains(f.Point(p)) for p in pts)
     if inside:
-        actual,_,label_unit=calculate(page,kind,pts,1 if kind=='count' else calibration(cal,page,allow_outside=True),result_unit or 'm')
+        actual,_,label_unit=calculate(page,kind,pts,1 if kind in ['count','angle'] else calibration(cal,page,allow_outside=True),result_unit or 'm')
         if label_unit!=unit or not math.isclose(actual,value,rel_tol=1e-5,abs_tol=1e-5):raise DocumentError('La geometría y el valor de la medición no coinciden.')
     return {**record,'points':pts,'calibration':cal,'editable':inside,'result_unit':result_unit or 'm'}
 
@@ -113,7 +113,7 @@ def targets(base,ops,number):
         page=page_at(doc,number)
         if doc.get_ocgs():return {'points':[],'limited':False,'reason':'El ajuste a geometría de capas requiere verificar su visibilidad.'}
         _,rotate=matrices(page);view_rect=f.Rect(page.rect);page.set_rotation(0)
-        drawings=page.get_drawings();result=[];seen=set();limited=len(drawings)>20000
+        drawings=page.get_drawings();result=[];seen=set();limited=len(drawings)>20000;segments=[]
         def add(point,kind):
             nonlocal limited
             p=f.Point(point)*rotate;key=(round(p.x,5),round(p.y,5))
@@ -129,18 +129,36 @@ def targets(base,ops,number):
                 elif item[0]=='c':pts=[item[1],item[4]]
                 else:continue
                 for p in pts:add(p,'vector')
+                if item[0]=='l':segments.append((f.Point(item[1]),f.Point(item[2])))
+                elif item[0] in ['re','qu']:segments.extend((f.Point(a),f.Point(b)) for a,b in zip(pts,pts[1:]+pts[:1]))
                 if limited and len(result)>=10000:break
             if len(result)>=10000:break
+        # Exact intersections of finite straight segments, with a sweep and
+        # an explicit comparison budget; curves remain endpoints only.
+        comparisons=0;active=[];intersections_limited=len(segments)>2000
+        for a,b in sorted(segments[:2000],key=lambda s:min(s[0].x,s[1].x)):
+            left=min(a.x,b.x);active=[s for s in active if max(s[0].x,s[1].x)>=left-1e-6]
+            for c,d in active:
+                comparisons+=1
+                if comparisons>250000:intersections_limited=True;break
+                if max(a.y,b.y)<min(c.y,d.y)-1e-6 or max(c.y,d.y)<min(a.y,b.y)-1e-6:continue
+                u=b-a;v=d-c;den=u.x*v.y-u.y*v.x
+                if abs(den)<1e-9:continue
+                w=c-a;t=(w.x*v.y-w.y*v.x)/den;q=(w.x*u.y-w.y*u.x)/den
+                if -1e-8<=t<=1+1e-8 and -1e-8<=q<=1+1e-8:add(a+u*t,'intersection')
+            if comparisons>250000:break
+            active.append((a,b))
+        limited=limited or intersections_limited
         images=page.get_image_info()
         if len(images)>1000:limited=True
         for info in images[:1000]:
             matrix=f.Matrix(*info['transform'])
             for p in [(0,0),(1,0),(1,1),(0,1)]:add(f.Point(p)*matrix,'image')
-        return {'points':result,'limited':limited,'reason':''}
+        return {'points':result,'limited':limited,'intersection_comparisons':comparisons,'reason':'Ajuste parcial: se alcanzó un límite de geometría o de cruces.' if limited else ''}
 
 
 def native_vertices(page,annot,kind):
-    expected={'distance':f.PDF_ANNOT_LINE,'perimeter':f.PDF_ANNOT_POLY_LINE,'area':f.PDF_ANNOT_POLYGON,'count':f.PDF_ANNOT_INK}
+    expected={'distance':f.PDF_ANNOT_LINE,'perimeter':f.PDF_ANNOT_POLY_LINE,'area':f.PDF_ANNOT_POLYGON,'count':f.PDF_ANNOT_INK,'angle':f.PDF_ANNOT_POLY_LINE}
     if annot.type[0]!=expected.get(kind):raise DocumentError('El tipo de anotación y la medición no coinciden.')
     _,rotate=matrices(page);rotation=page.rotation
     try:page.set_rotation(0);vertices=annot.vertices or []

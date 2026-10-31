@@ -34,10 +34,16 @@ def intersect(a,b,c,d):
 
 
 def calculate(page,kind,pts,scale,unit):
-    if kind not in ['distance','perimeter','area','count'] or not isinstance(unit,str) or unit not in UNITS:raise DocumentError('Medición o unidad no válida.')
-    pts=points(pts,page,1 if kind=='count' else 3 if kind=='area' else 2)
+    if kind not in ['distance','perimeter','area','count','angle'] or not isinstance(unit,str) or unit not in (['deg','rad'] if kind=='angle' else UNITS):raise DocumentError('Medición o unidad no válida.')
+    pts=points(pts,page,1 if kind=='count' else 3 if kind in ['area','angle'] else 2)
     if kind=='distance' and len(pts)!=2:raise DocumentError('La distancia requiere exactamente dos puntos.')
     if len({tuple(p) for p in pts})!=len(pts):raise DocumentError('No repitas puntos de la medición.')
+    if kind=='angle':
+        if len(pts)!=3:raise DocumentError('El ángulo necesita exactamente tres puntos: extremo, vértice y extremo.')
+        a,b,c=[f.Point(p) for p in pts];u=a-b;v=c-b
+        if min(abs(u),abs(v))<1:raise DocumentError('Cada brazo del ángulo debe medir al menos 1 pt.')
+        angle=math.atan2(abs(u.x*v.y-u.y*v.x),u.x*v.x+u.y*v.y)
+        return (math.degrees(angle) if unit=='deg' else angle),pts,'°' if unit=='deg' else 'rad'
     if kind=='count':return len(pts),pts,''
     if kind=='area':
         n=len(pts)
@@ -75,7 +81,7 @@ def model(base,ops,number):
                 if record['version']==1:row['points']=native_pts;row['editable']=False
             except (DocumentError,KeyError,TypeError,ValueError):invalid+=1;continue
             if len(rows)>=500:raise DocumentError('Hasta 500 mediciones por página.')
-            rows.append({k:row[k] for k in ['id','kind','value','unit','points','calibration','editable','result_unit']}|{'xref':annot.xref,'label':annot.info.get('content','')[:400],'profile':record.get('profile'),'legacy':record['version']==1})
+            rows.append({k:row[k] for k in ['id','kind','value','unit','points','calibration','editable','result_unit']}|{'xref':annot.xref,'label':annot.info.get('content','')[:400],'profile':record.get('profile'),'legacy':record['version']==1,'can_migrate':record['version']==1 and all(page.rect.contains(f.Point(p)) for p in native_pts)})
         cal=read_record(doc,page.xref,'ReapdfCalibration')
         if cal is not None:
             try:
@@ -86,7 +92,8 @@ def model(base,ops,number):
         return {'measurements':rows,'invalid_measurements':invalid,'calibration':cal,'scales':[{k:p[k] for k in ['id','name','box','calibration','visible']} for p in read_profiles(doc,page)]}
 
 
-def measure(base,ops,number,kind,pts,cal,unit='m',preview=False,identity=None,profile=None):
+def measure(base,ops,number,kind,pts,cal,unit='m',preview=False,identity=None,profile=None,migrate=False):
+    if type(migrate) is not bool or migrate and identity is None:raise DocumentError('La actualización de referencia requiere una medición antigua identificada.')
     with open_pdf(base) as source:
         editable(source)
         if not source.permissions&f.PDF_PERM_ANNOTATE:raise DocumentError('El documento no permite anotaciones.')
@@ -100,9 +107,12 @@ def measure(base,ops,number,kind,pts,cal,unit='m',preview=False,identity=None,pr
             if len(targets)!=1:raise DocumentError('La medición ya no existe o su identificador es ambiguo.')
             original=decode(page,read_record(doc,targets[0].xref,'ReapdfMeasurement'))
             actual_pts=native_vertices(page,targets[0],kind)
-            if len(actual_pts)!=len(original['points']) or any(math.dist(a,b)>.02 for a,b in zip(actual_pts,original['points'])):raise DocumentError('La geometría nativa de la medición cambió fuera de este editor.')
-            if original['version']!=2 or not original['editable']:raise DocumentError('Esta medición antigua o recortada necesita una nueva referencia antes de editar sus vértices.')
-            if kind!=original['kind']:raise DocumentError('Conserva el tipo de la medición al editar sus vértices.')
+            if migrate:
+                if original['version']!=1 or cal is None or kind!=original['kind'] or not isinstance(pts,list) or len(pts)!=len(actual_pts) or any(not isinstance(p,list) or len(p)!=2 or any(not finite(v) for v in p) or math.dist(p,q)>.02 for p,q in zip(pts,actual_pts)):raise DocumentError('Actualiza una medición antigua con una nueva referencia, conservando sus vértices nativos. Después podrás editarlos.')
+            else:
+                if len(actual_pts)!=len(original['points']) or any(math.dist(a,b)>.02 for a,b in zip(actual_pts,original['points'])):raise DocumentError('La geometría nativa de la medición cambió fuera de este editor.')
+                if original['version']!=2 or not original['editable']:raise DocumentError('Esta medición antigua o recortada necesita una nueva referencia antes de editar sus vértices.')
+                if kind!=original['kind']:raise DocumentError('Conserva el tipo de la medición al editar sus vértices.')
             if cal is None:cal=original['calibration'];allow_outside=True
         if profile is not None:
             matches=[r for r in read_profiles(doc,page) if r['id']==profile]
@@ -110,15 +120,15 @@ def measure(base,ops,number,kind,pts,cal,unit='m',preview=False,identity=None,pr
             selected=matches[0];x,y,w,h=selected['box'];region=f.Rect(x,y,x+w,y+h)
             if any(not region.contains(f.Point(p)) for p in points(pts,page,1)):raise DocumentError('La medición cruza el límite de su región de escala. Divídela en mediciones separadas.')
             cal=selected['calibration'];allow_outside=True
-        scale=1 if kind=='count' else calibration(cal,page,allow_outside)
+        scale=1 if kind in ['count','angle'] else calibration(cal,page,allow_outside)
         value,pts,label_unit=calculate(page,kind,pts,scale,unit)
-        label={'distance':'Distancia','perimeter':'Longitud','area':'Área','count':'Cantidad'}[kind]+f': {value:,.3f} {label_unit}'.rstrip()
+        label={'distance':'Distancia','perimeter':'Longitud','area':'Área','count':'Cantidad','angle':'Ángulo'}[kind]+f': {value:,.3f} {label_unit}'.rstrip()
         if preview:return {'value':value,'unit':label_unit,'label':label,'scale_m_per_pt':scale,'points':pts}
         if identity is None and sum(1 for a in page.annots() or [] if read_record(doc,a.xref,'ReapdfMeasurement'))>=500:raise DocumentError('Hasta 500 mediciones por página.')
         if identity is not None:remove_from_page(doc,page,identity)
-        _,rotate=matrices(page);native=[f.Point(p)*~rotate for p in pts];pdf_pts=transform(page,pts,True);cal_pdf=cal_to_pdf(page,cal) if kind!='count' else None;rotation=page.rotation;page.set_rotation(0)
+        _,rotate=matrices(page);native=[f.Point(p)*~rotate for p in pts];pdf_pts=transform(page,pts,True);cal_pdf=cal_to_pdf(page,cal) if kind not in ['count','angle'] else None;rotation=page.rotation;page.set_rotation(0)
         if kind=='distance':annot=page.add_line_annot(*native)
-        elif kind=='perimeter':annot=page.add_polyline_annot(native)
+        elif kind in ['perimeter','angle']:annot=page.add_polyline_annot(native)
         elif kind=='area':annot=page.add_polygon_annot(native)
         else:
             paths=[]
@@ -129,7 +139,7 @@ def measure(base,ops,number,kind,pts,cal,unit='m',preview=False,identity=None,pr
         identity=identity or uuid4().hex;record={'version':2,'id':identity,'kind':kind,'value':value,'unit':label_unit,'points':pdf_pts,'calibration':cal_pdf,'profile':profile}
         doc.xref_set_key(annot.xref,'NM',pdf_string('reapdf-measure-'+identity))
         doc.xref_set_key(annot.xref,'ReapdfMeasurement',pdf_string(json.dumps(record,ensure_ascii=False,allow_nan=False)))
-        if kind!='count':
+        if kind not in ['count','angle']:
             factor=cal['distance']*UNITS[cal['unit']]/math.dist(*cal_pdf['points'])/UNITS[unit];fmt=f'<< /Type /NumberFormat /U {pdf_string(unit)} /C {factor:.12g} >>';area=f'<< /Type /NumberFormat /U {pdf_string(unit+"²")} /C {factor*factor:.12g} >>'
             doc.xref_set_key(annot.xref,'Measure',f'<< /Type /Measure /Subtype /RL /R {pdf_string("1 pt = "+str(factor)+" "+unit)} /X [{fmt}] /Y [{fmt}] /D [{fmt}] /A [{area}] >>')
             doc.xref_set_key(page.xref,'ReapdfCalibration',pdf_string(json.dumps({'version':2,'calibration':cal_pdf},ensure_ascii=False,allow_nan=False)))

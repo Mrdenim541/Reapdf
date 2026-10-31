@@ -125,6 +125,7 @@ def numbers(args,count):
 def placements(data):
     """Locate direct invocations and bounded single-show text, including spacing."""
     matrix=f.Matrix(1,1);stack=[];images=[];texts=[];text=None;font=None;size=0
+    active_bt=None
     state={'char':0.,'word':0.,'scale':100.,'render':0.,'rise':0.}
     parameter={'Tc':'char','Tw':'word','Tz':'scale','Tr':'render','Ts':'rise'}
     ops=list(operations(data))
@@ -134,7 +135,7 @@ def placements(data):
         boundaries[index]=following
         if ops[index][0] in ['Tm','Tj','TJ',"'",'"','ET']:following=ops[index][0]
     def new_text(simple=True):
-        return {'origin':f.Point(0,0),'matrix':f.Matrix(matrix),'font':font,'size':size,'shows':[],'parts':[],'show_ends':[],'simple':simple,'line_matrix':f.Matrix(1,1)}
+        return {'origin':f.Point(0,0),'matrix':f.Matrix(matrix),'font':font,'size':size,'shows':[],'parts':[],'show_ends':[],'simple':simple,'line_matrix':f.Matrix(1,1),'object':active_bt}
     def finish(value):
         if not value['simple'] or not value['shows'] or not value['font']:return
         if len(value['shows'])>1:
@@ -144,7 +145,7 @@ def placements(data):
     for index,(op,args,token) in enumerate(ops):
         if text is not None and text['shows'] and op in transitions and boundaries[index] in ['Tm','ET']:
             finish(text);text=new_text(False)
-        if text is not None and op not in ['BT','ET','Tf','Td','Tm','Tj','TJ','Tc','Tw','Tz','Tr','Ts'] and not (not text['shows'] and op in ['q','Q','rg','RG','g','G','k','K','cs','CS','sc','SC','scn','SCN','gs','TL']):
+        if text is not None and op not in ['BT','ET','Tf','Td','TD','Tm','Tj','TJ','Tc','Tw','Tz','Tr','Ts'] and not (not text['shows'] and op in ['q','Q','rg','RG','g','G','k','K','cs','CS','sc','SC','scn','SCN','gs','TL']):
             text['simple']=False
         if op=='q':
             stack.append((f.Matrix(matrix),dict(state),font,size))
@@ -161,7 +162,7 @@ def placements(data):
             if text is not None and text['shows']:text['simple']=False
         elif op=='BT':
             if text is not None:raise DocumentError('Objetos de texto anidados.')
-            text=new_text()
+            active_bt=token.start;text=new_text()
         elif op=='ET' and text is not None:
             finish(text)
             text=None
@@ -173,7 +174,9 @@ def placements(data):
                 if text['shows']:text['simple']=False
                 font=args[0].value;size=args[1].value
                 text['font']=font;text['size']=size
-            elif op=='Td' and not text['shows']:
+            elif op in ['Td','TD']:
+                if text['shows']:
+                    previous=text;finish(text);text=new_text();text['origin']=f.Point(previous['origin']);text['matrix']=f.Matrix(previous['matrix']);text['line_matrix']=f.Matrix(previous['line_matrix'])
                 x,y=numbers(args,2);text['origin']+=f.Point(x,y)
                 linear=f.Matrix(*list(text['line_matrix'])[:4],0,0);position=text['origin']*linear;text['line_matrix'][4]=position.x;text['line_matrix'][5]=position.y
             elif op=='Tm':
