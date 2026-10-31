@@ -50,7 +50,9 @@ def graphics(doc,owner,data):
         blend=n.pdf_dict_gets(state,'BM');mask=n.pdf_dict_gets(state,'SMask')
         if not (n.pdf_is_null(blend) or n.pdf_is_name(blend) and n.pdf_to_name(blend) in BLENDS):raise DocumentError('El modo de mezcla no es estándar o necesita otra edición.')
         original=original or not n.pdf_is_null(blend) and n.pdf_to_name(blend) not in ['Normal','Compatible']
-        if not (n.pdf_is_null(mask) or n.pdf_is_name(mask) and n.pdf_to_name(mask)=='None'):raise DocumentError('Las máscaras de transparencia requieren otra edición.')
+        if not (n.pdf_is_null(mask) or n.pdf_is_name(mask) and n.pdf_to_name(mask)=='None'):
+            from .soft_masks import verify
+            verify(doc,mask);original=True
 
     return original
 

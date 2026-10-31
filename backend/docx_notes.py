@@ -16,7 +16,7 @@ def tag(name):return '{'+W+'}'+name
 
 class Notes:
     def __init__(self,package,rels,parse_xml,warnings):
-        self.package=package;self.parse_xml=parse_xml;self.warnings=warnings;self.definitions={};self.rels={};self.used={};self.by_segment=defaultdict(list);self.current=0;self.counter={'footnote':1,'endnote':1};self.style={'footnote':'decimal','endnote':'lowerRoman'};self.placement={'footnote':'pageBottom','endnote':'docEnd'};self.defaults={};self.rendered={};self.inside=False;self.marker_font=None
+        self.package=package;self.parse_xml=parse_xml;self.warnings=warnings;self.definitions={};self.rels={};self.used={};self.by_segment=defaultdict(list);self.current=0;self.counter={'footnote':1,'endnote':1};self.style={'footnote':'decimal','endnote':'lowerRoman'};self.placement={'footnote':'pageBottom','endnote':'docEnd'};self.defaults={};self.rendered={};self.numbering={};self.foot_settings={};self.resolved_foot_counter=None;self.inside=False;self.marker_font=None
         if any(PREFIX.encode() in raw for raw in package.values()):raise DocumentError('El Word contiene un marcador de notas reservado.')
         if 'word/settings.xml' in package:
             settings=parse_xml(package['word/settings.xml'])
@@ -63,10 +63,11 @@ class Notes:
                     name=item.tag.rsplit('}',1)[-1]
                     if name in ['numFmt','numStart','numRestart','pos']:options[name]=item.attrib.get(tag('val'),'')
             fmt=options.get('numFmt','decimal' if kind=='footnote' else 'lowerRoman');restart=options.get('numRestart','continuous');start=options.get('numStart','1');placement=options.get('pos','pageBottom' if kind=='footnote' else 'docEnd')
-            if fmt not in ['decimal','lowerRoman','upperRoman','lowerLetter','upperLetter'] or restart not in ['continuous','eachSect'] or not re.fullmatch(r'\d{1,4}',start) or not 1<=int(start)<=9999:raise DocumentError('Numeración de notas no compatible: usa formato estándar y continuidad o reinicio por sección.')
+            if fmt not in ['decimal','lowerRoman','upperRoman','lowerLetter','upperLetter'] or restart not in (['continuous','eachSect','eachPage'] if kind=='footnote' else ['continuous','eachSect']) or not re.fullmatch(r'\d{1,4}',start) or not 1<=int(start)<=9999:raise DocumentError('Numeración de notas no compatible: usa formato estándar; las notas finales no admiten reinicio por página.')
             if placement not in (['pageBottom'] if kind=='footnote' else ['docEnd','sectEnd']):raise DocumentError('La posición de las notas Word todavía no es compatible.')
             if index==0 or restart=='eachSect':self.counter[kind]=int(start)
-            self.style[kind]=fmt;self.placement[kind]=placement
+            self.style[kind]=fmt;self.placement[kind]=placement;self.numbering[kind]={'restart':restart,'start':int(start),'format':fmt}
+            if kind=='footnote':self.foot_settings[index]=dict(self.numbering[kind])
 
     def reference(self,node,in_running=False,custom_label=None):
         if self.inside or in_running:raise DocumentError('No se admiten referencias de notas dentro de otras notas, encabezados o pies.')
@@ -82,9 +83,9 @@ class Notes:
         definition=self.definitions.get(kind,{}).get(ident)
         if definition is None:raise DocumentError('Falta el contenido de una nota referenciada; no se importa un documento incompleto.')
         if len(self.used)>=200:raise DocumentError('Hasta 200 referencias de notas por documento.')
-        label=custom_label if custom else number_label(self.counter[kind],self.style[kind])
-        if not custom:self.counter[kind]+=1
-        stem=PREFIX+kind+'_'+str(ident);item={'kind':kind,'id':ident,'custom':custom,'label':label,'ref':stem+'_ref','dest':stem+'_body','node':definition,'segment':self.current,'placement':self.placement[kind]};self.used[key]=item;self.by_segment[self.current].append(item)
+        label=custom_label if custom else number_label(self.numbering[kind]['start'] if self.numbering[kind]['restart']=='eachPage' else self.counter[kind],self.style[kind])
+        if not custom and self.numbering[kind]['restart']!='eachPage':self.counter[kind]+=1
+        stem=PREFIX+kind+'_'+str(ident);item={'kind':kind,'id':ident,'custom':custom,'label':label,'ref':stem+'_ref','dest':stem+'_body','node':definition,'segment':self.current,'placement':self.placement[kind],'numbering':dict(self.numbering[kind])};self.used[key]=item;self.by_segment[self.current].append(item)
         return '<sup><a id="'+item['ref']+'" href="#'+item['dest']+'">'+html.escape(label)+'</a></sup>'
 
     def render(self,render):
@@ -101,9 +102,14 @@ class Notes:
                         if not following or following[0].isspace():first.text=following.lstrip()
                 content=render(definition,self.rels[item['kind']])
             finally:self.inside=False
-            self.rendered[key]='<div class="word-note" id="'+item['dest']+'"><p class="word-note-label"><a href="#'+item['ref']+'">'+html.escape(item['label'])+('' if item['custom'] else '.')+'</a></p>'+content+'</div>'
+            item['body']=content
+            self.rendered[key]=self.note_html(item)
         unused=sum(1 for kind,data in self.definitions.items() for ident,node in data.items() if node is not None and (kind,ident) not in self.used)
         if unused:self.warnings.add(f'{unused} definiciones de notas sin referencia no se incorporan.')
+
+    def note_html(self,item):
+        content=item['body']
+        return '<div class="word-note" id="'+item['dest']+'"><p class="word-note-label"><a href="#'+item['ref']+'">'+html.escape(item['label'])+('' if item['custom'] else '.')+'</a></p>'+content+'</div>'
 
     def foot(self,index):return {item['ref']:item for item in self.by_segment[index] if item['kind']=='footnote'}
     def end_content(self,index,last):
@@ -112,8 +118,15 @@ class Notes:
     def page_content(self,items):return '<div class="word-footnotes">'+''.join(self.rendered[(v['kind'],v['id'])] for v in items)+'</div>'
 
     def prepare(self,index,content,css,archive,width,height,left,top,right,bottom,max_pages):
-        refs=self.foot(index);story=f.Story('<html><body>'+content+'</body></html>',user_css=css,archive=archive);reserves={};previous=None
+        refs=self.foot(index);reserves={};previous=None;settings=self.foot_settings.get(index,{'restart':'continuous','start':1})
+        first_counter=settings['start'] if self.resolved_foot_counter is None or settings['restart'] in ['eachSect','eachPage'] else self.resolved_foot_counter
         for attempt in range(12):
+            reviewed_content=content
+            for ref,item in refs.items():
+                pattern='(<a id="'+re.escape(ref)+'" href="#[^"]+">)[^<]*(</a>)'
+                reviewed_content,count_=re.subn(pattern,lambda m:m[1]+html.escape(item['label'])+m[2],reviewed_content)
+                if count_!=1:raise DocumentError('La referencia de nota con reinicio por página no tiene un anclaje único.')
+            story=f.Story('<html><body>'+reviewed_content+'</body></html>',user_css=css,archive=archive)
             positions={};count=[0]
             def position(node):
                 if node.id in refs and node.open_close&1 and not f.Rect(node.rect).is_empty:positions.setdefault(node.id,node.page_num-1)
@@ -126,13 +139,23 @@ class Notes:
             if set(positions)!=set(refs):raise DocumentError('No se localizaron todas las referencias de notas al paginar.')
             by_page=defaultdict(list)
             for ref,page in positions.items():by_page[page].append(refs[ref])
+            labels_changed=False;resolved_counter=first_counter
+            for page,items in sorted(by_page.items()):
+                if settings['restart']=='eachPage':resolved_counter=settings['start']
+                for item in items:
+                    if item['custom']:continue
+                    label=number_label(resolved_counter,item['numbering']['format']);resolved_counter+=1
+                    if label!=item['label']:
+                        item['label']=label;self.rendered[(item['kind'],item['id'])]=self.note_html(item);labels_changed=True
             needed={};grew=False
             for page,items in by_page.items():
                 html_=self.page_content(items);note_story=f.Story(html_,user_css=css,archive=archive);cap=min(216,(height-top-bottom)*.4);region=f.Rect(left,0,width-right,cap);more,filled=note_story.place(region)
                 if more or f.Rect(filled).x1>region.x1+.1:raise DocumentError('Las notas de una página superan el espacio disponible. Simplifícalas o conviértelas a notas finales antes de importar.')
                 needed[page]=f.Rect(filled).y1+8
                 if needed[page]>reserves.get(page,0)+.05:reserves[page]=needed[page];grew=True
-            if not refs or not grew and positions==previous:return {'story':story,'count':count[0],'reserves':reserves,'foot_pages':dict(by_page),'foot_heights':needed,'ref_pages':positions,'passes':attempt+1}
+            if not refs or not grew and not labels_changed and positions==previous:
+                self.resolved_foot_counter=resolved_counter
+                return {'story':story,'count':count[0],'reserves':reserves,'foot_pages':dict(by_page),'foot_heights':needed,'ref_pages':positions,'passes':attempt+1}
             previous=positions
         raise DocumentError('La distribución de las notas no converge dentro del límite. No se entrega un PDF incompleto.')
 
@@ -144,7 +167,7 @@ class Notes:
         def record(node):node.page_num=page;position(node)
         story.element_positions(record);story.draw(device)
 
-    def report(self):return {'footnotes':sum(v['kind']=='footnote' for v in self.used.values()),'endnotes':sum(v['kind']=='endnote' for v in self.used.values()),'custom_note_marks':sum(v['custom'] for v in self.used.values()),'note_references':len(self.used),'notes_layout':'page_bottom_and_endnotes','notes_code_executed':False}
+    def report(self):return {'footnotes':sum(v['kind']=='footnote' for v in self.used.values()),'endnotes':sum(v['kind']=='endnote' for v in self.used.values()),'page_restarted_footnotes':sum(v['kind']=='footnote' and v['numbering']['restart']=='eachPage' for v in self.used.values()),'custom_note_marks':sum(v['custom'] for v in self.used.values()),'note_references':len(self.used),'notes_layout':'page_bottom_and_endnotes','notes_code_executed':False}
 
 
 def checked_text(doc,positions):

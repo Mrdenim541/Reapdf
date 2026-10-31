@@ -157,7 +157,7 @@ def test_xfdf_thread_invalid_graph_is_atomic(mode):
     if mode=='cross_page':nodes[1].set('page','1')
     if mode=='duplicate':nodes[1].set('name','root')
     if mode=='bad_state':nodes[2].set('state','Unknown')
-    if mode=='group':nodes[1].set('replyType','Group')
+    if mode=='group':nodes[1].set('replyType','UnknownGroup')
     with pytest.raises(DocumentError):xfdf.import_data(blank_pdf(),[],E.tostring(root),True)
 
 

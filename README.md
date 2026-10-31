@@ -1,6 +1,6 @@
 # Reapdf
 
-Estado vigente: [composición, celdas agrupadas, estilos XFDF y notas Word](docs/COMPOSICION_CELDAS_ESTILOS_Y_NOTAS_20261030.md), **82,66 % del programa completo (≈83 %)**, estimación de madurez con Windows pendiente. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
+Estado vigente: [máscaras, notas por página, grupos XFDF y comprobación de tiempo](docs/MASCARAS_NOTAS_GRUPOS_Y_TIEMPO_20261030.md), **83,20 % del programa completo (≈83 %)**, estimación de madurez con Windows pendiente. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 

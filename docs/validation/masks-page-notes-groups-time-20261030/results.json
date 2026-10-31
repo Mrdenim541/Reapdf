@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-30",
+  "baseline_commit": "34bb194179ec774e52208e2ec9b1dbb0752d5ded",
+  "source_fingerprints": "source-sha256.json",
+  "build_fingerprints": "build-sha256.json",
+  "scope": "Bounded vector soft masks, actual-page footnote numbering, XFDF Group graphs and separate offline signature-timestamp validation. No installer/portable. Broad blocks 1-4 not closed.",
+  "checks": {
+    "python_full": {
+      "passed": 3475,
+      "warnings": 3,
+      "seconds": 476.94,
+      "command": ".venv/bin/python -m pytest -q",
+      "stage": "Before final independent imprint-algorithm policy and its extra weak-imprint test. Other final backend implementations included."
+    },
+    "python_directed": {
+      "passed": 551,
+      "warnings": 1,
+      "seconds": 50.7,
+      "overlaps_full": true,
+      "stage": "Final source including strong-CMS/weak-imprint rejection.",
+      "command": ".venv/bin/python -m pytest tests/test_offline_timestamp_report.py tests/test_digital_signatures.py tests/test_soft_masks_page_notes_groups.py tests/test_docx_notes.py tests/test_text_states_compositing.py tests/test_four_blocks.py tests/test_composition_cells_styles_notes.py tests/test_native_content.py tests/test_affine_text_editing.py tests/test_xfdf_appearance.py tests/test_xfdf_working_copy.py -q"
+    },
+    "javascript": {
+      "passed": 128,
+      "command": "node --test tests/*.mjs"
+    },
+    "build": {
+      "passed": true,
+      "command": "npm run build"
+    },
+    "chromium": {
+      "passed": true,
+      "command": "node scripts/smoke_masks_notes_groups_timestamps.mjs"
+    },
+    "qt_linux": {
+      "passed": true,
+      "command": "QT_QPA_PLATFORM=offscreen QTWEBENGINE_DISABLE_SANDBOX=1 .venv/bin/python -m scripts.smoke_masks_notes_groups_timestamps_qt"
+    }
+  },
+  "estimated_total_before": 82.66,
+  "estimated_total_after": 83.2,
+  "unrounded_total": "83.200",
+  "weights_and_scope_unchanged": true,
+  "not_verified": [
+    "Windows/package/DPI/associations/physical printing",
+    "Acrobat/Nitro acceptance",
+    "Screen reader and integral PDF/UA",
+    "Representative private corpus and personal acceptance"
+  ],
+  "not_implemented": [
+    "Masks outside the bounded vector graph, advanced fonts/affine reflow",
+    "Split footnotes and per-page endnote numbering",
+    "Joint editing of annotation groups and remaining XFDF variants",
+    "Online revocation/TSA requests, LT/LTA/archive document timestamps and legal qualification",
+    "Other pending broad blocks as documented"
+  ]
+}

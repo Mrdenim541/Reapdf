@@ -1,0 +1,29 @@
+import {chromium,expect} from '@playwright/test';import {execFileSync} from 'node:child_process';import {mkdtempSync} from 'node:fs';import {join} from 'node:path';import {tmpdir} from 'node:os';import {openTool} from './smoke-tool-navigation.mjs';
+const root=mkdtempSync(join(tmpdir(),'reapdf-masks-notes-groups-')),python=process.platform==='win32'?'.venv/Scripts/python.exe':'.venv/bin/python',file=name=>join(root,name);
+execFileSync(python,['-c',`from pathlib import Path
+import sys
+from tests.test_soft_masks_page_notes_groups import masked,page_notes,group_xml,blank
+from tests.test_offline_timestamp_report import stamped
+root=Path(sys.argv[1]);signed,signer,tsa=stamped()
+for name,data in [('Masked.pdf',masked(form=True)),('Notes.docx',page_notes(65)),('Groups.xfdf',group_xml()),('Blank.pdf',blank()),('Stamped.pdf',signed),('Trust.pem',signer+tsa)]:(root/name).write_bytes(data)`,root]);
+const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium'});
+try{const page=await browser.newPage({viewport:{width:1600,height:1150}}),errors=[];page.setDefaultTimeout(30000);page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());await page.goto(process.env.REAPDF_URL||'http://127.0.0.1:8000');
+async function upload(name){await page.getByLabel('Archivo PDF',{exact:true}).setInputFiles(file(name));await expect(page.locator('.document-bar')).toContainText(name);}
+async function save(name){const saved=page.waitForEvent('download');await page.getByRole('button',{name:'Exportar copia',exact:true}).click();await(await saved).saveAs(file(name));}
+await upload('Masked.pdf');await openTool(page,'Editar texto');await page.getByRole('button',{name:'Editar en página: ABC ABC',exact:true}).first().click();const input=page.getByLabel('Texto sobre la página',{exact:true});await expect(input).toBeEnabled();await expect(page.getByLabel('Fuente de edición directa',{exact:true})).toBeDisabled();await input.fill('CBA AB');await input.press('Control+Enter');await expect(input).toHaveCount(0);await save('MaskedEdited.pdf');
+await upload('Blank.pdf');await openTool(page,'Intercambiar XFDF');let dialog=page.getByRole('dialog',{name:'Intercambiar XFDF',exact:true});await dialog.getByLabel('Archivo XFDF',{exact:true}).setInputFiles(file('Groups.xfdf'));await dialog.getByLabel('Confirmar correspondencia del PDF',{exact:true}).check();await dialog.getByRole('button',{name:'Revisar importación XFDF',exact:true}).click();await expect(dialog.getByRole('button',{name:'Aplicar importación XFDF',exact:true})).toBeEnabled();await dialog.getByRole('button',{name:'Aplicar importación XFDF',exact:true}).click();await expect(dialog).toHaveCount(0);await save('Grouped.pdf');
+await page.locator('.file-menu summary').click();await page.getByRole('button',{name:'Crear PDF desde Word',exact:true}).click();dialog=page.getByRole('dialog',{name:'Crear PDF desde Word',exact:true});await dialog.getByLabel('Archivo Word para convertir',{exact:true}).setInputFiles(file('Notes.docx'));await dialog.getByRole('button',{name:'Convertir y revisar Word',exact:true}).click();await expect(dialog.getByLabel('Resumen de importación Word')).toContainText('3 notas al pie con reinicio por página');const count=await dialog.getByLabel('Página de Word importado',{exact:true}).locator('option').count();for(let i=0;i<count;i++){await dialog.getByLabel('Página de Word importado',{exact:true}).selectOption(String(i));const checked=dialog.getByLabel(`Revisé Word página ${i+1}`,{exact:true});await expect(checked).toBeEnabled();await checked.check();}await dialog.getByLabel('Aceptar diferencias de importación Word',{exact:true}).check();await dialog.getByRole('button',{name:'Abrir PDF convertido',exact:true}).click();await expect(dialog).toHaveCount(0);await save('Notes.pdf');
+await upload('Stamped.pdf');await openTool(page,'Verificar firmas digitales');dialog=page.getByRole('dialog',{name:'Verificar firmas digitales',exact:true});await dialog.getByRole('button',{name:'Comprobar firmas',exact:true}).click();const timestamp=dialog.getByRole('region',{name:'Sello de tiempo de la firma 1',exact:true});await expect(timestamp).toContainText('El momento no se acepta como acreditado');await dialog.getByLabel('Certificados de confianza para verificar',{exact:true}).setInputFiles(file('Trust.pem'));await dialog.getByRole('button',{name:'Comprobar firmas',exact:true}).click();await expect(timestamp).toContainText('Momento aceptado con la confianza local seleccionada');await dialog.getByRole('button',{name:'Cerrar',exact:true}).click();
+execFileSync(python,['-c',`from pathlib import Path
+import sys,pymupdf as f
+from backend import xfdf
+root=Path(sys.argv[1])
+with f.open(root/'Masked.pdf') as a,f.open(root/'MaskedEdited.pdf') as b:
+ assert 'CBA AB' in b[0].get_text() and a[1].get_pixmap().samples==b[1].get_pixmap().samples
+ masks=lambda doc:{doc.xref_stream(x) for x in range(1,doc.xref_length()) if doc.xref_is_stream(x) and b'Reapdf synthetic mask' in doc.xref_stream(x)}
+ assert masks(a)==masks(b)
+xml,report=xfdf.export((root/'Grouped.pdf').read_bytes(),[],True,False);assert report['annotations']==3 and sum(n.get('replyType')=='Group' for n in xfdf.parse(xml).find(xfdf.tag('annots')))==2
+with f.open(root/'Notes.pdf') as doc:
+ assert len([l for p in doc for l in p.get_links() if l['kind']==f.LINK_GOTO])>=6
+ for text in ['NOTEONE','NOTETWO','NOTETHREE']:assert any(p.search_for(text) for p in doc)`,root]);if(errors.length)throw new Error(errors.join('\n'));console.log('PASS: Chromium native masked text edit and preserved mask/other page; reviewed XFDF Group import with native graph; Word page-restarted footnotes with page review/export/links; embedded timestamp checked separately before and after explicit local trust, without revocation claims.');
+}finally{await browser.close();}

@@ -68,7 +68,7 @@ def test_unsupported_or_incomplete_notes_are_rejected_before_a_partial_pdf(kind)
     elif kind=='nested':kwargs={'foot':'</w:t><w:footnoteReference w:id="1"/><w:t>NESTED'}
     elif kind=='revision':kwargs={'foot':'</w:t></w:r><w:del><w:r><w:t>deleted</w:t></w:r></w:del><w:r><w:t>bad'}
     elif kind=='external':kwargs={'overrides':{'word/_rels/document.xml.rels':f'<Relationships xmlns="{P}"><Relationship Id="fn" Type="{R}/footnotes" Target="https://example.com/file" TargetMode="External"/></Relationships>'}}
-    elif kind=='eachPage':kwargs={'options':'<w:footnotePr><w:numRestart w:val="eachPage"/></w:footnotePr>'}
+    elif kind=='eachPage':kwargs={'options':'<w:endnotePr><w:numRestart w:val="eachPage"/></w:endnotePr>'}
     elif kind=='custom':body=reference('footnote',1,'MARK').replace('w:id="1"','w:id="1" w:customMarkFollows="1"')
     elif kind=='oversize':kwargs={'foot':'A long footnote. '*500}
     elif kind=='xml':kwargs={'overrides':{'word/footnotes.xml':'<!DOCTYPE x><broken>'}}

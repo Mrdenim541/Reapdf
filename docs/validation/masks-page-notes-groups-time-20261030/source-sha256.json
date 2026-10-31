@@ -1,0 +1,17 @@
+{
+  "backend/digital_signatures.py": "d1f95f73524a4c3d599dc0a10033fec26e4dc8a6540f99c74ed0b715256f494a",
+  "backend/docx_notes.py": "9697aa1d1f9cd7e4d0075b08464a9c4fc559baef3cde69a9b354cb8804c6702c",
+  "backend/soft_masks.py": "52c2f9bf30c8bb78a796b19e1139fa69afaf230f070c74941da67c72e30e841e",
+  "backend/text_compositing.py": "736217d318b6307ed821c20358af864e46f6cef0049940544a5df666d214673d",
+  "backend/timestamp_report.py": "5b05866998fb603a9a88a38bc8462e18064be6a0925a3761c9097f251327b6e5",
+  "backend/xfdf_threads.py": "5bc967a85ffcaba96c77d331594e1410c91052937895bc702fcb2c80566aaed7",
+  "scripts/smoke_masks_notes_groups_timestamps.mjs": "cd6f4d065c97b9c5bc92265c2e5af4d9bde507ec2ceec9a906a2a163976007d9",
+  "scripts/smoke_masks_notes_groups_timestamps_qt.py": "5351a6b7bf9fec51a4bbed02a159aa3a30d992a33d1c0011c21b1141738b0d69",
+  "tests/test_docx_notes.py": "6df835364eeb32c28d663c3bdd8027c9cfd19a4e3d9ef880739ca5f3267cd889",
+  "tests/test_four_blocks.py": "bfead9a390983dad5786c8047869c69e9319459e7e1b8b93ed6d37dc35efb525",
+  "tests/test_offline_timestamp_report.py": "e6aa287f973ec253ff0a1d06f21ae84e0323948c3588ca8f692c9b52934c1eec",
+  "tests/test_soft_masks_page_notes_groups.py": "c597ebd255201e22e248da80a825178ef60296f3f1fe137e24b1126f6f3f700f",
+  "web/src/digital-signatures.jsx": "f556243dde8fbcdfb0fb8a238b0985284ad6aa16fd94bda9799a3a534a9ba8df",
+  "web/src/interchange.jsx": "715b3a74dc8ae85864bb87d527aa5a797494f891461cb8e2606924fd3fe6924e",
+  "web/src/word-import.jsx": "2be5d66d78385dd0184dab07608fa573ce9797ccff5e9a8d719db7412374719f"
+}
