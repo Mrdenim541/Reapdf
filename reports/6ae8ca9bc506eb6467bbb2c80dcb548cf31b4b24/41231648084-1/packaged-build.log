@@ -1,0 +1,144 @@
+Collecting aiohappyeyeballs==2.7.1 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 2))
+  Using cached aiohappyeyeballs-2.7.1-py3-none-any.whl (15 kB)
+Collecting aiohttp==3.14.5 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 3))
+  Downloading aiohttp-3.14.5-cp313-cp313-win_amd64.whl (505 kB)
+Collecting aiosignal==1.4.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 4))
+  Using cached aiosignal-1.4.0-py3-none-any.whl (7.5 kB)
+Collecting annotated-doc==0.0.5 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 5))
+  Using cached annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+Collecting annotated-types==0.8.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 6))
+  Using cached annotated_types-0.8.0-py3-none-any.whl (13 kB)
+Collecting anyio==4.15.1 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 7))
+  Using cached anyio-4.15.1-py3-none-any.whl (132 kB)
+Collecting asn1crypto==1.5.1 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 8))
+  Using cached asn1crypto-1.5.1-py2.py3-none-any.whl (105 kB)
+Collecting attrs==26.1.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 9))
+  Using cached attrs-26.1.0-py3-none-any.whl (67 kB)
+Collecting certifi==2026.10.19 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 10))
+  Downloading certifi-2026.10.19-py3-none-any.whl (136 kB)
+Collecting cffi==2.1.1 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 11))
+  Downloading cffi-2.1.1-cp313-cp313-win_amd64.whl (185 kB)
+Collecting click==8.5.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 12))
+  Downloading click-8.5.0-py3-none-any.whl (125 kB)
+Collecting colorama==0.4.6 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 13))
+  Downloading colorama-0.4.6-py2.py3-none-any.whl (25 kB)
+Collecting cryptography==50.0.2 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 14))
+  Using cached cryptography-50.0.2-cp311-abi3-win_amd64.whl (3.8 MB)
+Collecting fastapi==0.148.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 15))
+  Using cached fastapi-0.148.0-py3-none-any.whl (145 kB)
+Collecting fonttools==4.67.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 16))
+  Downloading fonttools-4.67.0-cp313-cp313-win_amd64.whl (2.5 MB)
+     ---------------------------------------- 2.5/2.5 MB 15.8 MB/s  0:00:00
+Collecting frozenlist==1.8.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 17))
+  Downloading frozenlist-1.8.0-cp313-cp313-win_amd64.whl (43 kB)
+Collecting h11==0.16.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 18))
+  Using cached h11-0.16.0-py3-none-any.whl (37 kB)
+Collecting idna==3.20 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 19))
+  Using cached idna-3.20-py3-none-any.whl (69 kB)
+Collecting lxml==6.1.3 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 20))
+  Downloading lxml-6.1.3-cp313-cp313-win_amd64.whl (4.0 MB)
+     ---------------------------------------- 4.0/4.0 MB 26.5 MB/s  0:00:00
+Collecting msvc-runtime==14.44.35112 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 21))
+  Downloading msvc_runtime-14.44.35112-cp313-cp313-win_amd64.whl (1.9 MB)
+     ---------------------------------------- 1.9/1.9 MB 26.8 MB/s  0:00:00
+Collecting multidict==7.1.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 22))
+  Downloading multidict-7.1.0-cp313-cp313-win_amd64.whl (93 kB)
+Collecting opentelemetry-api==1.45.1 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 23))
+  Using cached opentelemetry_api-1.45.1-py3-none-any.whl (60 kB)
+Collecting oscrypto==1.3.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 24))
+  Using cached oscrypto-1.3.0-py2.py3-none-any.whl (194 kB)
+Collecting propcache==0.5.4 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 25))
+  Downloading propcache-0.5.4-cp313-cp313-win_amd64.whl (45 kB)
+Collecting pycparser==3.11 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 26))
+  Using cached pycparser-3.11-py3-none-any.whl (51 kB)
+Collecting pydantic==2.14.1 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 27))
+  Using cached pydantic-2.14.1-py3-none-any.whl (488 kB)
+Collecting pydantic-core==2.50.1 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 28))
+  Downloading pydantic_core-2.50.1-cp313-cp313-win_amd64.whl (2.2 MB)
+     ---------------------------------------- 2.2/2.2 MB 40.6 MB/s  0:00:00
+Collecting pyhanko==0.38.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 29))
+  Using cached pyhanko-0.38.0-py3-none-any.whl (484 kB)
+Collecting pyhanko-certvalidator==0.33.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 30))
+  Using cached pyhanko_certvalidator-0.33.0-py3-none-any.whl (118 kB)
+Collecting pymupdf==1.28.2 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 31))
+  Using cached pymupdf-1.28.2-cp310-abi3-win_amd64.whl (19.8 MB)
+Collecting python-multipart==0.0.32 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 32))
+  Using cached python_multipart-0.0.32-py3-none-any.whl (30 kB)
+Collecting starlette==1.9.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 33))
+  Using cached starlette-1.9.0-py3-none-any.whl (80 kB)
+Collecting typing-extensions==4.16.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 34))
+  Using cached typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Collecting typing-inspection==0.4.4 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 35))
+  Using cached typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+Collecting tzdata==2026.5 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 36))
+  Using cached tzdata-2026.5-py2.py3-none-any.whl (347 kB)
+Collecting tzlocal==5.4.4 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 37))
+  Using cached tzlocal-5.4.4-py3-none-any.whl (18 kB)
+Collecting uharfbuzz==0.55.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 38))
+  Using cached uharfbuzz-0.55.0-cp310-abi3-win_amd64.whl (1.3 MB)
+Collecting uritools==6.1.3 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 39))
+  Using cached uritools-6.1.3-py3-none-any.whl (11 kB)
+Collecting uvicorn==0.54.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 40))
+  Using cached uvicorn-0.54.0-py3-none-any.whl (87 kB)
+Collecting yarl==1.25.1 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 41))
+  Downloading yarl-1.25.1-cp313-cp313-win_amd64.whl (101 kB)
+Collecting PySide6==6.8.3 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 42))
+  Using cached PySide6-6.8.3-cp39-abi3-win_amd64.whl (561 kB)
+Collecting PySide6-Addons==6.8.3 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 43))
+  Using cached PySide6_Addons-6.8.3-cp39-abi3-win_amd64.whl (127.9 MB)
+Collecting PySide6-Essentials==6.8.3 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 44))
+  Using cached PySide6_Essentials-6.8.3-cp39-abi3-win_amd64.whl (72.2 MB)
+Collecting shiboken6==6.8.3 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 45))
+  Using cached shiboken6-6.8.3-cp39-abi3-win_amd64.whl (1.2 MB)
+Collecting pillow==13.0.0 (from -r D:\a\Reapdf\Reapdf\portable\requirements-windows.lock (line 46))
+  Downloading pillow-13.0.0-cp313-cp313-win_amd64.whl (7.3 MB)
+     ---------------------------------------- 7.3/7.3 MB 63.8 MB/s  0:00:00
+Saved .\entregas\cache\windows-wheels\aiohappyeyeballs-2.7.1-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\aiohttp-3.14.5-cp313-cp313-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\aiosignal-1.4.0-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\annotated_doc-0.0.5-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\annotated_types-0.8.0-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\anyio-4.15.1-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\asn1crypto-1.5.1-py2.py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\attrs-26.1.0-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\certifi-2026.10.19-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\cffi-2.1.1-cp313-cp313-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\click-8.5.0-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\colorama-0.4.6-py2.py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\cryptography-50.0.2-cp311-abi3-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\fastapi-0.148.0-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\fonttools-4.67.0-cp313-cp313-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\frozenlist-1.8.0-cp313-cp313-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\h11-0.16.0-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\idna-3.20-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\lxml-6.1.3-cp313-cp313-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\msvc_runtime-14.44.35112-cp313-cp313-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\multidict-7.1.0-cp313-cp313-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\opentelemetry_api-1.45.1-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\oscrypto-1.3.0-py2.py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\propcache-0.5.4-cp313-cp313-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\pycparser-3.11-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\pydantic-2.14.1-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\pydantic_core-2.50.1-cp313-cp313-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\pyhanko-0.38.0-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\pyhanko_certvalidator-0.33.0-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\pymupdf-1.28.2-cp310-abi3-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\python_multipart-0.0.32-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\starlette-1.9.0-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\typing_extensions-4.16.0-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\typing_inspection-0.4.4-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\tzdata-2026.5-py2.py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\tzlocal-5.4.4-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\uharfbuzz-0.55.0-cp310-abi3-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\uritools-6.1.3-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\uvicorn-0.54.0-py3-none-any.whl
+Saved .\entregas\cache\windows-wheels\yarl-1.25.1-cp313-cp313-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\PySide6-6.8.3-cp39-abi3-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\PySide6_Addons-6.8.3-cp39-abi3-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\PySide6_Essentials-6.8.3-cp39-abi3-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\shiboken6-6.8.3-cp39-abi3-win_amd64.whl
+Saved .\entregas\cache\windows-wheels\pillow-13.0.0-cp313-cp313-win_amd64.whl
+Successfully downloaded aiohappyeyeballs aiohttp aiosignal annotated-doc annotated-types anyio asn1crypto attrs certifi cffi click colorama cryptography fastapi fonttools frozenlist h11 idna lxml msvc-runtime multidict opentelemetry-api oscrypto propcache pycparser pydantic pydantic-core pyhanko pyhanko-certvalidator pymupdf python-multipart starlette typing-extensions typing-inspection tzdata tzlocal uharfbuzz uritools uvicorn yarl PySide6 PySide6-Addons PySide6-Essentials shiboken6 pillow
+entregas\Reapdf-internal-validation.zip
+bytes 322044156
+SHA256 ef227a635cdecee6ef5f0ccf9078be0736dcd3cf9b56fbae7f064eb424c03827
