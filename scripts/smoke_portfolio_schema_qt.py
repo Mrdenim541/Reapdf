@@ -63,13 +63,13 @@ def portfolio(design=False):
 
 
 try:
-    wait('document.querySelector(".document-bar")?.textContent.includes("Portfolio.pdf")');portfolio(True);edit('Nombre de columna 1','Identificador');click('Añadir columna');edit('Nombre de columna 5','Revisión');edit('Tipo de columna 5','number',True);click('Subir columna 5');js(field('Revisé el diseño de columnas')+'.click()');click('Guardar diseño de columnas');wait('!document.querySelector("dialog[open]")');native_save(root/'Designed.pdf')
+    wait('document.querySelector(".document-bar")?.textContent.includes("Portfolio.pdf")');click('Guía y atajos');click('Consultar manual por función');edit('Buscar en el manual','Editar texto');wait('document.body.innerText.includes("pulsa el texto directamente")');assert js('document.querySelector(".workspace-help table").textContent.includes("Guardar PDF como")');click('Entendido');portfolio(True);edit('Nombre de columna 1','Identificador');click('Añadir columna');edit('Nombre de columna 5','Revisión');edit('Tipo de columna 5','number',True);click('Subir columna 5');js(field('Revisé el diseño de columnas')+'.click()');click('Guardar diseño de columnas');wait('!document.querySelector("dialog[open]")');native_save(root/'Designed.pdf')
     portfolio();edit('Columna Revisión del archivo 1','7');click('Guardar valores de columnas');wait('!document.querySelector("dialog[open]")');native_save(root/'Filled.pdf')
     portfolio(True);click('Retirar columna 2');assert not js(field('Revisé el diseño de columnas')+'.checked');js(field('Revisé el diseño de columnas')+'.click()');click('Guardar diseño de columnas');wait('!document.querySelector("dialog[open]")');native_save(root/'Removed.pdf')
     info=model((root/'Removed.pdf').read_bytes());assert [c['label'] for c in info['columns']]==['Identificador','Date','Revisión','Locked'];key=next(c['id'] for c in info['columns'] if c['label']=='Revisión');assert info['files'][0]['values'][key]==7
     with f.open(original) as a,f.open(root/'Removed.pdf') as b:
         assert a[0].get_pixmap().samples==b[0].get_pixmap().samples
         assert {n:hashlib.sha256(a.embfile_get(n)).digest() for n in a.embfile_names()}=={n:hashlib.sha256(b.embfile_get(n)).digest() for n in b.embfile_names()}
-    print('PASS: own Qt window portfolio schema create/rename/reorder/typed fill/reviewed remove, atomic save/reopen and attachment bytes/cover preservation. Windows depends on the host of this execution.')
+    print('PASS: own Qt window searchable per-function manual/native save shortcuts and portfolio schema create/rename/reorder/typed fill/reviewed remove, atomic save/reopen and attachment bytes/cover preservation. Windows depends on the host of this execution.')
 finally:
     window.allow_close=True;window.close();QTest.qWait(200)

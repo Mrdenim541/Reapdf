@@ -44,3 +44,5 @@ header{height:66px;padding:0 22px;border-color:var(--line)}.brand{font-size:24px
 .redaction-regions{max-height:160px;overflow:auto;padding-left:24px}
 .redaction-regions li{padding:4px}
 .redaction-regions button{margin-left:8px}
+
+.function-guide{border:1px solid var(--line);border-radius:8px;padding:16px;margin:16px 0}.function-guide-filters{display:grid;grid-template-columns:2fr 1fr;gap:12px}.function-guide-filters label{display:grid;gap:5px;font-size:12px}.function-guide-filters input,.function-guide-filters select{width:100%;padding:8px}.function-guide-list{max-height:45vh;overflow:auto}.function-guide-list details{border-top:1px solid var(--line);padding:10px 0}.function-guide-list summary{cursor:pointer;font-size:13px;font-weight:600}.function-guide-list article{padding:8px 12px}.function-guide-list li{font-size:13px;line-height:1.65;padding:2px 0}@media(max-width:650px){.function-guide-filters{grid-template-columns:1fr}}

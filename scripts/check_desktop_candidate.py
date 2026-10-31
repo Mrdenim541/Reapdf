@@ -51,6 +51,8 @@ def main():
     report['source_git_objects']=source_objects(ROOT)
     report['source_dirty_after']=bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip())
     report['source_sha256']={str(p.relative_to(ROOT)).replace('\\','/'):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['backend','portable','web/src','scripts'] for p in sorted((ROOT/folder).rglob('*')) if p.is_file() and '__pycache__' not in p.parts and p.suffix in ['.py','.js','.jsx','.css','.mjs']}
+    manual=ROOT/'docs/funciones-uso.json'
+    report['source_sha256']['docs/funciones-uso.json']=hashlib.sha256(manual.read_bytes()).hexdigest()
     report['passed']=len(report['checks'])==len(CHECKS) and all(c['passed'] for c in report['checks']) and 'error' not in report
     (output/'desktop-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8');print(json.dumps(report,ensure_ascii=False,indent=2));return 0 if report['passed'] else 1
 

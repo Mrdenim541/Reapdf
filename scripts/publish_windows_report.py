@@ -10,7 +10,7 @@ BRANCH='validation/desktop-windows'
 
 
 def source_objects(root):
-    raw=subprocess.check_output(['git','ls-files','--stage','-z','--','backend','portable','web/src','scripts','tests','resources'],cwd=root)
+    raw=subprocess.check_output(['git','ls-files','--stage','-z','--','backend','portable','web/src','scripts','tests','resources','docs/funciones-uso.json'],cwd=root)
     return {path:meta.split()[1] for record in raw.decode().split('\0') if record for meta,path in [record.split('\t',1)]}
 
 

@@ -15,7 +15,7 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 | Proyecto editable | Guardar proyecto conserva PDF y estado editable. Abrir verifica su integridad antes de adoptarlo. |
 | Recuperación | Al iniciar, ofrece restaurar trabajo aplicado recuperable sin sobrescribir silenciosamente el original. |
 | Deshacer/rehacer | Revierte o restaura operaciones y versiones durante la sesión. |
-| Imprimir | Archivo → Imprimir o Ctrl+P prepara el PDF editado. La impresión física y Windows aún requieren comprobación técnica. |
+| Imprimir | Archivo → Imprimir o Ctrl+P prepara el PDF editado. La impresora física y el ejecutable final de Windows aún requieren comprobación técnica. |
 | Navegar y ampliar | Usa página, miniaturas, marcadores, zoom y ajustes de ancho/página. |
 | Seleccionar y copiar | En Leer, selecciona texto y pulsa Ctrl+C. Un escaneado requiere OCR. |
 | Buscar | Introduce texto y recorre coincidencias en el documento editado. |
