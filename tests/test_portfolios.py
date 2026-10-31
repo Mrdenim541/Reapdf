@@ -103,3 +103,24 @@ def test_collection_version_and_independent_parser():
     values={str(names[i]):names[i+1].get_object()['/CI'] for i in range(0,len(names),2)}
     assert values[files[0]['name']]['/ReapdfTitle']==files[0]['title']
     assert values[files[0]['name']]['/ReapdfOrder']==1
+
+
+@pytest.mark.parametrize('shared_spec',[False,True])
+def test_configure_detaches_imported_shared_metadata(shared_spec):
+    with f.open(stream=source()) as d:
+        from backend.embedded_files import normalize
+        entries=normalize(d);n=f.mupdf;pdf=f._as_pdf_document(d)
+        ci=d.get_new_xref();d.update_object(ci,'<< /External (preserved) >>')
+        shared=n.pdf_new_indirect(pdf,ci,0)
+        for _,spec in entries:n.pdf_dict_puts(spec,'CI',shared)
+        if shared_spec:
+            flat=n.pdf_dict_getp(n.pdf_trailer(pdf),'Root/Names/EmbeddedFiles/Names');n.pdf_array_put(flat,3,entries[0][1])
+        base=d.tobytes()
+    files=rows(base);files[0]['description']='First independent';files[1]['description']='Second independent'
+    out=configure(base,[],True,files=files)
+    result=model(out)
+    assert [(v['title'],v['description']) for v in result['files']]==[(v['title'],v['description']) for v in files]
+    with f.open(stream=base) as a,f.open(stream=out) as b:
+        assert a[0].get_pixmap().samples==b[0].get_pixmap().samples
+        assert {name:a.embfile_get(name) for name in a.embfile_names()}=={name:b.embfile_get(name) for name in b.embfile_names()}
+        for _,spec in normalize(b):assert n.pdf_to_text_string(n.pdf_dict_gets(n.pdf_dict_gets(spec,'CI'),'External'))=='preserved'

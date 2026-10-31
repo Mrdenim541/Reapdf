@@ -66,20 +66,35 @@ def structure(doc,page):
 
 
 def clone_dictionary(doc,owner,key):
-    kind,value=doc.xref_get_key(owner,key);xref=doc.get_new_xref()
+    kind,value=doc.xref_get_key(owner,key)
+    # Page resources may be inherited. Detaching an empty dictionary would
+    # discard the fonts and XObjects still used by the unchanged content.
+    if key=='Resources' and kind=='null' and doc.xref_get_key(owner,'Type')==('name','/Page'):
+        parent=owner;seen=set()
+        while kind=='null':
+            ptype,pvalue=doc.xref_get_key(parent,'Parent')
+            if ptype!='xref':break
+            parent=int(pvalue.split()[0])
+            if parent in seen or len(seen)>32:raise DocumentError('Recursos de página heredados no válidos.')
+            seen.add(parent);kind,value=doc.xref_get_key(parent,key)
+    xref=doc.get_new_xref()
     doc.update_object(xref,doc.xref_object(int(value.split()[0])) if kind=='xref' else value if kind=='dict' else '<<>>')
     doc.xref_set_key(owner,key,f'{xref} 0 R');return xref
 
 
 def write(doc,page,prepared):
-    root={'owner':page.xref,'edits':[],'children':{}}
+    root={'owner':page.xref,'edits':[],'children':{},'xobjects':{}}
     for row,encoded in prepared:
         node=root
         for step in row.get('_native_path',[]):
             key=(step['start'],step['end'])
-            if key not in node['children']:node['children'][key]={'owner':step['target'],'edits':[],'children':{}}
+            if key not in node['children']:node['children'][key]={'owner':step['target'],'edits':[],'children':{},'xobjects':{}}
             node=node['children'][key]
         start,end,_=row['_native'];node['edits'].append((start,end,encoded))
+        for alias,xref in row.get('_native_xobjects',{}).items():
+            if not SAFE.fullmatch(alias) or type(xref) is not int:raise DocumentError('Recurso de imagen no válido.')
+            if alias in node['xobjects'] and node['xobjects'][alias]!=xref:raise DocumentError('Recursos de imagen en conflicto.')
+            node['xobjects'][alias]=xref
     def reserve(node,is_root=False):
         node['data']=page.read_contents() if is_root else doc.xref_stream(node['owner'])
         return len(node['data'])+sum(len(value) for _,_,value in node['edits'])+sum(reserve(child) for child in node['children'].values())
@@ -91,8 +106,11 @@ def write(doc,page,prepared):
         if not is_root:
             owner=doc.get_new_xref();doc.update_object(owner,doc.xref_object(original))
         content=node['data'];edits=list(node['edits'])
-        if node['children']:
+        if node['children'] or node['xobjects']:
             resources=clone_dictionary(doc,owner,'Resources');objects=clone_dictionary(doc,resources,'XObject')
+            for alias,xref in node['xobjects'].items():
+                if doc.xref_get_key(objects,alias)[0]!='null':raise DocumentError('El nombre de recurso de imagen ya está ocupado.')
+                doc.xref_set_key(objects,alias,f'{xref} 0 R')
             for (start,end),child in node['children'].items():
                 target=apply(child);alias='ReapdfForm'
                 while doc.xref_get_key(objects,alias)[0]!='null':alias+='x'

@@ -696,7 +696,7 @@ def existing_images(doc_id: str, number: int):
 @app.post('/api/documents/{doc_id}/edit-image')
 async def change_existing_image(doc_id: str, request: Request):
     payload=await read_payload(request)
-    result=edit_image(document_path(doc_id).read_bytes(),payload.get('operations',[]),payload.get('page'),payload.get('xref'),payload.get('action'),payload.get('box'),payload.get('data'))
+    result=edit_image(document_path(doc_id).read_bytes(),payload.get('operations',[]),payload.get('page'),payload.get('xref'),payload.get('action'),payload.get('box'),payload.get('data'),payload.get('occurrence'))
     if payload.get('preview') is True:
         with open_pdf(result) as doc:
             image,headers=render_page(doc[payload['page']],1.5)

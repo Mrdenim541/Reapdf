@@ -248,13 +248,13 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Acceso:** Editar → Editar imágenes del PDF.
 
-1. Abre Editar imágenes del PDF.
-2. selecciona una imagen existente.
-3. revisa y aplica el cambio compatible.
+1. Abre la herramienta y selecciona la aparición en la muestra con el ratón o en la lista.
+2. Arrastra su marco o cambia la posición y el tamaño. También puedes reemplazar el archivo o eliminar la aparición.
+3. Genera la vista previa y aplica el cambio. Deshacer recupera la versión anterior.
 
-**Resultado esperado:** Se mueve, reemplaza o retira la aparición compatible y se conserva el resto del documento.
+**Resultado esperado:** Solo cambia la aparición seleccionada, incluso si comparte imagen o Forms anidados con otras posiciones. Se conservan el texto y las otras apariciones. Mover mantiene orientación, compresión y máscara alfa.
 
-**Límites actuales:** Imágenes compartidas, recortadas o en estructuras complejas pueden requerir otro tratamiento.
+**Límites actuales:** Los PDF etiquetados, capas incompatibles, imágenes inline, páginas OCR y cajas fuera del recorte del Form siguen protegidos. Eliminar una aparición no equivale a censurar datos. La vista previa conserva los recortes originales.
 
 <a id="funcion-headers"></a>
 

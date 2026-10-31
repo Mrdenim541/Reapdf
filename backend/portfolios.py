@@ -65,10 +65,15 @@ def configure(base,operations,enabled,view='details',files=None):
         else:
             doc.xref_set_key(doc.pdf_catalog(),'Collection/View','/'+VIEWS[view]);doc.xref_set_key(doc.pdf_catalog(),'Collection/Sort','<< /S /ReapdfOrder /A true >>')
         # xref_set_key reparses direct catalog children; reacquire file specs.
-        names=dict(normalize(doc))
+        entries=normalize(doc);names={name:(i,spec) for i,(name,spec) in enumerate(entries)}
+        flat=n.pdf_dict_getp(n.pdf_trailer(pdf),'Root/Names/EmbeddedFiles/Names')
         for index,row in enumerate(files,1):
-            spec=names[row['name']];ci=n.pdf_dict_gets(spec,'CI')
-            if not n.pdf_is_dict(ci):ci=n.pdf_new_dict(pdf,3);n.pdf_dict_puts(spec,'CI',ci)
+            position,spec=names[row['name']]
+            # Imported portfolios can share both the FileSpec and CI objects.
+            # Edit the selected entry's metadata without collapsing its peers.
+            spec=n.pdf_deep_copy_obj(n.pdf_resolve_indirect(spec));ci=n.pdf_dict_gets(spec,'CI')
+            ci=n.pdf_deep_copy_obj(n.pdf_resolve_indirect(ci)) if n.pdf_is_dict(ci) else n.pdf_new_dict(pdf,3)
+            n.pdf_dict_puts(spec,'CI',ci);n.pdf_array_put(flat,position*2+1,spec)
             n.pdf_dict_puts(ci,'ReapdfTitle',n.pdf_new_text_string(row['title']));n.pdf_dict_puts(ci,'ReapdfDescription',n.pdf_new_text_string(row['description']));n.pdf_dict_puts(ci,'ReapdfOrder',n.pdf_new_int(index))
         data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
     check=model(data)

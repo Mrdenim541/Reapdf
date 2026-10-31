@@ -1,6 +1,7 @@
 # Reapdf · continuidad del desarrollo
 
 - Hablar con el usuario en español. Modelo habitual: 6.1 Sol, razonamiento medio. Al cerrar un avance indicar resultados, pruebas reales, limitaciones, porcentaje TOTAL y modelo recomendado.
+- Instrucción expresa permanente del usuario: no entregar trabajos parciales como si cumplieran una orden de cierre completo ni detenerse por terminar una tanda pequeña de tareas. Antes de empezar, explicar cualquier impedimento real para completar el alcance solicitado; no prometer un 100 % que no pueda acreditarse. Persistir en el trabajo autorizado, sin pedir «procede» por cada bloque. La entrega solicitada es el programa técnicamente completo, ejecutable y acompañado de guía por función; las revisiones personales son la última etapa. Una limitación conocida de implementación no se traslada al usuario como tarea de prueba ni se oculta para declarar terminado el programa.
 - Leer `docs/PLAN_ACTUAL.md` y el inicio de `docs/WORK_STATE.md`; la matriz vigente es `docs/avance-global.json`. Consultar allí el porcentaje ponderado actual; no reutilizar cifras históricas. Mantener alcance/pesos y justificar cambios. Preparar herramientas o trasladar el repo no aumenta la madurez del producto.
 - Esta fuente procede de 0.43 recuperado y mejoras posteriores. 0.55 no está recuperado; no afirmar que todo el historial está implementado.
 - El usuario prioriza edición de texto con ratón/cursor sobre la página, interfaz clara y ventana Qt propia. Mantener también las cajas ajustables del proyecto.

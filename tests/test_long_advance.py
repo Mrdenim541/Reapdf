@@ -212,12 +212,12 @@ def test_existing_image_move_replace_delete_preserve_pixels_and_other_content(ro
     with f.open(stream=replaced) as d:assert any(i['width']==80 for i in d[0].get_image_info())
 
 
-def test_shared_images_are_protected_and_invalid_geometry_cannot_partially_delete():
+def test_shared_images_require_an_explicit_occurrence():
     from backend.image_editing import image_model,edit_image
     pix=f.Pixmap(f.csRGB,f.IRect(0,0,20,20),False);pix.clear_with(150)
     with f.open() as d:
         p=d.new_page();xref=p.insert_image(f.Rect(30,30,100,100),stream=pix.tobytes('png'));p.insert_image(f.Rect(130,30,200,100),xref=xref)
-        rows=image_model(d,0)['images'];assert all(not r['editable'] for r in rows);base=d.tobytes()
+        rows=image_model(d,0)['images'];assert all(r['editable'] for r in rows);base=d.tobytes()
     with pytest.raises(DocumentError,match='comparte'):edit_image(base,[],0,xref,'delete')
 
 

@@ -31,7 +31,13 @@ def assess(directory,sha,expected_objects,expected_checks):
         if not file.is_file() or file.stat().st_size>4*1024*1024:problems.append('Falta una evidencia o excede el presupuesto.');continue
         data=file.read_bytes()
         if check.get('returncode')!=0 or check.get('passed') is not True or hashlib.sha256(data).hexdigest()!=check.get('sha256') or b'PASS:' not in data:problems.append('Una evidencia no coincide o indica fallo.')
-    return {'verified':not problems,'source_commit':sha,'platform':report.get('platform'),'checks':len(checks),'problems':problems,'human_acceptance':False,'distributable_built':False}
+    result={'verified':not problems,'source_commit':sha,'platform':report.get('platform'),'checks':len(checks),'problems':problems,'human_acceptance':False,'distributable_built':False,'packaged_windows_verified':False}
+    packaged=directory/'packaged-report.json'
+    if packaged.is_file():
+        p=json.loads(packaged.read_text(encoding='utf-8'))
+        passed=(not problems and p.get('source_commit')==sha and p.get('source_git_objects')==expected_objects and p.get('source_dirty') is False and p.get('bundled_engine_verified') is True and p.get('windows_execution_verified') is True and p.get('compiled_exe_window_and_edit')=='ok' and p.get('compiled_exe_normal_close')=='ok' and p.get('external_browser_used') is False and re.fullmatch('[0-9a-f]{64}',p.get('archive_sha256','')) is not None)
+        result.update(packaged_windows_verified=passed,distributable_built=passed,archive_sha256=p.get('archive_sha256'))
+    return result
 
 
 def publish(root,directory,sha,run,attempt):
@@ -43,6 +49,8 @@ def publish(root,directory,sha,run,attempt):
     receipt.update(run_id=str(run),run_attempt=str(attempt))
     directory.mkdir(parents=True,exist_ok=True);receipt_path=directory/'receipt.json';receipt_path.write_text(json.dumps(receipt,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     allowed=['receipt.json']
+    if (directory/'packaged-report.json').is_file():allowed.append('packaged-report.json')
+    allowed += [name for name in ['packaged-build.log','packaged-check.log'] if (directory/name).is_file()]
     if (directory/'desktop-report.json').is_file():
         report=json.loads((directory/'desktop-report.json').read_text(encoding='utf-8'));allowed.append('desktop-report.json')
         allowed += [c['log'] for c in report.get('checks',[]) if isinstance(c.get('log'),str) and Path(c['log']).name==c['log'] and c['log'].endswith('.log') and (directory/c['log']).is_file() and (directory/c['log']).stat().st_size<=4*1024*1024]

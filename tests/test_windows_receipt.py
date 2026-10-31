@@ -45,3 +45,22 @@ def test_publication_uses_own_fast_forward_branch_and_does_not_change_source_wor
     second=publish(root,folder,sha,'10','2');head=git(root,'ls-remote','origin','refs/heads/'+BRANCH).split()[0]
     assert first!=head and second['verified'] and git(root,'rev-parse',head+'^')==first
     assert git(root,'rev-parse','HEAD')==sha and not git(root,'status','--porcelain') and not git(root,'diff','--cached')
+
+
+@pytest.mark.parametrize('mutation',[None,'source','objects','dirty','engine','exe','close','browser','hash'])
+def test_packaged_receipt_requires_real_source_bound_executable_evidence(tmp_path,mutation):
+    report(tmp_path)
+    p={'source_commit':'a'*40,'source_git_objects':{},'source_dirty':False,'bundled_engine_verified':True,'windows_execution_verified':True,'compiled_exe_window_and_edit':'ok','compiled_exe_normal_close':'ok','external_browser_used':False,'archive_sha256':'b'*64}
+    if mutation=='source':p['source_commit']='c'*40
+    if mutation=='objects':p['source_git_objects']={'missing':'object'}
+    if mutation=='dirty':p['source_dirty']=True
+    if mutation=='engine':p['bundled_engine_verified']=False
+    if mutation=='exe':p['windows_execution_verified']=False
+    if mutation=='close':p['compiled_exe_normal_close']='failed'
+    if mutation=='browser':p['external_browser_used']=True
+    if mutation=='hash':p['archive_sha256']='invalid'
+    (tmp_path/'packaged-report.json').write_text(json.dumps(p))
+    result=assess(tmp_path,'a'*40,{},CHECKS)
+    assert result['verified']
+    assert result['packaged_windows_verified']==(mutation is None)
+    assert result['distributable_built']==(mutation is None)
