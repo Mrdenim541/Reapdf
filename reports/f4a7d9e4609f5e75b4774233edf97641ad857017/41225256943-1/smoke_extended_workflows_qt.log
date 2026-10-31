@@ -1,0 +1,3 @@
+[1848:1344:1031/173633.531:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[1848:1344:1031/173633.531:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: own Qt Linux window angle creation, multi-group affine reflow, separate list labels/empty cells, OCG configurations and foreign portfolio columns; atomic PDF save and reopen of all outputs. Windows not verified.

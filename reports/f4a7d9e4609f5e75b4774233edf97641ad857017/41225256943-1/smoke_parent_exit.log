@@ -1,0 +1,3 @@
+[6400:4304:1031/173631.219:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[6400:4304:1031/173631.219:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: loaded Qt child exits after controlled parent is killed; no unrelated process is terminated.
