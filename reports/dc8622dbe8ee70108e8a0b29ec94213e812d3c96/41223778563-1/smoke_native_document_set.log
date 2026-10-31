@@ -1,0 +1,9 @@
+[2332:1252:1031/171836.409:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[2332:1252:1031/171836.409:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+CLICK: Guardar conjunto
+STAGE: cancel acknowledged
+CLICK: Guardar conjunto
+STAGE: save acknowledged
+CLICK: Guardar conjunto
+CLICK: Cerrar
+PASS: Qt .reapdfset atomic save, cancellation retains dirty, acknowledged save clears dirty, repeat destination, closed panel retains workspace changes.

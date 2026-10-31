@@ -1,0 +1,38 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 170, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 163, in main
+    folder=Path(tmp)/'Reapdf-portable';result={**native_check(folder),**compiled_gui_check(folder),'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 142, in compiled_gui_check
+    if run.returncode or 'PASS:' not in run.stdout:raise RuntimeError('Fall� el recorrido del ejecutable: '+run.stdout+run.stderr)
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Fall� el recorrido del ejecutable: node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+browserType.connectOverCDP: Protocol error (Browser.setDownloadBehavior): Browser context management is not supported.
+Call log:
+  - <ws preparing> retrieving websocket url from http://127.0.0.1:53170
+  - <ws connecting> ws://127.0.0.1:53170/devtools/browser/06cd4607-278b-4018-8065-6b42e34cca8e
+  - <ws connected> ws://127.0.0.1:53170/devtools/browser/06cd4607-278b-4018-8065-6b42e34cca8e
+  - <ws disconnecting> ws://127.0.0.1:53170/devtools/browser/06cd4607-278b-4018-8065-6b42e34cca8e
+  - <ws disconnected> ws://127.0.0.1:53170/devtools/browser/06cd4607-278b-4018-8065-6b42e34cca8e code=1000 reason=
+
+    at D:\a\Reapdf\Reapdf\scripts\smoke_packaged_window.mjs:7:30
+    at async node:internal/modules/esm/loader:647:26 {
+  log: [
+    '  - <ws preparing> retrieving websocket url from http://127.0.0.1:53170',
+    '  - <ws connecting> ws://127.0.0.1:53170/devtools/browser/06cd4607-278b-4018-8065-6b42e34cca8e',
+    '  - <ws connected> ws://127.0.0.1:53170/devtools/browser/06cd4607-278b-4018-8065-6b42e34cca8e',
+    '  - <ws disconnecting> ws://127.0.0.1:53170/devtools/browser/06cd4607-278b-4018-8065-6b42e34cca8e',
+    '  - <ws disconnected> ws://127.0.0.1:53170/devtools/browser/06cd4607-278b-4018-8065-6b42e34cca8e code=1000 reason='
+  ],
+  name: 'Error'
+}
+
+Node.js v24.22.1
+
