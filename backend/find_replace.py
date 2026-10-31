@@ -9,6 +9,7 @@ import pymupdf as f
 from .engine import open_pdf, export_pdf, DocumentError
 from .document_tools import editable
 from .styled_text import styled_model, replace_styled_regions
+from .text_search import wildcard_tokens,wildcard_hits
 
 
 def digest(value):
@@ -47,8 +48,11 @@ def contiguous_groups(line):
 
 
 def inspect(base, ops, query):
-    if not isinstance(query, dict) or set(query) != {'text', 'pages', 'case_sensitive', 'whole_word'}:
+    required={'text', 'pages', 'case_sensitive', 'whole_word'}
+    if not isinstance(query, dict) or not required<=set(query) or not set(query)<=required|{'mode'}:
         raise DocumentError('Consulta de búsqueda no válida.')
+    mode=query.get('mode','literal')
+    if not isinstance(mode,str) or mode not in ['literal','wildcard']:raise DocumentError('Modo de búsqueda no válido.')
     text, pages = query['text'], query['pages']
     if not isinstance(text, str) or not 1 <= len(text) <= 200 or any(ord(c) < 32 or ord(c) == 127 for c in text):
         raise DocumentError('Busca entre 1 y 200 caracteres, sin controles.')
@@ -62,6 +66,7 @@ def inspect(base, ops, query):
     if query['whole_word']:
         pattern = r'(?<!\w)' + pattern + r'(?!\w)'
     regex = re.compile(pattern, 0 if query['case_sensitive'] else re.IGNORECASE)
+    wildcard=wildcard_tokens(text) if mode=='wildcard' else None;work_budget=[0]
     matches, empty, characters = [], [], 0
     try:
         with open_pdf(base) as source:
@@ -85,7 +90,7 @@ def inspect(base, ops, query):
                         found |= bool(original.strip())
                         if characters > 2_000_000:
                             raise DocumentError('Demasiado texto; reduce las páginas de búsqueda.')
-                        hits = list(regex.finditer(original))
+                        hits = wildcard_hits(original,wildcard,query['case_sensitive'],query['whole_word'],work_budget) if wildcard is not None else [(h.start(),h.end(),h[0]) for h in regex.finditer(original)]
                         if not hits:
                             continue
                         if len(matches) + len(hits) > 500:
@@ -103,11 +108,11 @@ def inspect(base, ops, query):
                             row = candidates[0] if len(candidates) == 1 else None
                             parts.append({'id': row['id'] if row else None, 'text': span['text'], 'start': offset, 'end': offset + len(span['text']), 'editable': bool(row and row['editable']), 'reason': row['reason'] if row else 'Fragmento ambiguo o no compatible.'})
                             offset += len(span['text'])
-                        for hit in hits:
-                            touched = [p for p in parts if p['end'] > hit.start() and p['start'] < hit.end()]
+                        for start,end,matched in hits:
+                            touched = [p for p in parts if p['end'] > start and p['start'] < end]
                             failure = reason or next((p['reason'] for p in touched if not p['editable']), '')
-                            identity = f'{number}:{spans[0]["origin"]}:{original}:{hit.start()}:{hit.end()}'
-                            matches.append({'id': digest((receipt + identity).encode())[:24], 'page': number, 'text': hit[0], 'context': original, 'start': hit.start(), 'end': hit.end(), 'box': box, 'origin': list(spans[0]['origin']), 'font': spans[0]['font'], 'parts': parts, 'split': len(touched) > 1, 'editable': not failure, 'reason': failure})
+                            identity = f'{number}:{spans[0]["origin"]}:{original}:{start}:{end}'
+                            matches.append({'id': digest((receipt + identity).encode())[:24], 'page': number, 'text': matched, 'context': original, 'start': start, 'end': end, 'box': box, 'origin': list(spans[0]['origin']), 'font': spans[0]['font'], 'parts': parts, 'split': len(touched) > 1, 'editable': not failure, 'reason': failure})
             if not found:
                 empty.append(number)
     return {'receipt': receipt, 'matches': matches, 'empty_pages': empty, 'limits': {'matches': 100, 'runs': 100}, 'scope': 'Fragmentos contiguos de una misma línea digital; conserva el estilo de cada fragmento. No cruza líneas ni reconoce escaneados.'}

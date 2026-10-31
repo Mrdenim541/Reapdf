@@ -150,13 +150,14 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Acceso:** Editar → Buscar y reemplazar.
 
-1. Abre Buscar y reemplazar.
-2. escribe búsqueda y sustitución y el alcance.
-3. revisa coincidencias y aplica el lote.
+1. Abre Buscar y reemplazar y elige texto exacto o comodines tipo Excel
+2. escribe el patrón y el reemplazo; pulsa Entrar o Buscar coincidencias
+3. elige resultados compatibles o usa Revisar reemplazo actual para la coincidencia mostrada
+4. revisa la vista previa y aplica los reemplazos.
 
-**Resultado esperado:** Se sustituyen las coincidencias seleccionadas de forma atómica y reversible.
+**Resultado esperado:** Se reemplazan las coincidencias elegidas con las fuentes y estilos compatibles originales; se puede deshacer la versión aplicada.
 
-**Límites actuales:** Búsqueda literal; fuentes, geometrías o coincidencias incompatibles se explican y protegen.
+**Límites actuales:** Comodines: * varios caracteres, ? uno y ~ para escapar * ? ~. Coincidencias más largas dentro de una línea digital contigua; no cruza líneas ni reconoce escaneados. Máximo 100 coincidencias/fragmentos por operación y presupuesto de búsqueda; el texto debe caber.
 
 <a id="funcion-text"></a>
 
@@ -972,13 +973,14 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Acceso:** Documentos → Medir planos.
 
-1. Elige Medir planos.
-2. calibra longitudes o selecciona Ángulo.
-3. marca puntos, calcula y guarda.
+1. Abre Medir planos y calibra con una distancia conocida o usa una escala guardada
+2. elige distancia, longitud, área, conteo o ángulo; para longitud o área puedes seleccionar un trazado del PDF con el ratón
+3. revisa vértices, cierre del recorrido y unidades; calcula y comprueba el margen si se aproxima una curva
+4. guarda la medición en el PDF y exporta o guarda el documento.
 
-**Resultado esperado:** Se conserva medición, etiqueta, unidad e identificador; los vértices compatibles pueden editarse.
+**Resultado esperado:** Se guarda trazado y etiqueta anclados al PDF. En curvas compatibles se conserva un margen de aproximación que se vuelve a comprobar al leer su trazado de origen.
 
-**Límites actuales:** Los ángulos no requieren escala. No se infieren curvas o geometrías ausentes; los resultados técnicos requieren una referencia válida.
+**Límites actuales:** La curva se aproxima por hasta 200 vértices con margen explícito; no incluye errores del plano ni de calibración. Se protegen capas, recortes que cortan geometría, trazados excesivos o ambiguos. Los ángulos no requieren escala; intersecciones no lineales y migraciones antiguas ambiguas siguen pendientes.
 
 <a id="funcion-layers"></a>
 

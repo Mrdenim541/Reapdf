@@ -37,7 +37,9 @@ def calculate(page,kind,pts,scale,unit):
     if kind not in ['distance','perimeter','area','count','angle'] or not isinstance(unit,str) or unit not in (['deg','rad'] if kind=='angle' else UNITS):raise DocumentError('Medición o unidad no válida.')
     pts=points(pts,page,1 if kind=='count' else 3 if kind in ['area','angle'] else 2)
     if kind=='distance' and len(pts)!=2:raise DocumentError('La distancia requiere exactamente dos puntos.')
-    if len({tuple(p) for p in pts})!=len(pts):raise DocumentError('No repitas puntos de la medición.')
+    closed=kind=='perimeter' and len(pts)>=4 and pts[0]==pts[-1]
+    unique=pts[:-1] if closed else pts
+    if len({tuple(p) for p in unique})!=len(unique):raise DocumentError('No repitas puntos de la medición.')
     if kind=='angle':
         if len(pts)!=3:raise DocumentError('El ángulo necesita exactamente tres puntos: extremo, vértice y extremo.')
         a,b,c=[f.Point(p) for p in pts];u=a-b;v=c-b
@@ -69,7 +71,7 @@ def read_record(doc,xref,key):
 def model(base,ops,number):
     from .measurement_geometry import page_at,decode,read_profiles,cal_to_view,native_vertices
     with open_pdf(export_pdf(base,ops)) as doc:
-        page=page_at(doc,number);rows=[];invalid=0
+        page=page_at(doc,number);rows=[];invalid=0;path_cache=None
         for annot in page.annots() or []:
             record=read_record(doc,annot.xref,'ReapdfMeasurement')
             if record is None:
@@ -81,7 +83,15 @@ def model(base,ops,number):
                 if record['version']==1:row['points']=native_pts;row['editable']=False
             except (DocumentError,KeyError,TypeError,ValueError):invalid+=1;continue
             if len(rows)>=500:raise DocumentError('Hasta 500 mediciones por página.')
-            rows.append({k:row[k] for k in ['id','kind','value','unit','points','calibration','editable','result_unit']}|{'xref':annot.xref,'label':annot.info.get('content','')[:400],'profile':record.get('profile'),'legacy':record['version']==1,'can_migrate':record['version']==1 and all(page.rect.contains(f.Point(p)) for p in native_pts)})
+            approximation=None;verified=False
+            if record.get('approximation'):
+                from .measurement_paths import paths_on_page,approximation_for,path_points
+                if path_cache is None:path_cache=paths_on_page(doc,page)['paths']
+                source=next((p for p in path_cache if p['id']==record['approximation'].get('path')),None) if isinstance(record['approximation'],dict) else None
+                if source and row['kind'] in ['perimeter','area'] and len(path_points(source,row['kind']))==len(row['points']) and all(math.dist(a,b)<.002 for a,b in zip(path_points(source,row['kind']),row['points'])):
+                    displacement=max(math.dist(a,b) for a,b in zip(path_points(source,row['kind']),row['points']))
+                    approximation=approximation_for(source,row['kind'],calibration(row['calibration'],page,allow_outside=True),row['result_unit'],displacement);verified=True
+            rows.append({k:row[k] for k in ['id','kind','value','unit','points','calibration','editable','result_unit']}|{'xref':annot.xref,'label':annot.info.get('content','')[:400],'profile':record.get('profile'),'legacy':record['version']==1,'can_migrate':record['version']==1 and all(page.rect.contains(f.Point(p)) for p in native_pts),'approximation':approximation,'trace_source_verified':verified,'trace_source_changed':bool(record.get('approximation')) and not verified})
         cal=read_record(doc,page.xref,'ReapdfCalibration')
         if cal is not None:
             try:
@@ -92,7 +102,7 @@ def model(base,ops,number):
         return {'measurements':rows,'invalid_measurements':invalid,'calibration':cal,'scales':[{k:p[k] for k in ['id','name','box','calibration','visible']} for p in read_profiles(doc,page)]}
 
 
-def measure(base,ops,number,kind,pts,cal,unit='m',preview=False,identity=None,profile=None,migrate=False):
+def measure(base,ops,number,kind,pts,cal,unit='m',preview=False,identity=None,profile=None,migrate=False,trace=None):
     if type(migrate) is not bool or migrate and identity is None:raise DocumentError('La actualización de referencia requiere una medición antigua identificada.')
     with open_pdf(base) as source:
         editable(source)
@@ -122,8 +132,23 @@ def measure(base,ops,number,kind,pts,cal,unit='m',preview=False,identity=None,pr
             cal=selected['calibration'];allow_outside=True
         scale=1 if kind in ['count','angle'] else calibration(cal,page,allow_outside)
         value,pts,label_unit=calculate(page,kind,pts,scale,unit)
+        approximation=None
+        if trace is not None:
+            from .measurement_paths import paths_on_page,approximation_for,path_points
+            if not isinstance(trace,str) or len(trace)!=64 or kind not in ['perimeter','area']:raise DocumentError('Selecciona un trazado compatible para longitud o área.')
+            source=next((p for p in paths_on_page(doc,page)['paths'] if p['id']==trace),None)
+            if source is None:raise DocumentError('El trazado del plano cambió. Vuelve a seleccionarlo.')
+            expected=path_points(source,kind)
+            if len(expected)!=len(pts) or any(math.dist(a,b)>.0001 for a,b in zip(expected,pts)):raise DocumentError('Los vértices no coinciden con el trazado revisado.')
+            if profile is not None:
+                margin=source['max_deviation_pt']
+                if any(not (region.x0+margin<=p[0]<=region.x1-margin and region.y0+margin<=p[1]<=region.y1-margin) for p in pts):raise DocumentError('La aproximación del trazado alcanza el límite de la escala regional. Amplía la región o divide la medición.')
+            approximation=approximation_for(source,kind,scale,unit)
         label={'distance':'Distancia','perimeter':'Longitud','area':'Área','count':'Cantidad','angle':'Ángulo'}[kind]+f': {value:,.3f} {label_unit}'.rstrip()
-        if preview:return {'value':value,'unit':label_unit,'label':label,'scale_m_per_pt':scale,'points':pts}
+        if approximation:
+            error=approximation['error_bound'];digits=max(3,min(9,math.ceil(-math.log10(error))+1)) if error>0 else 6
+            label={'perimeter':'Longitud','area':'Área'}[kind]+f' aproximada: {value:,.{digits}f} {label_unit}'
+        if preview:return {'value':value,'unit':label_unit,'label':label,'scale_m_per_pt':scale,'points':pts,'approximation':approximation}
         if identity is None and sum(1 for a in page.annots() or [] if read_record(doc,a.xref,'ReapdfMeasurement'))>=500:raise DocumentError('Hasta 500 mediciones por página.')
         if identity is not None:remove_from_page(doc,page,identity)
         _,rotate=matrices(page);native=[f.Point(p)*~rotate for p in pts];pdf_pts=transform(page,pts,True);cal_pdf=cal_to_pdf(page,cal) if kind not in ['count','angle'] else None;rotation=page.rotation;page.set_rotation(0)
@@ -137,6 +162,7 @@ def measure(base,ops,number,kind,pts,cal,unit='m',preview=False,identity=None,pr
             annot=page.add_ink_annot(paths)
         annot.set_colors(stroke=(.08,.42,.34));annot.set_border(width=1);annot.set_info(content=label,title='Reapdf');annot.update()
         identity=identity or uuid4().hex;record={'version':2,'id':identity,'kind':kind,'value':value,'unit':label_unit,'points':pdf_pts,'calibration':cal_pdf,'profile':profile}
+        if approximation:record['approximation']=approximation
         doc.xref_set_key(annot.xref,'NM',pdf_string('reapdf-measure-'+identity))
         doc.xref_set_key(annot.xref,'ReapdfMeasurement',pdf_string(json.dumps(record,ensure_ascii=False,allow_nan=False)))
         if kind not in ['count','angle']:
