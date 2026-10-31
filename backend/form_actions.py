@@ -9,6 +9,7 @@ import pymupdf as f
 from .engine import DocumentError
 
 DATES={'dd/mm/yyyy':'%d/%m/%Y','mm/dd/yyyy':'%m/%d/%Y','yyyy-mm-dd':'%Y-%m-%d','dd.mm.yyyy':'%d.%m.%Y'}
+TIMES={'HH:MM':'%H:%M','HH:MM:ss':'%H:%M:%S','h:MM tt':'%I:%M %p','h:MM:ss tt':'%I:%M:%S %p'}
 TOKEN=re.compile(r'\s*("(?:[^"\\\x00-\x1f]|\\["\\/bfnrt]|\\u[0-9a-fA-F]{4})*"|\'(?:[^\'\\\x00-\x1f]|\\[\'\\])*\'|true\b|false\b|[+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*')
 
 
@@ -72,15 +73,28 @@ def policy(doc,chain,events=None):
             if negative not in [0,2] or integer(args[3],0,0)!=0 or not isinstance(args[4],str) or len(args[4])>12 or any(ord(c)<32 or ord(c)>255 for c in args[4]) or type(args[5]) is not bool:raise DocumentError('El formato de moneda/color requiere otro tratamiento.')
             result={'kind':'number','places':places,'separator':separator,'negative':negative,'currency':args[4],'prepend':args[5]}
         elif name=='AFPercent_Format' and len(args)==2:result={'kind':'percent','places':integer(args[0],0,6),'separator':integer(args[1],0,3),'negative':0,'currency':'','prepend':False}
+        elif name in ['AFTime_FormatEx','AFTime_Format']:
+            if len(args)!=1:raise DocumentError('Formato de hora no válido.')
+            pattern=args[0] if name=='AFTime_FormatEx' else ['HH:MM','h:MM tt','HH:MM:ss','h:MM:ss tt'][integer(args[0],0,3)]
+            if pattern not in TIMES:raise DocumentError('Formato de hora no compatible.')
+            result={'kind':'time','pattern':pattern}
+        elif name=='AFSpecial_Format' and len(args)==1:result={'kind':'special','special':integer(args[0],0,3)}
         elif name=='AFDate_FormatEx' and len(args)==1 and args[0] in DATES:result={'kind':'date','pattern':args[0]}
         else:raise DocumentError('El formato de este campo todavía no está admitido.')
     if stroke:
         name,args=stroke
-        expected={'number':'AFNumber_Keystroke','percent':'AFPercent_Keystroke','date':'AFDate_KeystrokeEx'}.get(result.get('kind'))
-        if name!=expected or (result['kind']=='date' and args!=[result['pattern']]) or (result['kind']!='date' and (len(args)!=2 or integer(args[0],0,6)!=result['places'] or integer(args[1],0,3)!=result['separator'])):raise DocumentError('El filtro de entrada no coincide con su formato.')
+        expected={'number':'AFNumber_Keystroke','percent':'AFPercent_Keystroke','date':'AFDate_KeystrokeEx','time':'AFTime_KeystrokeEx' if fmt and fmt[0]=='AFTime_FormatEx' else 'AFTime_Keystroke','special':'AFSpecial_Keystroke'}.get(result.get('kind'))
+        kind=result.get('kind')
+        if name!=expected:raise DocumentError('El filtro de entrada no coincide con su formato.')
+        if kind in ['date','time']:
+            expected_args=[result['pattern']] if name.endswith('Ex') else [Decimal(['HH:MM','h:MM tt','HH:MM:ss','h:MM:ss tt'].index(result['pattern']))]
+            if args!=expected_args:raise DocumentError('El filtro de hora/fecha no coincide con su formato.')
+        elif kind=='special':
+            if len(args)!=1 or integer(args[0],0,3)!=result['special']:raise DocumentError('El filtro especial no coincide con su formato.')
+        elif len(args)!=2 or integer(args[0],0,6)!=result['places'] or integer(args[1],0,3)!=result['separator']:raise DocumentError('El filtro numérico no coincide con su formato.')
     if validation:
         name,args=validation
-        if name!='AFRange_Validate' or len(args)!=4 or type(args[0]) is not bool or type(args[2]) is not bool or any(not isinstance(v,Decimal) or not v.is_finite() or abs(v)>Decimal('1e12') for v in [args[1],args[3]]) or result.get('kind')=='date':raise DocumentError('La validación de este campo requiere otro tratamiento.')
+        if name!='AFRange_Validate' or len(args)!=4 or type(args[0]) is not bool or type(args[2]) is not bool or any(not isinstance(v,Decimal) or not v.is_finite() or abs(v)>Decimal('1e12') for v in [args[1],args[3]]) or result.get('kind') in ['date','time','special']:raise DocumentError('La validación de este campo requiere otro tratamiento.')
         low=str(args[1]) if args[0] else None;high=str(args[3]) if args[2] else None
         if low is not None and high is not None and Decimal(low)>Decimal(high):raise DocumentError('El rango de validación está invertido.')
         result.update(minimum=low,maximum=high)
@@ -112,6 +126,18 @@ def number(value,separator=1,stored=False):
 def value(policy,text,stored=False):
     if not policy:return text,text
     if not text.strip():return '',''
+    if policy['kind']=='special':
+        kind=policy['special'];patterns=[r'\d{5}',r'\d{5}(?:-?\d{4})?',r'(?:\d{10}|\(\d{3}\) \d{3}-\d{4})',r'\d{3}-?\d{2}-?\d{4}']
+        if not re.fullmatch(patterns[kind],text,flags=re.ASCII):raise DocumentError('El valor no coincide con el formato especial del campo.')
+        digits=re.sub(r'\D','',text)
+        display=digits[:5]+'-'+digits[5:] if kind==1 and len(digits)==9 else '('+digits[:3]+') '+digits[3:6]+'-'+digits[6:] if kind==2 else digits[:3]+'-'+digits[3:5]+'-'+digits[5:] if kind==3 else digits
+        # Acrobat formatting helpers change event.value; retain leading zeroes.
+        return display,display
+    if policy['kind']=='time':
+        pattern=policy['pattern'];twelve=pattern.startswith('h:');seconds='ss' in pattern
+        regex=(r'(?:[1-9]|1[0-2]):[0-5][0-9]'+(r':[0-5][0-9]' if seconds else '')+r' (?:AM|PM)') if twelve else r'(?:[01][0-9]|2[0-3]):[0-5][0-9]'+(r':[0-5][0-9]' if seconds else '')
+        if not re.fullmatch(regex,text,flags=re.ASCII):raise DocumentError('La hora no es válida. Usa '+pattern+'.')
+        return text,text
     if policy['kind']=='date':
         try:
             parsed=datetime.strptime(text,DATES[policy['pattern']]);display=parsed.strftime(DATES[policy['pattern']])

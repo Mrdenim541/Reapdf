@@ -1,0 +1,11 @@
+Sandboxing disabled by user.
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+WebEngineContext is used before QtWebEngineQuick::initialize() or OpenGL context creation failed.
+Fontconfig error: No writable cache directories
+[604441:604472:1031/000802.739241:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 604473: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: own Qt Linux window, reviewed variable default conversion and atomic native save, semantic table reviewed through real controls and saved with valid reading tree, native time form filled/saved/reopened; original source hash intact. No Windows execution claimed.

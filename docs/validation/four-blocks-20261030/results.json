@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-30",
+  "baseline_commit": "8e4dc3b303fabc3fbd28348ae8336121959c74bc",
+  "source_fingerprints": "source-sha256.json",
+  "build_fingerprints": "build-sha256.json",
+  "scope": "Four user-facing blocks expanded; broad blocks 1-4 NOT accepted complete. No installer/portable generated.",
+  "checks": {
+    "python_full": {
+      "passed": 3339,
+      "warnings": 3,
+      "seconds": 406.76,
+      "command": ".venv/bin/python -m pytest -q"
+    },
+    "python_directed": {
+      "passed": 452,
+      "warnings": 1,
+      "overlaps_full": true,
+      "command": ".venv/bin/python -m pytest tests/test_four_blocks.py tests/test_type3_fonts.py tests/test_type3_strokes.py tests/test_xfdf_appearance.py tests/test_xfdf_working_copy.py tests/test_form_standard_actions.py tests/test_native_calculations.py tests/test_basic_tagging.py tests/test_media_tagging.py tests/test_list_tags_partition.py tests/test_table_regions.py tests/test_scan_geometry.py tests/test_deskew.py -q"
+    },
+    "javascript": {
+      "passed": 128,
+      "command": "node --test tests/*.mjs"
+    },
+    "build": {
+      "passed": true,
+      "command": "npm run build"
+    },
+    "chromium": {
+      "passed": true,
+      "command": "node scripts/smoke_four_blocks.mjs"
+    },
+    "qt_linux": {
+      "passed": true,
+      "command": "QT_QPA_PLATFORM=offscreen QTWEBENGINE_DISABLE_SANDBOX=1 .venv/bin/python -m scripts.smoke_four_blocks_qt"
+    }
+  },
+  "estimated_total_before": 80.98,
+  "estimated_total_after": 82.25,
+  "weights_and_scope_unchanged": true,
+  "not_verified": [
+    "Windows execution/packaging/DPI/associations/physical printing",
+    "Acrobat/Nitro interoperability acceptance",
+    "Screen-reader and integral PDF/UA acceptance",
+    "Personal acceptance and representative private corpus"
+  ],
+  "still_unimplemented": [
+    "Variable axes other than verified defaults; remaining complex fonts/composition",
+    "General/mixed semantic Form repair and complex structures",
+    "XFA/general JavaScript/full XFDF variants",
+    "General Office fidelity, irregular/multiline/perspective tables and broad scan/language coverage"
+  ],
+  "first_regression_note": "Initial run: 3337 passed, 2 failures. Updated old Type3 clipping rejection expectation to double-W invalid sequence; preserved historical duplicate-name error wording. Final full run passed."
+}

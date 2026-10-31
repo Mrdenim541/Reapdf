@@ -8,7 +8,9 @@ from .form_actions import TOKEN,call,number,value as formatted_value
 def parse(code):
     if not isinstance(code,str) or len(code)>4000:raise DocumentError('El cálculo PDF supera el límite de análisis.')
     m=re.fullmatch(r'\s*AFSimple_Calculate\s*\(\s*("(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\')\s*,\s*(?:new\s+Array\s*\((.*?)\)|\[(.*?)\])\s*\)\s*;?\s*',code,re.S)
-    if not m:raise DocumentError('El cálculo no es AFSimple_Calculate con nombres de campo explícitos.')
+    if not m:
+        from .form_expressions import parse as expression
+        return expression(code)
     operation=call('X('+m[1]+')')[1][0]
     if operation not in ['SUM','PRD','AVG','MIN','MAX']:raise DocumentError('Operación nativa de cálculo no admitida.')
     body=m[2] if m[2] is not None else m[3];names=[];at=0
@@ -38,7 +40,7 @@ def graph(doc,rows,allow_reorder=False):
     if len(targets)>50 or len(order)>50 or len(set(order))!=len(order) or set(order)!=set(targets):raise DocumentError('El orden CO debe incluir una vez cada campo calculado compatible, sin referencias adicionales.')
     def compatible(group,target=False):
         for row in by_group[group]:
-            if not row.get('calculation_safe') or row['kind']!='text' or row['multiline'] or row.get('format',{} ) and row['format'].get('kind')=='date' or row['reason'] not in ['', 'Campo de solo lectura.']:raise DocumentError('Un cálculo depende de un campo no numérico o no compatible: '+row['name'])
+            if not row.get('calculation_safe') or row['kind']!='text' or row['multiline'] or row.get('format',{} ) and row['format'].get('kind') not in ['number','percent'] or row['reason'] not in ['', 'Campo de solo lectura.']:raise DocumentError('Un cálculo depende de un campo no numérico o no compatible: '+row['name'])
     rules={}
     for target,definition in targets.items():
         compatible(target,True);sources=[]
@@ -77,7 +79,10 @@ def resolve(doc,model,values,recalculate=False):
         try:
             with localcontext() as ctx:
                 ctx.prec=34;kind=rule['operation']
-                if kind=='SUM':result=sum(inputs,Decimal(0))
+                if kind=='EXPR':
+                    from .form_expressions import evaluate
+                    result=evaluate(rule['expression'],inputs)
+                elif kind=='SUM':result=sum(inputs,Decimal(0))
                 elif kind=='AVG':result=sum(inputs,Decimal(0))/len(inputs)
                 elif kind=='MIN':result=min(inputs)
                 elif kind=='MAX':result=max(inputs)

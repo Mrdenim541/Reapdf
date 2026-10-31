@@ -1,6 +1,6 @@
 # Plan vigente
 
-Referencia: **80,98 % del programa completo (≈81 %)**, con alcance y diecisiete pesos estables. [Último avance](DIVISION_CON_NOMBRES_Y_LISTAS_20261029.md), [matriz](avance-global.json) y [prueba personal prevista](PRUEBA_PERSONAL_ESCRITORIO.md).
+Referencia: **82,25 % del programa completo (≈82 %)**, con alcance y diecisiete pesos estables. [Último avance](AVANCE_CUATRO_BLOQUES_20261030.md), [matriz](avance-global.json) y [prueba personal prevista](PRUEBA_PERSONAL_ESCRITORIO.md).
 
 Entregables anteriores ya incorporados: edición de espaciados TJ/Tc/Tw compatibles; inserción de texto con clic, altura automática y Unicode; reflujo uniforme de párrafos con fuente original sobre la página; actualización de documentos vinculados con revisión y deshacer; comparación lado a lado; cierre del hijo Qt tras muerte del padre; ocho pruebas Qt agrupadas y workflow Windows/Linux. No repetir estos entregables como futuros.
 
@@ -30,16 +30,20 @@ Bloque del plan terminado: imágenes directas por aparición con Figure/alternat
 
 Bloque ampliado terminado a petición del usuario: división en PDFs independientes con nombres personalizados y revisión por archivo, rangos/bloques, nombres numerados por prefijo, secciones por marcadores y relación JSON opcional. Poda de etiquetas de páginas excluidas y reconstrucción ParentTree/StructParent en estructuras acotadas. Listas semánticas iniciales L/LI/LBody/P revisadas, persistentes y con orden real. Chromium y guardado/descarga Qt Linux aprobados; límites y variantes protegidas en el informe.
 
-Próximo avance agrupado recomendado: tablas semánticas revisadas, contenido dentro de Forms y fuentes variables, tras auditar variantes y delimitar compatibilidad. Ampliar partición de árboles complejos solo con conservación probada. No repetir nombres personalizados, marcadores para dividir, listas simples, imágenes/enlaces compatibles, inclinación automática revisable, trazos/cm Type3 verificados, combinaciones por bordes, CO ni notas Word compatibles. Windows y aceptación personal siguen aplazados y no se consideran superados por Qt Linux.
+Avance conjunto implementado en los bloques 1–4: preparación explícita de instancias variables predeterminadas con texto/posición/píxeles comprobados; Type3 dash/clipping; tablas semánticas y filas combinadas, listas de hasta seis niveles; Forms textuales como unidad por aparición, incluso compartidos/anidados; partición de sus etiquetas/atributos; horas/formatos especiales y aritmética nativa acotada sin JS ejecutable; hilos/estados XFDF; cuatro muestras OCR de orientación, papel contrastado y tablas sin líneas con espacios regulares. No repetir estas variantes como pendientes. Ver informe para límites y comprobaciones.
 
-Próximos bloques:
+**Los cuatro bloques amplios no están cerrados al 100 %.** Se mantiene la numeración de ocho bloques comunicada al usuario; no se ocultan sus pendientes trasladándolos a 5–8.
 
-1. **Fuentes restantes.** Instancias/ejes de fuentes variables, CFF2 con VarStore o formato crudo y Type3 con imágenes/recursos/dash/clipping o FontMatrix no estándar. Rellenos d0 de color literal y trazos/cm internos verificados ya están incorporados. Type3 vectoriales simples y CFF2 OpenType estáticas ya editables; no repetirlas como pendientes. Evaluar cada programa y mapa sin sustituciones silenciosas.
-2. **Estados y estructura de Forms restantes.** Dependencias de avance sin Tm absoluto, máscaras, mezclas especiales, grupos no aislados/knockout/colores complejos y semántica. Ya incorporados los segmentos con Tm independiente, la opacidad normal visible y los grupos aislados RGB/Gray sencillos. No repetir esos casos ni giro/inclinación/reflexión como pendientes. Reflujo afín y cambio de fuente siguen pendientes.
-3. **Candidato Windows.** Completar la migración del recorrido gráfico histórico extendido; el recorrido cotidiano ya está actualizado y aprobado. Obtener informe Windows y corregir DPI, asociaciones, recuperación e impresión. Ejecutar el paquete en Windows limpio antes de entregar. Verificación personal aplazada por el usuario; Chromium/Qt Linux no la sustituyen.
-4. **Alcance comercial restante.** Formularios complejos, Office/OCR avanzada, portfolios con carpetas/esquemas externos, accesibilidad general, TSA/revocación y estándares/preflight, servicios y licencias. Interoperabilidad en Acrobat/Nitro y corpus técnico real. Mantener las áreas de la matriz separadas.
+1. **Edición avanzada.** Instancias/ejes no predeterminados o con diferencias de renderizado; CFF2 crudo, Type3 con imágenes/recursos y FontMatrix no estándar; reflujo afín/cambio de fuente, máscaras, mezclas especiales y grupos complejos. Verificar corpus real.
+2. **Accesibilidad y estructura.** Semántica interna general/mixta de Forms, imágenes inline/recortes, enlaces ambiguos, Lbl separados, celdas con múltiples objetos/vacíos sin texto, reparación general y PDF/UA. Lector de pantalla/aceptación externos pendientes.
+3. **Formularios, anotaciones e intercambio.** XFA, JavaScript general, fórmulas/acciones adicionales, fuentes/estilos y tipos XFDF restantes, grafos mixtos con reglas de proyecto. Aceptación Acrobat/Nitro pendiente.
+4. **OCR y Office.** Esquinas generales/bajo contraste, tablas en perspectiva/irregulares/multilínea, otros idiomas y fidelidad Office general, notas Word partidas y demás variantes documentadas. Ampliar corpus técnico.
+5. **Firmas, seguridad y estándares.** TSA/revocación/LT/LTA/tokens, censura compleja, PDF/X/preflight avanzado y aceptación de imprenta.
+6. **Planos, vinculación, portfolios y capas.** Ángulos/curvas/intersecciones y migración de medidas, revisiones con identificadores cambiados y lotes mayores, carpetas/esquemas de portfolio y configuraciones/contenido OCG avanzados; aceptación técnica.
+7. **Windows y estabilidad.** Migrar recorrido gráfico histórico extendido, ejecutar paquete en Windows limpio, corregir DPI/asociaciones/impresión/recuperación, carga sostenida/memoria y aceptación personal. Qt Linux no sustituye estas pruebas.
+8. **Servicios e IA.** Sin implementar: compartir/sincronizar/revisión y firmas remotas, asistencia del producto; definir proveedores/costes/licencias.
 
-Medición: intersecciones/curvas, ángulos, migración de registros antiguos y aceptación técnica. XFDF: fuentes/estilos adicionales, hilos/estados y apariencias complejas; no confundir esos pendientes con las respuestas/estados internos ya implementados.
+Siguiente prioridad: composición/fuentes complejas y casos representativos pendientes de 1–4, sin repetir subconjuntos ya aprobados. El objetivo de cerrar cuatro áreas comerciales completas no se considera cumplido por esta pasada. El alcance y las licencias de distribución requieren cierre antes del 100 %.
 
 Sin nuevos portables hasta una entrega candidata cercana al 90 % y verificada. Generación de informes/registros/ensayos excluida. Vinculación con nombres/roles generales. Base 0.43 recuperada y mejoras nuevas respaldadas en `recovery/editing-20261029`; 0.55 sigue histórico no recuperado. Informar pruebas reales, límites, avance total y siguiente modelo. Continuar con **6.1 Sol medio**.
 

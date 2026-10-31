@@ -57,11 +57,21 @@ def partition(doc,kept):
         identity=n.pdf_to_num(value)
         if not identity or identity in seen or len(seen)>=2000 or not n.pdf_to_name(n.pdf_dict_gets(value,'S')) or n.pdf_to_num(n.pdf_dict_gets(value,'P'))!=parent:fail()
         seen.add(identity)
-        if not keys(value)<={'Type','S','P','Pg','K','Alt','T','Lang','ID','E'}:fail()
+        if not keys(value)<={'Type','S','P','Pg','K','Alt','T','Lang','ID','E','A'}:fail()
         if any(not n.pdf_is_null(n.pdf_dict_gets(value,key)) and not n.pdf_is_string(n.pdf_dict_gets(value,key)) for key in ['Alt','ActualText','T','Lang','ID','E']):fail()
-        if any(not n.pdf_is_null(n.pdf_dict_gets(value,key)) for key in ['Ref','AF','NS','A']):fail()
+        if any(not n.pdf_is_null(n.pdf_dict_gets(value,key)) for key in ['Ref','AF','NS']):fail()
+        attrs=n.pdf_dict_gets(value,'A')
+        if not n.pdf_is_null(attrs):
+            if n.pdf_to_name(n.pdf_dict_gets(value,'S')) not in ['TH','TD'] or not n.pdf_is_dict(attrs) or not keys(attrs)<={'O','RowSpan','ColSpan','Scope'} or n.pdf_to_name(n.pdf_dict_gets(attrs,'O'))!='Table':fail()
+            for key in ['RowSpan','ColSpan']:
+                v=n.pdf_dict_gets(attrs,key)
+                if not n.pdf_is_null(v) and (not n.pdf_is_int(v) or not 1<=n.pdf_to_int(v)<=100):fail()
+            scope=n.pdf_dict_gets(attrs,'Scope')
+            if not n.pdf_is_null(scope) and (not n.pdf_is_name(scope) or n.pdf_to_name(scope) not in ['Row','Column','Both']):fail()
         child=children(n.pdf_dict_gets(value,'K'),identity,page,depth+1)
-        if child is None:return None
+        if child is None:
+            if page in keep and n.pdf_to_name(n.pdf_dict_gets(value,'S'))=='TR' and n.pdf_is_array(n.pdf_dict_gets(value,'K')) and n.pdf_array_len(n.pdf_dict_gets(value,'K'))==0:return value
+            return None
         n.pdf_dict_puts(value,'K',child)
         if page in keep:n.pdf_dict_puts(value,'Pg',ref(page))
         elif explicit:n.pdf_dict_dels(value,'Pg')

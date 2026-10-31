@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "review_date": "2026-10-29",
-  "status": "provisional_named_pdf_parts_lists_tag_partition",
+  "review_date": "2026-10-30",
+  "status": "provisional_four_blocks_expanded_not_closed",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 80.98,
-  "reported_percent": 81,
+  "weighted_percent": 82.25,
+  "reported_percent": 82,
   "subjective_range_percent": [
     61,
     84
@@ -71,7 +71,7 @@
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 97.75,
+      "maturity": 98,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -118,27 +118,31 @@
         "docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md",
         "tests/test_colored_type3.py",
         "docs/IMAGENES_ENLACES_INCLINACION_Y_TRAZOS_20261029.md",
-        "backend/type3_text.py"
+        "backend/type3_text.py",
+        "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
+        "tests/test_four_blocks.py"
       ],
-      "remaining": "Fuentes variables y sus instancias/ejes; CFF2 con VarStore o formato crudo; Type3 con imágenes, recursos, dash, clipping o FontMatrix no estándar. Reflujo afín/cambio de fuente con composición compleja, máscaras, mezclas especiales, grupos no aislados/knockout y corpus representativo. Rellenos/colores d0 y trazos/cm internos verificados ya incorporados; no implica edición de colores o dibujos del glifo."
+      "remaining": "Instancias/ejes variables no predeterminados o que alteren renderizado, CFF2 crudo, Type3 con imágenes/recursos y FontMatrix no estándar; reflujo afín/cambio de fuente, máscaras, mezclas especiales y grupos complejos. Preparación estática predeterminada y dash/clipping Type3 compatibles incorporados."
     },
     {
       "id": "annotations",
       "weight": 7,
-      "maturity": 85,
+      "maturity": 90,
       "evidence": [
         "backend/existing_annotations.py",
         "backend/comments.py",
         "backend/xfdf.py",
         "tests/test_xfdf_working_copy.py",
-        "docs/PRECISION_Y_XFDF_20261029.md"
+        "docs/PRECISION_Y_XFDF_20261029.md",
+        "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
+        "tests/test_four_blocks.py"
       ],
-      "remaining": "XFDF completo (hilos/estados/acciones y apariencias avanzadas), texto libre con más fuentes/estilos, adjuntos y otros subtipos; corpus externo representativo. No volver a anunciar respuestas/estados internos ya presentes."
+      "remaining": "XFDF restante (agrupaciones/acciones, apariencias avanzadas, estilos/fuentes adicionales, adjuntos y otros subtipos) y corpus externo. Hilos simples de notas/estados en la misma página incorporados; aceptación Acrobat/Nitro pendiente."
     },
     {
       "id": "forms",
       "weight": 6,
-      "maturity": 87.5,
+      "maturity": 91,
       "evidence": [
         "backend/form_import.py",
         "backend/form_calculations.py",
@@ -153,14 +157,16 @@
         "backend/native_calculations.py",
         "tests/test_native_calculations.py",
         "scripts/smoke_native_calcs_notes.mjs",
-        "scripts/smoke_native_calcs_notes_qt.py"
+        "scripts/smoke_native_calcs_notes_qt.py",
+        "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
+        "tests/test_four_blocks.py"
       ],
-      "remaining": "XFA, JavaScript general, otras acciones/validadores y variantes fuera de la lista, fórmulas arbitrarias, fuentes de campos no compatibles, grafos mixtos que usen salidas nativas en reglas del proyecto, corpus externo y aceptación. Cálculos AFSimple_Calculate compatibles, CO/dependencias/ciclos y reparación de orden ya incorporados."
+      "remaining": "XFA, JavaScript general, otras acciones/validadores y fórmulas fuera del subconjunto; fuentes no compatibles, grafos mixtos con reglas del proyecto y corpus externo. Horas/formatos especiales y aritmética nativa explícita + - * / incorporados; no equivalen al runtime ECMAScript completo."
     },
     {
       "id": "ocr_conversion",
       "weight": 9,
-      "maturity": 92,
+      "maturity": 95,
       "evidence": [
         "backend/ocr.py",
         "backend/docx_import.py",
@@ -180,9 +186,11 @@
         "docs/ETIQUETADO_INICIAL_TABLAS_Y_TYPE3_20261029.md",
         "backend/table_detection.py",
         "docs/IMAGENES_ENLACES_INCLINACION_Y_TRAZOS_20261029.md",
-        "backend/deskew.py"
+        "backend/deskew.py",
+        "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
+        "tests/test_four_blocks.py"
       ],
-      "remaining": "Detección automática de esquinas y orientación ortogonal; tablas sin líneas, perspectivas de tablas y diseños irregulares; OCR multilingüe/corpus representativo y fidelidad Office general. Inclinación automática ±15° con revisión y sugerencias rectangulares por bordes ya incorporadas, sin garantía de OCR. La capa geométrica invisible aproxima palabras afínmente. Notas Word partidas, marcas personalizadas y reinicio por página siguen fuera."
+      "remaining": "Esquinas generales/bajo contraste, perspectivas de tablas, diseños irregulares/multilínea y otros idiomas; fidelidad Office general y notas Word partidas/marcas personalizadas/reinicio por página. Sugerencias de orientación, papel contrastado y tablas sin líneas con espacios regulares ya incorporadas, sujetas a revisión."
     },
     {
       "id": "security_signatures",
@@ -212,7 +220,7 @@
     {
       "id": "accessibility",
       "weight": 3,
-      "maturity": 77,
+      "maturity": 85,
       "evidence": [
         "backend/accessibility.py",
         "backend/structure_editing.py",
@@ -224,9 +232,11 @@
         "docs/IMAGENES_ENLACES_INCLINACION_Y_TRAZOS_20261029.md",
         "tests/test_media_tagging.py",
         "docs/DIVISION_CON_NOMBRES_Y_LISTAS_20261029.md",
-        "tests/test_list_tags_partition.py"
+        "tests/test_list_tags_partition.py",
+        "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
+        "tests/test_four_blocks.py"
       ],
-      "remaining": "Tablas semánticas, listas anidadas/etiquetas de viñeta separadas, contenido dentro de Forms, imágenes inline/recortes complejos y enlaces ambiguos/remotos/de varios objetos; otras anotaciones, reparación general, MCID ambiguos/PDF 2, lector de pantalla y PDF/UA integral. Listas simples revisadas e inicialización de texto/imágenes/enlaces compatibles incorporadas."
+      "remaining": "Semántica interna general/mixta de Forms, imágenes inline/recortes complejos, enlaces ambiguos/remotos/multiobjeto, otras anotaciones, Lbl separado, tablas con múltiples objetos por celda y vacíos sin texto, reparación general/MCID ambiguos/PDF 2; lector de pantalla y PDF/UA. Tablas revisadas, listas anidadas y Forms textuales por aparición incorporados."
     },
     {
       "id": "automation_linking",
@@ -275,7 +285,7 @@
     {
       "id": "migration_interoperability",
       "weight": 4,
-      "maturity": 70,
+      "maturity": 74,
       "evidence": [
         "backend/projects.py",
         "tests/test_projects.py",
@@ -283,9 +293,11 @@
         "backend/document_sets.py",
         "docs/PRECISION_Y_XFDF_20261029.md",
         "docs/DIVISION_CON_NOMBRES_Y_LISTAS_20261029.md",
-        "backend/structure_partition.py"
+        "backend/structure_partition.py",
+        "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
+        "tests/test_four_blocks.py"
       ],
-      "remaining": "Corpus en Acrobat/Nitro y plataformas externas, migración entre versiones, XFDF restante y partición de estructuras etiquetadas complejas (IDTree/ClassMap/Namespaces/atributos/ActualText y referencias especiales). Poda/reconstrucción de estructuras acotadas para partes ya incorporada; no acredita aceptación externa."
+      "remaining": "Acrobat/Nitro/plataformas externas, migración entre versiones, XFDF restante y estructuras etiquetadas complejas (IDTree/ClassMap/Namespaces/ActualText/referencias/atributos ajenos al subconjunto Table). No acredita aceptación externa."
     },
     {
       "id": "performance_reliability",
@@ -365,41 +377,55 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261029-before-named-split-lists.json",
-    "before_weighted": 80.54,
-    "after_weighted": 80.98,
-    "new_points": 0.44,
+    "baseline": "docs/progress/20261030-before-four-blocks.json",
+    "before_weighted": 80.98,
+    "after_weighted": 82.25,
+    "new_points": 1.27,
     "changes": [
       {
-        "id": "reader_pages",
-        "before": 90,
-        "after": 93,
-        "points": 0.21,
-        "reason": "División por bloques/grupos con nombres personalizados, preparación por marcadores, revisión de partición completa y límites de salida."
+        "id": "text_images",
+        "before": 97.75,
+        "after": 98,
+        "points": 0.04,
+        "reason": "Instancias predeterminadas variables verificadas TrueType/gvar y CFF2/VarStore, edición posterior con mapa original y Type3 dash/clipping acotado."
       },
       {
-        "id": "interface",
-        "before": 96,
-        "after": 97,
-        "points": 0.07,
-        "reason": "Revisión por archivo de páginas y nombres, validación inmediata, numeración por prefijo, secciones por marcadores y guardado ZIP nativo."
+        "id": "annotations",
+        "before": 85,
+        "after": 90,
+        "points": 0.35,
+        "reason": "XFDF de respuestas y estados Review/Marked con orden de padres, ciclos/conflictos, duplicados y conservación nativa."
+      },
+      {
+        "id": "forms",
+        "before": 87.5,
+        "after": 91,
+        "points": 0.21,
+        "reason": "Horas y formatos especiales nativos, expresiones aritméticas acotadas conservando acciones/CO y recálculo dependiente, sin ejecutar JS."
+      },
+      {
+        "id": "ocr_conversion",
+        "before": 92,
+        "after": 95,
+        "points": 0.27,
+        "reason": "Cuatro pruebas locales de orientación revisables, esquinas de papel contra fondo oscuro y cuadrícula por espacios repetidos en tablas sin líneas, con abstención y exportación."
       },
       {
         "id": "accessibility",
-        "before": 75,
-        "after": 77,
-        "points": 0.06,
-        "reason": "Listas simples L/LI/LBody/P revisadas, orden y persistencia; partición conserva sus claves/etiquetas retenidas sin arrastrar ramas de otras páginas."
+        "before": 77,
+        "after": 85,
+        "points": 0.24,
+        "reason": "Table/TR/TH/TD con combinaciones/Scope y filas cubiertas, listas de seis niveles, Forms textuales por aparición y preservación/persistencia comprobadas."
       },
       {
         "id": "migration_interoperability",
-        "before": 67.5,
-        "after": 70,
-        "points": 0.1,
-        "reason": "Poda de árboles acotados y reconstrucción ParentTree/StructParent antes/después de seleccionar páginas; MCR/OBJR retenidos y asociaciones comprobadas independientemente."
+        "before": 70,
+        "after": 74,
+        "points": 0.16,
+        "reason": "Partición conserva atributos Table acotados, listas anidadas y Forms textuales por aparición; XFDF de respuestas/estados y reapertura nativa."
       }
     ],
-    "unrounded_after_weighted": "80.98",
+    "unrounded_after_weighted": "82.25",
     "all_weights_and_scope_unchanged": true
   }
 }

@@ -16,7 +16,7 @@ export const areas = [
 const areaMembers={
  workspace:['portfolio','document_links','measurement','layers','xfdf','structure'],
  read:['view','review','compare','attachments','metadata','accessibility'],
- edit:['find_replace','text','paragraph','flow','textbox','link','existing_links','images','existing_images','watermark','headers'],
+ edit:['variable_fonts','find_replace','text','paragraph','flow','textbox','link','existing_links','images','existing_images','watermark','headers'],
  annotate:['comments','select','highlight','underline','strikeout','note','ink','line','arrow','rectangle','stamp'],
  pages:['organizer','insert','replace','duplicate','blank','crop','split','labels','bookmarks','numbering','bates'],
  forms:['form_rules','calculate','forms','field_properties','field','data','flatten','signature','digital_sign','verify_signatures'],
@@ -30,6 +30,7 @@ export function areaChangeReason(state={}){
 }
 const entry=(id,label,description,group,permission='edit',target='dialog',keywords='')=>({id,label,description,group,permission,target,keywords,area:toolArea(id)?.id});
 export const tools = [
+ entry('variable_fonts','Preparar fuentes variables','Revisa ejes y crea instancias estáticas predeterminadas conservando texto y apariencia.','edit','edit_copy','dialog','fuente variable ejes opentype cff2 truetype'),
  entry('table_region','Extraer tabla por región','Reconoce tablas digitales o escaneadas, permite revisar celdas y exportar CSV o Word.','document','copy','dialog','tabla escaneada excel OCR celdas word'),
  entry('region_ocr','OCR de región','Reconoce zonas escaneadas y corrige inclinación o perspectiva sin cambiar su imagen.','document','edit_copy'),
  entry('structure','Etiquetas y orden de lectura','Revisa el flujo de texto y edita alternativas, roles, idiomas y orden de etiquetas hermanas.','read','read'),

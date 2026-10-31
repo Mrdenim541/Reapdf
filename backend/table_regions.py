@@ -103,8 +103,16 @@ def extract(base,ops,number,box,grid=None,mode='auto',language='spa+eng',dpi=200
         finally:page.set_rotation(rotation)
         if not words:raise DocumentError('No se encontró texto. Prueba OCR o corrige la región, idioma u orientación.')
         if len(words)>10000 or sum(len(word['text']) for word in words)>100000:raise DocumentError('La tabla supera el límite de texto. Reduce la región.')
+        grid_source='manual' if grid is not None else 'lines'
+        if grid is None and not detected:
+            from .table_text_grid import infer
+            suggested=infer(words,visible)
+            if suggested:
+                columns,rows=suggested;detected=True;grid_source='text_gaps'
+                warnings=[w for w in warnings if not w.startswith('No se detectó una cuadrícula')]
+                warnings.append('Separadores sugeridos por espacios repetidos entre columnas, sin bordes. Revisa todas las celdas; no resuelve filas multilínea ni diseños irregulares.')
         cells,crossing=assign(words,columns,rows);spans=[]
-        if detect_merges:
+        if detect_merges and grid_source!='text_gaps':
             from .table_detection import suggestions,apply,crossings
             spans,notes=suggestions(preview,visible,columns,rows,words);warnings.extend(notes)
             try:cells=apply(words,cells,columns,rows,spans)
@@ -112,7 +120,7 @@ def extract(base,ops,number,box,grid=None,mode='auto',language='spa+eng',dpi=200
             crossing=crossings(words,columns,rows,spans)
             if spans:warnings.append(f'{len(spans)} combinaciones sugeridas por bordes. Revisa geometría y texto antes de exportar.')
         if crossing:warnings.append(f'{crossing} palabras cruzan separadores; revisa o mueve la cuadrícula.')
-        return {'page':number,'box':box,'columns':columns,'rows':rows,'cells':cells,'words':words,'method':'ocr' if use_ocr else 'digital','detected_grid':detected,'warnings':warnings,'review_required':True,'source_modified':False,'spans':spans}
+        return {'page':number,'box':box,'columns':columns,'rows':rows,'cells':cells,'words':words,'method':'ocr' if use_ocr else 'digital','detected_grid':detected,'grid_source':grid_source,'warnings':warnings,'review_required':True,'source_modified':False,'spans':spans}
 
 
 def csv_bytes(cells,spans=None):

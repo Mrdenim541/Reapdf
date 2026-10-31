@@ -61,7 +61,8 @@ def test_unsupported_documents_refused_before_tag_publication(kind):
         if kind=='image':
             pix=f.Pixmap(f.csRGB,f.IRect(0,0,10,10),False);pix.clear_with(255);p.insert_image(f.Rect(250,200,300,250),pixmap=pix)
         elif kind=='form':
-            with f.open(stream=source(pages=1)) as other:p.show_pdf_page(f.Rect(0,200,200,350),other,0)
+            with f.open(stream=source(pages=1)) as other:
+                pix=f.Pixmap(f.csRGB,f.IRect(0,0,10,10),False);pix.clear_with(255);other[0].insert_image(f.Rect(250,200,300,250),pixmap=pix);p.show_pdf_page(f.Rect(0,200,200,350),other,0)
         elif kind=='link':p.insert_link({'kind':f.LINK_URI,'from':f.Rect(40,40,100,70),'uri':'https://example.com'})
         elif kind=='annotation':p.add_text_annot((100,100),'note')
         elif kind=='widget':

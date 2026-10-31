@@ -33,11 +33,13 @@ def number(v):return format(float(v),'.7g')
 def coords(points):return ','.join(number(v) for p in points for v in p)
 
 def annotation_node(doc,page,a):
-    if a.type[0] not in TYPES or any(doc.xref_get_key(a.xref,k)[0]!='null' for k in ['IRT','Measure','OC','A','AA','StateModel','ReapdfMeasurement','ReapdfMeasureLabel']):raise DocumentError('Anotación de tipo o estructura no compatible con este intercambio.')
+    if a.type[0] not in TYPES or any(doc.xref_get_key(a.xref,k)[0]!='null' for k in ['Measure','OC','A','AA','ReapdfMeasurement','ReapdfMeasureLabel']):raise DocumentError('Anotación de tipo o estructura no compatible con este intercambio.')
     name=TYPES[a.type[0]];matrix=~page.transformation_matrix;rect=a.rect*matrix
     attrs={'page':str(page.number),'rect':','.join(number(v) for v in rect),'name':clean(a.info.get('id','') or 'reapdf-'+str(a.xref),100),'title':clean(a.info.get('title',''),100),'color':'#'+''.join(f'{round(v*255):02X}' for v in display_rgb(a.colors.get('stroke') or [])),'opacity':number(a.opacity if a.opacity>=0 else 1),'width':number(max(.25,a.border.get('width',1)))}
     from .xfdf_appearance import export_attributes
     attrs.update(export_attributes(doc,a,name))
+    from .xfdf_threads import attributes
+    attrs.update(attributes(doc,page,a))
     if name=='line':
         vertices=a.vertices
         if len(vertices)!=2:raise DocumentError('Línea sin extremos compatibles.')
@@ -71,6 +73,13 @@ def export(base,ops,include_annotations=True,include_fields=True):
                     if report['annotations']>=500:raise DocumentError('Hasta 500 anotaciones por intercambio.')
                     annots.append(node);report['annotations']+=1
                 page.set_rotation(rotation)
+        if include_annotations:
+            while True:
+                names={(node.get('page'),node.get('name')) for node in annots};orphans=[node for node in annots if node.get('inreplyto') is not None and (node.get('page'),node.get('inreplyto')) not in names]
+                if not orphans:break
+                for node in orphans:annots.remove(node);report['annotations']-=1;report['skipped_annotations']+=1
+            from .xfdf_threads import ordered
+            sorted_nodes=ordered(list(annots),set());annots[:]=sorted_nodes
         if include_fields:
             groups=set()
             for row in form_model(doc)['fields']:
@@ -163,10 +172,13 @@ def import_data(base,ops,data,confirm=False,preview=False):
 def _annotations(snapshot,nodes,field_count,preview):
     report={'annotations':0,'duplicates':0,'fields':field_count}
     with open_pdf(snapshot) as doc:
-        existing_names={};digests=set()
+        existing_names={};digests=set();parent_refs={}
         for page in doc:
             rotation=page.rotation;page.set_rotation(0)
             for a in page.annots() or []:
+                native_name=a.info.get('id','') or 'reapdf-'+str(a.xref)
+                if (page.number,native_name) in parent_refs:raise DocumentError('Nombres de anotación ambiguos en el PDF destino.')
+                parent_refs[page.number,native_name]=a.xref
                 kind,value=doc.xref_get_key(a.xref,'ReapdfXFDFDigest')
                 if kind=='string':digests.add(value)
                 try:node=annotation_node(doc,page,a);existing_names[(page.number,node.get('name'))]=signature(node)
@@ -174,9 +186,11 @@ def _annotations(snapshot,nodes,field_count,preview):
                     name=a.info.get('id','')
                     if name:existing_names[(page.number,name)]=None
             page.set_rotation(rotation)
+        from .xfdf_threads import ordered,apply as apply_thread
+        nodes=ordered(nodes,set(parent_refs))
         for node in nodes:
             if node.tag not in [tag(t) for t in TYPES.values()]:raise DocumentError('Anotación XFDF no compatible; no se importa parcialmente.')
-            if node.find(tag('contents-richtext')) is not None or node.get('inreplyto') or node.get('replyType'):raise DocumentError('Texto enriquecido o respuestas XFDF requieren otra importación.')
+            if node.find(tag('contents-richtext')) is not None:raise DocumentError('Texto enriquecido XFDF requiere otra importación.')
             sig=signature(node)
             if sig in digests:report['duplicates']+=1;continue
             try:number_page=int(node.get('page',''))
@@ -237,6 +251,8 @@ def _annotations(snapshot,nodes,field_count,preview):
             a.set_opacity(opacity);apply_border(doc,a,width,appearance['dashes']);a.set_flags(appearance['flags']);a.update()
             if name:
                 doc.xref_set_key(a.xref,'NM',pdf_string(name));existing_names[(number_page,name)]=sig
+            apply_thread(doc,a,node,parent_refs,number_page)
+            if name:parent_refs[number_page,name]=a.xref
             doc.xref_set_key(a.xref,'ReapdfXFDFDigest',pdf_string(sig));digests.add(sig);report['annotations']+=1;page.set_rotation(rotation)
         if not report['annotations'] and not report['fields'] and not report['duplicates']:raise DocumentError('El XFDF no contiene anotaciones o valores compatibles.')
         return report if preview else (doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True),report)

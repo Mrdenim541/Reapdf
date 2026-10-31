@@ -238,6 +238,19 @@ async def inspect_structure(doc_id:str,request:Request):
     p=await read_payload(request)
     return await run_in_threadpool(structure_editing.model,document_path(doc_id).read_bytes(),p.get('operations',[]))
 
+@app.post('/api/documents/{doc_id}/variable-fonts')
+async def variable_font_inventory(doc_id:str,request:Request):
+    from .variable_fonts import inspect
+    p=await read_payload(request)
+    return await run_in_threadpool(inspect,document_path(doc_id).read_bytes(),p.get('operations',[]))
+
+@app.post('/api/documents/{doc_id}/freeze-variable-fonts')
+async def freeze_variable_fonts(doc_id:str,request:Request):
+    from .variable_fonts import freeze
+    p=await read_payload(request)
+    data,report=await run_in_threadpool(freeze,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('fonts'),p.get('reviewed',False))
+    return {**store_document(data),'font_report':report}
+
 @app.post('/api/documents/{doc_id}/tagging-candidates')
 async def tagging_candidates(doc_id:str,request:Request):
     from .basic_tagging import candidates
@@ -294,6 +307,22 @@ async def export_region_table(doc_id:str,request:Request):
     else:raise DocumentError('Elige CSV o Word para exportar la tabla revisada.')
     return Response(data,media_type=mime,headers={'Content-Disposition':f'attachment; filename="reapdf-tabla.{ext}"'})
 
+
+@app.post('/api/documents/{doc_id}/detect-scan-corners')
+async def detect_scan_corners(doc_id:str,request:Request):
+    from .scan_corners import inspect
+    p=await read_payload(request)
+    if not OCR_LOCK.acquire(blocking=False):raise DocumentError('Ya hay un reconocimiento en curso. Espera a que termine.')
+    try:return await run_in_threadpool(inspect,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'))
+    finally:OCR_LOCK.release()
+
+@app.post('/api/documents/{doc_id}/detect-orientation')
+async def detect_ocr_orientation(doc_id:str,request:Request):
+    from .ocr_orientation import inspect
+    p=await read_payload(request)
+    if not OCR_LOCK.acquire(blocking=False):raise DocumentError('Ya hay un reconocimiento en curso. Espera a que termine.')
+    try:return await run_in_threadpool(inspect,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('language','spa+eng'))
+    finally:OCR_LOCK.release()
 
 @app.post('/api/documents/{doc_id}/detect-skew')
 async def detect_skew(doc_id:str,request:Request):

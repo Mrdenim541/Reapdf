@@ -79,10 +79,19 @@ def validate(data,fontbox):
     if colored:box=list(fontbox)
     if not all(math.isfinite(v) and abs(v)<=10000 for v in [width,vertical,*box]) or vertical!=0 or width<=0:fail()
     if box[0]>box[2] or box[1]>box[3] or any(box[i]<fontbox[i]-.01 for i in [0,1]) or any(box[i]>fontbox[i]+.01 for i in [2,3]):fail()
-    path=False;paint=False;stack=[];points=[]
+    path=False;paint=False;stack=[];points=[];pending_clip=False
     state={'matrix':f.Matrix(1,1),'fill':False,'stroke':False,'width':None,'cap':None,'join':None,'miter':None}
     arities={'m':2,'l':2,'c':6,'v':4,'y':4,'re':4,'h':0,'f':0,'f*':0,'n':0,'S':0,'s':0,'B':0,'B*':0,'b':0,'b*':0}
     for op,args,_ in ops[1:]:
+        if op=='d':
+            if len(args)!=2 or args[0].kind!='array' or args[1].kind!='number' or len(args[0].value)>16:fail()
+            dash=args[0].value;phase=args[1].value
+            if any(t.kind!='number' or not math.isfinite(t.value) or not 0<=t.value<=1000 for t in dash) or not math.isfinite(phase) or not 0<=phase<=10000 or dash and not any(t.value>0 for t in dash):fail()
+            continue
+        if op in ['W','W*']:
+            if args or not path or pending_clip:fail()
+            pending_clip=True;continue
+        if pending_clip and op not in ['n','f','f*','S','s','B','B*','b','b*']:fail()
         values=[t.value for t in args if t.kind=='number']
         if len(values)!=len(args) or any(not math.isfinite(v) or abs(v)>10000 for v in values):fail()
         if op in ['q','Q']:
@@ -136,6 +145,6 @@ def validate(data,fontbox):
                 if state['join']==0:radius*=state['miter']
                 if state['cap']==2:radius*=math.sqrt(2)
                 if not points or any(p.x-radius<box[0]-.01 or p.x+radius>box[2]+.01 or p.y-radius<box[1]-.01 or p.y+radius>box[3]+.01 for p in points):fail()
-            paint=paint or op!='n';path=False;points=[]
-    if path or stack:fail()
+            paint=paint or op!='n';path=False;points=[];pending_clip=False
+    if path or stack or pending_clip:fail()
     return width,paint
