@@ -4,7 +4,7 @@ import {chromium,expect} from '@playwright/test';
 import {writeFileSync} from 'node:fs';
 import {openTool} from './smoke-tool-navigation.mjs';
 const [endpoint,output]=process.argv.slice(2);
-const browser=await chromium.connectOverCDP(endpoint,{timeout:45000});
+const browser=await chromium.connectOverCDP(endpoint,{timeout:45000,noDefaults:true});
 try{
  const contexts=browser.contexts();if(contexts.length!==1)throw new Error('Expected one embedded Qt context');
  const page=contexts[0].pages().find(p=>p.url().startsWith('http://127.0.0.1:'));if(!page)throw new Error('Embedded application target missing');
@@ -29,5 +29,5 @@ try{
  writeFileSync(output,Buffer.from(encoded,'base64'));
  if(errors.length)throw new Error(errors.join('\n'));
  await page.evaluate(()=>{window.__reapdfCloseState={dirty:false,busy:false};});
- console.log('PASS: compiled Reapdf.exe opens its Qt window, loads PDF, edits text on page, undoes/redoes and exports through the bundled server.');
+ console.log('PASS: attached embedded Qt window loads PDF, edits text on page, undoes/redoes and exports through its server. Executable identity is checked by the Windows verifier.');
 }finally{await browser.close();}

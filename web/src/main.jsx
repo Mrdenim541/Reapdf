@@ -19,41 +19,48 @@ import { contentTools, ContentTargets, ContentForm, LinkLayer } from './content-
 import { ImageTargets, readImage } from './images.jsx';
 import { ToolGuide } from './tool-guide.jsx';
 import { selectMarkupWords, selectMarkupCharacters, transformMark } from './geometry.js';
-import { BookmarkEditor } from './bookmarks.jsx';
-import {FieldProperties} from './field-properties.jsx';
-import {CommentsManager} from './comments.jsx';
-import {DocxExport} from './docx-export.jsx';
-import {BatchProcessor} from './batch-processor.jsx';
-import {LinkEditor} from './link-editor.jsx';
-import {FindReplace} from './find-replace.jsx';
-import {VariableFonts} from './variable-fonts.jsx';
-import {RegionOCR} from './region-ocr.jsx';
-import {TableRegions} from './table-regions.jsx';
-import {StructureEditor,Preflight} from './structure-preflight.jsx';
-import {Interchange,WorkingCopy} from './interchange.jsx';
-import {Measurements} from './measurements.jsx';
-import {DocumentLinks} from './document-links.jsx';
-import {Layers} from './layers.jsx';
 import {InlineTextEditor,visibleTextBox,visibleTextQuad} from './inline-text.jsx';
 import {caretIndex} from './inline-caret.js';
 import {InlineParagraph} from './inline-paragraph.jsx';
-import { ParagraphEditor } from './paragraph-editor.jsx';
-import { ExistingImageEditor } from './existing-images.jsx';
-import { FieldDesigner } from './field-designer.jsx';
-import { ComparisonDialog } from './comparison.jsx';
-import { SignatureDialog } from './signature.jsx';
-import { RedactionDialog } from './redaction.jsx';
-import { ProTools, BatesDialog } from './pro-tools.jsx';
-import { AdvancedTools, PasswordDialog } from './advanced-tools.jsx';
-import { FormEditor } from './forms.jsx';
-import { ImagePdfCreator, PageImageExporter } from './conversions.jsx';
-import { HeaderFooterEditor } from './headers.jsx';
-import { Organizer } from './organizer.jsx';
-import { PageCreation } from './page-creation.jsx';
 import { useRecovery, projectPayload } from './recovery.jsx';
-import { Cropper, Splitter } from './page-tools.jsx';
-import { Inserter } from './inserter.jsx';
 import { DocumentSidebar, TextLayer, SearchHighlights, useDocumentSearch } from './viewer.jsx';
+
+const BookmarkEditor=lazy(()=>import('./bookmarks.jsx').then(m=>({default:m.BookmarkEditor})));
+const FieldProperties=lazy(()=>import('./field-properties.jsx').then(m=>({default:m.FieldProperties})));
+const CommentsManager=lazy(()=>import('./comments.jsx').then(m=>({default:m.CommentsManager})));
+const DocxExport=lazy(()=>import('./docx-export.jsx').then(m=>({default:m.DocxExport})));
+const BatchProcessor=lazy(()=>import('./batch-processor.jsx').then(m=>({default:m.BatchProcessor})));
+const LinkEditor=lazy(()=>import('./link-editor.jsx').then(m=>({default:m.LinkEditor})));
+const FindReplace=lazy(()=>import('./find-replace.jsx').then(m=>({default:m.FindReplace})));
+const VariableFonts=lazy(()=>import('./variable-fonts.jsx').then(m=>({default:m.VariableFonts})));
+const RegionOCR=lazy(()=>import('./region-ocr.jsx').then(m=>({default:m.RegionOCR})));
+const TableRegions=lazy(()=>import('./table-regions.jsx').then(m=>({default:m.TableRegions})));
+const StructureEditor=lazy(()=>import('./structure-preflight.jsx').then(m=>({default:m.StructureEditor})));
+const Preflight=lazy(()=>import('./structure-preflight.jsx').then(m=>({default:m.Preflight})));
+const Interchange=lazy(()=>import('./interchange.jsx').then(m=>({default:m.Interchange})));
+const WorkingCopy=lazy(()=>import('./interchange.jsx').then(m=>({default:m.WorkingCopy})));
+const Measurements=lazy(()=>import('./measurements.jsx').then(m=>({default:m.Measurements})));
+const DocumentLinks=lazy(()=>import('./document-links.jsx').then(m=>({default:m.DocumentLinks})));
+const Layers=lazy(()=>import('./layers.jsx').then(m=>({default:m.Layers})));
+const ParagraphEditor=lazy(()=>import('./paragraph-editor.jsx').then(m=>({default:m.ParagraphEditor})));
+const ExistingImageEditor=lazy(()=>import('./existing-images.jsx').then(m=>({default:m.ExistingImageEditor})));
+const FieldDesigner=lazy(()=>import('./field-designer.jsx').then(m=>({default:m.FieldDesigner})));
+const ComparisonDialog=lazy(()=>import('./comparison.jsx').then(m=>({default:m.ComparisonDialog})));
+const SignatureDialog=lazy(()=>import('./signature.jsx').then(m=>({default:m.SignatureDialog})));
+const RedactionDialog=lazy(()=>import('./redaction.jsx').then(m=>({default:m.RedactionDialog})));
+const ProTools=lazy(()=>import('./pro-tools.jsx').then(m=>({default:m.ProTools})));
+const BatesDialog=lazy(()=>import('./pro-tools.jsx').then(m=>({default:m.BatesDialog})));
+const AdvancedTools=lazy(()=>import('./advanced-tools.jsx').then(m=>({default:m.AdvancedTools})));
+const PasswordDialog=lazy(()=>import('./advanced-tools.jsx').then(m=>({default:m.PasswordDialog})));
+const FormEditor=lazy(()=>import('./forms.jsx').then(m=>({default:m.FormEditor})));
+const ImagePdfCreator=lazy(()=>import('./conversions.jsx').then(m=>({default:m.ImagePdfCreator})));
+const PageImageExporter=lazy(()=>import('./conversions.jsx').then(m=>({default:m.PageImageExporter})));
+const HeaderFooterEditor=lazy(()=>import('./headers.jsx').then(m=>({default:m.HeaderFooterEditor})));
+const Organizer=lazy(()=>import('./organizer.jsx').then(m=>({default:m.Organizer})));
+const PageCreation=lazy(()=>import('./page-creation.jsx').then(m=>({default:m.PageCreation})));
+const Cropper=lazy(()=>import('./page-tools.jsx').then(m=>({default:m.Cropper})));
+const Splitter=lazy(()=>import('./page-tools.jsx').then(m=>({default:m.Splitter})));
+const Inserter=lazy(()=>import('./inserter.jsx').then(m=>({default:m.Inserter})));
 
 const StandardsDialog=lazy(()=>import('./standards.jsx').then(m=>({default:m.StandardsDialog})));
 const AccessibilityDialog=lazy(()=>import('./standards.jsx').then(m=>({default:m.AccessibilityDialog})));
@@ -719,6 +726,7 @@ function App() {
         <div className="session-note"><b>Conserva tu trabajo</b><br/>Aplica tus cambios. Guarda un proyecto para retomarlos o exporta una copia PDF. La recuperación automática conserva el último estado aplicado, sin borradores.</div>
       </aside>
     </div></>}
+    <Suspense fallback={loadingTool}>
     {doc&&organizerOpen&&<Organizer doc={doc} currentPage={page} operations={operations} busy={busy} error={error} onClose={()=>setOrganizerOpen(false)} onApply={organizePages} onExtract={extractPages}/>}
     {doc&&inserterOpen&&<Inserter mode={inserterOpen==='replace'?'replace':'insert'} currentPage={page} doc={doc} busy={busy} error={error} onClearError={()=>setError('')} onClose={()=>setInserterOpen(false)} onApply={insertPages}/>}
     {doc&&['labels','attachments','tables'].includes(pageTool)&&<ProTools kind={pageTool} doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/>}
@@ -768,7 +776,8 @@ function App() {
     {commandsOpen&&<CommandPalette reason={toolReason} onRun={runCatalogTool} onClose={()=>setCommandsOpen(false)}/>}
     {helpOpen&&<WorkspaceHelp onClose={()=>setHelpOpen(false)}/>}
     {doc&&pageTool==='review'&&<DocumentReview doc={doc} operations={operations} onSignatures={()=>runCatalogTool(catalogTools.find(t=>t.id==='verify_signatures'))} onClose={()=>setPageTool(null)} onPage={next=>{setPageTool(null);setPage(next);paperScroll.current?.scrollTo(0,0);}}/>}
-    <footer><span>REAPDF / DESARROLLO 0.41</span><span>{doc?'Original conservado · Exportación en PDF':'Un editor en construcción, una función comprobada a la vez.'}</span></footer>
+    </Suspense>
+    <footer><span>{window.reapdfDesktop?'REAPDF / ESCRITORIO':'REAPDF'}</span><span>{doc?'Original conservado · Exportación en PDF':'Tu espacio para trabajar con PDF.'}</span></footer>
   </div>;
 }
 createRoot(document.getElementById('root')).render(<App/>);

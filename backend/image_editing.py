@@ -4,7 +4,7 @@ import pymupdf as fitz
 from .engine import open_pdf,export_pdf,DocumentError,finite
 from .document_tools import editable
 from .images import prepare_image
-from .pdf_content import placements,set_content
+from .pdf_content import placements,set_content,names
 from .form_text import SAFE,array,write
 
 
@@ -35,7 +35,8 @@ def _invocations(doc,page):
         budget['bytes']+=len(data);budget['nodes']+=1
         if budget['bytes']>32*1024*1024 or budget['nodes']>200 or len(path)>8:raise DocumentError('La página supera los límites de edición de imágenes.')
         resource_owner=_resources(doc,owner)
-        if doc.xref_get_key(resource_owner,'Resources/Properties')[0]!='null':return
+        if doc.xref_get_key(resource_owner,'Resources/Properties')[0]!='null' or 'OC' in names(data):return
+        content_digest=hashlib.sha256(data).digest()
         for inv in placements(data)['images']:
             name=inv['resource']
             if not SAFE.fullmatch(name):continue
@@ -44,7 +45,7 @@ def _invocations(doc,page):
             target=int(value.split()[0]);subtype=doc.xref_get_key(target,'Subtype')
             combined=inv['matrix']*parent
             if subtype==('name','/Image'):
-                stamp=repr(([(s['start'],s['end']) for s in path],inv['start'],inv['end'],target)).encode()+data
+                stamp=repr(([(s['start'],s['end']) for s in path],inv['start'],inv['end'],target)).encode()+content_digest
                 result.append({'xref':target,'_native':[inv['start'],inv['end'],'image'],'_native_path':path,'_matrix':combined,'_clips':clips,'occurrence':hashlib.sha256(stamp).hexdigest(),'_value':data[inv['start']:inv['end']]})
                 if len(result)>2000:raise DocumentError('Hasta 2000 apariciones de imágenes por página.')
             elif subtype==('name','/Form'):
@@ -124,7 +125,7 @@ def edit_image(base,operations,number,xref,action,box=None,data=None,occurrence=
         if not selected:raise DocumentError('Imagen o aparición inexistente.')
         original=selected[0]
         if not original['editable']:raise DocumentError(original['reason'])
-    with open_pdf(export_pdf(base,operations)) as doc:
+    with open_pdf(export_pdf(base,operations,preserve_streams=True)) as doc:
         rows=image_model(doc,number,private=True)['images']
         candidates=[r for r in rows if r['digest']==original['digest'] and _same_box(r['rect'],original['rect'])]
         if len(candidates)>1 and not operations:
@@ -153,7 +154,7 @@ def edit_image(base,operations,number,xref,action,box=None,data=None,occurrence=
             while doc.xref_get_key(resource_owner,'Resources/XObject/'+alias)[0]!='null':alias+='x'
             item['_native_xobjects']={alias:replacement_xref};value=('/'+alias+' Do').encode()
         write(doc,page,[(item,value)])
-        result=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        result=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=False)
     # Reopen the serialized result: PyMuPDF caches display lists and image info
     # on loaded pages, so inspecting the old page could validate stale data.
     with open_pdf(result) as verified:

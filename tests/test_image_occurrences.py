@@ -94,3 +94,25 @@ def test_outside_form_clip_and_stale_occurrence_refuse_without_changing_source()
     with pytest.raises(DocumentError,match='recorte'):edit_image(base,[],0,row['xref'],'move',[400,30,60,40],occurrence=row['occurrence'])
     with pytest.raises(DocumentError,match='inexistente'):edit_image(base,[],0,row['xref'],'delete',occurrence='0'*64)
     with f.open(stream=base) as d:assert len(d[0].get_image_info())==2
+
+
+@pytest.mark.parametrize('action',['move','replace','delete'])
+def test_shared_image_on_another_page_keeps_original_bytes_and_pixels(action):
+    with f.open(stream=fixture()) as d:
+        p=d[0];image=p.get_images()[0][0];p=d[1];p.insert_image(f.Rect(40,60,120,120),xref=image)
+        base=d.tobytes()
+    with f.open(stream=base) as d:
+        other_page=d[1].get_pixmap().samples;row=image_model(d,0)['images'][0]
+    out=edit_image(base,[],0,row['xref'],action,[42,62,60,40],base64.b64encode(picture(10)).decode(),row['occurrence'])
+    with f.open(stream=base) as a,f.open(stream=out) as b:
+        assert b[1].get_pixmap().samples==other_page
+        ax=a[1].get_images()[0][0];bx=b[1].get_images()[0][0]
+        assert a.xref_stream_raw(ax)==b.xref_stream_raw(bx)
+        am=a[1].get_images()[0][1];bm=b[1].get_images()[0][1]
+        assert a.xref_stream_raw(am)==b.xref_stream_raw(bm)
+
+
+def test_optional_content_marking_without_properties_is_readonly():
+    with f.open(stream=fixture()) as d:
+        p=d[0];stream=d.get_new_xref();d.update_object(stream,'<<>>');d.update_stream(stream,b'/OC << /Type /OCG /Name (Layer) >> BDC '+p.read_contents()+b' EMC');p.set_contents(stream)
+        assert all(not r['editable'] for r in image_model(d,0)['images'])

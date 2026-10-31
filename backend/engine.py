@@ -73,7 +73,7 @@ def metadata(doc):
 def finite(value):
     return isinstance(value, (float, int)) and not isinstance(value, bool) and math.isfinite(value)
 
-def export_pdf(data, operations):
+def export_pdf(data, operations, *, preserve_streams=False):
     if not isinstance(operations, list) or len(operations) > MAX_OPERATIONS:
         raise DocumentError("Demasiadas operaciones o formato no válido.")
     if any(isinstance(op,dict) and op.get('type')=='form_rules' for op in operations):
@@ -259,4 +259,4 @@ def export_pdf(data, operations):
                 annot.set_rect(rect)
             annot.set_info(title="Reapdf", content={"ink": "Trazo libre", "line": "Línea", "arrow": "Flecha", "rectangle": "Rectángulo"}[kind])
             annot.update()
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4, deflate=True)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4, deflate=not preserve_streams)
