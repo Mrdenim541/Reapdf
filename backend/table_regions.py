@@ -59,7 +59,7 @@ def assign(words,columns,rows):
     return [[text(cell) for cell in row] for row in cells],crossing
 
 
-def extract(base,ops,number,box,grid=None,mode='auto',language='spa+eng',dpi=200,orientation=0,detect_merges=False):
+def extract(base,ops,number,box,grid=None,mode='auto',language='spa+eng',dpi=200,orientation=0,detect_merges=False,correction=None):
     if type(detect_merges) is not bool:raise DocumentError('La detección de combinaciones debe ser verdadera o falsa.')
     if mode not in ['auto','digital','ocr'] or language not in ['eng','spa','spa+eng'] or type(dpi) is not int or dpi not in [150,200,300] or type(orientation) is not int or orientation not in [0,90,180,270]:raise DocumentError('Configuración de extracción no válida.')
     with open_pdf(base) as source:
@@ -71,6 +71,8 @@ def extract(base,ops,number,box,grid=None,mode='auto',language='spa+eng',dpi=200
         native=visible*page.derotation_matrix;rotation=page.rotation;rotation_matrix=f.Matrix(page.rotation_matrix);words=[];warnings=[]
         use_ocr=mode=='ocr' or mode=='auto' and any((f.Rect(i['bbox'])&native).get_area()>.1 for i in page.get_image_info())
         if any((widget.rect&native).get_area()>.1 for widget in page.widgets() or []):raise DocumentError('La región cruza campos de formulario. Exporta sus datos o usa una copia aplanada antes de extraerla.')
+        if correction is not None:
+            return perspective(page,number,visible,correction,grid,language,dpi,orientation,detect_merges)
         scale=dpi/72
         if math.ceil(w*scale)*math.ceil(h*scale)>16_000_000 or max(w,h)*scale>8192:raise DocumentError('La región supera 16 millones de píxeles; reduce área o resolución.')
         preview=page.get_pixmap(matrix=f.Matrix(scale,scale),clip=visible,colorspace=f.csGRAY,alpha=False,annots=False)
@@ -121,6 +123,38 @@ def extract(base,ops,number,box,grid=None,mode='auto',language='spa+eng',dpi=200
             if spans:warnings.append(f'{len(spans)} combinaciones sugeridas por bordes. Revisa geometría y texto antes de exportar.')
         if crossing:warnings.append(f'{crossing} palabras cruzan separadores; revisa o mueve la cuadrícula.')
         return {'page':number,'box':box,'columns':columns,'rows':rows,'cells':cells,'words':words,'method':'ocr' if use_ocr else 'digital','detected_grid':detected,'grid_source':grid_source,'warnings':warnings,'review_required':True,'source_modified':False,'spans':spans}
+
+
+def perspective(page,number,visible,correction,grid,language,dpi,orientation,detect_merges):
+    """Review a rectified image in its own frame; never rewrite the source PDF."""
+    import base64
+    from .scan_geometry import corners,rectify,homography,project
+    if grid is not None:raise DocumentError('Primero corrige la perspectiva; ajusta la cuadrícula en la imagen corregida después de extraer.')
+    if orientation:raise DocumentError('Para perspectiva, coloca las esquinas en orden de lectura y usa orientación 0°.')
+    points=corners(visible,correction,page.rect)
+    if any(not visible.contains(p) for p in points):raise DocumentError('Las esquinas de tabla deben quedar dentro del área seleccionada.')
+    lengths=[abs(points[(i+1)%4]-points[i]) for i in range(4)];scale=dpi/72
+    width=math.ceil(max(lengths[0],lengths[2])*scale);height=math.ceil(max(lengths[1],lengths[3])*scale)
+    clip=f.Quad(points[0],points[1],points[3],points[2]).rect
+    if min(width,height)<16 or max(width,height)>8192 or width*height>16_000_000 or math.ceil(clip.width*scale)*math.ceil(clip.height*scale)>16_000_000:raise DocumentError('La corrección supera el presupuesto de 16 millones de píxeles.')
+    pix=page.get_pixmap(matrix=f.Matrix(scale,scale),clip=clip,colorspace=f.csRGB,alpha=False,annots=False)
+    quad=[p*scale-f.Point(pix.x,pix.y) for p in points];pix.set_origin(0,0)
+    corrected=rectify(pix,quad,width,height,dpi)
+    with f.open() as temporary:
+        target=temporary.new_page(width=width/scale,height=height/scale)
+        target.insert_image(target.rect,pixmap=corrected)
+        frame=[0,0,target.rect.width,target.rect.height]
+        result=extract(temporary.tobytes(),[],0,frame,mode='ocr',language=language,dpi=dpi,detect_merges=detect_merges)
+    # Keep a bounded preview, even when the recognition resolution is higher.
+    preview=f.Pixmap(corrected,0)
+    while max(preview.width,preview.height)>1600:preview.shrink(1)
+    h=homography(points)
+    for word in result['words']:
+        x0,y0,x1,y1=word['bbox']
+        word['source_quad']=[list(project(h,x/frame[2],y/frame[3])) for x,y in [(x0,y0),(x1,y0),(x1,y1),(x0,y1)]]
+    result.update(page=number,source_box=list(visible),source_quad=[list(p) for p in points],coordinate_space='rectified',preview='data:image/png;base64,'+base64.b64encode(preview.tobytes('png')).decode())
+    result['warnings'].insert(0,'Perspectiva corregida solo para extraer. Revisa la imagen rectificada y cada celda; el PDF original se conserva.')
+    return result
 
 
 def csv_bytes(cells,spans=None):

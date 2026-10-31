@@ -36,7 +36,9 @@ def reader_for(data):
     except Exception:raise DocumentError('No se pudo interpretar de forma estricta la estructura de firmas del PDF.') from None
 
 
-def verify_signatures(base,operations,trust=b''):
+def verify_signatures(base,operations,trust=b'',evidence=()):
+    from .local_revocation import parse,check
+    crls,ocsps=parse(evidence)
     data=export_pdf(base,operations)
     with open_pdf(data) as doc:indicators=doc.get_sigflags()>0
     reader,embedded=reader_for(data);roots=trust_certificates(trust);rows=[]
@@ -48,6 +50,7 @@ def verify_signatures(base,operations,trust=b''):
                 key_usage_settings=KeyUsageConstraints(key_usage={'digital_signature','non_repudiation'},match_all_key_usages=False,extd_key_usage=None))
             from .timestamp_report import report as timestamp_report
             timestamp=timestamp_report(result.timestamp_validity,now,signature)
+            revocation=check(signature,roots,crls,ocsps,now)
             cert=certificate_info(x509.load_der_x509_certificate(signature.signer_cert.dump()))
             coverage=result.coverage.name;modification=result.modification_level.name if result.modification_level is not None else None
             complete=coverage=='ENTIRE_FILE'
@@ -57,18 +60,21 @@ def verify_signatures(base,operations,trust=b''):
                 'coverage':coverage,'covers_current_file':complete,'modification_level':modification,'allowed_changes':allowed,
                 'docmdp_ok':result.docmdp_ok,'digest_algorithm':result.md_algorithm,'signature_algorithm':result.pkcs7_signature_mechanism,
                 'reported_signing_time':signature.self_reported_timestamp.isoformat() if signature.self_reported_timestamp else None,
-                'timestamp_present':timestamp is not None,'timestamp':timestamp,'error':None}
+                'revocation':revocation,'timestamp_present':timestamp is not None,'timestamp':timestamp,'error':None}
             if not row['intact'] or not row['cryptographically_valid']:row['status']='integrity_failed'
             elif not allowed or coverage not in ['ENTIRE_FILE','ENTIRE_REVISION']:row['status']='changes_require_review'
             elif not row['chain_accepted']:row['status']='integrity_only'
             else:row['status']='chain_accepted_offline'
+            if revocation['status']=='accepted_offline' and row['status']=='chain_accepted_offline':row['status']='chain_accepted_with_local_revocation'
+            if revocation['status']=='revoked':row['status']='certificate_revoked'
+            elif evidence and revocation['status']!='accepted_offline' and row['status']=='chain_accepted_offline':row['status']='revocation_unknown'
         except Exception:
             row={'field':signature.field_name,'status':'inconclusive','error':'No se pudo completar la validación de esta firma. No se considera válida.'}
         rows.append(row)
     return {'schema':'reapdf-signatures-1','source_sha256':hashlib.sha256(data).hexdigest(),'source_bytes':len(data),'checked_at':now.isoformat(),
-        'network_used':False,'revocation_checked':False,'trusted_certificates':[certificate_info(x509.load_der_x509_certificate(c.dump())) for c in roots],
+        'network_used':False,'revocation_checked':bool(rows) and all(r.get('revocation',{}).get('checked',False) for r in rows),'revocation_scope':'Cadenas de firmantes; no TSA ni validación histórica.','evidence':{'crls':len(crls),'ocsps':len(ocsps)},'trusted_certificates':[certificate_info(x509.load_der_x509_certificate(c.dump())) for c in roots],
         'signature_indicators':indicators,'signatures':rows,'count':len(rows),
-        'scope':'Verificación criptográfica y de revisiones con confianza explícita local. Los tokens de tiempo de firma se revisan separadamente, con confianza explícita local. Sin consulta de revocación, validación jurídica ni validación PAdES-LT/LTA; no valida sellos documentales de archivo. La fecha del firmante no prueba el momento de firma.'}
+        'scope':'Verificación criptográfica y de revisiones con confianza explícita local. Los tokens de tiempo de firma se revisan separadamente, con confianza explícita local. Sin consultas de red; revocación solo con evidencias locales explícitas y resultado separado por firmante, sin revocación TSA. Sin validación jurídica ni validación PAdES-LT/LTA; no valida sellos documentales de archivo. La fecha del firmante no prueba el momento de firma.'}
 
 
 def signing_plan(base,operations,config):

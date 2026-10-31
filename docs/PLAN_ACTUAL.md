@@ -1,6 +1,6 @@
 # Plan vigente
 
-Referencia: **83,20 % del programa completo (≈83 %)**, con alcance y diecisiete pesos estables. [Último avance](MASCARAS_NOTAS_GRUPOS_Y_TIEMPO_20261030.md), [matriz](avance-global.json) y [prueba personal prevista](PRUEBA_PERSONAL_ESCRITORIO.md).
+Referencia: **83,69 % del programa completo (≈84 %)**, con alcance y diecisiete pesos estables. [Último avance](REFLUJO_PERSPECTIVA_REVOCACION_20261031.md), [matriz](avance-global.json) y [prueba personal prevista](PRUEBA_PERSONAL_ESCRITORIO.md).
 
 Entregables anteriores ya incorporados: edición de espaciados TJ/Tc/Tw compatibles; inserción de texto con clic, altura automática y Unicode; reflujo uniforme de párrafos con fuente original sobre la página; actualización de documentos vinculados con revisión y deshacer; comparación lado a lado; cierre del hijo Qt tras muerte del padre; ocho pruebas Qt agrupadas y workflow Windows/Linux. No repetir estos entregables como futuros.
 
@@ -36,18 +36,20 @@ Nuevo avance incorporado: modos de mezcla estándar por nombre y grupos RGB/Gray
 
 Nuevo avance incorporado: máscaras vectoriales acotadas Alpha/Luminosity con estados de opacidad normales, fuentes/recursos originales y apariciones compartidas conservadas; notas al pie con números según página real, formatos/inicios, continuidad entre secciones, marcas y enlaces; grupos de revisión IRT/RT=Group en XFDF con orden/anidamiento/idempotencia; comprobación local independiente del token RFC3161 de firma, su TSA/cadena y política con confianza explícita, sin revocación/red. Ver límites del informe. No repetir estos casos compatibles como pendientes.
 
+Nuevo avance incorporado: reflujo de un grupo original afín desde la selección directa, con líneas posteriormente editables, composición y apariciones compartidas conservadas; tablas en perspectiva con cuatro esquinas, OCR y revisión sobre imagen rectificada; verificación de CRL/OCSP locales con confianza explícita, vigencia y conflicto de evidencias, separada de la TSA. Los casos compatibles y los límites se detallan en el último informe. No repetir estos subconjuntos como futuros.
+
 **Los cuatro bloques amplios no están cerrados al 100 %.** Se mantiene la numeración de ocho bloques comunicada al usuario; no se ocultan sus pendientes trasladándolos a 5–8.
 
-1. **Edición avanzada.** Instancias/ejes no predeterminados o con diferencias de renderizado; CFF2 crudo, Type3 con imágenes/recursos y FontMatrix no estándar; reflujo afín/cambio de fuente, máscaras con imágenes/texto/shadings/funciones, knockout y grupos complejos. Verificar corpus real.
+1. **Edición avanzada.** Instancias/ejes no predeterminados o con diferencias de renderizado; CFF2 crudo, Type3 con imágenes/recursos y FontMatrix no estándar; reflujo de varios grupos originales afines/cambio de fuente, máscaras con imágenes/texto/shadings/funciones, knockout y grupos complejos. Verificar corpus real.
 2. **Accesibilidad y estructura.** Semántica interna general/mixta de Forms, imágenes inline/recortes, enlaces ambiguos, Lbl separados, celdas vacías sin objeto/contenido mixto, reparación general y PDF/UA. Lector de pantalla/aceptación externos pendientes.
 3. **Formularios, anotaciones e intercambio.** XFA, JavaScript general, fórmulas/acciones adicionales, fuentes/estilos y tipos XFDF restantes, grafos mixtos con reglas de proyecto. Aceptación Acrobat/Nitro pendiente.
-4. **OCR y Office.** Esquinas generales/bajo contraste, tablas en perspectiva/irregulares/multilínea, otros idiomas y fidelidad Office general, notas Word partidas/reinicio por página de notas finales y marcas entre fragmentos. Ampliar corpus técnico.
-5. **Firmas, seguridad y estándares.** Solicitud TSA/revocación/LT/LTA/tokens, sellos documentales de archivo y censura compleja, PDF/X/preflight avanzado y aceptación de imprenta.
+4. **OCR y Office.** Esquinas generales/bajo contraste, tablas irregulares/curvas y multilínea generales; perspectiva convexa mediante OCR ya incorporada, otros idiomas y fidelidad Office general, notas Word partidas/reinicio por página de notas finales y marcas entre fragmentos. Ampliar corpus técnico.
+5. **Firmas, seguridad y estándares.** Solicitud TSA, revocación por red/histórica y de TSA, LT/LTA/tokens, sellos documentales de archivo y censura compleja, PDF/X/preflight avanzado y aceptación de imprenta.
 6. **Planos, vinculación, portfolios y capas.** Ángulos/curvas/intersecciones y migración de medidas, revisiones con identificadores cambiados y lotes mayores, carpetas/esquemas de portfolio y configuraciones/contenido OCG avanzados; aceptación técnica.
 7. **Windows y estabilidad.** Migrar recorrido gráfico histórico extendido, ejecutar paquete en Windows limpio, corregir DPI/asociaciones/impresión/recuperación, carga sostenida/memoria y aceptación personal. Qt Linux no sustituye estas pruebas.
 8. **Servicios e IA.** Sin implementar: compartir/sincronizar/revisión y firmas remotas, asistencia del producto; definir proveedores/costes/licencias.
 
-Siguiente avance recomendado: reflujo afín con fuente original, tablas en perspectiva con revisión y revocación mediante evidencias locales verificadas. Mantener los demás pendientes de 1–4 sin repetir los subconjuntos ya aprobados. El objetivo de cerrar cuatro áreas comerciales completas no se considera cumplido por esta pasada. El alcance y las licencias de distribución requieren cierre antes del 100 %.
+Siguiente avance recomendado: reflujo conjunto de varios grupos originales afines, etiquetas Lbl separadas y celdas vacías revisadas, y medición angular. Reservar ejecución Windows real antes del candidato; los tres subconjuntos del avance anterior quedan incorporados con los límites publicados. Mantener los demás pendientes de 1–4 sin repetir los subconjuntos ya aprobados. El objetivo de cerrar cuatro áreas comerciales completas no se considera cumplido por esta pasada. El alcance y las licencias de distribución requieren cierre antes del 100 %.
 
 Sin nuevos portables hasta una entrega candidata cercana al 90 % y verificada. Generación de informes/registros/ensayos excluida. Vinculación con nombres/roles generales. Base 0.43 recuperada y mejoras nuevas respaldadas en `recovery/editing-20261029`; 0.55 sigue histórico no recuperado. Informar pruebas reales, límites, avance total y siguiente modelo. Continuar con **6.1 Sol medio**.
 

@@ -1,14 +1,14 @@
 {
   "schema": 1,
-  "review_date": "2026-10-30",
-  "status": "provisional_masks_page_notes_groups_offline_time",
+  "review_date": "2026-10-31",
+  "status": "provisional_affine_perspective_local_revocation",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 83.2,
-  "reported_percent": 83,
+  "weighted_percent": 83.69,
+  "reported_percent": 84,
   "subjective_range_percent": [
     61,
-    84
+    85
   ],
   "anchors": {
     "0": "Sin implementación",
@@ -71,7 +71,7 @@
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 98.75,
+      "maturity": 98.9,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -125,9 +125,11 @@
         "tests/test_composition_cells_styles_notes.py",
         "docs/MASCARAS_NOTAS_GRUPOS_Y_TIEMPO_20261030.md",
         "tests/test_soft_masks_page_notes_groups.py",
-        "tests/test_offline_timestamp_report.py"
+        "tests/test_offline_timestamp_report.py",
+        "docs/REFLUJO_PERSPECTIVA_REVOCACION_20261031.md",
+        "tests/test_affine_perspective_revocation.py"
       ],
-      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con imágenes/recursos/FontMatrix no estándar, reflujo afín y cambio de fuente; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas."
+      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con imágenes/recursos/FontMatrix no estándar, reflujo afín de varios grupos originales y cambio de fuente; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas."
     },
     {
       "id": "annotations",
@@ -176,7 +178,7 @@
     {
       "id": "ocr_conversion",
       "weight": 9,
-      "maturity": 96,
+      "maturity": 96.5,
       "evidence": [
         "backend/ocr.py",
         "backend/docx_import.py",
@@ -203,14 +205,16 @@
         "tests/test_composition_cells_styles_notes.py",
         "docs/MASCARAS_NOTAS_GRUPOS_Y_TIEMPO_20261030.md",
         "tests/test_soft_masks_page_notes_groups.py",
-        "tests/test_offline_timestamp_report.py"
+        "tests/test_offline_timestamp_report.py",
+        "docs/REFLUJO_PERSPECTIVA_REVOCACION_20261031.md",
+        "tests/test_affine_perspective_revocation.py"
       ],
-      "remaining": "Esquinas generales/bajo contraste, tablas en perspectiva/irregulares/multilínea, otros idiomas y fidelidad Office general; notas partidas/reinicio por página de notas finales y marcas entre fragmentos. Reinicio por página de notas al pie compatibles ya incorporado con convergencia y enlaces."
+      "remaining": "Esquinas generales/bajo contraste, tablas en perspectiva/irregulares/multilínea, otros idiomas y fidelidad Office general; notas partidas/reinicio por página de notas finales y marcas entre fragmentos. Reinicio por página de notas al pie compatibles ya incorporado con convergencia y enlaces. Perspectiva convexa con OCR/revisión ya incorporada; siguen tablas irregulares/curvas/multilínea generales."
     },
     {
       "id": "security_signatures",
       "weight": 7,
-      "maturity": 65,
+      "maturity": 71,
       "evidence": [
         "backend/digital_signatures.py",
         "backend/redaction.py",
@@ -219,9 +223,11 @@
         "tests/test_xfdf_working_copy.py",
         "docs/MASCARAS_NOTAS_GRUPOS_Y_TIEMPO_20261030.md",
         "tests/test_soft_masks_page_notes_groups.py",
-        "tests/test_offline_timestamp_report.py"
+        "tests/test_offline_timestamp_report.py",
+        "docs/REFLUJO_PERSPECTIVA_REVOCACION_20261031.md",
+        "tests/test_affine_perspective_revocation.py"
       ],
-      "remaining": "Revocación, solicitud de sellos a TSA, LT/LTA/sellos documentales de archivo/tokens físicos, censura compleja y aceptación independiente. Verificación local de timestamps de firma incorporada, sin revocación ni acreditación jurídica."
+      "remaining": "Revocación, solicitud de sellos a TSA, LT/LTA/sellos documentales de archivo/tokens físicos, censura compleja y aceptación independiente. Verificación local de timestamps de firma incorporada, sin revocación ni acreditación jurídica. CRL/OCSP locales acotados incorporados; pendientes revocación TSA, validación histórica/red y LT/LTA."
     },
     {
       "id": "standards_optimization",
@@ -402,48 +408,34 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261030-before-masks-page-notes-groups-time.json",
-    "before_weighted": 82.66,
-    "before_unrounded": "82.655",
-    "after_weighted": 83.2,
-    "new_points": 0.54,
-    "unrounded_delta": "0.545",
-    "unrounded_after_weighted": "83.20",
+    "baseline": "docs/progress/20261031-before-affine-perspective-revocation.json",
+    "before_weighted": 83.2,
+    "before_unrounded": "83.2",
+    "after_weighted": 83.69,
+    "new_points": 0.49,
+    "unrounded_delta": "0.489",
+    "unrounded_after_weighted": "83.689",
     "changes": [
       {
         "id": "text_images",
-        "before": 98.5,
-        "after": 98.75,
-        "points": 0.04,
-        "reason": "Edición original de texto con máscaras vectoriales Alpha/Luminosity acotadas, opacidad interna y Forms anidados, conservando streams y apariciones compartidas."
-      },
-      {
-        "id": "annotations",
-        "before": 92,
-        "after": 93,
-        "points": 0.07,
-        "reason": "Intercambio de grupos nativos IRT/RT=Group con padres ordenados, anidamiento/idempotencia y ciclos/estados ambiguos rechazados."
+        "before": 98.75,
+        "after": 98.9,
+        "points": 0.024,
+        "reason": "Reflujo de un grupo afín con fuente original, posiciones absolutas y reedición, con aislamiento de Forms y colisiones verificadas."
       },
       {
         "id": "ocr_conversion",
-        "before": 95.5,
-        "after": 96,
+        "before": 96,
+        "after": 96.5,
         "points": 0.045,
-        "reason": "Numeración de notas al pie según página real, referencias/etiquetas coherentes, formatos/inicios y transición de secciones sin consumir números para marcas personalizadas."
+        "reason": "Tablas en perspectiva con esquinas arrastrables, OCR real en imagen rectificada, revisión y proyección al original."
       },
       {
         "id": "security_signatures",
-        "before": 60,
-        "after": 65,
-        "points": 0.35,
-        "reason": "Revisión independiente de token RFC3161 de firma, imprint/firma/cadena TSA y propósito/reloj, con confianza local explícita y pruebas de manipulación sin red."
-      },
-      {
-        "id": "migration_interoperability",
-        "before": 76,
-        "after": 77,
-        "points": 0.04,
-        "reason": "Roundtrip/reapertura de grupos XFDF nativos con lector estructural independiente, notas por página con enlaces y máscaras/apariciones conservadas."
+        "before": 65,
+        "after": 71,
+        "points": 0.42,
+        "reason": "CRL/OCSP locales con cadena y vigencia exigidas, estados explícitos y rechazo de revocación oculta por evidencia favorable de otra clase."
       }
     ],
     "all_weights_and_scope_unchanged": true

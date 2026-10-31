@@ -359,6 +359,10 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
     model={r['id']:r for r in rows};seen=set();prepared=[];total=0
     from .type3_text import merge_lines
     neighbor_blocks=merge_lines(doc,doc[number],doc[number].get_text('dict',flags=fitz.TEXTFLAGS_TEXT)['blocks'])
+    from .affine_text import pointer_targets
+    neighbor_spans=[(f'{bi}:{li}:{si}',span,line['dir']) for bi,block in enumerate(neighbor_blocks) for li,line in enumerate(block.get('lines',[])) for si,span in enumerate(line['spans'])]
+    neighbor_cells=pointer_targets(doc[number],neighbor_spans)
+    neighbor_quads={id(span):neighbor_cells[key]['quad'] for key,span,_ in neighbor_spans if key in neighbor_cells}
     for change in changes:
         if not isinstance(change,dict) or set(change)!={'id','text'} or not isinstance(change.get('id'),str) or change['id'] not in model or change['id'] in seen:raise DocumentError('Fragmento inexistente, repetido o con propiedades no compatibles.')
         seen.add(change['id']);row=model[change['id']];text=change['text']
@@ -382,7 +386,7 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
                 for line in block.get('lines',[]):
                     for span in line['spans']:
                         if span['origin']==tuple(row['origin']) and span['font']==row['font'] and span['text']==row['text']:continue
-                        neighbor=rectangle(fitz.Rect(span['bbox']))
+                        neighbor=neighbor_quads.get(id(span),rectangle(fitz.Rect(span['bbox'])))
                         if overlap(neighbor,target)>.1 or overlap(neighbor,original)>.1:raise DocumentError('El texto se cruza con otro fragmento.')
         else:
             available=rect.x1-row['origin'][0] if expand else fitz.Rect(row['bbox']).width

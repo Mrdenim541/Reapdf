@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-31",
+  "baseline_commit": "c65a2731d6c3ab8cb393e2d73f777ca7610237ea",
+  "source_fingerprints": "source-sha256.json",
+  "build_fingerprints": "build-sha256.json",
+  "estimated_total_before": 83.2,
+  "estimated_total_after": 83.69,
+  "all_weights_and_scope_unchanged": true,
+  "scope": "One original affine text group to independently editable lines; convex perspective table OCR and review; explicit offline CRL/OCSP signer-chain verification. No package. Broad blocks 1-4 remain open.",
+  "checks": {
+    "python_full": {
+      "passed": 3543,
+      "warnings": 3,
+      "seconds": 314.92,
+      "command": ".venv/bin/python -m pytest -q",
+      "stage": "Before final extra nonmonotonic-character-advance guard/test and final frontend layout polish. All other backend implementations included."
+    },
+    "python_directed": {
+      "passed": 472,
+      "warnings": 1,
+      "seconds": 47.22,
+      "overlaps_full": true,
+      "stage": "Final backend source, including nonmonotonic-character-advance guard/test.",
+      "command": ".venv/bin/python -m pytest -q tests/test_affine_perspective_revocation.py tests/test_affine_text_editing.py tests/test_scaled_groups.py tests/test_native_content.py tests/test_text_states_compositing.py tests/test_soft_masks_page_notes_groups.py tests/test_digital_signatures.py tests/test_offline_timestamp_report.py tests/test_table_regions.py"
+    },
+    "javascript": {
+      "passed": 128,
+      "command": "node --test tests/*.mjs"
+    },
+    "build": {
+      "passed": true,
+      "command": "npm run build",
+      "warning": "Main JS chunk exceeds 500 KB."
+    },
+    "chromium_new": {
+      "passed": true,
+      "command": "node scripts/smoke_affine_perspective_revocation.mjs",
+      "stage": "Final source/build."
+    },
+    "chromium_everyday": {
+      "passed": true,
+      "command": "node scripts/smoke_core_workflows.mjs",
+      "stage": "Final source/build. Extended historical smoke remains pending."
+    },
+    "qt_linux": {
+      "passed": true,
+      "command": "PYTHONPATH=. QT_QPA_PLATFORM=offscreen QTWEBENGINE_CHROMIUM_FLAGS='--no-sandbox --disable-dev-shm-usage' .venv/bin/python -u scripts/smoke_affine_perspective_revocation_qt.py",
+      "stage": "Final source/build; native window and atomic PDF save, real Qt pointer corner controls, local trust/CRL."
+    }
+  },
+  "not_verified": [
+    "Windows executable, DPI and physical printing",
+    "Personal PDF and user acceptance in Windows",
+    "General commercial parity, irregular/curved tables, tagged or multiple-source affine paragraph reflow",
+    "TSA revocation, historical/network revocation, PAdES-LT/LTA",
+    "Other external interoperability/licensing completion gates"
+  ]
+}

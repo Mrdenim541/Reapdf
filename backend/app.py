@@ -199,6 +199,16 @@ async def reflow_original(doc_id:str,request:Request):
     data,report=result
     return {**store_document(data),'reflow_report':report}
 
+@app.post('/api/documents/{doc_id}/reflow-affine')
+async def reflow_affine(doc_id:str,request:Request):
+    from .affine_reflow import reflow
+    p=await read_payload(request)
+    result=await run_in_threadpool(reflow,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('id'),p.get('text'),p.get('width'),p.get('height'),p.get('preview') is True)
+    if p.get('preview') is True:return result
+    data,report=result
+    return {**store_document(data),'reflow_report':report}
+
+
 @app.post('/api/documents/{doc_id}/insert-text-auto')
 async def insert_quick_text(doc_id:str,request:Request):
     from .quick_text import insert
@@ -292,7 +302,7 @@ async def extract_table_region(doc_id:str,request:Request):
     from .table_regions import extract
     p=await read_payload(request)
     if not OCR_LOCK.acquire(blocking=False):raise DocumentError('Ya hay un reconocimiento en curso. Espera a que termine.')
-    try:return await run_in_threadpool(extract,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('grid'),p.get('mode','auto'),p.get('language','spa+eng'),p.get('dpi',200),p.get('orientation',0),p.get('detect_merges',False))
+    try:return await run_in_threadpool(extract,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('grid'),p.get('mode','auto'),p.get('language','spa+eng'),p.get('dpi',200),p.get('orientation',0),p.get('detect_merges',False),p.get('correction'))
     finally:OCR_LOCK.release()
 
 
@@ -832,10 +842,21 @@ async def digital_signature(doc_id: str,file: UploadFile,password: str=Form(''),
 
 
 @app.post('/api/documents/{doc_id}/verify-signatures')
-async def signature_verification(doc_id: str,payload: str=Form('{}'),trust: UploadFile | None=None):
+async def signature_verification(doc_id: str,payload: str=Form('{}'),trust: UploadFile | None=None,evidence: list[UploadFile] | None=None):
     config=signature_payload(payload)
     anchors=await read_signature_upload(trust,MAX_TRUST,'Certificados públicos de confianza') if trust else b''
-    return await run_in_threadpool(verify_signatures,document_path(doc_id).read_bytes(),config.get('operations',[]),anchors)
+    from .local_revocation import MAX_EVIDENCE,MAX_FILES
+    files=evidence or []
+    if len(files)>MAX_FILES:
+        for item in files:await item.close()
+        raise DocumentError('Revocación: hasta 20 archivos.')
+    proofs=[];remaining=MAX_EVIDENCE
+    try:
+        for item in files:
+            data=await read_signature_upload(item,remaining,'Evidencia de revocación');proofs.append(data);remaining-=len(data)
+    finally:
+        for item in files:await item.close()
+    return await run_in_threadpool(verify_signatures,document_path(doc_id).read_bytes(),config.get('operations',[]),anchors,proofs)
 
 
 @app.post('/api/documents/{doc_id}/visual-signature')

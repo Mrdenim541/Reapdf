@@ -1,0 +1,16 @@
+{
+  "backend/affine_reflow.py": "a432603f95bef75d224028a29ba89e6194831692538cc34812071d7d37ff72cc",
+  "backend/app.py": "2a551405b1eb70d48ea10b8513027ac811d3b7a7c83b71c0f12be12cc2cff783",
+  "backend/digital_signatures.py": "84eda75738e658a8251a9e347e5aac3b0565305a467d91d2938d6b38734a53f1",
+  "backend/local_revocation.py": "f0db3c445368cb1c1afa7c3ed5527e416bd23119e57af8af7f15a73653d6edce",
+  "backend/native_text.py": "6700c73d72cecbadbf17e02e68d172dedf0887f6937aba3f630b5f394cacd17b",
+  "backend/pdf_content.py": "34aa1314b183290bdaa72596e172e14e150e122c41f63f72b2ee1e5032ba1225",
+  "backend/styled_text.py": "0c59c179afea1a121a92c78a21321c8f0eb570d34677a0b4f39155e275d1b506",
+  "backend/table_regions.py": "88241ad5d803e8e9f6150422fd80460f02de4e2c8345fef7fbbe32264b6b7587",
+  "scripts/smoke_affine_perspective_revocation.mjs": "e20ff41683f31e24643a0460b2ad8f26f151823c9681905aa38d40490ce4d29b",
+  "scripts/smoke_affine_perspective_revocation_qt.py": "2c936d3dbd2b15eea0c0e948fbcddd8fee1ee07bf071181d17d46d3a32d488a4",
+  "tests/test_affine_perspective_revocation.py": "32158ae09871b6de2c3a7b1260d01d72ddb7127d9d9b05df88ab6a361ace95c3",
+  "web/src/digital-signatures.jsx": "64e7a46612fd2a26a60eff4c3d59ff8ca116de70c3f97066623b21b6a19f8290",
+  "web/src/inline-text.jsx": "a65e841f76ce3ba4e7639de3ade2c810ebe36ae670bf77daaa522b8baca3a487",
+  "web/src/table-regions.jsx": "01992e429e28a0ac63e6aefcecf98272ee75c170a8bde981d6f370a061dedb8e"
+}

@@ -134,7 +134,7 @@ def placements(data):
         boundaries[index]=following
         if ops[index][0] in ['Tm','Tj','TJ',"'",'"','ET']:following=ops[index][0]
     def new_text(simple=True):
-        return {'origin':f.Point(0,0),'matrix':f.Matrix(matrix),'font':font,'size':size,'shows':[],'parts':[],'show_ends':[],'simple':simple}
+        return {'origin':f.Point(0,0),'matrix':f.Matrix(matrix),'font':font,'size':size,'shows':[],'parts':[],'show_ends':[],'simple':simple,'line_matrix':f.Matrix(1,1)}
     def finish(value):
         if not value['simple'] or not value['shows'] or not value['font']:return
         if len(value['shows'])>1:
@@ -175,11 +175,13 @@ def placements(data):
                 text['font']=font;text['size']=size
             elif op=='Td' and not text['shows']:
                 x,y=numbers(args,2);text['origin']+=f.Point(x,y)
+                linear=f.Matrix(*list(text['line_matrix'])[:4],0,0);position=text['origin']*linear;text['line_matrix'][4]=position.x;text['line_matrix'][5]=position.y
             elif op=='Tm':
                 if text['shows']:finish(text)
                 text=new_text()
                 a,b,c,d,e,g=numbers(args,6)
                 linear=f.Matrix(a,b,c,d,0,0)
+                text['line_matrix']=f.Matrix(a,b,c,d,e,g)
                 if abs(a*d-b*c)<1e-8:text['simple']=False
                 text['origin']=f.Point(e,g)*~linear;text['matrix']=linear*matrix
             elif op in ['Tj','TJ']:
