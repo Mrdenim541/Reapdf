@@ -1,0 +1,21 @@
+import {chromium,expect} from '@playwright/test';import {execFileSync} from 'node:child_process';import {mkdtempSync} from 'node:fs';import {join} from 'node:path';import {tmpdir} from 'node:os';import {openTool} from './smoke-tool-navigation.mjs';
+const root=mkdtempSync(join(tmpdir(),'reapdf-schema-')),file=n=>join(root,n);execFileSync('.venv/bin/python',['-c',`from tests.test_portfolio_metadata import sample
+from pathlib import Path
+import sys
+Path(sys.argv[1]).write_bytes(sample())`,file('Portfolio.pdf')]);
+const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium'});
+try{const page=await browser.newPage({viewport:{width:1600,height:1150}}),errors=[];page.setDefaultTimeout(30000);page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());await page.goto('http://127.0.0.1:8000');await page.getByLabel('Archivo PDF',{exact:true}).setInputFiles(file('Portfolio.pdf'));await expect(page.locator('.document-bar')).toContainText('Portfolio.pdf');
+async function open(){await openTool(page,'Portfolio PDF');const d=page.getByRole('dialog',{name:'Portfolio PDF',exact:true});await d.getByText('Columnas del portfolio existente',{exact:true}).click();return d;}
+async function save(name){const pending=page.waitForEvent('download');await page.getByRole('button',{name:'Exportar copia',exact:true}).click();await(await pending).saveAs(file(name));}
+let d=await open();await d.getByText('Diseñar columnas',{exact:true}).click();await d.getByLabel('Nombre de columna 1',{exact:true}).fill('Identificador');await d.getByRole('button',{name:'Añadir columna',exact:true}).click();await d.getByLabel('Nombre de columna 5',{exact:true}).fill('Revisión');await d.getByLabel('Tipo de columna 5',{exact:true}).selectOption('number');await d.getByRole('button',{name:'Subir columna 5',exact:true}).click();await expect(d.getByLabel('Nombre de columna 4',{exact:true})).toHaveValue('Revisión');await d.getByLabel('Revisé el diseño de columnas',{exact:true}).check();await d.getByRole('button',{name:'Guardar diseño de columnas',exact:true}).click();await expect(d).toHaveCount(0);await save('Designed.pdf');
+d=await open();await d.getByLabel('Columna Revisión del archivo 1',{exact:true}).fill('7');await d.getByRole('button',{name:'Guardar valores de columnas',exact:true}).click();await expect(d).toHaveCount(0);await save('Filled.pdf');
+d=await open();await d.getByText('Diseñar columnas',{exact:true}).click();await expect(d.getByRole('button',{name:'Retirar columna 5',exact:true})).toBeDisabled();await d.getByRole('button',{name:'Retirar columna 2',exact:true}).click();await expect(d.getByLabel('Revisé el diseño de columnas',{exact:true})).not.toBeChecked();await d.getByLabel('Revisé el diseño de columnas',{exact:true}).check();await d.getByRole('button',{name:'Guardar diseño de columnas',exact:true}).click();await expect(d).toHaveCount(0);await save('Removed.pdf');
+execFileSync('.venv/bin/python',['-c',`from pathlib import Path
+import sys,pymupdf as f,hashlib
+from backend.portfolio_metadata import model
+root=Path(sys.argv[1]);info=model((root/'Removed.pdf').read_bytes());assert [c['label'] for c in info['columns']]==['Identificador','Date','Revisión','Locked']
+key=next(c['id'] for c in info['columns'] if c['label']=='Revisión');assert info['files'][0]['values'][key]==7 and 'Amount' not in info['files'][0]['values']
+with f.open(root/'Portfolio.pdf') as a,f.open(root/'Removed.pdf') as b:
+ assert a[0].get_pixmap().samples==b[0].get_pixmap().samples
+ assert {n:hashlib.sha256(a.embfile_get(n)).digest() for n in a.embfile_names()}=={n:hashlib.sha256(b.embfile_get(n)).digest() for n in b.embfile_names()}`,root]);if(errors.length)throw new Error(errors.join('\n'));console.log('PASS: Chromium portfolio column create, rename, reorder, typed fill and reviewed removal; readonly fields protected, attachment hashes and cover preserved.');
+}finally{await browser.close();}

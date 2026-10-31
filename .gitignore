@@ -7,3 +7,5 @@ __pycache__/
 .playwright/
 entregas/
 .local-state/
+
+/desktop-validation/

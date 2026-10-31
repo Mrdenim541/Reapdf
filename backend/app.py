@@ -933,6 +933,13 @@ async def configure_portfolio(doc_id: str, request: Request):
     result=await run_in_threadpool(configure,document_path(doc_id).read_bytes(),payload.get('operations',[]),payload.get('enabled'),payload.get('view','details'),payload.get('files'))
     return store_document(result)
 
+@app.post('/api/documents/{doc_id}/configure-portfolio-schema')
+async def configure_portfolio_schema(doc_id:str,request:Request):
+    from .portfolio_schema import configure
+    p=await read_payload(request)
+    data,report=await run_in_threadpool(configure,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('columns'),p.get('reviewed',False))
+    return {**store_document(data),'schema_report':report}
+
 @app.post('/api/documents/{doc_id}/portfolio-metadata')
 async def portfolio_metadata(doc_id:str,request:Request):
     from .portfolio_metadata import model

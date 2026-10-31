@@ -6,7 +6,7 @@ Windows CI is distinct from human acceptance and physical-printer verification.
 import argparse,hashlib,json,os,platform,subprocess,sys,tempfile,time,urllib.request
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-CHECKS=['smoke_native_save.py','smoke_native_document_set.py','smoke_single_instance.py','smoke_native_window.py','smoke_vector_print.py','smoke_native_readiness.py','smoke_native_launcher.py','smoke_parent_exit.py','smoke_text_states_native.py','smoke_extended_workflows_qt.py']
+CHECKS=['smoke_native_save.py','smoke_native_document_set.py','smoke_single_instance.py','smoke_native_window.py','smoke_vector_print.py','smoke_native_readiness.py','smoke_native_launcher.py','smoke_parent_exit.py','smoke_text_states_native.py','smoke_extended_workflows_qt.py','smoke_portfolio_schema_qt.py']
 
 
 def healthy():
@@ -46,6 +46,10 @@ def main():
                 try:server.wait(timeout=15)
                 except subprocess.TimeoutExpired:server.kill();server.wait(timeout=5)
             if log:log.close()
+    try:from .publish_windows_report import source_objects
+    except ImportError:from publish_windows_report import source_objects
+    report['source_git_objects']=source_objects(ROOT)
+    report['source_dirty_after']=bool(subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip())
     report['source_sha256']={str(p.relative_to(ROOT)).replace('\\','/'):hashlib.sha256(p.read_bytes()).hexdigest() for folder in ['backend','portable','web/src','scripts'] for p in sorted((ROOT/folder).rglob('*')) if p.is_file() and '__pycache__' not in p.parts and p.suffix in ['.py','.js','.jsx','.css','.mjs']}
     report['passed']=len(report['checks'])==len(CHECKS) and all(c['passed'] for c in report['checks']) and 'error' not in report
     (output/'desktop-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8');print(json.dumps(report,ensure_ascii=False,indent=2));return 0 if report['passed'] else 1

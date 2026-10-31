@@ -1,3 +1,5 @@
+> Documento histórico: esta matriz contiene estados antiguos que ya no describen todas las capacidades actuales. Para uso del programa consulta [el manual de funciones](MANUAL_DE_FUNCIONES.md), contrastado con las 73 herramientas del catálogo actual. Para pendientes técnicos consulta [el plan vigente](PLAN_ACTUAL.md). Ninguna guía declara por sí sola un cierre al 100 %.
+
 # Matriz funcional inicial
 
 Referencia aspiracional: Acrobat de escritorio y sus servicios asociados. No constituye una lista exhaustiva ni una comparación actual de planes comerciales. La consulta anterior a páginas oficiales fue bloqueada por la red; queda pendiente verificar versiones, plataformas y disponibilidad por plan.

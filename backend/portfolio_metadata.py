@@ -21,8 +21,8 @@ def schema(doc):
         key=n.pdf_to_name(n.pdf_dict_get_key(fields,i));field=n.pdf_dict_get_val(fields,i)
         if not key or len(key)>100 or any(ord(c)<32 for c in key) or not n.pdf_is_dict(field):raise DocumentError('El esquema contiene una columna no compatible.')
         kind=n.pdf_to_name(n.pdf_dict_gets(field,'Subtype'));label=n.pdf_to_text_string(n.pdf_dict_gets(field,'N')) or key;flag=n.pdf_dict_gets(field,'E')
-        result.append({'id':key,'label':label[:200],'type':{'S':'text','N':'number','D':'date'}.get(kind,'readonly'),'editable':kind in ['S','N','D'] and key!='ReapdfOrder' and (n.pdf_to_bool(flag) or key in ['ReapdfTitle','ReapdfDescription','ReapdfOrder'])})
-    return result
+        result.append({'id':key,'label':label[:200],'position':n.pdf_to_int(n.pdf_dict_gets(field,'O')) if n.pdf_is_int(n.pdf_dict_gets(field,'O')) else i,'type':{'S':'text','N':'number','D':'date'}.get(kind,'readonly'),'editable':kind in ['S','N','D'] and key!='ReapdfOrder' and (n.pdf_to_bool(flag) or key in ['ReapdfTitle','ReapdfDescription','ReapdfOrder'])})
+    return sorted(result,key=lambda r:(r['position'],r['id']))
 
 
 def model(base,ops=()):

@@ -5,7 +5,7 @@
 - Esta fuente procede de 0.43 recuperado y mejoras posteriores. 0.55 no está recuperado; no afirmar que todo el historial está implementado.
 - El usuario prioriza edición de texto con ratón/cursor sobre la página, interfaz clara y ventana Qt propia. Mantener también las cajas ajustables del proyecto.
 - Excluir generación de informes, registros o documentos de ensayos personales. Mantener vinculación configurable con archivos/roles generales.
-- No generar ni entregar instaladores/portables intermedios; preparar candidato cercano al 90 % con recorridos básicos y Windows comprobados, según autorización vigente del usuario.
+- Instrucción vigente: dejar las revisiones personales del usuario para después de la entrega técnica final. Continuar implementaciones y pruebas automáticas sin pedirle pruebas intermedias. No entregar instaladores/portables intermedios; la entrega final debe tener alcance técnico completo, Windows comprobado y manual por función. No llamar 100 % a una lista incompleta ni confundir revisión personal pendiente con un bloqueo de implementaciones independientes.
 - PDFs personales, copias, capturas, credenciales y resultados de inspección de programas externos deben quedar fuera de Git. Usar `.local-state/` para trabajo local privado. No copiar datos privados desde evidencias a documentación pública.
 - Para Windows local, consultar `docs/CONTINUAR_EN_PC.md`. Preparar con `py -3.12 scripts/local_workspace.py setup`; ejecutar con `.venv\Scripts\python.exe scripts/local_workspace.py run`.
 - Usar `.venv` para Python. Compilar con `npm run build`; comprobar JavaScript con `node --test tests/*.mjs`. Ejecutar pruebas dirigidas pertinentes y regresión completa cuando el alcance lo justifique.

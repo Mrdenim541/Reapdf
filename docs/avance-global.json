@@ -16,7 +16,7 @@
     "50": "Cobertura parcial utilizable",
     "75": "Cobertura amplia con huecos",
     "90": "Casi todo el alcance con aceptación pendiente",
-    "100": "Alcance implementado, comprobado y aceptado"
+    "100": "Alcance técnico implementado, comprobado y entregable; la aceptación personal posterior se registra por separado."
   },
   "categories": [
     {
@@ -422,10 +422,10 @@
   ],
   "completion_gates": [
     "Fuente completa respaldada y restauración limpia comprobada",
-    "Flujos cotidianos aceptados por el usuario",
     "Ejecución y distribución Windows verificadas",
     "Integridad de documentos, recuperación y compatibilidad representativas",
-    "Alcance y licencias de distribución resueltos"
+    "Alcance y licencias de distribución resueltos",
+    "Revisión personal del programa entregado y registro de observaciones"
   ],
   "historical_reference": {
     "reported_percent": 61.3,
@@ -487,5 +487,25 @@
       }
     ],
     "all_weights_and_scope_unchanged": true
-  }
+  },
+  "technical_complete": false,
+  "delivery_policy": {
+    "user_review_stage": "after_final_technical_delivery",
+    "intermediate_packages": false,
+    "final_deliverables": [
+      "Programa Windows en ventana propia, instalable o portable",
+      "Manual por función: acceso, pasos, resultado esperado y límites",
+      "Notas de compatibilidad y resultados de pruebas técnicas"
+    ],
+    "user_review_blocks_independent_development": false
+  },
+  "technical_completion_gates": [
+    "Fuente completa respaldada y restauración limpia comprobada",
+    "Ejecución y distribución Windows verificadas",
+    "Integridad de documentos, recuperación y compatibilidad representativas",
+    "Alcance y licencias de distribución resueltos"
+  ],
+  "user_acceptance_gates": [
+    "Revisión personal del programa entregado y registro de observaciones"
+  ]
 }

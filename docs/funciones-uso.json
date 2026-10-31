@@ -1,0 +1,955 @@
+{
+  "status": "manual_del_codigo_actual_no_entrega_final",
+  "user_review": "after_final_technical_delivery",
+  "functions": [
+    {
+      "id": "variable_fonts",
+      "label": "Preparar fuentes variables",
+      "area": "edit",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Preparar fuentes variables",
+        "revisa los ejes detectados",
+        "confirma la instancia compatible."
+      ],
+      "expected": "Se crea una fuente estática predeterminada solo si texto y apariencia superan la comprobación.",
+      "limits": "No permite cualquier eje o instancia que altere el renderizado sin verificar."
+    },
+    {
+      "id": "table_region",
+      "label": "Extraer tabla por región",
+      "area": "convert",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Extraer tabla por región",
+        "selecciona área y, si procede, las cuatro esquinas",
+        "extrae, corrige celdas y exporta."
+      ],
+      "expected": "Se obtiene CSV o Word con la tabla revisada y el PDF original intacto.",
+      "limits": "OCR, combinaciones y separadores requieren revisión; no resuelve cualquier tabla irregular."
+    },
+    {
+      "id": "region_ocr",
+      "label": "OCR de región",
+      "area": "convert",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre OCR de región",
+        "marca el área y corrige orientación o esquinas si procede",
+        "reconoce y revisa."
+      ],
+      "expected": "El texto reconocido se sitúa sobre la región conservando la imagen.",
+      "limits": "Las correcciones geométricas son acotadas; no garantizan lectura exacta de todos los caracteres."
+    },
+    {
+      "id": "structure",
+      "label": "Etiquetas y orden de lectura",
+      "area": "workspace",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Etiquetas y orden de lectura",
+        "revisa estructura existente o prepara etiquetas",
+        "asigna roles, orden, idioma y alternativas y aplica."
+      ],
+      "expected": "El árbol compatible conserva referencias reales y apariencia; admite listas y tablas revisadas.",
+      "limits": "No certifica PDF/UA ni repara cualquier árbol o contenido mixto automáticamente."
+    },
+    {
+      "id": "preflight",
+      "label": "Inspección de impresión",
+      "area": "protect",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Inspección de impresión",
+        "define la resolución mínima",
+        "consulta los hallazgos por página."
+      ],
+      "expected": "Se informa de fuentes, imágenes, colores y cajas que requieren atención.",
+      "limits": "Inspección orientativa; no certifica todas las condiciones de imprenta ni PDF/X."
+    },
+    {
+      "id": "xfdf",
+      "label": "Intercambiar XFDF",
+      "area": "workspace",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Intercambiar XFDF",
+        "importa o exporta anotaciones y datos",
+        "confirma correspondencia y revisa conflictos."
+      ],
+      "expected": "Se conservan relaciones, estilos y valores de los tipos compatibles.",
+      "limits": "No todas las variantes externas son compatibles; originales y tipos no interpretables se protegen."
+    },
+    {
+      "id": "working_copy",
+      "label": "Copia de trabajo sin firmas",
+      "area": "protect",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Copia de trabajo sin firmas",
+        "revisa el aviso y alcance",
+        "genera una copia identificada."
+      ],
+      "expected": "Se obtiene una copia editable compatible sin trasladar la validez de la firma original.",
+      "limits": "Modificar una copia no conserva una firma criptográfica válida del original."
+    },
+    {
+      "id": "document_links",
+      "label": "Vincular documentos",
+      "area": "workspace",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Vincular documentos",
+        "añade archivos y asigna funciones generales",
+        "relaciona identificadores o regiones y revisa destinos."
+      ],
+      "expected": "Se guarda un conjunto vinculado portable y se navega entre referencias verificadas.",
+      "limits": "No supone qué archivo es registro o plano por su nombre. Las revisiones con referencias obsoletas necesitan correspondencia explícita."
+    },
+    {
+      "id": "measurement",
+      "label": "Medir planos",
+      "area": "workspace",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Medir planos",
+        "calibra longitudes o selecciona Ángulo",
+        "marca puntos, calcula y guarda."
+      ],
+      "expected": "Se conserva medición, etiqueta, unidad e identificador; los vértices compatibles pueden editarse.",
+      "limits": "Los ángulos no requieren escala. No se infieren curvas o geometrías ausentes; los resultados técnicos requieren una referencia válida."
+    },
+    {
+      "id": "layers",
+      "label": "Capas del PDF",
+      "area": "workspace",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Capas del PDF",
+        "elige configuración y visibilidad",
+        "revisa la vista previa y guarda."
+      ],
+      "expected": "Se conserva el contenido y cambia el estado inicial compatible.",
+      "limits": "Se respetan bloqueos y grupos exclusivos; reglas automáticas complejas quedan protegidas. Ocultar no es censurar."
+    },
+    {
+      "id": "view",
+      "label": "Lectura",
+      "area": "read",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre el PDF",
+        "elige Leer",
+        "navega por páginas y ajusta el zoom."
+      ],
+      "expected": "La página se muestra con el giro correcto y la resolución se adapta al zoom.",
+      "limits": "Un escaneado requiere OCR para seleccionar su texto; las capas ocultas siguen ocultas."
+    },
+    {
+      "id": "select",
+      "label": "Seleccionar marca",
+      "area": "annotate",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Seleccionar marca",
+        "pulsa la anotación",
+        "mueve, ajusta propiedades o elimina."
+      ],
+      "expected": "Se modifica únicamente la anotación seleccionada y el cambio puede deshacerse.",
+      "limits": "Solo se habilitan propiedades verificables del tipo de anotación."
+    },
+    {
+      "id": "accessibility",
+      "label": "Accesibilidad y preparación",
+      "area": "read",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Accesibilidad y preparación",
+        "revisa el diagnóstico",
+        "configura título e idioma y aplica."
+      ],
+      "expected": "Los metadatos de accesibilidad se actualizan sin inventar etiquetas.",
+      "limits": "El diagnóstico no certifica PDF/UA; el etiquetado se gestiona en su herramienta propia."
+    },
+    {
+      "id": "standards",
+      "label": "Validar estándares PDF",
+      "area": "protect",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Validar estándares PDF",
+        "elige perfil e inicia la validación",
+        "consulta reglas y resultado."
+      ],
+      "expected": "Se informa del cumplimiento mediante el validador externo disponible.",
+      "limits": "Requiere la herramienta normativa instalada; una inspección orientativa no sustituye la validación PDF/A o PDF/UA."
+    },
+    {
+      "id": "archive",
+      "label": "Crear copia PDF/A-2b",
+      "area": "convert",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Crear copia PDF/A-2b",
+        "revisa las condiciones",
+        "genera y consulta la validación."
+      ],
+      "expected": "Se entrega una copia únicamente si supera la validación disponible.",
+      "limits": "Depende de herramientas normativas instaladas; no equivale a conservar todas las funciones interactivas."
+    },
+    {
+      "id": "review",
+      "label": "Revisar documento",
+      "area": "read",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Revisar documento",
+        "ejecuta la inspección",
+        "consulta páginas y hallazgos."
+      ],
+      "expected": "Se muestran problemas estructurales orientativos con su ubicación.",
+      "limits": "No equivale a certificación normativa ni a inspección forense."
+    },
+    {
+      "id": "compare",
+      "label": "Comparar documentos",
+      "area": "read",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Comparar documentos",
+        "carga la segunda versión",
+        "recorre diferencias y vistas paralelas."
+      ],
+      "expected": "Se localizan diferencias de texto y apariencia sin modificar los originales.",
+      "limits": "Comparación acotada; cambios de maquetación pueden producir múltiples diferencias."
+    },
+    {
+      "id": "find_replace",
+      "label": "Buscar y reemplazar",
+      "area": "edit",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Buscar y reemplazar",
+        "escribe búsqueda y sustitución y el alcance",
+        "revisa coincidencias y aplica el lote."
+      ],
+      "expected": "Se sustituyen las coincidencias seleccionadas de forma atómica y reversible.",
+      "limits": "Búsqueda literal; fuentes, geometrías o coincidencias incompatibles se explican y protegen."
+    },
+    {
+      "id": "text",
+      "label": "Editar texto",
+      "area": "edit",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Editar texto",
+        "pulsa el texto directamente en la página",
+        "escribe y aplica o usa Ctrl+Enter."
+      ],
+      "expected": "El contenido nuevo se guarda con la fuente y geometría originales compatibles.",
+      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas."
+    },
+    {
+      "id": "paragraph",
+      "label": "Reemplazar bloque de texto",
+      "area": "edit",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Reemplazar bloque de texto",
+        "selecciona el bloque o dibuja su región",
+        "ajusta texto, formato y ajuste antes de aplicar."
+      ],
+      "expected": "El bloque compatible se sustituye conservando contenido vecino y mostrando el ajuste.",
+      "limits": "Sustituir con una fuente incluida puede cambiar métricas; no se descartan transformaciones o composición complejas."
+    },
+    {
+      "id": "textbox",
+      "label": "Añadir texto",
+      "area": "edit",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Añadir texto",
+        "pulsa una posición y escribe",
+        "ajusta ancho, tamaño y color y aplica."
+      ],
+      "expected": "Se añade texto con altura automática dentro de la página.",
+      "limits": "La fuente incluida debe cubrir los caracteres y el texto debe caber sin colisión."
+    },
+    {
+      "id": "link",
+      "label": "Enlaces",
+      "area": "edit",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Enlaces",
+        "marca el área",
+        "define página o dirección web y aplica."
+      ],
+      "expected": "La región abre el destino al usar el modo de lectura.",
+      "limits": "Se admiten destinos compatibles; las direcciones no se ejecutan durante la edición."
+    },
+    {
+      "id": "existing_links",
+      "label": "Editar enlaces del PDF",
+      "area": "edit",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Editar enlaces del PDF",
+        "selecciona el enlace",
+        "cambia destino o región, o retíralo."
+      ],
+      "expected": "Se actualiza únicamente el enlace compatible seleccionado.",
+      "limits": "Acciones especiales o ambiguas permanecen protegidas."
+    },
+    {
+      "id": "images",
+      "label": "Imágenes",
+      "area": "edit",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Imágenes",
+        "carga PNG o JPEG",
+        "coloca, redimensiona y aplica."
+      ],
+      "expected": "La imagen nueva conserva sus píxeles originales al guardar.",
+      "limits": "Ampliarla no inventa detalle; compresión y cambio de resolución son operaciones distintas."
+    },
+    {
+      "id": "existing_images",
+      "label": "Editar imágenes del PDF",
+      "area": "edit",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Editar imágenes del PDF",
+        "selecciona una imagen existente",
+        "revisa y aplica el cambio compatible."
+      ],
+      "expected": "Se mueve, reemplaza o retira la aparición compatible y se conserva el resto del documento.",
+      "limits": "Imágenes compartidas, recortadas o en estructuras complejas pueden requerir otro tratamiento."
+    },
+    {
+      "id": "highlight",
+      "label": "Resaltar",
+      "area": "annotate",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Resaltar",
+        "selecciona palabras o fragmentos",
+        "guarda el PDF."
+      ],
+      "expected": "La anotación queda alineada con el texto seleccionado y persiste.",
+      "limits": "La selección precisa depende de texto digital compatible; no se reconoce texto por apariencia."
+    },
+    {
+      "id": "underline",
+      "label": "Subrayar",
+      "area": "annotate",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Subrayar",
+        "selecciona el texto",
+        "guarda."
+      ],
+      "expected": "Se crea un subrayado nativo sobre el texto elegido.",
+      "limits": "La geometría de texto oblicuo o complejo puede permanecer protegida."
+    },
+    {
+      "id": "strikeout",
+      "label": "Tachar",
+      "area": "annotate",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Tachar",
+        "selecciona el texto",
+        "guarda."
+      ],
+      "expected": "Se crea una anotación de tachado sin eliminar el texto original.",
+      "limits": "Tachar no es censurar: el texto continúa en el PDF."
+    },
+    {
+      "id": "note",
+      "label": "Nota",
+      "area": "annotate",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Nota",
+        "pulsa la ubicación",
+        "escribe el comentario y aplica."
+      ],
+      "expected": "La nota mantiene posición y contenido al reabrir.",
+      "limits": "No altera el texto de la página."
+    },
+    {
+      "id": "ink",
+      "label": "Lápiz",
+      "area": "annotate",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Lápiz",
+        "ajusta color y grosor",
+        "dibuja sobre la página y guarda."
+      ],
+      "expected": "Los trazos se conservan como anotaciones PDF.",
+      "limits": "Para mover un trazo, cambia a selección; dibujar encima no elimina contenido."
+    },
+    {
+      "id": "line",
+      "label": "Línea",
+      "area": "annotate",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Línea",
+        "define origen y extremo",
+        "ajusta apariencia y guarda."
+      ],
+      "expected": "Se conserva una línea editable con coordenadas correctas.",
+      "limits": "No representa una medición calibrada."
+    },
+    {
+      "id": "arrow",
+      "label": "Flecha",
+      "area": "annotate",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Flecha",
+        "arrastra entre sus extremos",
+        "guarda."
+      ],
+      "expected": "Se conserva una anotación con punta de flecha.",
+      "limits": "Para precisión técnica utiliza Medir planos."
+    },
+    {
+      "id": "rectangle",
+      "label": "Rectángulo",
+      "area": "annotate",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Rectángulo",
+        "arrastra el área",
+        "ajusta color y grosor y guarda."
+      ],
+      "expected": "El marco se conserva como anotación.",
+      "limits": "Un rectángulo opaco no acredita eliminación del contenido inferior."
+    },
+    {
+      "id": "stamp",
+      "label": "Sellos",
+      "area": "annotate",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Sellos",
+        "selecciona un sello compatible",
+        "ubícalo y aplica."
+      ],
+      "expected": "La marca visual persiste en la página.",
+      "limits": "Un sello visual no acredita firma criptográfica ni aprobación legal."
+    },
+    {
+      "id": "comments",
+      "label": "Comentarios y revisión",
+      "area": "annotate",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Comentarios y revisión",
+        "selecciona una conversación",
+        "responde, cambia un estado compatible o exporta."
+      ],
+      "expected": "Se conservan autor, contenido y relaciones compatibles.",
+      "limits": "Los grafos o tipos no interpretables se protegen; la aceptación externa depende del lector."
+    },
+    {
+      "id": "organizer",
+      "label": "Organizar páginas",
+      "area": "pages",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Organizar páginas",
+        "selecciona páginas",
+        "cambia orden, giro o retira y aplica."
+      ],
+      "expected": "Se conserva el orden solicitado y se actualiza la navegación compatible.",
+      "limits": "Documentos con estructuras no verificables pueden necesitar una copia preparada."
+    },
+    {
+      "id": "insert",
+      "label": "Unir o insertar PDF",
+      "area": "pages",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Unir o insertar PDF",
+        "carga el segundo archivo y selecciona páginas",
+        "define posición y aplica."
+      ],
+      "expected": "Se incorporan las páginas elegidas sin sobrescribir las fuentes.",
+      "limits": "Formularios, etiquetas y estructuras especiales se incorporan solo cuando son compatibles."
+    },
+    {
+      "id": "replace",
+      "label": "Reemplazar páginas",
+      "area": "pages",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Reemplazar páginas",
+        "selecciona el bloque de origen y el archivo nuevo",
+        "revisa y aplica."
+      ],
+      "expected": "Se reemplaza el bloque solicitado y se conserva el resto.",
+      "limits": "La estructura y los vínculos especiales requieren compatibilidad verificable."
+    },
+    {
+      "id": "duplicate",
+      "label": "Duplicar páginas",
+      "area": "pages",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Duplicar páginas",
+        "indica las páginas y posición",
+        "aplica."
+      ],
+      "expected": "Se crean copias independientes de las páginas compatibles.",
+      "limits": "No se duplica ciegamente una estructura que pueda producir referencias ambiguas."
+    },
+    {
+      "id": "blank",
+      "label": "Página en blanco",
+      "area": "pages",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Página en blanco",
+        "define tamaño y posición",
+        "aplica."
+      ],
+      "expected": "Se inserta una página vacía en el lugar elegido.",
+      "limits": "No contiene por sí sola texto, formulario ni escala técnica."
+    },
+    {
+      "id": "crop",
+      "label": "Recortar páginas",
+      "area": "pages",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Recortar páginas",
+        "marca o introduce los márgenes y el alcance",
+        "revisa y aplica."
+      ],
+      "expected": "Cambia el área visible conservando el contenido del PDF y la posibilidad compatible de restaurarlo.",
+      "limits": "Recortar no elimina datos sensibles ni sustituye la censura."
+    },
+    {
+      "id": "split",
+      "label": "Dividir PDF",
+      "area": "pages",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Dividir PDF",
+        "define rangos, bloques o marcadores y nombres",
+        "revisa los archivos y exporta."
+      ],
+      "expected": "Se obtiene un ZIP de PDF independientes con nombres personalizados.",
+      "limits": "Las estructuras no divisibles de forma verificada se protegen; no se atribuye validez de firmas a archivos nuevos."
+    },
+    {
+      "id": "labels",
+      "label": "Etiquetas de página",
+      "area": "pages",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Etiquetas de página",
+        "define rangos y formato",
+        "aplica."
+      ],
+      "expected": "La navegación utiliza etiquetas personalizadas, decimales o romanas.",
+      "limits": "La etiqueta de navegación no añade un número visible en el papel."
+    },
+    {
+      "id": "bookmarks",
+      "label": "Editar marcadores",
+      "area": "pages",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Editar marcadores",
+        "ajusta título, jerarquía y destino",
+        "guarda."
+      ],
+      "expected": "El índice compatible mantiene su estructura y destinos al reabrir.",
+      "limits": "Los destinos o acciones especiales pueden mantenerse en lectura."
+    },
+    {
+      "id": "headers",
+      "label": "Encabezados y pies",
+      "area": "edit",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Encabezados y pies",
+        "introduce contenido y alcance",
+        "revisa posición y aplica."
+      ],
+      "expected": "Se incorporan encabezados y pies en las páginas elegidas.",
+      "limits": "Debe revisarse el espacio disponible para no cubrir contenido."
+    },
+    {
+      "id": "numbering",
+      "label": "Numerar páginas",
+      "area": "pages",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Numerar páginas",
+        "define rango, inicio, formato y posición",
+        "revisa y aplica."
+      ],
+      "expected": "Se añade numeración visible según las reglas indicadas.",
+      "limits": "Es distinta de las etiquetas internas de navegación."
+    },
+    {
+      "id": "forms",
+      "label": "Rellenar formulario",
+      "area": "forms",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Rellenar formulario",
+        "selecciona un campo en la página",
+        "introduce y revisa sus valores antes de aplicar."
+      ],
+      "expected": "Valores y apariencias compatibles persisten al guardar.",
+      "limits": "XFA y acciones no soportadas no se presentan como formularios completamente editables."
+    },
+    {
+      "id": "field_properties",
+      "label": "Propiedades de campos existentes",
+      "area": "forms",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Propiedades de campos existentes",
+        "selecciona un campo",
+        "ajusta nombre, opciones o apariencia y aplica."
+      ],
+      "expected": "Se conservan las relaciones compatibles de campos y grupos.",
+      "limits": "Restricciones, firmas y propiedades no verificables permanecen protegidas."
+    },
+    {
+      "id": "field",
+      "label": "Crear o eliminar campos",
+      "area": "forms",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Crear o eliminar campos",
+        "define tipo y región, o selecciona el campo a retirar",
+        "revisa y aplica."
+      ],
+      "expected": "Se crean o eliminan campos y grupos compatibles sin referencias rotas.",
+      "limits": "No es un diseñador general de formularios XFA."
+    },
+    {
+      "id": "data",
+      "label": "Datos de formulario",
+      "area": "forms",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Datos de formulario",
+        "elige importar o exportar",
+        "revisa la correspondencia de campos."
+      ],
+      "expected": "Se intercambian valores vinculados a identidades y estructura compatibles.",
+      "limits": "No se aplican datos a un PDF distinto por simple coincidencia visual."
+    },
+    {
+      "id": "flatten",
+      "label": "Aplanar formulario",
+      "area": "forms",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Aplanar formulario",
+        "revisa el alcance",
+        "confirma la copia aplanada."
+      ],
+      "expected": "Los valores compatibles pasan a apariencia permanente y los campos dejan de ser interactivos.",
+      "limits": "Aplanar cambia la editabilidad; no reemplaza una firma ni una censura."
+    },
+    {
+      "id": "digital_sign",
+      "label": "Firmar con certificado",
+      "area": "forms",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Firmar con certificado",
+        "selecciona P12/PFX e introduce su contraseña",
+        "revisa la copia y firma."
+      ],
+      "expected": "Se entrega una copia firmada y comprobada criptográficamente.",
+      "limits": "Certificado y contraseña no se guardan en el proyecto. TSA remota y firma de larga duración siguen pendientes."
+    },
+    {
+      "id": "verify_signatures",
+      "label": "Verificar firmas digitales",
+      "area": "forms",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Verificar firmas digitales",
+        "selecciona confianza y evidencias locales si corresponde",
+        "ejecuta la comprobación."
+      ],
+      "expected": "Se separan integridad, revisiones, confianza, sello de tiempo y revocación local.",
+      "limits": "No acredita revocación de TSA, validación histórica, LT/LTA ni validez jurídica universal."
+    },
+    {
+      "id": "signature",
+      "label": "Firma visual manuscrita",
+      "area": "forms",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Firma visual manuscrita",
+        "dibuja la firma y define posición",
+        "revisa y aplica."
+      ],
+      "expected": "Se incorpora una firma dibujada persistente.",
+      "limits": "No contiene certificado ni acredita identidad criptográfica."
+    },
+    {
+      "id": "ocr",
+      "label": "Reconocer texto (OCR)",
+      "area": "convert",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Reconocer texto (OCR)",
+        "define páginas, idioma y resolución",
+        "ejecuta y revisa."
+      ],
+      "expected": "Se añade una capa buscable sin sustituir la imagen del escaneado.",
+      "limits": "La exactitud depende de la imagen y el idioma; se omiten o protegen páginas incompatibles."
+    },
+    {
+      "id": "export_images",
+      "label": "Exportar páginas como imágenes",
+      "area": "convert",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Exportar páginas como imágenes",
+        "define páginas, formato y resolución",
+        "exporta."
+      ],
+      "expected": "Se obtienen imágenes de las páginas editadas con el alcance indicado.",
+      "limits": "La resolución aumenta el muestreo, no el detalle de imágenes de origen."
+    },
+    {
+      "id": "tables",
+      "label": "Exportar tablas a CSV",
+      "area": "convert",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Exportar tablas a CSV",
+        "selecciona las tablas detectadas",
+        "revisa y exporta."
+      ],
+      "expected": "Se obtienen datos tabulares editables.",
+      "limits": "Para escaneados o regiones ambiguas utiliza la extracción regional con revisión."
+    },
+    {
+      "id": "docx",
+      "label": "Exportar texto a Word",
+      "area": "convert",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Exportar texto a Word",
+        "configura el alcance",
+        "revisa el resultado y exporta."
+      ],
+      "expected": "Se obtiene DOCX editable con contenido y estructuras compatibles.",
+      "limits": "No se garantiza maquetación idéntica a la de cualquier PDF."
+    },
+    {
+      "id": "export_text",
+      "label": "Exportar texto",
+      "area": "convert",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Exportar texto",
+        "define páginas",
+        "descarga el archivo."
+      ],
+      "expected": "Se obtiene texto UTF-8 del contenido extraíble.",
+      "limits": "No extrae texto de una imagen sin OCR ni garantiza el orden de todos los diseños complejos."
+    },
+    {
+      "id": "portfolio",
+      "label": "Portfolio PDF",
+      "area": "workspace",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Portfolio PDF",
+        "organiza la presentación o las columnas",
+        "revisa los cambios y guarda."
+      ],
+      "expected": "Los adjuntos mantienen sus bytes y las propiedades compatibles persisten.",
+      "limits": "Columnas complejas, carpetas y reglas externas no verificables tienen límites explícitos."
+    },
+    {
+      "id": "attachments",
+      "label": "Archivos adjuntos",
+      "area": "read",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Archivos adjuntos",
+        "selecciona un archivo",
+        "añade, descarga o retira según corresponda."
+      ],
+      "expected": "Los bytes del adjunto se conservan y se actualiza el listado del PDF.",
+      "limits": "Descargar no ejecuta el archivo; retirar del listado no acredita saneamiento forense."
+    },
+    {
+      "id": "flow",
+      "label": "Continuar texto entre regiones",
+      "area": "edit",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Continuar texto entre regiones",
+        "marca y ordena las regiones",
+        "revisa estilo, distribución y aplica."
+      ],
+      "expected": "El texto se distribuye por el recorrido seleccionado sin publicar una distribución parcial.",
+      "limits": "Las regiones deben ser compatibles; no es reflujo general de cualquier PDF."
+    },
+    {
+      "id": "form_rules",
+      "label": "Cálculos automáticos del proyecto",
+      "area": "forms",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Cálculos automáticos del proyecto",
+        "relaciona campos de origen y resultado",
+        "revisa y aplica."
+      ],
+      "expected": "El proyecto calcula resultados según las reglas configuradas.",
+      "limits": "Las reglas del proyecto no equivalen a ejecutar JavaScript arbitrario del PDF."
+    },
+    {
+      "id": "calculate",
+      "label": "Calcular valores de campos",
+      "area": "forms",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Calcular valores de campos",
+        "revisa reglas y dependencias",
+        "confirma los resultados."
+      ],
+      "expected": "Se guardan valores calculados compatibles y se detectan ciclos o dependencias inválidas.",
+      "limits": "No interpreta cualquier script; los resultados incompatibles se protegen."
+    },
+    {
+      "id": "automation",
+      "label": "Recetas de trabajo",
+      "area": "convert",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Recetas de trabajo",
+        "elige o crea la secuencia",
+        "revisa entradas, nombres y resultados antes de ejecutar."
+      ],
+      "expected": "Se procesan tareas compatibles en el orden de la receta con salida por archivo.",
+      "limits": "Solo se admiten las tareas declaradas; no ejecuta instrucciones arbitrarias de documentos."
+    },
+    {
+      "id": "batch",
+      "label": "Procesar varios PDF",
+      "area": "convert",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Procesar varios PDF",
+        "carga y ordena los archivos",
+        "configura la tarea y revisa la salida."
+      ],
+      "expected": "Cada archivo tiene resultado o fallo informado sin sobrescribir su original.",
+      "limits": "Se aplican presupuestos de tamaño y número de archivos; no se ocultan fallos parciales."
+    },
+    {
+      "id": "bates",
+      "label": "Numeración Bates por lotes",
+      "area": "pages",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Numeración Bates por lotes",
+        "carga y ordena los PDF",
+        "define prefijo, inicio y alcance y revisa el lote."
+      ],
+      "expected": "Se produce numeración continua y una salida trazable por archivo.",
+      "limits": "Se aplican los límites de archivos/páginas del lote; originales conservados."
+    },
+    {
+      "id": "watermark",
+      "label": "Marca de agua",
+      "area": "edit",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Marca de agua",
+        "define texto, apariencia y páginas",
+        "revisa y aplica."
+      ],
+      "expected": "La marca aparece en las páginas seleccionadas y persiste al guardar.",
+      "limits": "No es una firma digital ni protección contra copia."
+    },
+    {
+      "id": "metadata",
+      "label": "Propiedades del PDF",
+      "area": "read",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Propiedades del PDF",
+        "modifica los campos editables",
+        "aplica y guarda."
+      ],
+      "expected": "Título, autor y demás propiedades seleccionadas persisten al reabrir.",
+      "limits": "Los campos protegidos o no interpretables no se reescriben automáticamente."
+    },
+    {
+      "id": "compress",
+      "label": "Reducir imágenes del PDF",
+      "area": "convert",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Reducir imágenes del PDF",
+        "selecciona resolución y calidad",
+        "compara y aplica."
+      ],
+      "expected": "Se reduce el tamaño de imágenes compatibles con un informe del resultado.",
+      "limits": "Puede perder detalle; imágenes o composiciones no compatibles se conservan o bloquean."
+    },
+    {
+      "id": "optimize",
+      "label": "Optimizar PDF",
+      "area": "convert",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Optimizar PDF",
+        "ejecuta la operación",
+        "consulta el tamaño y guarda la copia."
+      ],
+      "expected": "Se compacta la estructura compatible sin bajar deliberadamente la resolución de imágenes.",
+      "limits": "No garantiza reducción en todos los archivos ni elimina información sensible."
+    },
+    {
+      "id": "protect",
+      "label": "Proteger copia",
+      "area": "protect",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Elige Proteger copia",
+        "define contraseña y permisos",
+        "genera y abre la copia para comprobar acceso."
+      ],
+      "expected": "Se crea una copia cifrada compatible manteniendo la sesión original.",
+      "limits": "Los permisos PDF no son una garantía absoluta contra lectores que los ignoren."
+    },
+    {
+      "id": "redact",
+      "label": "Censurar y sanear copia",
+      "area": "protect",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Censurar y sanear copia",
+        "marca regiones o coincidencias",
+        "revisa todas las páginas afectadas y confirma."
+      ],
+      "expected": "Se entrega una copia saneada solo si supera las comprobaciones previstas.",
+      "limits": "Un rectángulo, tachado o recorte no sustituye esta operación; composiciones complejas no verificables quedan protegidas."
+    }
+  ]
+}

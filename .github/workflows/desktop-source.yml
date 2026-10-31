@@ -37,3 +37,29 @@ jobs:
         with:
           name: desktop-source-${{ runner.os }}
           path: desktop-validation/
+
+  record-windows-evidence:
+    needs: qt
+    if: always() && github.event_name == 'push' && startsWith(github.ref, 'refs/heads/recovery/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: reapdf-windows-evidence
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: desktop-source-Windows
+          path: desktop-validation
+      - name: Record source-bound result separately from application code
+        env:
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: python scripts/publish_windows_report.py --directory desktop-validation

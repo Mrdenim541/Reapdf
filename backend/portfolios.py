@@ -19,7 +19,7 @@ def supported(doc):
     if n.pdf_is_null(collection):return True
     if not n.pdf_is_dict(collection) or not keys(collection)<={'Type','Schema','Sort','View','D'}:return False
     schema=n.pdf_dict_gets(collection,'Schema')
-    if not n.pdf_is_dict(schema) or keys(schema)!=set(FIELDS):return False
+    if not n.pdf_is_dict(schema) or not set(FIELDS)<=keys(schema) or n.pdf_dict_len(schema)>20:return False
     for key,(_,kind,_) in FIELDS.items():
         field=n.pdf_dict_gets(schema,key)
         if not n.pdf_is_dict(field) or n.pdf_to_name(n.pdf_dict_gets(field,'Subtype'))!=kind:return False
@@ -60,7 +60,10 @@ def configure(base,operations,enabled,view='details',files=None):
         try:version=tuple(int(v) for v in doc.metadata['format'].split()[-1].split('.'))
         except (ValueError,KeyError):raise DocumentError('No se pudo determinar la versión PDF para el portfolio.')
         if version<(1,7):doc.xref_set_key(doc.pdf_catalog(),'Version','/1.7')
-        doc.xref_set_key(doc.pdf_catalog(),'Collection',f'<< /Type /Collection /View /{VIEWS[view]} /Schema {schema} /Sort << /S /ReapdfOrder /A true >> >>')
+        if doc.xref_get_key(doc.pdf_catalog(),'Collection')[0]=='null':
+            doc.xref_set_key(doc.pdf_catalog(),'Collection',f'<< /Type /Collection /View /{VIEWS[view]} /Schema {schema} /Sort << /S /ReapdfOrder /A true >> >>')
+        else:
+            doc.xref_set_key(doc.pdf_catalog(),'Collection/View','/'+VIEWS[view]);doc.xref_set_key(doc.pdf_catalog(),'Collection/Sort','<< /S /ReapdfOrder /A true >>')
         # xref_set_key reparses direct catalog children; reacquire file specs.
         names=dict(normalize(doc))
         for index,row in enumerate(files,1):
