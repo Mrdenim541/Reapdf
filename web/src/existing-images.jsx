@@ -1,13 +1,14 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {readImage} from './images.jsx';
+import {TaggedCopy} from './tagged-copy.jsx';
 export function ExistingImageEditor({doc,page,operations,busy,error,onClose,onAction}){
  const dialog=useRef(null),urls=useRef([]),pending=useRef(null),drag=useRef(null),previewStarted=useRef(false);
  const [items,setItems]=useState([]),[index,setIndex]=useState(0),[box,setBox]=useState([0,0,100,100]),[action,setAction]=useState('move'),[replacement,setReplacement]=useState(null),[working,setWorking]=useState(false),[issue,setIssue]=useState(''),[image,setImage]=useState(null),[previewKey,setPreviewKey]=useState('');
  const geometry=doc.pages[page],item=items[index];
- const payload={page,xref:item?.xref,occurrence:item?.occurrence,action,box,data:replacement?.data},key=JSON.stringify(payload);
+ const payload={page,xref:item?.xref,occurrence:item?.occurrence,action,box,data:replacement?.data},key=JSON.stringify({document:doc.id,...payload});
  const ready=previewKey===key,disabled=busy||working;
  useEffect(()=>{const el=dialog.current;el.showModal();return()=>{el.close();pending.current?.abort();for(const url of urls.current)URL.revokeObjectURL(url);};},[]);
- useEffect(()=>{const controller=new AbortController();
+ useEffect(()=>{const controller=new AbortController();previewStarted.current=false;setPreviewKey('');setReplacement(null);setIssue('');setItems([]);setImage(null);
   fetch(`/api/documents/${doc.id}/pages/${page}/existing-images`,{signal:controller.signal}).then(async r=>{if(!r.ok)throw new Error((await r.json()).detail);return r.json();}).then(result=>{if(controller.signal.aborted)return;setItems(result.images);const i=Math.max(0,result.images.findIndex(i=>i.editable));setIndex(i);if(result.images[i]){const r=result.images[i].rect;setBox([r[0],r[1],r[2]-r[0],r[3]-r[1]]);}}).catch(e=>{if(e.name!=='AbortError')setIssue(e.message);});
   fetch(`/api/documents/${doc.id}/pages/${page}/preview`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operations,scale:1}),signal:controller.signal}).then(async r=>{if(!r.ok)throw new Error((await r.json()).detail);return r.blob();}).then(blob=>{if(!controller.signal.aborted&&!previewStarted.current){const url=URL.createObjectURL(blob);urls.current.push(url);setImage(url);}}).catch(e=>{if(e.name!=='AbortError')setIssue(e.message);});return()=>controller.abort();
  },[doc.id,page,operations]);
@@ -21,6 +22,7 @@ export function ExistingImageEditor({doc,page,operations,busy,error,onClose,onAc
  const valid=box.every(Number.isFinite)&&box[0]>=0&&box[1]>=0&&box[2]>=1&&box[3]>=1&&box[0]+box[2]<=geometry.width+.001&&box[1]+box[3]<=geometry.height+.001;
  return <dialog ref={dialog} className="organizer advanced-dialog" aria-labelledby="existing-image-title" onCancel={e=>{e.preventDefault();if(!disabled)onClose();}}><div className="organizer-heading"><h2 id="existing-image-title">Editar imágenes del PDF</h2><button aria-label="Cerrar edición de imágenes existentes" disabled={disabled} onClick={onClose}>×</button></div><p>Transforma una imagen existente de la página actual. Revisa la vista previa antes de aplicar. Puedes deshacer la nueva versión.</p>
  <label>Imagen<select aria-label="Imagen existente" value={index} disabled={disabled||!items.length} onChange={e=>select(Number(e.target.value))}>{items.map((it,i)=><option key={i} value={i}>Imagen {i+1} · {it.width} × {it.height} px{it.editable?'':' · Solo lectura'}</option>)}</select></label>{!items.length&&<p>No hay imágenes existentes disponibles en esta página.</p>}{item&&!item.editable&&<p role="status">{item.reason}</p>}
+ {doc.tagged&&item?.reason.startsWith('La imagen pertenece a un PDF etiquetado')&&<TaggedCopy disabled={disabled} onCreate={()=>onAction('untagged-copy',{acknowledge:true})}/>}
  {item?.notice&&<p role="status">{item.notice}</p>}{item?.editable&&<><label>Acción<select aria-label="Acción de imagen existente" value={action} disabled={disabled} onChange={e=>setAction(e.target.value)}><option value="move">Mover y redimensionar</option><option value="replace">Reemplazar archivo</option><option value="delete">Eliminar imagen</option></select></label>
  {action==='move'&&<div className="advanced-grid">{['X','Y','Ancho','Alto'].map((label,i)=><label key={label}>{label} (pt)<input type="number" aria-label={`${label} de imagen existente`} value={Number.isNaN(box[i])?'':Math.round(box[i]*10)/10} disabled={disabled} onChange={e=>setBox(box.map((v,j)=>i===j?e.target.valueAsNumber:v))}/></label>)}</div>}
  {action==='replace'&&<label>Archivo PNG/JPEG<input aria-label="Archivo para reemplazar imagen" type="file" accept="image/png,image/jpeg" disabled={disabled} onChange={e=>replace(e.target.files[0])}/>{replacement&&<small>{replacement.name} · {replacement.pixels.join(' × ')} px</small>}</label>}

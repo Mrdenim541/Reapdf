@@ -67,7 +67,7 @@ def inspect(base, ops, query):
         pattern = r'(?<!\w)' + pattern + r'(?!\w)'
     regex = re.compile(pattern, 0 if query['case_sensitive'] else re.IGNORECASE)
     wildcard=wildcard_tokens(text) if mode=='wildcard' else None;work_budget=[0]
-    matches, empty, characters = [], [], 0
+    matches, empty, characters, structure_blocked = [], [], 0, []
     try:
         with open_pdf(base) as source:
             editable(source)
@@ -82,6 +82,7 @@ def inspect(base, ops, query):
             page.set_rotation(0)
             found = False
             font_cache = {}
+            semantic_checked=False;semantic_reason=''
             for block in page.get_text('dict', flags=f.TEXTFLAGS_TEXT, sort=True)['blocks']:
                 for line in block.get('lines', []):
                     for spans in contiguous_groups(line):
@@ -96,7 +97,13 @@ def inspect(base, ops, query):
                         if len(matches) + len(hits) > 500:
                             raise DocumentError('Más de 500 coincidencias; limita la búsqueda.')
                         box = region_box(page, spans)
-                        reason, rows = protected, []
+                        if not protected and not semantic_checked:
+                            from .tagged_text_integrity import snapshot as semantic_snapshot
+                            try:semantic_snapshot(doc,number)
+                            except DocumentError as exc:
+                                semantic_reason=str(exc);structure_blocked.append(number)
+                            semantic_checked=True
+                        reason, rows = protected or semantic_reason, []
                         if not reason:
                             try:
                                 _, rows = styled_model(doc, number, box, font_cache)
@@ -115,7 +122,7 @@ def inspect(base, ops, query):
                             matches.append({'id': digest((receipt + identity).encode())[:24], 'page': number, 'text': matched, 'context': original, 'start': start, 'end': end, 'box': box, 'origin': list(spans[0]['origin']), 'font': spans[0]['font'], 'parts': parts, 'split': len(touched) > 1, 'editable': not failure, 'reason': failure})
             if not found:
                 empty.append(number)
-    return {'receipt': receipt, 'matches': matches, 'empty_pages': empty, 'limits': {'matches': 100, 'runs': 100}, 'scope': 'Fragmentos contiguos de una misma línea digital; conserva el estilo de cada fragmento. No cruza líneas ni reconoce escaneados.'}
+    return {'receipt': receipt, 'matches': matches, 'empty_pages': empty, 'structure_blocked_pages':structure_blocked, 'limits': {'matches': 100, 'runs': 100}, 'scope': 'Fragmentos contiguos de una misma línea digital; conserva el estilo de cada fragmento. No cruza líneas ni reconoce escaneados.'}
 
 
 def plan_token(receipt, selected, replacement):

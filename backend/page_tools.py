@@ -49,13 +49,19 @@ def crop_pdf(data, operations, pages, margins=None, *, reset=False):
         return output.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(output), deflate=True)
 
 
-def prepare_split(data,operations,*,size=None,groups=None,names=None,bookmark_level=None):
+def prepare_split(data,operations,*,size=None,groups=None,names=None,bookmark_level=None,preserve_tags=True):
     from .split_plan import plan
+    if type(preserve_tags) is not bool:raise DocumentError('Elige si quieres conservar las etiquetas de accesibilidad.')
     with open_pdf(data) as source:
         if source.get_sigflags()>0:raise DocumentError('Crea una copia de trabajo antes de dividir un PDF firmado; sus firmas no serían válidas en las partes.')
         if not source.permissions&fitz.PDF_PERM_COPY:raise DocumentError('El documento no permite dividir o copiar páginas.')
         _check_source(source);_check_bookmarks(source);_incoming_links(source)
     edited=export_pdf(data,operations)
+    if not preserve_tags:
+        with open_pdf(edited) as source:tagged=source.xref_get_key(source.pdf_catalog(),'StructTreeRoot')[0]!='null'
+        if tagged:
+            from .untagged_copy import create
+            edited,_=create(edited,[],True)
     with open_pdf(edited) as doc:
         # Pending changes must pass the same partition guards as the original.
         _check_source(doc);_check_bookmarks(doc);_incoming_links(doc)
@@ -63,6 +69,7 @@ def prepare_split(data,operations,*,size=None,groups=None,names=None,bookmark_le
         partition(doc,[p.xref for p in doc])
         result=plan(doc,size=size,groups=groups,names=names,bookmark_level=bookmark_level)
         result['rotations']=[p.rotation for p in doc]
+        result['accessibility_tags_retained']=preserve_tags
     return edited,result
 
 
@@ -71,10 +78,10 @@ def inspect_split(data,operations,**options):
     result.pop('rotations');return result
 
 
-def split_pdf(data, operations, *, size=None, groups=None,names=None,bookmark_level=None,manifest=False):
+def split_pdf(data, operations, *, size=None, groups=None,names=None,bookmark_level=None,manifest=False,preserve_tags=True):
     import json,hashlib
     if type(manifest) is not bool:raise DocumentError('La opción de relación de archivos debe ser verdadera o falsa.')
-    edited,review=prepare_split(data,operations,size=size,groups=groups,names=names,bookmark_level=bookmark_level)
+    edited,review=prepare_split(data,operations,size=size,groups=groups,names=names,bookmark_level=bookmark_level,preserve_tags=preserve_tags)
     buffer=BytesIO();total=0;records=[]
     with ZipFile(buffer,'w',ZIP_DEFLATED) as archive:
         for part in review['parts']:
@@ -83,5 +90,5 @@ def split_pdf(data, operations, *, size=None, groups=None,names=None,bookmark_le
             if total>MAX_SPLIT_BYTES:raise DocumentError('La división supera 100 MB de PDF de salida. Reduce el documento antes de dividirlo.')
             archive.writestr(part['name'],result)
             records.append({'name':part['name'],'source_pages':[p+1 for p in group],'pages':len(group),'bytes':len(result),'sha256':hashlib.sha256(result).hexdigest()})
-        if manifest:archive.writestr('reapdf-division.json',json.dumps({'format':'reapdf-split-receipt','version':1,'source_sha256':hashlib.sha256(edited).hexdigest(),'source_pages':review['pages'],'parts':records},ensure_ascii=False,indent=2).encode('utf-8'))
+        if manifest:archive.writestr('reapdf-division.json',json.dumps({'format':'reapdf-split-receipt','version':1,'source_sha256':hashlib.sha256(edited).hexdigest(),'original_source_sha256':hashlib.sha256(data).hexdigest(),'accessibility_tags_retained':preserve_tags,'source_pages':review['pages'],'parts':records},ensure_ascii=False,indent=2).encode('utf-8'))
     return buffer.getvalue()

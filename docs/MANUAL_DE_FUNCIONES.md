@@ -150,14 +150,14 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Acceso:** Editar → Buscar y reemplazar.
 
-1. Abre Buscar y reemplazar y elige texto exacto o comodines tipo Excel
-2. escribe el patrón y el reemplazo; pulsa Entrar o Buscar coincidencias
-3. elige resultados compatibles o usa Revisar reemplazo actual para la coincidencia mostrada
-4. revisa la vista previa y aplica los reemplazos.
+1. Abre Buscar y reemplazar, escribe el texto o patrón y el reemplazo.
+2. pulsa Buscar coincidencias y consulta cuántas son compatibles antes de seleccionar.
+3. si las etiquetas bloquean la operación, puedes elegir Crear copia sin etiquetas para editar; conserva la búsqueda y revisa los resultados nuevos.
+4. selecciona coincidencias, prepara la vista previa y aplica el lote.
 
-**Resultado esperado:** Se reemplazan las coincidencias elegidas con las fuentes y estilos compatibles originales; se puede deshacer la versión aplicada.
+**Resultado esperado:** Se verifican las restricciones estructurales antes de ofrecer resultados compatibles. Se reemplazan los elegidos conservando fuentes y estilos compatibles; el lote se puede deshacer.
 
-**Límites actuales:** Comodines: * varios caracteres, ? uno y ~ para escapar * ? ~. Coincidencias más largas dentro de una línea digital contigua; no cruza líneas ni reconoce escaneados. Máximo 100 coincidencias/fragmentos por operación y presupuesto de búsqueda; el texto debe caber.
+**Límites actuales:** Máximo 100 coincidencias/fragmentos. Los comodines no cruzan líneas. El reemplazo debe caber y sus caracteres deben existir en la fuente. La copia opcional pierde etiquetas y declaraciones PDF/UA/PDF/A; no rasteriza ni elimina firmas o restricciones. ActualText incrustado en el contenido, fuentes ambiguas y otras variantes pueden seguir protegidas.
 
 <a id="funcion-text"></a>
 
@@ -254,13 +254,14 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Acceso:** Editar → Editar imágenes del PDF.
 
-1. Abre la herramienta y selecciona la aparición en la muestra con el ratón o en la lista.
-2. Arrastra su marco o cambia la posición y el tamaño. También puedes reemplazar el archivo o eliminar la aparición.
-3. Genera la vista previa y aplica el cambio. Deshacer recupera la versión anterior.
+1. Abre Editar imágenes del PDF y selecciona una aparición.
+2. si el bloqueo se debe a las etiquetas, puedes elegir Crear copia sin etiquetas para editar; conserva la apariencia y exige guardar con una identidad de copia nueva.
+3. arrastra el marco o ajusta posición y tamaño; también puedes reemplazar o eliminar la aparición.
+4. genera la vista previa y aplica el cambio.
 
-**Resultado esperado:** Solo cambia la aparición seleccionada, incluso si comparte imagen o Forms anidados con otras posiciones. Se conservan el texto y las otras apariciones. Mover mantiene orientación, compresión y máscara alfa.
+**Resultado esperado:** La aparición compatible seleccionada se edita conservando texto y otras apariciones. La copia opcional permite continuar en documentos bloqueados por su árbol de accesibilidad, sin rasterizar y conservando el original.
 
-**Límites actuales:** Los PDF etiquetados, capas incompatibles, imágenes inline, páginas OCR y cajas fuera del recorte del Form siguen protegidos. Eliminar una aparición no equivale a censurar datos. La vista previa conserva los recortes originales.
+**Límites actuales:** Mover conserva orientación, compresión y máscara alfa. La copia opcional pierde etiquetas y declaraciones PDF/UA/PDF/A; no es edición semántica nativa ni saneamiento. No elimina restricciones de firmas/permisos, capas, imágenes inline, OCR o recortes no verificables. Mover una imagen con OCR desalinearía su texto y permanece protegido.
 
 <a id="funcion-headers"></a>
 
@@ -554,13 +555,15 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Acceso:** Organizar páginas → Dividir PDF.
 
-1. Elige Dividir PDF.
-2. define rangos, bloques o marcadores y nombres.
-3. revisa los archivos y exporta.
+1. Elige Dividir PDF y define bloques, grupos o marcadores; usa una página por archivo para desglosar cada hoja.
+2. configura prefijo, separador, número inicial y cifras mínimas; por ejemplo 1.46 PINTURA, espacio, 1 y 3 para obtener 1.46 PINTURA 001.pdf.
+3. revisa los nombres, que puedes modificar individualmente; Generar nombres numerados reemplaza los personalizados por la serie.
+4. en PDF etiquetados se conservan las etiquetas por defecto; si su estructura no es compatible, puedes desmarcar Conservar etiquetas en las partes, aceptando la pérdida indicada.
+5. descarga las partes en ZIP, con relación de archivos opcional.
 
-**Resultado esperado:** Se obtiene un ZIP de PDF independientes con nombres personalizados.
+**Resultado esperado:** Se obtiene un ZIP de PDF independientes con nombres como 1.46 PINTURA 001.pdf, 1.46 PINTURA 002.pdf, etc. El original queda intacto. La alternativa sin etiquetas conserva texto, imágenes y apariencia sin rasterizar.
 
-**Límites actuales:** Las estructuras no divisibles de forma verificada se protegen; no se atribuye validez de firmas a archivos nuevos.
+**Límites actuales:** Hasta 500 partes; números de 0 a 99999999 y de 1 a 8 cifras mínimas. Se mantienen las validaciones de nombres, firmas/permisos, capas, XFA, acciones y tamaño. La alternativa sin etiquetas pierde estructura de accesibilidad y declaraciones PDF/UA/PDF/A y requiere permisos de copia/modificación; no corrige cualquier PDF dañado.
 
 <a id="funcion-labels"></a>
 
@@ -828,13 +831,13 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Acceso:** Convertir y OCR → Reconocer texto (OCR).
 
-1. Elige Reconocer texto (OCR).
-2. define páginas, idioma y resolución.
-3. ejecuta y revisa.
+1. Elige Reconocer texto (OCR) y define páginas, idioma, resolución y orientación de reconocimiento.
+2. ejecuta; el programa añade texto invisible y compara el aspecto y los límites del PDF guardado con los anteriores a la resolución elegida.
+3. revisa el texto reconocido y guarda una copia.
 
-**Resultado esperado:** Se añade una capa buscable sin sustituir la imagen del escaneado.
+**Resultado esperado:** Se añade una capa buscable sin sustituir ni mover la imagen o los cuadros originales. Si la comparación detecta un cambio visual, el resultado se descarta sin aplicarlo.
 
-**Límites actuales:** La exactitud depende de la imagen y el idioma; se omiten o protegen páginas incompatibles.
+**Límites actuales:** La comparación se hace a la resolución elegida; no certifica otros visores ni la exactitud de reconocimiento. La capa OCR puede tener errores o desalineaciones y no convierte las letras visibles de una imagen en objetos de texto editables. Se omiten páginas con texto digital; hasta 10 páginas/64 MP por lote. No mueve la imagen al corregir la orientación de lectura.
 
 <a id="funcion-export_images"></a>
 

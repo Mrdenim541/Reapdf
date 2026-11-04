@@ -36,7 +36,7 @@ def ocr_pdf(base,operations,pages,language='spa+eng',dpi=200,orientation=0):
             page=source[n];pixels=math.ceil(page.rect.width*dpi/72)*math.ceil(page.rect.height*dpi/72);total+=pixels
             if pixels>16_000_000 or max(page.rect.width,page.rect.height)*dpi/72>8192:raise DocumentError('Una página OCR supera el límite de resolución. Reduce los ppp.')
         if total>64_000_000:raise DocumentError('El lote OCR supera 64 millones de píxeles. Reduce páginas o resolución.')
-    edited=export_pdf(base,operations);report={'processed':[],'skipped':[],'language':language,'dpi':dpi,'orientation':orientation,'words':0}
+    edited=export_pdf(base,operations);report={'processed':[],'skipped':[],'language':language,'dpi':dpi,'orientation':orientation,'words':0,'appearance_verified_pages':[],'appearance_verification_dpi':dpi};expected={}
     with open_pdf(edited) as doc:
         for number in pages:
             page=doc[number]
@@ -48,6 +48,7 @@ def ocr_pdf(base,operations,pages,language='spa+eng',dpi=200,orientation=0):
                 # not make Tesseract read sideways; restore it for the viewer.
                 page.set_rotation(0)
                 pix=page.get_pixmap(matrix=fitz.Matrix(dpi/72,dpi/72).prerotate(orientation),alpha=False,annots=False)
+                expected[number]=(tuple(page.mediabox),tuple(page.cropbox),rotation,pix.width,pix.height,sha256(pix.samples_mv).digest())
                 try:recognized=pix.pdfocr_tobytes(language=language,tessdata=str(TESSDATA))
                 except Exception as exc:raise DocumentError('No se pudo completar el OCR local. El PDF original se conserva.') from exc
                 with fitz.open(stream=recognized) as textdoc:
@@ -56,4 +57,13 @@ def ocr_pdf(base,operations,pages,language='spa+eng',dpi=200,orientation=0):
                     page.show_pdf_page(page.rect,textdoc,0,overlay=True,rotate=orientation)
             finally:page.set_rotation(rotation)
             report['processed'].append(number)
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True) if report['processed'] else edited,report
+        result=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True) if report['processed'] else edited
+    if expected:
+        with open_pdf(result) as check:
+            for number,wanted in expected.items():
+                page=check[number];rotation=page.rotation;page.set_rotation(0)
+                pix=page.get_pixmap(matrix=fitz.Matrix(dpi/72,dpi/72).prerotate(orientation),alpha=False,annots=False)
+                actual=(tuple(page.mediabox),tuple(page.cropbox),rotation,pix.width,pix.height,sha256(pix.samples_mv).digest())
+                if actual!=wanted:raise DocumentError('El OCR cambió el aspecto o los límites de una página. No se aplica el resultado; el original se conserva.')
+                report['appearance_verified_pages'].append(number)
+    return result,report

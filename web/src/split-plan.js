@@ -14,3 +14,7 @@ export function splitGroups(mode,size,draft,count){
 export function namedParts(groups,names){
  const seen=new Set();return groups.map((pages,i)=>{const name=pdfPartName(names[i]??`parte-${String(i+1).padStart(3,'0')}.pdf`),key=name.toLocaleLowerCase('und');if(seen.has(key))throw new Error('Dos partes tienen el mismo nombre.');seen.add(key);return {pages,name};});
 }
+export function numberedPartNames(count,{prefix='parte',separator='-',start=1,padding=3}={}){
+ if(!Number.isInteger(count)||count<1||count>500||typeof prefix!=='string'||!prefix.trim()||!['-',' ','_',''].includes(separator)||!Number.isInteger(start)||start<0||!Number.isInteger(padding)||padding<1||padding>8||start+count-1>99999999)throw new Error('Indica un prefijo, inicio entre 0 y 99999999 y de 1 a 8 cifras; la serie no debe superar 99999999.');
+ return Array.from({length:count},(_,i)=>pdfPartName(`${prefix}${separator}${String(start+i).padStart(padding,'0')}`));
+}
