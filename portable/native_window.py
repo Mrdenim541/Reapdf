@@ -92,7 +92,7 @@ def create_window(url,initial_file=None):
             self.print_action.triggered.connect(lambda:self.page.runJavaScript('window.dispatchEvent(new Event("reapdf-print"))'));menu.addAction(self.print_action)
             close=menu.addAction('Cerrar');close.triggered.connect(self.close)
             self.profile.downloadRequested.connect(self.download)
-            self.pending_file=initial_file;self.external_files=[];self.probing_file=False;self.opening_file=False;self.initial_attempts=0;self.initial_timer=QTimer(self)
+            self.pending_file=initial_file;self.external_files=[];self.probing_file=False;self.opening_file=False;self.initial_attempts=0;self.initial_deadline=time.monotonic()+30;self.initial_timer=QTimer(self)
             self.initial_timer.setInterval(100);self.initial_timer.timeout.connect(self.try_initial_file)
             if initial_file:self.initial_timer.start()
             self.startup_load_failed=False
@@ -119,16 +119,19 @@ def create_window(url,initial_file=None):
             if self.probing_file or self.opening_file:return
             self.probing_file=True
             self.initial_attempts+=1
-            if self.allow_close or self.initial_attempts>100:
+            if self.allow_close or time.monotonic()>=self.initial_deadline:
                 self.initial_timer.stop()
-                if not self.allow_close:QMessageBox.warning(self,'Abrir PDF','La aplicación no terminó de cargar. Abre el archivo desde el menú.')
+                self.probing_file=False
+                if not self.allow_close:
+                    self.initial_warning=QMessageBox(QMessageBox.Icon.Warning,'Abrir PDF','La aplicación no terminó de cargar. Abre el archivo desde el menú.',QMessageBox.StandardButton.Ok,self)
+                    self.initial_warning.open()
                 return
             def ready(found):
                 self.probing_file=False
-                if found=='busy':self.initial_attempts=0;return
+                if found=='busy':self.initial_attempts=0;self.initial_deadline=time.monotonic()+30;return
                 if found=='ready':
                     file=self.pending_file or (self.external_files.pop(0) if self.external_files else None)
-                    self.pending_file=None;self.initial_attempts=0
+                    self.pending_file=None;self.initial_attempts=0;self.initial_deadline=time.monotonic()+30
                     if not self.external_files:self.initial_timer.stop()
                     if file:self.open_path(file)
             self.page.runJavaScript('window.__reapdfCloseState?.busy || document.querySelector("dialog[open]")?"busy":[...document.querySelectorAll("input")].some(e=>e.getAttribute("aria-label")==="Archivo PDF")?"ready":"loading"',ready)
@@ -137,7 +140,7 @@ def create_window(url,initial_file=None):
             if self.allow_close:raise ValueError('La ventana se está cerrando; vuelve a abrir el archivo.')
             if file:
                 if len(self.external_files)>=10:raise ValueError('Hay demasiados archivos pendientes.')
-                self.external_files.append(file);self.initial_attempts=0;self.initial_timer.start()
+                self.external_files.append(file);self.initial_attempts=0;self.initial_deadline=time.monotonic()+30;self.initial_timer.start()
             if self.isMinimized():self.showNormal()
             self.raise_();self.activateWindow()
 
