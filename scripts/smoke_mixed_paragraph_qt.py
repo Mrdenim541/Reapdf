@@ -50,11 +50,11 @@ try:
     target=window.view.focusProxy() or window.view
     QTest.keyClick(target,Qt.Key.Key_Home,Qt.KeyboardModifier.ControlModifier)
     for _ in range(6):QTest.keyClick(target,Qt.Key.Key_Right)
-    QTest.keyClicks(target,'HELLO ')
-    assert js(field('Párrafo sobre la página')+'.value')=='HELLO HELLO TEXT'
+    QTest.keyClicks(target,'HELLO ',delay=20)
+    wait(field('Párrafo sobre la página')+'.value==="HELLO HELLO TEXT"')
     QTest.keyClick(target,Qt.Key.Key_A,Qt.KeyboardModifier.ControlModifier)
     QTest.keyClick(target,Qt.Key.Key_Backspace)
-    assert js(field('Párrafo sobre la página')+'.value')==''
+    wait(field('Párrafo sobre la página')+'.value===""')
     QTest.keyClick(target,Qt.Key.Key_Z,Qt.KeyboardModifier.ControlModifier)
     wait(field('Párrafo sobre la página')+'.value==="HELLO HELLO TEXT"')
     assert js(field('Fragmento original 2')+'.value')=='TEXT'
