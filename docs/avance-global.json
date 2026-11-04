@@ -157,9 +157,11 @@
         "docs/REFLUJO_ENTRE_OBJETOS_20261104.md",
         "tests/test_explicit_paragraph_selection.py",
         "scripts/smoke_explicit_selection_qt.py",
-        "docs/SELECCION_EXPLICITA_20261104.md"
+        "docs/SELECCION_EXPLICITA_20261104.md",
+        "docs/OBJETOS_CURVAS_Y_NOTAS_20261104.md",
+        "docs/validation/paths-curves-notes-20261104/results.json"
       ],
-      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con recursos/matrices/filtros fuera del subconjunto vectorial y bitmap verificado, reflujo mixto fuera del subconjunto de objetos completos, continuos, paralelos/opacos y de la misma ruta, entre rutas distintas, bloques incompatibles y páginas y con composición especial y cambio de fuente; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
+      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con recursos/matrices/filtros fuera del subconjunto vectorial y bitmap verificado, reflujo mixto con transformaciones no paralelas, bloques incompatibles, redistribución entre páginas, composición/espaciado especial, etiquetas y cambio de fuente generales; la selección explícita entre rutas de objetos completos paralelos/opacos ya está incorporada; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
     },
     {
       "id": "annotations",
@@ -237,9 +239,11 @@
         "tests/test_soft_masks_page_notes_groups.py",
         "tests/test_offline_timestamp_report.py",
         "docs/REFLUJO_PERSPECTIVA_REVOCACION_20261031.md",
-        "tests/test_affine_perspective_revocation.py"
+        "tests/test_affine_perspective_revocation.py",
+        "docs/OBJETOS_CURVAS_Y_NOTAS_20261104.md",
+        "docs/validation/paths-curves-notes-20261104/results.json"
       ],
-      "remaining": "Esquinas generales/bajo contraste, tablas en perspectiva/irregulares/multilínea, otros idiomas y fidelidad Office general; notas partidas/reinicio por página de notas finales y marcas entre fragmentos. Reinicio por página de notas al pie compatibles ya incorporado con convergencia y enlaces. Perspectiva convexa con OCR/revisión ya incorporada; siguen tablas irregulares/curvas/multilínea generales."
+      "remaining": "Esquinas generales/bajo contraste, tablas en perspectiva/irregulares/multilínea, otros idiomas y fidelidad Office general; notas partidas/reinicio por página de notas finales y marcas repartidas entre varios fragmentos/límites estructurales; marca en un fragmento adyacente compatible ya incorporada. Reinicio por página de notas al pie compatibles ya incorporado con convergencia y enlaces. Perspectiva convexa con OCR/revisión ya incorporada; siguen tablas irregulares/curvas/multilínea generales."
     },
     {
       "id": "security_signatures",
@@ -417,9 +421,11 @@
         "scripts/smoke_search_curves.mjs",
         "scripts/smoke_search_curves_qt.py",
         "docs/BUSQUEDA_Y_CURVAS_20261031.md",
-        "docs/validation/wildcards-curves-20261031/results.json"
+        "docs/validation/wildcards-curves-20261031/results.json",
+        "docs/OBJETOS_CURVAS_Y_NOTAS_20261104.md",
+        "docs/validation/paths-curves-notes-20261104/results.json"
       ],
-      "remaining": "Cruces entre dos curvas, trazados recortados o de capas no verificadas, geometrías que exceden los presupuestos/precisión, migraciones antiguas ambiguas o fuera de vista y corpus/interoperabilidad externos. Longitudes y áreas de trazados lineales/Bézier compatibles con margen explícito, recorridos cerrados, proyección del cursor y cruces línea–cúbica ya incorporados; no se consideran equivalentes a curvas exactas generales."
+      "remaining": "Trazados recortados o de capas no verificadas, geometrías que exceden los presupuestos/precisión, migraciones antiguas ambiguas o fuera de vista y corpus/interoperabilidad externos. Longitudes y áreas de trazados lineales/Bézier compatibles con margen explícito, recorridos cerrados, proyección del cursor y cruces línea–cúbica y cúbica–cúbica compatibles con límites/tolerancia ya incorporados; no se consideran equivalentes a curvas exactas generales."
     },
     {
       "id": "portfolios_layers",
@@ -518,30 +524,27 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "37ab9fdbd9d79b53f23652dd8d020e91e598a717",
-    "application_commit": "b4a7e6a3f11f6b379044ff793a50beb3858867f1",
-    "application_identical_between_platforms": true,
+    "source_commit": "cc0c283b3b588e611184f339ebdf79115d651431",
+    "linux": {
+      "checks": 21,
+      "evidence": "docs/validation/paths-curves-notes-20261104/linux/desktop-report.json"
+    },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 18,
-      "source_commit": "37ab9fdbd9d79b53f23652dd8d020e91e598a717",
-      "evidence": "docs/validation/explicit-selection-20261104/windows/assessment.json"
-    },
-    "linux": {
-      "checks": 18,
-      "source_commit": "b4a7e6a3f11f6b379044ff793a50beb3858867f1",
-      "evidence": "docs/validation/explicit-selection-20261104/linux/desktop-report.json"
+      "checks": 21,
+      "evidence": "docs/validation/paths-curves-notes-20261104/windows/assessment.json"
     },
     "packaged_executable_verified": true,
     "compiled_gui_independent_runs": 2,
-    "packaged_scope": "Ventana/edición/undo/redo/exportación/cierre en dos aperturas. Primer fallo conservado, causa no identificada; no cierre funcional general ni estabilidad Windows cliente."
+    "packaged_scope": "Ventana/edición/undo/redo/exportación/cierre; no cierre funcional general, estabilidad Windows cliente ni causa resuelta del fallo previo."
   },
   "last_implementation": {
     "date": "2026-11-04",
-    "evidence": "docs/validation/explicit-selection-20261104/results.json",
+    "evidence": "docs/validation/paths-curves-notes-20261104/results.json",
     "features": [
-      "Selección explícita de bloques separados con orden del usuario",
-      "Retorno al selector, marcadores y rechazo de selección parcial/obsoleta"
+      "Explicit ordered complete parallel opaque text objects across separate native Form paths on one page; individual clips and unselected appearances preserved.",
+      "Original cubic/cubic isolated numerical intersection snaps with tolerance, deduplication and shared work bounds; coincident or exhausted pairs disclosed.",
+      "Custom Word note mark in immediately following text-only run, 1–4 visible covered characters; preserve adjacent body and return links."
     ],
     "global_estimate_recalculated": false
   }

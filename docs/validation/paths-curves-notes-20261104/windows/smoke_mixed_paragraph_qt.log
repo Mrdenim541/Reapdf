@@ -1,0 +1,3 @@
+[7432:4324:1104/104100.234:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[7432:4324:1104/104100.234:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: own Qt mixed paragraph uses one on-page text field, actual caret insertion and browser undo/redo preserve original styles, Ctrl+Enter applies without a separate preview step, native atomic save/reopen and original intact.

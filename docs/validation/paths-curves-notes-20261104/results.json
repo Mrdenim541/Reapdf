@@ -1,0 +1,25 @@
+{
+  "source_commit": "cc0c283b3b588e611184f339ebdf79115d651431",
+  "python_passed": 4018,
+  "new_cases": 72,
+  "javascript_passed": 140,
+  "build_passed": true,
+  "linux_qt_checks": 21,
+  "windows_qt_checks": 21,
+  "windows_receipt": "41815513183-1",
+  "windows_verified": true,
+  "windows_assessment": "windows/assessment.json",
+  "packaged_windows_verified": true,
+  "compiled_gui_independent_runs": 2,
+  "archive_sha256": "c39746866ba9f09cff92a5af371f4d68ac9d659bd56042fb1581a30ef70fa816",
+  "human_acceptance": false,
+  "technical_complete": false,
+  "package_delivered": false,
+  "global_estimate_recalculated": false,
+  "scope": [
+    "Explicit ordered complete parallel opaque text objects across separate native Form paths on one page; individual clips and unselected appearances preserved.",
+    "Original cubic/cubic isolated numerical intersection snaps with tolerance, deduplication and shared work bounds; coincident or exhausted pairs disclosed.",
+    "Custom Word note mark in immediately following text-only run, 1–4 visible covered characters; preserve adjacent body and return links."
+  ],
+  "previous_intermittent_packaged_edit_failure_root_cause_confirmed": false
+}

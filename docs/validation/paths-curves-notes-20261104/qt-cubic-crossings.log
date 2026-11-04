@@ -1,0 +1,9 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+Fontconfig error: No writable cache directories
+[138625:138759:1104/103501.328653:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 138760: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: actual Qt mouse offset from two original cubic/cubic crossings snaps to both precise targets, calculates calibrated distance, saves natively and reopens; underlying plan and source unchanged.

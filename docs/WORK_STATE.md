@@ -1,3 +1,9 @@
+# Continuidad · 4 de noviembre de 2026 · objetos, curvas y notas
+
+Entrega final NO cumplida; no pedir pruebas personales ni entregar paquetes intermedios. Tres implementaciones distintas: selección explícita entre rutas Form/página/antecesores compatibles con aislamiento de apariciones; cruces cúbica–cúbica numéricos con tangencias, límites y señalización de pares omitidos; marcas Word en siguiente fragmento adyacente y separación correcta del texto alrededor de referencias. No repetir estos subconjuntos como pendientes. Permanecen transformaciones no paralelas, etiquetas/composición/espaciado especial, páginas distintas, variantes de geometría y notas generales y el resto del plan.
+
+Fuente cc0c283b3b588e611184f339ebdf79115d651431, respaldada en recovery/editing-20261029. 4018 Python (72 nuevas), 140 JS, build, manual 74+15, navegador y 21 recorridos Qt Linux/Windows Server 2025 fuente limpia; comprobante 41815513183-1 contrastado. Reapdf.exe interno pasó dos aperturas independientes. Fallo empaquetado previo sin causa confirmada; no declarar resuelta intermitencia ni Windows cliente/DPI/impresión física/carga sostenida. Informe OBJETOS_CURVAS_Y_NOTAS_20261104.md; evidencia validation/paths-curves-notes-20261104/results.json. Sin reevaluación: referencia global 85,68 % provisional. Modelo 6.1 Sol medio. Entradas siguientes históricas.
+
 # Continuidad · 4 de noviembre de 2026 · selección explícita
 
 Entrega final aún NO cumplida. No pedir pruebas personales ni entregar paquetes intermedios. Sin reevaluación global. Modelo: 6.1 Sol medio.
