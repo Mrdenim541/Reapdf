@@ -7,6 +7,7 @@ from tests.test_native_calculations import source
 
 
 @pytest.mark.parametrize('expr,a,expected',[
+ ('F ? 1 : 2',0,2),('F ? 1 : 2',5,1),
  ('F>0 ? F*2 : 0',5,10),('F>0 ? F*2 : 0',-5,0),
  ('F===2 ? 7 : 9',2,7),('F!==2 ? 7 : 9',2,9),
  ('F>=1 && F<=5 ? 100 : 200',3,100),('F<1 || F>5 ? 100 : 200',3,200),

@@ -333,7 +333,7 @@ def test_formula_numeric_failure_is_atomic(expression):
  'event.value=this.getField("A").value++1;',
  'event.value=this.getField("A").value.constructor;',
  'event.value=__import__("os").system("false");',
- 'event.value=this.getField("A").value ? 1 : 2;',
+ 'event.value=this.getField("A").value ? 1 : app.alert(1);',
  ])
 def test_unknown_formula_scripts_are_never_executed(code):
     from backend.form_expressions import parse
