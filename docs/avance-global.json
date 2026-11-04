@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "review_date": "2026-11-04",
-  "status": "provisional_with_bounded_native_split_module_closed",
+  "status": "provisional_with_native_tagged_figure_editing",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 87.08,
+  "weighted_percent": 87.14,
   "reported_percent": 87,
   "subjective_range_percent": [
     62,
@@ -78,9 +78,12 @@
         "docs/CONTINUACION_NATIVA_20261104.md",
         "docs/validation/native-continuation-20261104/results.json",
         "docs/CORRECCIONES_OBSERVADAS_20261104.md",
-        "docs/validation/observations-20261104/results.json"
+        "docs/validation/observations-20261104/results.json",
+        "backend/tagged_image_integrity.py",
+        "docs/EDICION_NATIVA_FIGURAS_20261104.md",
+        "docs/validation/tagged-images-20261104/results.json"
       ],
-      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados."
+      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras."
     },
     {
       "id": "text_images",
@@ -176,9 +179,12 @@
         "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
         "docs/validation/functional-closing-20261104/results.json",
         "docs/CORRECCIONES_OBSERVADAS_20261104.md",
-        "docs/validation/observations-20261104/results.json"
+        "docs/validation/observations-20261104/results.json",
+        "backend/tagged_image_integrity.py",
+        "docs/EDICION_NATIVA_FIGURAS_20261104.md",
+        "docs/validation/tagged-images-20261104/results.json"
       ],
-      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo no paralelo/composición y espaciados restantes, cambio general de fuente, etiquetas/ActualText/Stm o mezcla etiquetada general, imágenes inline/etiquetadas/OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada. Copia explícita sin etiquetas para imágenes/texto compatibles ya incorporada; permanece pendiente la edición semántica nativa sin esa pérdida."
+      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo no paralelo/composición y espaciados restantes, cambio general de fuente, etiquetas/ActualText/Stm o mezcla etiquetada general, imágenes inline, figuras y Forms fuera del perfil verificado, OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada. Copia explícita sin etiquetas para imágenes/texto compatibles ya incorporada; permanece pendiente la edición semántica nativa general de estructuras fuera del perfil compatible. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras."
     },
     {
       "id": "annotations",
@@ -310,7 +316,7 @@
     {
       "id": "accessibility",
       "weight": 3,
-      "maturity": 93,
+      "maturity": 95,
       "evidence": [
         "backend/accessibility.py",
         "backend/structure_editing.py",
@@ -334,9 +340,12 @@
         "backend/structure_scope.py",
         "tests/test_structure_scope.py",
         "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
-        "docs/validation/functional-closing-20261104/results.json"
+        "docs/validation/functional-closing-20261104/results.json",
+        "backend/tagged_image_integrity.py",
+        "docs/EDICION_NATIVA_FIGURAS_20261104.md",
+        "docs/validation/tagged-images-20261104/results.json"
       ],
-      "remaining": "Reparación compatible de rol/RowSpan/ColSpan/Scope de tablas existentes, conservación de identidad de nodos iguales al guardar y edición de un fragmento nativo etiquetado incorporadas. Quedan semántica general/mixta interna de Forms, imágenes inline/recortes, enlaces ambiguos/listas/celdas complejas, ActualText/Stm y reparación general/PDF/UA. El texto nuevo no se etiqueta automáticamente. Lector de pantalla e interoperabilidad externos pendientes."
+      "remaining": "Reparación compatible de rol/RowSpan/ColSpan/Scope de tablas existentes, conservación de identidad de nodos iguales al guardar y edición de un fragmento nativo etiquetado incorporadas. Quedan semántica general/mixta interna de Forms, imágenes inline y recomposición general de recortes, enlaces ambiguos/listas/celdas complejas, ActualText/Stm y reparación general/PDF/UA. El texto nuevo no se etiqueta automáticamente. Lector de pantalla e interoperabilidad externos pendientes. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras."
     },
     {
       "id": "automation_linking",
@@ -531,20 +540,20 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261104-before-split-closure.json",
-    "before_weighted": 86.87,
-    "before_unrounded": "86.8725",
-    "after_weighted": 87.08,
-    "new_points": 0.21,
-    "unrounded_delta": "0.2100",
-    "unrounded_after_weighted": "87.0825",
+    "baseline": "docs/progress/20261104-before-tagged-images.json",
+    "before_weighted": 87.08,
+    "before_unrounded": "87.0825",
+    "after_weighted": 87.14,
+    "unrounded_after_weighted": "87.1425",
+    "new_points": 0.06,
+    "unrounded_delta": "0.0600",
     "changes": [
       {
-        "id": "reader_pages",
+        "id": "accessibility",
         "before": 93,
-        "after": 96,
-        "points": 0.21,
-        "reason": "Conservación nativa Layout/ActualText de páginas completas y árboles mayores; comprobación previa automática y exportación íntegra verificada con fallo atómico. Caso privado conservando etiquetas y 42 partes genéricas. No puntos por nombres ya existentes, documentación o repetición de pruebas; no semántica universal ni cierre de los ocho bloques generales."
+        "after": 95,
+        "points": 0.06,
+        "reason": "Edición coordinada de figuras existentes: BBox/Width/Height locales al mover, Alt al reemplazar y retirada de Figure/ParentTree/MCID al eliminar. Clases, Forms, ActualText/Stm generales y PDF/UA siguen abiertos. Sin puntos por documentación, repetir pruebas, nombres ya existentes o todo el bloque de edición."
       }
     ]
   },
@@ -600,15 +609,15 @@
   },
   "last_implementation": {
     "date": "2026-11-04",
-    "source_commit": "1103094eddcf1e4e1a29313a69cd43d21143a598",
-    "evidence": "docs/validation/split-closure-20261104/results.json",
+    "source_commit": "cd35dabb458f23a20eae44c4876a22e7e5403d46",
+    "evidence": "docs/validation/tagged-images-20261104/results.json",
     "features": [
-      "División con comprobación automática previa y descarga vinculada al plan",
-      "Conservación de Layout/ActualText de páginas completas y árboles mayores",
-      "Verificación independiente de cada parte y publicación atómica del ZIP",
-      "Apertura inicial con plazo monotónico, aviso asíncrono y reintento recuperable"
+      "Edición nativa de figuras etiquetadas con grafo y marcadores comprobados",
+      "Reemplazo con descripción accesible y conservación del marco",
+      "Eliminación coordinada de Figure y ParentTree sin renumerar otros MCID",
+      "Acciones por aparición y comprobación de recortes rectangulares",
+      "Vista previa automática con edición responsive y rechazo de respuestas obsoletas"
     ],
-    "bounded_module_closed": "division_pdf",
     "global_blocks_closed": [],
     "global_estimate_recalculated": true
   },
@@ -652,6 +661,13 @@
     "evidence": "docs/validation/split-closure-20261104/results.json",
     "bounded_module_closed": true,
     "global_blocks_closed": [],
+    "technical_complete": false,
+    "accepted_complete": false
+  },
+  "last_tagged_image_editing": {
+    "source_commit": "cd35dabb458f23a20eae44c4876a22e7e5403d46",
+    "report": "docs/EDICION_NATIVA_FIGURAS_20261104.md",
+    "evidence": "docs/validation/tagged-images-20261104/results.json",
     "technical_complete": false,
     "accepted_complete": false
   }
