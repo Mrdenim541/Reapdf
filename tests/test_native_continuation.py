@@ -48,7 +48,7 @@ def test_invalid_regions_fail_without_a_document(bad):
     with pytest.raises(DocumentError):reflow(base,[],preview=False,**p)
 
 
-@pytest.mark.parametrize('kind',['text','drawing','image','annotation','link','widget','redact','tagged','layer'])
+@pytest.mark.parametrize('kind',['text','drawing','image','annotation','link','widget','redact','tagged','layer','actualtext'])
 def test_destination_is_not_allowed_to_replace_other_content(kind):
     with f.open(stream=source()) as d:
         p=d[1]
@@ -63,6 +63,9 @@ def test_destination_is_not_allowed_to_replace_other_content(kind):
         if kind=='redact':p.add_redact_annot(f.Rect(5,5,15,15))
         if kind=='tagged':d.xref_set_key(d.pdf_catalog(),'StructTreeRoot','<< /Type/StructTreeRoot >>')
         if kind=='layer':d.add_ocg('Layer')
+        if kind=='actualtext':
+            p.insert_text((100,200),'VISIBLE CONTENT')
+            for x in p.get_contents():d.update_stream(x,b'/Span <</ActualText ()>> BDC '+d.xref_stream(x)+b' EMC')
         base=d.tobytes()
     with pytest.raises(DocumentError):reflow(base,[],preview=False,**payload(base))
 

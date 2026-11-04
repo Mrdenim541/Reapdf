@@ -20,6 +20,8 @@ def regions(doc,source,values,matrix):
         if not page.rect.contains(rect):raise DocumentError('La continuación sale de su página.')
         if any(old['page']==number and (old['rect']&rect).get_area()>.01 for old in result):raise DocumentError('Las continuaciones no pueden solaparse.')
         blocked=[f.Rect(v[:4]) for v in page.get_text('blocks',flags=f.TEXTFLAGS_TEXT)]
+        # ActualText may suppress extraction while glyphs remain visible.
+        blocked += [f.Rect(v['bbox']) for v in page.get_texttrace()]
         blocked += [f.Rect(v['bbox']) for v in page.get_image_info()]+[f.Rect(v['from']) for v in page.get_links()]
         blocked += [v.rect for v in page.annots() or []]+[v.rect for v in page.widgets() or []]
         blocked += [f.Rect(v['rect'])+tuple(sign*max(.5,(v.get('width') or 0)/2) for sign in [-1,-1,1,1]) for v in page.get_drawings()]
