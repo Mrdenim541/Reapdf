@@ -39,6 +39,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          Start-Transcript -Path desktop-validation/packaged-check.log -Append
           if ($env:PREVIEW_TAG -cnotmatch '^preview-windows-[0-9]{8}-[0-9a-f]{7,40}$') { throw 'Invalid preview tag' }
           gh release create "$env:PREVIEW_TAG" "$env:PREVIEW_ARCHIVE" "$env:PREVIEW_ARCHIVE.sha256" "docs/PROBAR_VERSION_ACTUAL.md" --verify-tag --draft --prerelease --title "Reapdf - prueba Windows 2026-11-04" --notes-file docs/PROBAR_VERSION_ACTUAL.md
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -52,6 +53,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           python -c "import json,hashlib,os; from pathlib import Path; p=Path(os.environ['PREVIEW_ARCHIVE']); meta=json.loads(Path('desktop-validation/release-meta.json').read_text(encoding='utf-8-sig')); assert not meta['isDraft'] and meta['isPrerelease']; asset=next(a for a in meta['assets'] if a['name']==p.name); assert asset['size']==p.stat().st_size; q=Path('desktop-validation/packaged-report.json'); r=json.loads(q.read_text()); r['preview_release']={'url':meta['url'],'download_url':asset['url'],'archive_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'size_bytes':p.stat().st_size,'download_roundtrip_verified':True}; q.write_text(json.dumps(r,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Stop-Transcript
       - uses: actions/upload-artifact@v4
         if: always()
         with:
