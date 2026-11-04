@@ -1,0 +1,47 @@
+STEP: importing generated TSA UI dependencies
+STEP: creating TSA Qt window
+[1004:1468:1104/195520.170:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[1004:1468:1104/195520.170:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+Timeout (0:01:15)!
+Thread 0x00000d70 (most recent call first):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 355 in wait
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\queue.py", line 171 in get
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\anyio\_backends\_asyncio.py", line 1089 in run
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 1075 in _bootstrap_inner
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 1032 in _bootstrap
+
+Thread 0x00001e18 (most recent call first):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 355 in wait
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\queue.py", line 171 in get
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\anyio\_backends\_asyncio.py", line 1089 in run
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 1075 in _bootstrap_inner
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 1032 in _bootstrap
+
+Thread 0x00000854 (most recent call first):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 359 in wait
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 655 in wait
+  File "D:\a\Reapdf\Reapdf\backend\scheduled_recipes.py", line 206 in run
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 1012 in run
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 1075 in _bootstrap_inner
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 1032 in _bootstrap
+
+Thread 0x000023fc (most recent call first):
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\asyncio\windows_events.py", line 774 in _poll
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\asyncio\windows_events.py", line 445 in select
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\asyncio\base_events.py", line 1961 in _run_once
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\asyncio\base_events.py", line 645 in run_forever
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\asyncio\windows_events.py", line 322 in run_forever
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\asyncio\base_events.py", line 678 in run_until_complete
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\asyncio\runners.py", line 118 in run
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\asyncio\runners.py", line 195 in run
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\uvicorn\server.py", line 86 in run
+  File "D:\a\Reapdf\Reapdf\scripts\smoke_timestamp_qt.py", line 23 in <lambda>
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 1012 in run
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 1075 in _bootstrap_inner
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\threading.py", line 1032 in _bootstrap
+
+Thread 0x000021b4 (most recent call first):
+  File "D:\a\Reapdf\Reapdf\portable\native_window.py", line 124 in try_initial_file
+  File "D:\a\Reapdf\Reapdf\scripts\smoke_timestamp_qt.py", line 32 in js
+  File "D:\a\Reapdf\Reapdf\scripts\smoke_timestamp_qt.py", line 41 in wait
+  File "D:\a\Reapdf\Reapdf\scripts\smoke_timestamp_qt.py", line 78 in <module>
