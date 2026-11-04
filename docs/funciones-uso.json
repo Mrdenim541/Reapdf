@@ -704,10 +704,12 @@
       "steps": [
         "Abre Verificar firmas digitales",
         "selecciona confianza y evidencias locales si corresponde",
-        "ejecuta la comprobación."
+        "ejecuta la comprobación.",
+        "Para reutilizar evidencias del PDF, activa Usar evidencias DSS incorporadas; la confianza sigue siendo explícita.",
+        "Para conservar CRL/OCSP seleccionados, abre Conservar evidencias en una copia y guarda el resultado; todas las firmas y TSA deben superar la comprobación local."
       ],
-      "expected": "Se informa por separado de integridad, revisiones, confianza y revocación local de firmantes y TSA, incluidos tokens de firma y sellos documentales RFC3161.",
-      "limits": "Sin red; confianza explícita y CRL/OCSP locales vigentes, con resultados separados de firmante y TSA. No acredita validación histórica ni LT/LTA. Una revisión anterior no se presenta como cobertura actual."
+      "expected": "Se informa por separado de integridad, revisiones, confianza y revocación local de firmantes y TSA, incluidos tokens de firma y sellos documentales RFC3161. Puede guardar evidencias DSS en una copia incremental y reutilizarlas al verificar por selección explícita.",
+      "limits": "Sin red; confianza explícita y CRL/OCSP locales vigentes, con resultados separados de firmante y TSA. No acredita validación histórica ni LT/LTA. Una revisión anterior no se presenta como cobertura actual. DSS: hasta 20 CRL/OCSP y 4 MB; los certificados incorporados no se convierten en anclas de confianza. Se conservan revisiones previas; no se aceptan cambios pendientes ni documentos certificados/restringidos."
     },
     {
       "id": "signature",

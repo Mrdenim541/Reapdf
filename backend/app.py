@@ -857,8 +857,9 @@ async def document_timestamp(doc_id:str,payload:str=Form('{}'),tsa_trust:UploadF
     return Response(result,media_type='application/pdf',headers={'Content-Disposition':'attachment; filename="Reapdf-sellado.pdf"'})
 
 
+@app.post('/api/documents/{doc_id}/signature-evidence')
 @app.post('/api/documents/{doc_id}/verify-signatures')
-async def signature_verification(doc_id: str,payload: str=Form('{}'),trust: UploadFile | None=None,evidence: list[UploadFile] | None=None):
+async def signature_verification(doc_id: str,request:Request,payload: str=Form('{}'),trust: UploadFile | None=None,evidence: list[UploadFile] | None=None):
     config=signature_payload(payload)
     anchors=await read_signature_upload(trust,MAX_TRUST,'Certificados públicos de confianza') if trust else b''
     from .local_revocation import MAX_EVIDENCE,MAX_FILES
@@ -872,7 +873,12 @@ async def signature_verification(doc_id: str,payload: str=Form('{}'),trust: Uplo
             data=await read_signature_upload(item,remaining,'Evidencia de revocación');proofs.append(data);remaining-=len(data)
     finally:
         for item in files:await item.close()
-    return await run_in_threadpool(verify_signatures,document_path(doc_id).read_bytes(),config.get('operations',[]),anchors,proofs)
+    if request.url.path.endswith('/signature-evidence'):
+        from .signature_evidence import preserve_evidence
+        result=await run_in_threadpool(preserve_evidence,document_path(doc_id).read_bytes(),config.get('operations',[]),anchors,proofs,config.get('review') is True)
+        if config.get('review') is True:return result
+        return Response(result,media_type='application/pdf',headers={'Content-Disposition':'attachment; filename="Reapdf-evidencias.pdf"'})
+    return await run_in_threadpool(verify_signatures,document_path(doc_id).read_bytes(),config.get('operations',[]),anchors,proofs,config.get('use_embedded',False))
 
 
 @app.post('/api/documents/{doc_id}/visual-signature')

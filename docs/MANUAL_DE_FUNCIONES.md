@@ -719,13 +719,15 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Acceso:** Formularios y firmas → Verificar firmas digitales.
 
-1. Abre Verificar firmas digitales
-2. selecciona confianza y evidencias locales si corresponde
-3. ejecuta la comprobación.
+1. Abre la herramienta y selecciona confianza pública y CRL/OCSP, si corresponde.
+2. Ejecuta Comprobar firmas para revisar integridad, cobertura, confianza y revocación de firmantes y TSA por separado.
+3. Para reutilizar CRL/OCSP del PDF, activa Usar evidencias DSS incorporadas. Los certificados del documento no se convierten en confianza automáticamente.
+4. Para guardar CRL/OCSP seleccionados dentro del PDF, abre Conservar evidencias en una copia y pulsa Conservar evidencias y guardar copia. Todas las firmas y TSA deben superar la comprobación local. El original se conserva.
+5. Abre la copia y vuelve a comprobarla con confianza explícita y la opción de evidencias DSS activada.
 
-**Resultado esperado:** Se informa por separado de integridad, revisiones, confianza y revocación local de firmantes y TSA, incluidos tokens de firma y sellos documentales RFC3161.
+**Resultado esperado:** Informe separado de integridad, revisiones, confianza y revocación. La copia DSS conserva las revisiones anteriores y las evidencias locales; cancelar el guardado permite reintentar.
 
-**Límites actuales:** Sin red; confianza explícita y CRL/OCSP locales vigentes, con resultados separados de firmante y TSA. No acredita validación histórica ni LT/LTA. Una revisión anterior no se presenta como cobertura actual.
+**Límites actuales:** Sin red ni validación histórica o LT/LTA. Hasta 20 CRL/OCSP y 4 MB; confianza pública explícita. No se conservan evidencias con cambios pendientes, firmas dañadas, evidencias revocadas/caducadas o documentos certificados/restringidos. Una revisión anterior no se presenta como cobertura actual.
 
 <a id="funcion-signature"></a>
 

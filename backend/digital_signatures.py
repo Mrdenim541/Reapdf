@@ -37,10 +37,15 @@ def reader_for(data):
     except Exception:raise DocumentError('No se pudo interpretar de forma estricta la estructura de firmas del PDF.') from None
 
 
-def verify_signatures(base,operations,trust=b'',evidence=()):
+def verify_signatures(base,operations,trust=b'',evidence=(),use_embedded=False):
     from .local_revocation import parse,check,check_timestamp
-    crls,ocsps=parse(evidence)
+    if type(use_embedded) is not bool:raise DocumentError('La selección de evidencias DSS debe ser verdadera o falsa.')
     data=export_pdf(base,operations)
+    embedded_count=0
+    if use_embedded:
+        from .signature_evidence import embedded_evidence
+        supplied=embedded_evidence(data);embedded_count=len(supplied);evidence=list(evidence)+supplied
+    crls,ocsps=parse(evidence)
     with open_pdf(data) as doc:indicators=doc.get_sigflags()>0
     reader,embedded=reader_for(data);roots=trust_certificates(trust);rows=[]
     now=datetime.now(timezone.utc)
@@ -90,7 +95,7 @@ def verify_signatures(base,operations,trust=b'',evidence=()):
             row={'field':signature.field_name,'status':'inconclusive','error':'No se pudo completar la validación de esta firma. No se considera válida.'}
         rows.append(row)
     return {'schema':'reapdf-signatures-1','source_sha256':hashlib.sha256(data).hexdigest(),'source_bytes':len(data),'checked_at':now.isoformat(),
-        'network_used':False,'revocation_checked':bool(rows) and all(r.get('revocation',{}).get('checked',False) for r in rows),'tsa_revocation_checked':any(r.get('timestamp') for r in rows) and all(r.get('timestamp',{}).get('revocation_checked',False) for r in rows if r.get('timestamp')),'revocation_scope':'Firmantes y TSA con resultados separados a la fecha de comprobación; sin validación histórica.','evidence':{'crls':len(crls),'ocsps':len(ocsps)},'trusted_certificates':[certificate_info(x509.load_der_x509_certificate(c.dump())) for c in roots],
+        'network_used':False,'revocation_checked':bool(rows) and all(r.get('revocation',{}).get('checked',False) for r in rows),'tsa_revocation_checked':any(r.get('timestamp') for r in rows) and all(r.get('timestamp',{}).get('revocation_checked',False) for r in rows if r.get('timestamp')),'revocation_scope':'Firmantes y TSA con resultados separados a la fecha de comprobación; sin validación histórica.','evidence':{'crls':len(crls),'ocsps':len(ocsps),'embedded_files':embedded_count},'trusted_certificates':[certificate_info(x509.load_der_x509_certificate(c.dump())) for c in roots],
         'signature_indicators':indicators,'signatures':rows,'count':len(rows),
         'scope':'Verificación criptográfica y de revisiones con confianza explícita local, incluidos sellos documentales RFC3161 y tokens de tiempo de firma. Sin consultas de red; revocación con evidencias locales explícitas de firmantes y TSA, con resultados separados a la fecha de comprobación. No acredita validación histórica, jurídica, conservación de archivo ni PAdES-LT/LTA. La fecha del firmante no prueba el momento de firma.'}
 
