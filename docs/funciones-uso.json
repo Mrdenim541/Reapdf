@@ -249,7 +249,7 @@
         "escribe y aplica o usa Ctrl+Enter."
       ],
       "expected": "El contenido nuevo se guarda con la fuente y geometría originales compatibles.",
-      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas."
+      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas. Type3: matrices diagonales positivas acotadas y desplazamientos compatibles; glifos vectoriales o imágenes/máscaras bitmap verificadas sin máscaras externas, con recursos y píxeles conservados. Otras matrices, recursos y filtros siguen protegidos."
     },
     {
       "id": "paragraph",

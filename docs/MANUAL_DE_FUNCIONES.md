@@ -173,6 +173,8 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Límites actuales:** No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas.
 
+Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos con imágenes bitmap o máscaras verificadas. Se mantienen los recursos originales. No admite rotación/cizalla dentro de FontMatrix, filtros distintos de Flate o sin compresión, máscaras externas ni recursos no verificados.
+
 <a id="funcion-paragraph"></a>
 
 ### Reemplazar bloque de texto

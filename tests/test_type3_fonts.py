@@ -60,7 +60,7 @@ def mutate(base,key,value,proc=None):
 
 
 @pytest.mark.parametrize('key,value',[
- ('FontMatrix','[.002 0 0 .001 0 0]'),('FontBBox','[0 0 0 0]'),('Resources','<</ExtGState<<>>>>'),
+ ('FontMatrix','[.001 .0001 0 .001 0 0]'),('FontBBox','[0 0 0 0]'),('Resources','<</ExtGState<<>>>>'),
  ('Encoding','<</BaseEncoding/WinAnsiEncoding/Differences[65/A/B/C]>>'),('Encoding','<</Differences[65/A 65/B]>>'),
  ('Encoding','<</Differences[256/A]>>'),('ToUnicode','null'),('Widths','[600]'),('FirstChar','-1'),('CharProcs','<<>>')])
 def test_invalid_type3_stays_readonly(key,value):
