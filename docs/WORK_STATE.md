@@ -1,3 +1,11 @@
+# Continuidad · 4 de noviembre de 2026 · edición sobre página
+
+La solicitud de entrega final sigue SIN cumplirse: no pedir pruebas personales ni entregar otro paquete parcial. No se recalculó porcentaje global por esta tanda. Modelo: 6.1 Sol medio. Plan vigente conserva ocho bloques abiertos.
+
+Incorporado: párrafo mixto con caja única, estilos conservados en texto superviviente e inserciones con estilo anterior; detalles por fragmento opcionales/plegados. Aplicar/Ctrl+Enter valida ajuste internamente sin paso previo obligatorio; fallo conserva borrador. Deshacer/rehacer del navegador restaura estilos y texto con 128 instantáneas. Type3: FontMatrix diagonal positiva/traslación acotadas y avance correcto; imágenes bitmap de color o máscaras, Flate/sin compresión y cajas/recursos/datos verificados. Otras matrices/recursos/filtros siguen protegidos. No repetir estos subconjuntos como pendientes generales.
+
+Fuente 300072732915c456641f3831c30158111d8ec07b, respaldada en recovery/editing-20261029. Backend igual al de su regresión d712063339a9699104a60acddf0f43b6cf62b9d3: 3855 Python, 209 dirigidas Type3; interfaz posterior: 140 JS, build, Qt con ratón/cursor/undo/redo/guardado/reapertura, navegador con fallo de ajuste y conservación de borrador; CFF/flujo original/portfolio sin regresión. Quince recorridos Linux/Windows Server 2025 fuente limpia aprobados, incluidos ratón Type3 y undo/redo mixto. Reapdf.exe interno pasó ventana/edición/undo/redo/exportación/cierre. Comprobante 41750022125-1 y objetos/logs/huella contrastados. No acredita todas las herramientas empaquetadas ni Windows cliente/DPI/impresión física. Informe EDICION_DIRECTA_MIXTA_Y_TYPE3_20261104.md; evidencia validation/mixed-type3-20261104/results.json. Nuevos pendientes prioritarios: reflujo mixto afín y variantes de composición/fuentes restantes; LT/LTA continúa pendiente. Entradas siguientes históricas.
+
 # Continuidad · 4 de noviembre de 2026 · solicitud de cierre final NO cumplida
 
 El usuario prohíbe entregar otro avance parcial como final. No afirmar listo ni pedirle pruebas personales: persisten las implementaciones del plan. No prometer que el resto es solo aceptación. No se recalculó porcentaje global por el cambio aislado DSS. La cifra anterior es una estimación provisional, no evidencia de cierre.

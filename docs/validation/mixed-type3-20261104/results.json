@@ -1,0 +1,30 @@
+{
+  "source_commit": "300072732915c456641f3831c30158111d8ec07b",
+  "backend_regression_commit": "d712063339a9699104a60acddf0f43b6cf62b9d3",
+  "backend_unchanged_since_regression": true,
+  "python_passed": 3855,
+  "type3_directed_passed": 209,
+  "javascript_passed": 140,
+  "build_passed": true,
+  "native_linux_checks": 15,
+  "native_mixed_undo_redo": true,
+  "native_mouse_type3": true,
+  "mixed_overflow_draft_retained": true,
+  "browser_cff_original_flow_portfolio_regressions": true,
+  "windows_current_source_verified": true,
+  "technical_complete": false,
+  "human_acceptance": false,
+  "package_delivered": false,
+  "global_estimate_recalculated": false,
+  "limits": [
+    "Type3 supports bounded positive diagonal FontMatrix and translation; no rotation/shear in FontMatrix",
+    "Bitmap glyphs support simple device colours/image masks with Flate or no compression; no external masks or other glyph resources",
+    "Mixed paragraph changes preserve prefix/suffix styles and inserted characters inherit previous style; advanced run controls remain available",
+    "128 immutable paragraph snapshots for browser undo/redo, not unlimited history",
+    "All remaining technical scope is still in PLAN_ACTUAL.md"
+  ],
+  "native_windows_checks": 15,
+  "packaged_windows_verified": true,
+  "windows_run": "41750022125-1",
+  "windows_scope": "Windows Server 2025; 15 exact-source Qt checks include Type3 mouse editing and mixed paragraph typing/undo/redo/direct apply/native save/reopen. Internal compiled Reapdf.exe checked for own window/edit/undo/redo/export/close, not every specialised dialog."
+}
