@@ -10,10 +10,11 @@ def model(base,ops):
         if len(groups)>200:raise DocumentError('Hasta 200 capas en esta herramienta.')
         locked=set(config.get('locked',[]));on=set(config.get('on',[]));off=set(config.get('off',[]));base_on=config.get('basestate','ON')!='OFF'
         from .layer_configs import describe
-        return {'configurations':describe(doc),'layers':[{'id':xref,'name':g['name'],'visible':xref in on or xref not in off and base_on,'locked':xref in locked} for xref,g in groups.items()],'radio_groups':config.get('rbgroups',[])}
+        from .layer_usage import model as usage_model
+        return {'configurations':describe(doc),'usage':usage_model(doc),'layers':[{'id':xref,'name':g['name'],'visible':xref in on or xref not in off and base_on,'locked':xref in locked} for xref,g in groups.items()],'radio_groups':config.get('rbgroups',[])}
 
 
-def apply(base,ops,visible,configuration=None):
+def apply(base,ops,visible,configuration=None,usage=None):
     data=export_pdf(base,ops)
     if configuration is not None:
         with open_pdf(data) as doc:
@@ -30,4 +31,9 @@ def apply(base,ops,visible,configuration=None):
     with open_pdf(data) as doc:
         if not groups:raise DocumentError('El PDF no contiene capas opcionales.')
         doc.set_layer(-1,on=list(chosen),off=list(set(groups)-chosen))
+        if usage is not None:
+            from .layer_usage import apply as apply_usage
+            apply_usage(doc,usage)
+            original={r['id']:r for r in info['usage']['layers']}
+            if any(groups[r['id']]['locked'] and r!=original[r['id']] for r in usage):raise DocumentError('No se pueden cambiar las preferencias de una capa bloqueada.')
         return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)

@@ -165,15 +165,17 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Acceso:** Editar → Editar texto.
 
-1. Elige Editar texto.
-2. pulsa el texto directamente en la página.
+1. Elige Editar texto
+2. pulsa el texto directamente en la página
 3. escribe y aplica o usa Ctrl+Enter.
+4. Para un párrafo compatible, pulsa Editar párrafo: escribe en la caja única y aplica o usa Ctrl+Enter; comprobar ajuste por separado es opcional.
+5. Para reunir bloques separados, abre Seleccionar varios bloques, pulsa los textos en el orden deseado y elige Redistribuir selección; Cambiar selección permite corregirla.
+6. Para continuar un párrafo compatible, pulsa Continuar en otra página, dibuja las áreas vacías y aplica con Ctrl+Enter; el borrador conserva sus estilos.
+7. En el párrafo sobre la página, activa Añadir páginas al final si el párrafo no cabe para paginar automáticamente los casos compatibles.
 
-**Resultado esperado:** El contenido nuevo se guarda con la fuente y geometría originales compatibles.
+**Resultado esperado:** El contenido nuevo se guarda con la fuente y geometría originales compatibles. En párrafos mixtos el texto sin cambios conserva sus estilos; las inserciones toman el estilo anterior (al inicio, el primero).
 
-**Límites actuales:** No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas.
-
-Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos con imágenes bitmap o máscaras verificadas. Se mantienen los recursos originales. No admite rotación/cizalla dentro de FontMatrix, filtros distintos de Flate o sin compresión, máscaras externas ni recursos no verificados.
+**Límites actuales:** No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas. Type3: matrices diagonales positivas acotadas y desplazamientos compatibles; glifos vectoriales o imágenes/máscaras bitmap verificadas sin máscaras externas, con recursos y píxeles conservados. Otras matrices, recursos y filtros siguen protegidos. El ajuste se valida siempre al aplicar; si falla, el borrador permanece disponible. El control por fragmentos está en Ajustar texto por estilo (opcional). Reflujo mixto afín: estilos paralelos de objetos completos, opacos, con espaciado Tc/Tw y kerning TJ compatible, dentro de la página y recortes originales; conserva la aparición de Form seleccionada. La selección explícita permite bloques separados y rutas Form distintas, incluidos objetos compartidos y relaciones padre/hijo, dentro de una página; conserva los recortes de cada texto y las apariciones no seleccionadas. Exige objetos completos y paralelos; no añade fragmentos sin elegirlos. La continuación explícita admite hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres; conserva fuentes, tamaños, colores y transformación de textos completos paralelos y opacos, también de Forms compartidos. No desplaza otros objetos, la continuación manual no crea páginas y no cubre composición especial, espaciados no verificables, etiquetas ni redistribución automática general del documento. Se conservan ajustes TJ entre caracteres que siguen siendo vecinos; se rechazan avances invertidos o superpuestos y comparaciones de kerning que superan el presupuesto. La paginación automática opcional crea hasta 16 páginas al final, con el tamaño/giro de la página origen y márgenes de 36 pt. Conserva fuentes y espaciado en párrafos compatibles; no mueve otros objetos ni sustituye la paginación general de documentos. No se combina con destinos manuales.
 
 <a id="funcion-paragraph"></a>
 
@@ -181,13 +183,14 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Acceso:** Editar → Reemplazar bloque de texto.
 
-1. Elige Reemplazar bloque de texto.
-2. selecciona el bloque o dibuja su región.
+1. Elige Reemplazar bloque de texto
+2. selecciona el bloque o dibuja su región
 3. ajusta texto, formato y ajuste antes de aplicar.
+4. En el párrafo sobre la página, activa Añadir páginas al final si el párrafo no cabe para paginar automáticamente los casos compatibles.
 
 **Resultado esperado:** El bloque compatible se sustituye conservando contenido vecino y mostrando el ajuste.
 
-**Límites actuales:** Sustituir con una fuente incluida puede cambiar métricas; no se descartan transformaciones o composición complejas.
+**Límites actuales:** Sustituir con una fuente incluida puede cambiar métricas; no se descartan transformaciones o composición complejas. La paginación automática opcional crea hasta 16 páginas al final, con el tamaño/giro de la página origen y márgenes de 36 pt. Conserva fuentes y espaciado en párrafos compatibles; no mueve otros objetos ni sustituye la paginación general de documentos. No se combina con destinos manuales.
 
 <a id="funcion-textbox"></a>
 
@@ -279,13 +282,15 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Acceso:** Editar → Continuar texto entre regiones.
 
-1. Elige Continuar texto entre regiones.
-2. marca y ordena las regiones.
+1. Elige Continuar texto entre regiones
+2. marca y ordena las regiones
 3. revisa estilo, distribución y aplica.
+4. Desde el párrafo sobre la página también puedes elegir Continuar en otra página: se conserva el borrador, marcas el destino y aplicas directamente. En el flujo avanzado con fuentes originales, escribe en Texto completo del flujo original; los estilos individuales son opcionales.
+5. En el párrafo sobre la página, activa Añadir páginas al final si el párrafo no cabe para paginar automáticamente los casos compatibles.
 
 **Resultado esperado:** El texto se distribuye por el recorrido seleccionado sin publicar una distribución parcial.
 
-**Límites actuales:** Las regiones deben ser compatibles; no es reflujo general de cualquier PDF. La continuación nativa desde el párrafo usa hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres, con fuentes y transformación originales compatibles. Las áreas se expresan en la vista enderezada y pueden elegirse con el ratón. No crea páginas ni mueve contenido ajeno. La comparación de distribución es opcional para este recorrido; al aplicar se comprueba el texto completo y un fallo conserva el borrador. El flujo avanzado anterior conserva su comparación por páginas y admite una sola caja para editar las fuentes originales. El reflujo nativo conserva espaciado entre letras/palabras y ajustes TJ compatibles, también al continuar en otra página.
+**Límites actuales:** Las regiones deben ser compatibles; no es reflujo general de cualquier PDF. La continuación nativa desde el párrafo usa hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres, con fuentes y transformación originales compatibles. Las áreas se expresan en la vista enderezada y pueden elegirse con el ratón. No crea páginas ni mueve contenido ajeno. La comparación de distribución es opcional para este recorrido; al aplicar se comprueba el texto completo y un fallo conserva el borrador. El flujo avanzado anterior conserva su comparación por páginas y admite una sola caja para editar las fuentes originales. El reflujo nativo conserva espaciado entre letras/palabras y ajustes TJ compatibles, también al continuar en otra página. La paginación automática opcional crea hasta 16 páginas al final, con el tamaño/giro de la página origen y márgenes de 36 pt. Conserva fuentes y espaciado en párrafos compatibles; no mueve otros objetos ni sustituye la paginación general de documentos. No se combina con destinos manuales.
 
 <a id="funcion-watermark"></a>
 
@@ -621,13 +626,13 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Acceso:** Formularios y firmas → Rellenar formulario.
 
-1. Abre Rellenar formulario.
-2. selecciona un campo en la página.
+1. Abre Rellenar formulario
+2. selecciona un campo en la página
 3. introduce y revisa sus valores antes de aplicar.
 
 **Resultado esperado:** Valores y apariencias compatibles persisten al guardar.
 
-**Límites actuales:** XFA y acciones no soportadas no se presentan como formularios completamente editables. Los cálculos aritméticos nativos admiten resto (%) y Math.abs, round, floor, ceil, min y max con argumentos limitados. Se interpretan como datos; no se ejecuta JavaScript arbitrario y las demás llamadas permanecen protegidas.
+**Límites actuales:** XFA y acciones no soportadas no se presentan como formularios completamente editables. Los cálculos aritméticos nativos admiten resto (%) y Math.abs, round, floor, ceil, min y max con argumentos limitados. Se interpretan como datos; no se ejecuta JavaScript arbitrario y las demás llamadas permanecen protegidas. Admite cálculos numéricos nativos con Number, comparaciones y condicional ?: (incluidas condiciones &&/||), con evaluación por rama y límites numéricos. No ejecuta JavaScript general, acciones externas ni XFA.
 
 <a id="funcion-field_properties"></a>
 
@@ -893,13 +898,16 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Acceso:** Convertir y OCR → Recetas de trabajo.
 
-1. Abre Recetas de trabajo.
-2. elige o crea la secuencia.
+1. Abre Recetas de trabajo
+2. elige o crea la secuencia
 3. revisa entradas, nombres y resultados antes de ejecutar.
+4. Añade OCR local si necesitas reconocer escaneados antes de extraer texto o convertir a Word.
+5. Indica páginas por paso compatible (vacío: todas); admite 1-9/2 para páginas alternas.
+6. Tras revisar resultados puedes programar una ejecución local, consultar su estado, descargar el resultado y eliminar la tarea.
 
 **Resultado esperado:** Se procesan tareas compatibles en el orden de la receta con salida por archivo.
 
-**Límites actuales:** Solo se admiten las tareas declaradas; no ejecuta instrucciones arbitrarias de documentos.
+**Límites actuales:** Solo se admiten las tareas declaradas; no ejecuta instrucciones arbitrarias de documentos. OCR admite español/inglés y hasta 10 páginas seleccionadas por PDF, con límites de píxeles. Los rangos por paso se aplican a cada entrada; una página inexistente detiene todo el lote. La cola guarda copias privadas de entrada, receta y resultado en los datos locales: 20 tareas, 300 MB y 30 días de anticipación. Ejecuta mientras Reapdf está abierto; las pendientes vencidas se retoman al abrirlo. Las ejecuciones interrumpidas no se dan por completadas. No programa protección ni guarda contraseñas. Cancelar una tarea en ejecución descarta su salida al terminar el paso; no interrumpe de inmediato el motor. Elimina tareas para retirar sus copias.
 
 <a id="funcion-batch"></a>
 
@@ -951,13 +959,16 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Acceso:** Documentos → Etiquetas y orden de lectura.
 
-1. Abre Etiquetas y orden de lectura.
-2. revisa estructura existente o prepara etiquetas.
+1. Abre Etiquetas y orden de lectura
+2. revisa estructura existente o prepara etiquetas
 3. asigna roles, orden, idioma y alternativas y aplica.
+4. Para una cabecera TH existente compatible, abre Editar etiquetas, selecciona la etiqueta, despliega sus propiedades y guarda su alcance de fila, columna o ambos.
+5. En Editar etiquetas, abre Reparar estructura de una tabla existente, elige una tabla y prepara su reparación.
+6. Revisa TH/TD, filas/columnas combinadas y alcance de cabeceras; confirma y guarda la reparación.
 
 **Resultado esperado:** El árbol compatible conserva referencias reales y apariencia; admite listas y tablas revisadas.
 
-**Límites actuales:** No certifica PDF/UA ni repara cualquier árbol o contenido mixto automáticamente. El alcance de cabeceras TH estándar puede corregirse conservando atributos de otros propietarios y cabeceras no seleccionadas. Atributos ambiguos y espacios de nombres no compatibles permanecen protegidos.
+**Límites actuales:** No certifica PDF/UA ni repara cualquier árbol o contenido mixto automáticamente. El alcance de cabeceras TH estándar puede corregirse conservando atributos de otros propietarios y cabeceras no seleccionadas. Atributos ambiguos y espacios de nombres no compatibles permanecen protegidos. Repara roles, RowSpan/ColSpan y Scope de tablas estándar existentes, hasta 100 filas/500 celdas, sin reescribir su contenido. Exige cuadrícula coherente y conserva referencias; no elimina celdas, no cambia cabeceras identificadas a datos ni admite clases/roles/espacios de nombres no verificables.
 
 <a id="funcion-xfdf"></a>
 
@@ -1008,13 +1019,14 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Acceso:** Documentos → Capas del PDF.
 
-1. Abre Capas del PDF.
-2. elige configuración y visibilidad.
+1. Abre Capas del PDF
+2. elige configuración y visibilidad
 3. revisa la vista previa y guarda.
+4. En Impresión y exportación de capas puedes fijar Mostrar/Ocultar o dejar sin preferencia explícita.
 
 **Resultado esperado:** Se conserva el contenido y cambia el estado inicial compatible.
 
-**Límites actuales:** Se respetan bloqueos y grupos exclusivos; reglas automáticas complejas quedan protegidas. Ocultar no es censurar.
+**Límites actuales:** Se respetan bloqueos y grupos exclusivos; reglas automáticas complejas quedan protegidas. Ocultar no es censurar. Admite reglas automáticas nativas Print/Export simples; preserva reglas no compatibles y no las sobrescribe. Reapdf resuelve Print al preparar su copia temporal de impresión, sin modificar el original. La vista previa de capas muestra pantalla; Export depende de lectores compatibles y no altera la copia PDF guardada. Las capas bloqueadas conservan sus preferencias.
 
 <a id="funcion-portfolio"></a>
 
@@ -1094,60 +1106,31 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Acceso:** Proteger → Censurar y sanear copia.
 
-1. Abre Censurar y sanear copia.
-2. marca regiones o coincidencias.
+1. Abre Censurar y sanear copia
+2. marca regiones o coincidencias
 3. revisa todas las páginas afectadas y confirma.
+4. Para objetos complejos elige copia Visual y resolución; revisa la pérdida de texto seleccionable y estructura antes de descargar.
 
 **Resultado esperado:** Se entrega una copia saneada solo si supera las comprobaciones previstas.
 
-**Límites actuales:** Un rectángulo, tachado o recorte no sustituye esta operación; composiciones complejas no verificables quedan protegidas.
-
-## Funciones complementarias
-
-Desde el texto de la página, **Distribuir en líneas** conserva fuente y transformación originales compatibles. **Editar párrafo** ofrece una caja única, también con estilos mixtos. El texto sin cambios conserva sus estilos y las inserciones toman el del carácter anterior (al inicio, el primero). Aplica o usa Ctrl+Enter: el ajuste se valida internamente y un fallo conserva el borrador. Comprobar ajuste por separado es opcional. Los fragmentos por estilo quedan en el apartado avanzado plegado. Un párrafo mixto inclinado, girado o con escala no uniforme conserva sus fuentes, tamaños, colores y transformación cuando sus estilos son paralelos y pertenecen a objetos completos, continuos y opacos del mismo bloque visual y ruta, sin espaciado especial. También se admite una aparición compatible de un Form compartido, incluidas las horizontales; las otras apariciones se conservan. Se comprueban bordes, recortes y contenido vecino. Otros casos permanecen protegidos. La edición no exige localizar el texto en una lista lateral.
-
-En **Medir planos**, «Actualizar referencia» migra mediciones antiguas interpretables con referencia nueva e identificador conservado. Los ángulos usan tres puntos y grados/radianes; los cruces de segmentos sirven como ajuste del cursor.
-
-En **Portfolio PDF → Columnas del portfolio existente → Diseñar columnas**, crea, renombra, ordena o retira columnas compatibles. La retirada de columnas elimina sus valores y exige confirmación; no elimina los adjuntos. Tipos existentes y columnas protegidas se conservan.
-
-En el etiquetado inicial, un objeto **Lbl** precede a su cuerpo **LI**. Las celdas vacías se añaden por tabla/fila/columna y no introducen texto ficticio.
-
-## Capacidades todavía pendientes
-
-La relación de pendientes técnicos está en [el plan](PLAN_ACTUAL.md): edición/composición avanzadas, reparación/accesibilidad general, XFA y scripts generales, fidelidad OCR/Office general, TSA/LT/LTA y estándares avanzados, curvas/carpetas/OCG complejos, distribución Windows y servicios remotos/IA. Una entrada de este manual no acredita todas las variantes comerciales de la función.
-
-La entrega final incluirá ejecutable instalable o portable de Windows, esta guía actualizada, notas de compatibilidad y resultados de comprobaciones técnicas. **La revisión personal queda al final y no detiene implementaciones independientes.**
-
-### Selección explícita para redistribuir texto
-
-Desde Editar texto sobre la página, pulsa Seleccionar varios bloques. El primero queda seleccionado; pulsa otros textos para añadirlos o quitarlos. Redistribuir selección abre el párrafo siguiendo el orden de tus elecciones. Cambiar selección permite volver sin empezar desde cero; avisa si descarta un borrador. Cancelar selección conserva el documento.
-
-Admite objetos completos y paralelos de rutas distintas dentro de la misma página; conserva cada recorte y las apariciones compartidas no seleccionadas; referencias incompletas, repetidas, obsoletas o incompatibles se rechazan. Los fragmentos no elegidos no se añaden automáticamente.
-
-
-## Continuar un párrafo en otras páginas
-
-Desde Editar texto, selecciona el texto sobre la página y abre el párrafo (o selecciona varios bloques y redistribuye la selección). Escribe en la caja única, ajusta el área inicial y pulsa Continuar en otra página. El borrador conserva sus estilos. Dibuja un área vacía en una página existente, añade/ordena otras áreas si hacen falta y pulsa Aplicar continuación completa o Ctrl+Enter. Comprobar distribución es opcional; la aplicación comprueba todo el texto y no publica cambios parciales. Un fallo conserva el borrador para corregirlo.
-
-Conserva fuentes, tamaños, colores y giro/inclinación compatibles; mantiene las apariciones compartidas no elegidas. Hasta 7 áreas vacías de otras páginas y 4000 caracteres; no crea páginas, no mueve otros objetos y no cubre texto etiquetado, capas o composición/espaciado especial. Las vistas y coordenadas de los destinos usan páginas enderezadas.
-
-En Continuar texto entre regiones, el modo de fuentes originales ahora se escribe en Texto completo del flujo original. Ajustar estilos del flujo (opcional) conserva los controles por fragmento. Los modos mantienen sus borradores y la comparación del flujo avanzado continúa disponible.
-
-
-## Corregir el alcance de cabeceras existentes
-
-En Etiquetas y orden de lectura, abre Editar etiquetas, elige una cabecera TH estándar y despliega Rol e idioma de la etiqueta. Selecciona Fila, Columna o Fila y columna y pulsa Guardar alcance de cabecera. Cambia su atributo semántico de tabla; conserva el aspecto del PDF y las cabeceras no seleccionadas. Esta corrección no certifica PDF/UA ni reconstruye por sí sola una tabla.
-
+**Límites actuales:** Un rectángulo, tachado o recorte no sustituye esta operación; composiciones complejas no verificables quedan protegidas. La copia visual reconstruye todas las páginas solo con píxeles RGB y regiones negras, sin copiar objetos PDF originales. Admite Forms, contenido marcado y recursos compartidos visibles, hasta 20 páginas, 24 MP por página/64 MP en total, 150/200/300 ppp y 100 MB. Pierde texto seleccionable, etiquetas, capas, comentarios, enlaces, adjuntos y metadatos. No elimina otras apariciones visibles de datos que no hayas marcado. Exige aplanar campos y resolver censuras previas.
 
 <a id="funcion-local_assistant"></a>
-## Consultar documento
 
-Acceso: Documentos → Consultar documento.
+### Consultar documento
+
+**Acceso:** Documentos → Consultar documento.
 
 1. Abre Documentos y elige Consultar documento
 2. Elige Resumen extractivo o Buscar pasajes sobre una pregunta, y el documento o la página actual
 3. Consulta los pasajes y sus referencias; Ver página abre el original correspondiente
+4. Opcionalmente elige Modelo local de Ollama, consulta modelos ya instalados, selecciona uno y ejecuta la consulta.
 
-Resultado esperado: Se muestran citas del texto extraíble con referencias de página, sin modelo generativo ni envío a servicios externos. No cambia el PDF.
+**Resultado esperado:** Se muestran citas del texto extraíble con referencias de página, sin modelo generativo ni envío a servicios externos. No cambia el PDF.
 
-Límites actuales: Procesa como máximo 200 páginas, 400000 caracteres y 8000 fragmentos por consulta; informa si el resultado es parcial. Respeta el permiso de copia. No interpreta imágenes sin OCR, no redacta conclusiones ni ejecuta instrucciones del documento. El cálculo ocurre en el equipo que ejecuta Reapdf.
+**Límites actuales:** Procesa como máximo 200 páginas, 400000 caracteres y 8000 fragmentos por consulta; informa si el resultado es parcial. Respeta el permiso de copia. No interpreta imágenes sin OCR, no redacta conclusiones ni ejecuta instrucciones del documento. El cálculo ocurre en el equipo que ejecuta Reapdf. La generación requiere Ollama iniciado en el mismo equipo (127.0.0.1:11434) y un modelo ya instalado. No descarga modelos ni utiliza proveedores externos; no incluye un motor/modelo en el ejecutable. Solo envía pasajes extraídos al motor local, sin herramientas ni acciones. Rechaza respuestas sin referencias válidas, pero no certifica su exactitud factual. La consulta extractiva funciona sin Ollama. La precisión, memoria y velocidad del modelo requieren evaluación en el equipo de destino.
+
+
+## Conversión Word por lotes y secciones
+
+Archivo → Crear PDF desde Word permite convertir hasta 10 DOCX a PDF independientes en un ZIP, con revisión e informes por entrada. Los saltos a página par/impar añaden páginas vacías cuando corresponde y las incluyen en numeración y totales. El lote conserva los originales y no entrega resultados parciales si falla una entrada. Límites: 10 MB por DOCX, 40 MB de entrada, 100 páginas y 100 MB de salida. La fidelidad Office general, columnas y secciones continuas permanecen limitadas.

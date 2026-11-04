@@ -3,10 +3,12 @@ from pathlib import Path
 from hashlib import sha256
 import json
 import math
+from threading import Lock
 import pymupdf as fitz
 from .engine import open_pdf, export_pdf, DocumentError
 
 TESSDATA=Path(__file__).resolve().parent.parent/'resources'/'tessdata'
+OCR_LOCK=Lock()
 
 
 def ocr_status():

@@ -50,10 +50,12 @@
         "Abre Etiquetas y orden de lectura",
         "revisa estructura existente o prepara etiquetas",
         "asigna roles, orden, idioma y alternativas y aplica.",
-        "Para una cabecera TH existente compatible, abre Editar etiquetas, selecciona la etiqueta, despliega sus propiedades y guarda su alcance de fila, columna o ambos."
+        "Para una cabecera TH existente compatible, abre Editar etiquetas, selecciona la etiqueta, despliega sus propiedades y guarda su alcance de fila, columna o ambos.",
+        "En Editar etiquetas, abre Reparar estructura de una tabla existente, elige una tabla y prepara su reparación.",
+        "Revisa TH/TD, filas/columnas combinadas y alcance de cabeceras; confirma y guarda la reparación."
       ],
       "expected": "El árbol compatible conserva referencias reales y apariencia; admite listas y tablas revisadas.",
-      "limits": "No certifica PDF/UA ni repara cualquier árbol o contenido mixto automáticamente. El alcance de cabeceras TH estándar puede corregirse conservando atributos de otros propietarios y cabeceras no seleccionadas. Atributos ambiguos y espacios de nombres no compatibles permanecen protegidos."
+      "limits": "No certifica PDF/UA ni repara cualquier árbol o contenido mixto automáticamente. El alcance de cabeceras TH estándar puede corregirse conservando atributos de otros propietarios y cabeceras no seleccionadas. Atributos ambiguos y espacios de nombres no compatibles permanecen protegidos. Repara roles, RowSpan/ColSpan y Scope de tablas estándar existentes, hasta 100 filas/500 celdas, sin reescribir su contenido. Exige cuadrícula coherente y conserva referencias; no elimina celdas, no cambia cabeceras identificadas a datos ni admite clases/roles/espacios de nombres no verificables."
     },
     {
       "id": "preflight",
@@ -129,10 +131,11 @@
       "steps": [
         "Abre Capas del PDF",
         "elige configuración y visibilidad",
-        "revisa la vista previa y guarda."
+        "revisa la vista previa y guarda.",
+        "En Impresión y exportación de capas puedes fijar Mostrar/Ocultar o dejar sin preferencia explícita."
       ],
       "expected": "Se conserva el contenido y cambia el estado inicial compatible.",
-      "limits": "Se respetan bloqueos y grupos exclusivos; reglas automáticas complejas quedan protegidas. Ocultar no es censurar."
+      "limits": "Se respetan bloqueos y grupos exclusivos; reglas automáticas complejas quedan protegidas. Ocultar no es censurar. Admite reglas automáticas nativas Print/Export simples; preserva reglas no compatibles y no las sobrescribe. Reapdf resuelve Print al preparar su copia temporal de impresión, sin modificar el original. La vista previa de capas muestra pantalla; Export depende de lectores compatibles y no altera la copia PDF guardada. Las capas bloqueadas conservan sus preferencias."
     },
     {
       "id": "view",
@@ -250,10 +253,11 @@
         "escribe y aplica o usa Ctrl+Enter.",
         "Para un párrafo compatible, pulsa Editar párrafo: escribe en la caja única y aplica o usa Ctrl+Enter; comprobar ajuste por separado es opcional.",
         "Para reunir bloques separados, abre Seleccionar varios bloques, pulsa los textos en el orden deseado y elige Redistribuir selección; Cambiar selección permite corregirla.",
-        "Para continuar un párrafo compatible, pulsa Continuar en otra página, dibuja las áreas vacías y aplica con Ctrl+Enter; el borrador conserva sus estilos."
+        "Para continuar un párrafo compatible, pulsa Continuar en otra página, dibuja las áreas vacías y aplica con Ctrl+Enter; el borrador conserva sus estilos.",
+        "En el párrafo sobre la página, activa Añadir páginas al final si el párrafo no cabe para paginar automáticamente los casos compatibles."
       ],
       "expected": "El contenido nuevo se guarda con la fuente y geometría originales compatibles. En párrafos mixtos el texto sin cambios conserva sus estilos; las inserciones toman el estilo anterior (al inicio, el primero).",
-      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas. Type3: matrices diagonales positivas acotadas y desplazamientos compatibles; glifos vectoriales o imágenes/máscaras bitmap verificadas sin máscaras externas, con recursos y píxeles conservados. Otras matrices, recursos y filtros siguen protegidos. El ajuste se valida siempre al aplicar; si falla, el borrador permanece disponible. El control por fragmentos está en Ajustar texto por estilo (opcional). Reflujo mixto afín: estilos paralelos de objetos completos, opacos, con espaciado Tc/Tw y kerning TJ compatible, dentro de la página y recortes originales; conserva la aparición de Form seleccionada. La selección explícita permite bloques separados y rutas Form distintas, incluidos objetos compartidos y relaciones padre/hijo, dentro de una página; conserva los recortes de cada texto y las apariciones no seleccionadas. Exige objetos completos y paralelos; no añade fragmentos sin elegirlos. La continuación explícita admite hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres; conserva fuentes, tamaños, colores y transformación de textos completos paralelos y opacos, también de Forms compartidos. No desplaza otros objetos, no crea páginas y no cubre composición especial, espaciados no verificables, etiquetas ni redistribución automática general del documento. Se conservan ajustes TJ entre caracteres que siguen siendo vecinos; se rechazan avances invertidos o superpuestos y comparaciones de kerning que superan el presupuesto."
+      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas. Type3: matrices diagonales positivas acotadas y desplazamientos compatibles; glifos vectoriales o imágenes/máscaras bitmap verificadas sin máscaras externas, con recursos y píxeles conservados. Otras matrices, recursos y filtros siguen protegidos. El ajuste se valida siempre al aplicar; si falla, el borrador permanece disponible. El control por fragmentos está en Ajustar texto por estilo (opcional). Reflujo mixto afín: estilos paralelos de objetos completos, opacos, con espaciado Tc/Tw y kerning TJ compatible, dentro de la página y recortes originales; conserva la aparición de Form seleccionada. La selección explícita permite bloques separados y rutas Form distintas, incluidos objetos compartidos y relaciones padre/hijo, dentro de una página; conserva los recortes de cada texto y las apariciones no seleccionadas. Exige objetos completos y paralelos; no añade fragmentos sin elegirlos. La continuación explícita admite hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres; conserva fuentes, tamaños, colores y transformación de textos completos paralelos y opacos, también de Forms compartidos. No desplaza otros objetos, la continuación manual no crea páginas y no cubre composición especial, espaciados no verificables, etiquetas ni redistribución automática general del documento. Se conservan ajustes TJ entre caracteres que siguen siendo vecinos; se rechazan avances invertidos o superpuestos y comparaciones de kerning que superan el presupuesto. La paginación automática opcional crea hasta 16 páginas al final, con el tamaño/giro de la página origen y márgenes de 36 pt. Conserva fuentes y espaciado en párrafos compatibles; no mueve otros objetos ni sustituye la paginación general de documentos. No se combina con destinos manuales."
     },
     {
       "id": "paragraph",
@@ -263,10 +267,11 @@
       "steps": [
         "Elige Reemplazar bloque de texto",
         "selecciona el bloque o dibuja su región",
-        "ajusta texto, formato y ajuste antes de aplicar."
+        "ajusta texto, formato y ajuste antes de aplicar.",
+        "En el párrafo sobre la página, activa Añadir páginas al final si el párrafo no cabe para paginar automáticamente los casos compatibles."
       ],
       "expected": "El bloque compatible se sustituye conservando contenido vecino y mostrando el ajuste.",
-      "limits": "Sustituir con una fuente incluida puede cambiar métricas; no se descartan transformaciones o composición complejas."
+      "limits": "Sustituir con una fuente incluida puede cambiar métricas; no se descartan transformaciones o composición complejas. La paginación automática opcional crea hasta 16 páginas al final, con el tamaño/giro de la página origen y márgenes de 36 pt. Conserva fuentes y espaciado en párrafos compatibles; no mueve otros objetos ni sustituye la paginación general de documentos. No se combina con destinos manuales."
     },
     {
       "id": "textbox",
@@ -618,7 +623,7 @@
         "introduce y revisa sus valores antes de aplicar."
       ],
       "expected": "Valores y apariencias compatibles persisten al guardar.",
-      "limits": "XFA y acciones no soportadas no se presentan como formularios completamente editables. Los cálculos aritméticos nativos admiten resto (%) y Math.abs, round, floor, ceil, min y max con argumentos limitados. Se interpretan como datos; no se ejecuta JavaScript arbitrario y las demás llamadas permanecen protegidas."
+      "limits": "XFA y acciones no soportadas no se presentan como formularios completamente editables. Los cálculos aritméticos nativos admiten resto (%) y Math.abs, round, floor, ceil, min y max con argumentos limitados. Se interpretan como datos; no se ejecuta JavaScript arbitrario y las demás llamadas permanecen protegidas. Admite cálculos numéricos nativos con Number, comparaciones y condicional ?: (incluidas condiciones &&/||), con evaluación por rama y límites numéricos. No ejecuta JavaScript general, acciones externas ni XFA."
     },
     {
       "id": "field_properties",
@@ -828,10 +833,11 @@
         "Elige Continuar texto entre regiones",
         "marca y ordena las regiones",
         "revisa estilo, distribución y aplica.",
-        "Desde el párrafo sobre la página también puedes elegir Continuar en otra página: se conserva el borrador, marcas el destino y aplicas directamente. En el flujo avanzado con fuentes originales, escribe en Texto completo del flujo original; los estilos individuales son opcionales."
+        "Desde el párrafo sobre la página también puedes elegir Continuar en otra página: se conserva el borrador, marcas el destino y aplicas directamente. En el flujo avanzado con fuentes originales, escribe en Texto completo del flujo original; los estilos individuales son opcionales.",
+        "En el párrafo sobre la página, activa Añadir páginas al final si el párrafo no cabe para paginar automáticamente los casos compatibles."
       ],
       "expected": "El texto se distribuye por el recorrido seleccionado sin publicar una distribución parcial.",
-      "limits": "Las regiones deben ser compatibles; no es reflujo general de cualquier PDF. La continuación nativa desde el párrafo usa hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres, con fuentes y transformación originales compatibles. Las áreas se expresan en la vista enderezada y pueden elegirse con el ratón. No crea páginas ni mueve contenido ajeno. La comparación de distribución es opcional para este recorrido; al aplicar se comprueba el texto completo y un fallo conserva el borrador. El flujo avanzado anterior conserva su comparación por páginas y admite una sola caja para editar las fuentes originales. El reflujo nativo conserva espaciado entre letras/palabras y ajustes TJ compatibles, también al continuar en otra página."
+      "limits": "Las regiones deben ser compatibles; no es reflujo general de cualquier PDF. La continuación nativa desde el párrafo usa hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres, con fuentes y transformación originales compatibles. Las áreas se expresan en la vista enderezada y pueden elegirse con el ratón. No crea páginas ni mueve contenido ajeno. La comparación de distribución es opcional para este recorrido; al aplicar se comprueba el texto completo y un fallo conserva el borrador. El flujo avanzado anterior conserva su comparación por páginas y admite una sola caja para editar las fuentes originales. El reflujo nativo conserva espaciado entre letras/palabras y ajustes TJ compatibles, también al continuar en otra página. La paginación automática opcional crea hasta 16 páginas al final, con el tamaño/giro de la página origen y márgenes de 36 pt. Conserva fuentes y espaciado en párrafos compatibles; no mueve otros objetos ni sustituye la paginación general de documentos. No se combina con destinos manuales."
     },
     {
       "id": "form_rules",
@@ -867,10 +873,13 @@
       "steps": [
         "Abre Recetas de trabajo",
         "elige o crea la secuencia",
-        "revisa entradas, nombres y resultados antes de ejecutar."
+        "revisa entradas, nombres y resultados antes de ejecutar.",
+        "Añade OCR local si necesitas reconocer escaneados antes de extraer texto o convertir a Word.",
+        "Indica páginas por paso compatible (vacío: todas); admite 1-9/2 para páginas alternas.",
+        "Tras revisar resultados puedes programar una ejecución local, consultar su estado, descargar el resultado y eliminar la tarea."
       ],
       "expected": "Se procesan tareas compatibles en el orden de la receta con salida por archivo.",
-      "limits": "Solo se admiten las tareas declaradas; no ejecuta instrucciones arbitrarias de documentos."
+      "limits": "Solo se admiten las tareas declaradas; no ejecuta instrucciones arbitrarias de documentos. OCR admite español/inglés y hasta 10 páginas seleccionadas por PDF, con límites de píxeles. Los rangos por paso se aplican a cada entrada; una página inexistente detiene todo el lote. La cola guarda copias privadas de entrada, receta y resultado en los datos locales: 20 tareas, 300 MB y 30 días de anticipación. Ejecuta mientras Reapdf está abierto; las pendientes vencidas se retoman al abrirlo. Las ejecuciones interrumpidas no se dan por completadas. No programa protección ni guarda contraseñas. Cancelar una tarea en ejecución descarta su salida al terminar el paso; no interrumpe de inmediato el motor. Elimina tareas para retirar sus copias."
     },
     {
       "id": "batch",
@@ -971,10 +980,11 @@
       "steps": [
         "Abre Censurar y sanear copia",
         "marca regiones o coincidencias",
-        "revisa todas las páginas afectadas y confirma."
+        "revisa todas las páginas afectadas y confirma.",
+        "Para objetos complejos elige copia Visual y resolución; revisa la pérdida de texto seleccionable y estructura antes de descargar."
       ],
       "expected": "Se entrega una copia saneada solo si supera las comprobaciones previstas.",
-      "limits": "Un rectángulo, tachado o recorte no sustituye esta operación; composiciones complejas no verificables quedan protegidas."
+      "limits": "Un rectángulo, tachado o recorte no sustituye esta operación; composiciones complejas no verificables quedan protegidas. La copia visual reconstruye todas las páginas solo con píxeles RGB y regiones negras, sin copiar objetos PDF originales. Admite Forms, contenido marcado y recursos compartidos visibles, hasta 20 páginas, 24 MP por página/64 MP en total, 150/200/300 ppp y 100 MB. Pierde texto seleccionable, etiquetas, capas, comentarios, enlaces, adjuntos y metadatos. No elimina otras apariciones visibles de datos que no hayas marcado. Exige aplanar campos y resolver censuras previas."
     },
     {
       "id": "local_assistant",
@@ -984,10 +994,11 @@
       "steps": [
         "Abre Documentos y elige Consultar documento",
         "Elige Resumen extractivo o Buscar pasajes sobre una pregunta, y el documento o la página actual",
-        "Consulta los pasajes y sus referencias; Ver página abre el original correspondiente"
+        "Consulta los pasajes y sus referencias; Ver página abre el original correspondiente",
+        "Opcionalmente elige Modelo local de Ollama, consulta modelos ya instalados, selecciona uno y ejecuta la consulta."
       ],
       "expected": "Se muestran citas del texto extraíble con referencias de página, sin modelo generativo ni envío a servicios externos. No cambia el PDF.",
-      "limits": "Procesa como máximo 200 páginas, 400000 caracteres y 8000 fragmentos por consulta; informa si el resultado es parcial. Respeta el permiso de copia. No interpreta imágenes sin OCR, no redacta conclusiones ni ejecuta instrucciones del documento. El cálculo ocurre en el equipo que ejecuta Reapdf."
+      "limits": "Procesa como máximo 200 páginas, 400000 caracteres y 8000 fragmentos por consulta; informa si el resultado es parcial. Respeta el permiso de copia. No interpreta imágenes sin OCR, no redacta conclusiones ni ejecuta instrucciones del documento. El cálculo ocurre en el equipo que ejecuta Reapdf. La generación requiere Ollama iniciado en el mismo equipo (127.0.0.1:11434) y un modelo ya instalado. No descarga modelos ni utiliza proveedores externos; no incluye un motor/modelo en el ejecutable. Solo envía pasajes extraídos al motor local, sin herramientas ni acciones. Rechaza respuestas sin referencias válidas, pero no certifica su exactitud factual. La consulta extractiva funciona sin Ollama. La precisión, memoria y velocidad del modelo requieren evaluación en el equipo de destino."
     }
   ],
   "general_functions": [
@@ -1155,10 +1166,11 @@
       "availability": "implemented_with_limits",
       "steps": [
         "Carga un DOCX",
-        "Convierte y revisa páginas y diferencias antes de abrir el resultado"
+        "Convierte y revisa páginas y diferencias antes de abrir el resultado",
+        "Para varios DOCX, abre Convertir varios Word a PDF independientes, selecciona entradas, revisa informes y descarga el ZIP."
       ],
       "expected": "Se obtiene un PDF del contenido y maquetación compatibles.",
-      "limits": "No se promete fidelidad universal de Office; las diferencias se informan. Las marcas personalizadas de notas pueden estar en el fragmento siguiente si es adyacente y contiene solo texto de 1–4 caracteres. Las marcas repartidas entre fragmentos adyacentes también se reconocen si todos declaran el estilo FootnoteReference o EndnoteReference correspondiente, con un máximo conjunto de cuatro caracteres. No se buscan a través de campos, enlaces o límites estructurales; las notas al pie partidas y otras variantes generales siguen pendientes."
+      "limits": "No se promete fidelidad universal de Office; las diferencias se informan. Las marcas personalizadas de notas pueden estar en el fragmento siguiente si es adyacente y contiene solo texto de 1–4 caracteres. Las marcas repartidas entre fragmentos adyacentes también se reconocen si todos declaran el estilo FootnoteReference o EndnoteReference correspondiente, con un máximo conjunto de cuatro caracteres. No se buscan a través de campos, enlaces o límites estructurales; las notas al pie partidas y otras variantes generales siguen pendientes. Admite saltos de sección a página par/impar con páginas vacías contadas en numeración y totales; continuos/columnas siguen pendientes. Lote Word: hasta 10 DOCX, 10 MB por entrada/40 MB en total, 100 páginas y 100 MB de salida; sin resultados parciales. Cada PDF incluye informe de sustituciones y omisiones en el manifiesto."
     },
     {
       "id": "general_tools",

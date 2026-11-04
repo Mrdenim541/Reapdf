@@ -17,7 +17,8 @@ def describe(doc):
     for index in range(n.pdf_array_len(configs)):
         config=n.pdf_array_get(configs,index);keys={n.pdf_to_name(n.pdf_dict_get_key(config,i)) for i in range(n.pdf_dict_len(config))}
         on=refs(n.pdf_dict_gets(config,'ON'));off=refs(n.pdf_dict_gets(config,'OFF'));locked=refs(n.pdf_dict_gets(config,'Locked'));groups=n.pdf_dict_gets(config,'RBGroups');radio=[refs(n.pdf_array_get(groups,i)) for i in range(n.pdf_array_len(groups))]
-        base=n.pdf_to_name(n.pdf_dict_gets(config,'BaseState')) or 'ON';enabled=n.pdf_is_dict(config) and keys<={'Name','Creator','BaseState','ON','OFF','Locked','RBGroups','Order','Intent','ListMode'} and base in ['ON','OFF'] and all(v in known for v in on+off+locked+sum(radio,[])) and not set(on)&set(off)
+        from .layer_usage import supported as usage_supported
+        base=n.pdf_to_name(n.pdf_dict_gets(config,'BaseState')) or 'ON';enabled=n.pdf_is_dict(config) and keys<={'Name','Creator','BaseState','ON','OFF','Locked','RBGroups','Order','Intent','ListMode','AS'} and usage_supported(doc,config) and base in ['ON','OFF'] and all(v in known for v in on+off+locked+sum(radio,[])) and not set(on)&set(off)
         name=n.pdf_to_text_string(n.pdf_dict_gets(config,'Name')) or f'Configuración {index+1}'
         visible=sorted(set(on)|(known-set(off) if base=='ON' else set()))
         if any(len(set(group)&set(visible))>1 for group in radio):enabled=False

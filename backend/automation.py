@@ -13,10 +13,12 @@ from .form_data import flatten_form
 
 MAX_INPUT=60*1024*1024
 MAX_OUTPUT=100*1024*1024
+PAGE_STEPS={'watermark','numbering','ocr','text','docx'}
 STEP_KEYS={
     'metadata':{'values','remove_xml'}, 'watermark':{'text','size','opacity','angle','color'},
     'numbering':{'template','start','size'}, 'compress':{'dpi','quality'},
     'docx':{'keep_lines','include_images','include_tables','include_links'},
+    'ocr':{'language','dpi','orientation'},
     'optimize':set(), 'flatten':set(), 'text':set(), 'protect':{'allow_copy','allow_print'},
 }
 
@@ -41,11 +43,18 @@ def validate_recipe(recipe):
     for index,step in enumerate(steps):
         if not isinstance(step,dict) or not isinstance(step.get('type'),str) or step['type'] not in STEP_KEYS:raise DocumentError('Paso de receta no compatible.')
         kind=step['type']
-        if kind in seen or set(step)!={'type'}|STEP_KEYS[kind]:raise DocumentError('No repitas tipos de paso ni añadas opciones desconocidas o contraseñas.')
+        required={'type'}|STEP_KEYS[kind];extra={'pages'} if kind in PAGE_STEPS else set()
+        if kind in seen or not required<=set(step) or set(step)-required-extra:raise DocumentError('No repitas tipos de paso ni añadas opciones desconocidas o contraseñas.')
+        if 'pages' in step:
+            from .page_ranges import parse as parse_pages
+            if not isinstance(step['pages'],str):raise DocumentError('El rango de páginas del paso debe ser texto.')
+            if step['pages']:parse_pages(step['pages'],500)
         if kind in {'protect','text','docx'} and index!=len(steps)-1:raise DocumentError('Proteger, extraer texto o convertir a Word debe ser el último paso.')
         if kind=='compress':
             if type(step['dpi']) is not int or not 72<=step['dpi']<=300 or type(step['quality']) is not int or not 40<=step['quality']<=95:raise DocumentError('Compresión: resolución 72–300 DPI y calidad 40–95.')
         if kind=='docx' and any(type(step[k]) is not bool for k in STEP_KEYS['docx']):raise DocumentError('Las opciones de Word deben ser verdaderas o falsas.')
+        if kind=='ocr':
+            if step['language'] not in ['spa','eng','spa+eng'] or type(step['dpi']) is not int or step['dpi'] not in [150,200,300] or type(step['orientation']) is not int or step['orientation'] not in [0,90,180,270]:raise DocumentError('OCR de receta: español/inglés, 150/200/300 ppp y orientación 0/90/180/270.')
         if kind=='metadata':
             values=step['values']
             if not isinstance(values,dict) or set(values)!=META_KEYS or any(not isinstance(v,str) or len(v)>1000 or any(ord(c)<32 for c in v) for v in values.values()) or type(step['remove_xml']) is not bool:raise DocumentError('Completa los cinco metadatos sin controles; máximo 1000 caracteres.')
@@ -61,7 +70,7 @@ def validate_recipe(recipe):
             # Validate style/text on a generous page; fit is checked per source.
             with f.open() as scratch:
                 scratch.new_page(width=50000,height=50000)
-                prepare_watermark(scratch,{'pages':[0],**step})
+                prepare_watermark(scratch,{**step,'pages':[0]})
         seen.add(kind)
     # A JSON round trip returns detached, normalized data without shared objects.
     try:return json.loads(json.dumps(recipe,ensure_ascii=False,allow_nan=False).encode('utf-8'))
@@ -83,13 +92,16 @@ def output_name(pattern,name,recipe,index,extension):
 def _run_step(data,step,secrets):
     kind=step['type'];details={};status='applied'
     with open_pdf(data) as doc:pages=list(range(len(doc)))
+    if step.get('pages'):
+        from .page_ranges import parse as parse_pages
+        pages=parse_pages(step['pages'],len(pages))
     if kind=='metadata':result=metadata_pdf(data,[],step['values'],step['remove_xml']);details={'xml_removed':step['remove_xml']}
     elif kind=='optimize':result,details=optimize_pdf(data,[])
     elif kind=='compress':result,details=compress_images(data,[],step['dpi'],step['quality']);details={k:v for k,v in details.items() if k!='sha256'}
     elif kind=='flatten':
         with open_pdf(data) as doc:count=sum(len(list(p.widgets() or [])) for p in doc)
         result=flatten_form(data,[]) if count else data;details={'fields':count};status='applied' if count else 'skipped'
-    elif kind=='watermark':result=export_pdf(data,[{'page':0,'pages':pages,**step}])
+    elif kind=='watermark':result=export_pdf(data,[{**step,'page':pages[0],'pages':pages}])
     elif kind=='numbering':
         from .headers import SLOTS
         slots={k:'' for k in SLOTS};slots['bottom_center']=step['template']
@@ -97,9 +109,15 @@ def _run_step(data,step,secrets):
     elif kind=='docx':
         from .docx_export import export_docx
         result,details=export_docx(data,[],pages,**{k:step[k] for k in STEP_KEYS['docx']})
+    elif kind=='ocr':
+        from .ocr import ocr_pdf,OCR_LOCK
+        if not OCR_LOCK.acquire(blocking=False):raise DocumentError('Ya hay un reconocimiento OCR en curso. Espera a que termine.')
+        try:result,details=ocr_pdf(data,[],pages,step['language'],step['dpi'],step['orientation'])
+        finally:OCR_LOCK.release()
     elif kind=='text':result=export_text(data,[],pages);details={'encoding':'UTF-8','ocr':False}
     else:
         result=protect_pdf(data,[],secrets['password'],secrets['owner_password'],step['allow_copy'],step['allow_print']);details={'encryption':'AES-256','allow_copy':step['allow_copy'],'allow_print':step['allow_print']}
+    if kind in PAGE_STEPS:details['selected_pages']=pages
     return result,details,status
 
 

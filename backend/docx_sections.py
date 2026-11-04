@@ -14,7 +14,7 @@ def sections(body,paper):
         if len(result)>=50:raise DocumentError('Hasta 50 secciones Word por importación.')
         section=deepcopy(properties) if properties is not None else E.Element(tag('sectPr'))
         kind=section.find(tag('type'));kind=kind.attrib.get(tag('val'),'nextPage') if kind is not None else 'nextPage'
-        if result and kind!='nextPage':raise DocumentError('Esta importación admite secciones con salto a página siguiente. Convierte los saltos continuos, de columna, pares o impares antes de importar.')
+        if result and kind not in ['nextPage','oddPage','evenPage']:raise DocumentError('Esta importación admite secciones con salto a página siguiente, par o impar. Convierte los saltos continuos o de columna antes de importar.')
         # Missing header/footer references link to the preceding section, by variant.
         own={}
         for name in ['headerReference','footerReference']:
@@ -33,7 +33,7 @@ def sections(body,paper):
                 if mar is not None:margins=[int(mar.attrib[tag(k)])/20 for k in ['left','top','right','bottom']]
             except (ValueError,KeyError):raise DocumentError('Tamaño o márgenes de Word no válidos.')
         if min(size)<144 or max(size)>1584 or min(margins)<0 or size[0]-margins[0]-margins[2]<72 or size[1]-margins[1]-margins[3]<72:raise DocumentError('Tamaño de Word fuera de límites o sin espacio suficiente para contenido.')
-        result.append({'properties':section,'nodes':nodes,'size':size,'margins':margins});nodes=[]
+        result.append({'properties':section,'nodes':nodes,'size':size,'margins':margins,'break':kind,'trailing_blanks':0});nodes=[]
     for node in body:
         if node.tag==tag('sectPr'):
             append(node)

@@ -112,17 +112,19 @@ def validate_relations(items,relations):
         seen.add(r['id']);codes.append(text(r['code'],80))
         for side in ['source','target']:
             anchor=r[side]
-            if not isinstance(anchor,dict) or set(anchor) not in [{'id','document','page','rect','code'},{'id','document','page','rect','code','kind'}] or ('kind' in anchor and anchor['kind']!='manual') or not isinstance(anchor['document'],str) or anchor['document'] not in by_id:raise DocumentError('Destino de vínculo no válido.')
+            if not isinstance(anchor,dict) or set(anchor) not in [{'id','document','page','rect','code'},{'id','document','page','rect','code','kind'},{'id','document','page','rect','code','matched_code'}] or ('kind' in anchor and anchor['kind']!='manual') or not isinstance(anchor['document'],str) or anchor['document'] not in by_id:raise DocumentError('Destino de vínculo no válido.')
+            if 'matched_code' in anchor and (not isinstance(anchor['matched_code'],str) or normalized(text(anchor['matched_code'],80))!=anchor['matched_code']):raise DocumentError('El identificador revisado debe estar normalizado.')
         if r['source']['document']==r['target']['document']:raise DocumentError('El vínculo debe relacionar documentos distintos.')
     if len(set(codes))>200:raise DocumentError('Hasta 200 identificadores distintos en los vínculos.')
-    automatic_codes=sorted({r['code'] for r in relations if any(r[s].get('kind')!='manual' for s in ['source','target'])})
+    automatic_codes=sorted({r[s].get('matched_code',r['code']) for r in relations for s in ['source','target'] if r[s].get('kind')!='manual'})
     indices={item['id']:index(item,automatic_codes) for item in items} if automatic_codes else {}
     pairs=set()
     for r in relations:
         if normalized(r['code'])!=r['code']:raise DocumentError('Identificador de vínculo no normalizado.')
         for side in ['source','target']:
             anchor=r[side]
-            matches=[manual_anchor(by_id[anchor['document']],r['code'],anchor['page'],anchor['rect'])] if anchor.get('kind')=='manual' else indices[anchor['document']].get(r['code'],[])
+            matches=[manual_anchor(by_id[anchor['document']],r['code'],anchor['page'],anchor['rect'])] if anchor.get('kind')=='manual' else indices[anchor['document']].get(anchor.get('matched_code',r['code']),[])
+            if 'matched_code' in anchor:matches=[{**a,'code':r['code'],'matched_code':anchor['matched_code']} for a in matches]
             if anchor not in matches:raise DocumentError('Una referencia ya no coincide con su PDF. Revisa de nuevo los destinos.')
         pair=(r['source']['document'],r['source']['id'],r['target']['document'],r['target']['id'])
         if pair in pairs:raise DocumentError('El mismo vínculo ya está incluido.')
@@ -220,7 +222,7 @@ def compile_pdf(items,relations,name):
     return data,{'documents':len(items),'pages':total,'links':len(relations),'scope':'Copias de páginas, marcadores y enlaces nativos; conserva los originales con Guardar conjunto. No transfiere el árbol de accesibilidad ni adjuntos del documento fuente.'}
 
 
-def revision(items,relations,old_id,replacement,choices=None):
+def revision(items,relations,old_id,replacement,choices=None,remap=None):
     """Review every affected link before replacing a set snapshot.
 
     A unique code can still have moved to a different page: suggestions never
@@ -235,13 +237,18 @@ def revision(items,relations,old_id,replacement,choices=None):
     replacement={**replacement,'role':old['role']}
     updated=[replacement if i['id']==old_id else i for i in items];documents(updated)
     affected=[r for r in relations if any(r[s]['document']==old_id for s in ['source','target'])]
-    codes=sorted({r['code'] for r in affected});new_index=index(replacement,codes) if codes else {};rows=[]
+    remap={} if remap is None else remap
+    if not isinstance(remap,dict) or set(remap)-{r['id'] for r in affected} or any(not isinstance(code,str) or not re.fullmatch(r'[A-Z0-9][A-Z0-9./-]{0,79}',code) for code in remap.values()):raise DocumentError('El mapa de revisión necesita vínculos afectados e identificadores normalizados.')
+    if any(r['id'] in remap and r['source' if r['source']['document']==old_id else 'target'].get('kind')=='manual' for r in affected):raise DocumentError('Las referencias manuales se revisan marcando su área, sin cambiar su código por búsqueda.')
+    search_codes={r['id']:remap.get(r['id'],r['source' if r['source']['document']==old_id else 'target'].get('matched_code',r['code'])) for r in affected}
+    codes=sorted(set(search_codes.values()));new_index=index(replacement,codes) if codes else {};rows=[]
     for r in affected:
-        side='source' if r['source']['document']==old_id else 'target';anchor=r[side];candidates=[] if anchor.get('kind')=='manual' else new_index.get(r['code'],[])
+        side='source' if r['source']['document']==old_id else 'target';anchor=r[side];code=search_codes[r['id']];candidates=[] if anchor.get('kind')=='manual' else new_index.get(code,[])
+        if code!=r['code']:candidates=[{**a,'code':r['code'],'matched_code':code} for a in candidates]
         exact=[a for a in candidates if a['page']==anchor['page'] and all(abs(x-y)<.05 for x,y in zip(a['rect'],anchor['rect']))]
         suggested=exact[0]['id'] if len(exact)==1 else candidates[0]['id'] if len(candidates)==1 else ''
         status='manual_review' if anchor.get('kind')=='manual' else 'ambiguous' if len(candidates)>1 else 'same_location' if len(exact)==1 else 'moved' if candidates else 'missing'
-        rows.append({'relation':r['id'],'code':r['code'],'side':side,'previous':anchor,'candidates':candidates,'suggested':suggested,'status':status})
+        rows.append({'relation':r['id'],'code':r['code'],'matched_code':code,'side':side,'previous':anchor,'candidates':candidates,'suggested':suggested,'status':status})
     if choices is None:return {'old':{k:v for k,v in old.items() if k!='data'},'replacement':{k:v for k,v in replacement.items() if k!='data'},'affected':rows,'unaffected':len(relations)-len(rows),'review_required':True}
     if not isinstance(choices,dict) or set(choices)!={r['relation'] for r in rows}:raise DocumentError('Revisa el destino o la retirada de cada vínculo afectado.')
     selected={};removed=set()

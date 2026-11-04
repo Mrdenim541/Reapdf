@@ -9,10 +9,15 @@ from .text_spacing import layout
 from .text_flow import next_line
 
 
-def reflow(base,ops,number,box,identifier,text,width,height,preview=False,identifiers=None,runs=None,explicit_order=False,continuations=None):
-    if runs is not None or continuations is not None:
+def reflow(base,ops,number,box,identifier,text,width,height,preview=False,identifiers=None,runs=None,explicit_order=False,continuations=None,paginate=False):
+    if type(paginate) is not bool:raise DocumentError('La paginación automática debe ser verdadera o falsa.')
+    if runs is not None or continuations is not None or paginate:
         from .affine_mixed_reflow import reflow as mixed
-        return mixed(base,ops,number,box,identifier,text,width,height,preview,identifiers,runs,explicit_order,continuations)
+        if paginate and runs is None:
+            identifiers=[identifier] if identifiers is None else identifiers
+            if not isinstance(identifiers,list) or any(not isinstance(i,str) for i in identifiers):raise DocumentError('Selecciona los grupos originales del párrafo.')
+            runs=[{'id':i,'text':text if n==0 else ''} for n,i in enumerate(identifiers)]
+        return mixed(base,ops,number,box,identifier,text,width,height,preview,identifiers,runs,explicit_order,continuations,paginate)
     if not isinstance(text,str) or not text.strip() or len(text)>4000 or any((ord(c)<32 and c!='\n') or ord(c)==127 or unicodedata.bidirectional(c) in {'R','AL','AN'} for c in text):raise DocumentError('Usa de 1 a 4000 caracteres compatibles, con saltos de línea opcionales.')
     if not finite(width) or not finite(height) or not 10<=width<=2000 or not 10<=height<=2000:raise DocumentError('El ancho y alto deben estar entre 10 y 2000 pt en el marco del texto.')
     if type(number) is not int:raise DocumentError('Página no válida.')

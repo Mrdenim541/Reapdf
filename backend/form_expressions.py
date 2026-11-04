@@ -7,9 +7,47 @@ import ast,re
 from decimal import Decimal,localcontext,DecimalException,ROUND_FLOOR,ROUND_CEILING
 from .engine import DocumentError
 
-FUNCTIONS={'abs','round','floor','ceil','min','max'}
+FUNCTIONS={'abs','round','floor','ceil','min','max','number'}
 MATH=re.compile(r'(?<![\w$.])Math\s*\.\s*(abs|round|floor|ceil|min|max)\b')
+NUMBER=re.compile(r'(?<![\w$.])Number\b')
 FIELD=re.compile(r'''this\s*\.\s*getField\s*\(\s*("(?:[^"\\\x00-\x1f]|\\["\\/bfnrt]|\\u[0-9a-fA-F]{4})*"|'(?:[^'\\\x00-\x1f]|\\['\\])*')\s*\)\s*\.\s*value\b''')
+
+
+def conditional(source,depth=0):
+    """Translate only numeric JS ?: and grouping into a Python AST input.
+
+    Never executes either language. Generated names/operators are independently
+    whitelisted by walk(); input letters have already been rejected/replaced.
+    """
+    if depth>12:raise DocumentError('La fórmula condicional supera 12 niveles.')
+    output=[];i=0
+    while i<len(source):
+        if source[i]=='(':
+            end=i+1;level=1
+            while end<len(source) and level:
+                if source[end]=='(':level+=1
+                elif source[end]==')':level-=1
+                if level:end+=1
+            if level:raise DocumentError('Paréntesis de fórmula no equilibrados.')
+            output.append('('+conditional(source[i+1:end],depth+1)+')');i=end+1
+        elif source[i]==')':raise DocumentError('Paréntesis de fórmula no equilibrados.')
+        else:output.append(source[i]);i+=1
+    value=''.join(output);level=0;question=None;nested=0
+    for i,ch in enumerate(value):
+        if ch=='(':level+=1
+        elif ch==')':level-=1
+        elif not level:
+            if ch=='?':
+                if question is None:question=i
+                else:nested+=1
+            elif ch==':' and question is not None:
+                if nested:nested-=1
+                else:
+                    a,b,c=value[:question],value[question+1:i],value[i+1:]
+                    if not a.strip() or not b.strip() or not c.strip():raise DocumentError('Condicional numérico incompleto.')
+                    return '('+conditional(b,depth+1)+' if '+conditional(a,depth+1)+' else '+conditional(c,depth+1)+')'
+    if question is not None or ':' in value:raise DocumentError('Condicional numérico incompleto.')
+    return value.replace('!==','!=').replace('===','==').replace('&&',' and ').replace('||',' or ')
 
 
 def parse(code):
@@ -18,22 +56,26 @@ def parse(code):
     if not isinstance(code,str) or len(code)>4000:fail()
     match=re.fullmatch(r'\s*event\s*\.\s*value\s*=\s*([^;]+?)\s*;?\s*',code,re.S)
     if not match:fail()
-    remainder=MATH.sub('',FIELD.sub('',match[1]))
-    if re.search(r'[^0-9.\s+*/%(),\-]',remainder) or '++' in remainder or '--' in remainder:fail()
+    remainder=NUMBER.sub('',MATH.sub('',FIELD.sub('',match[1])))
+    if re.search(r'[^0-9.\s+*/%(),\-?:<>=!&|]',remainder) or '++' in remainder or '--' in remainder:fail()
     names=[]
     def field(m):
         name=call('X('+m[1]+')')[1][0]
         if not isinstance(name,str) or not 1<=len(name)<=200 or any(ord(c)<32 for c in name):fail()
         if name not in names:names.append(name)
         return 'F'+str(names.index(name))
-    expression=MATH.sub(lambda m:'M_'+m[1],FIELD.sub(field,match[1]))
+    expression=conditional(NUMBER.sub('M_number',MATH.sub(lambda m:'M_'+m[1],FIELD.sub(field,match[1]))))
     if not names or len(names)>50:fail()
     try:tree=ast.parse(expression.strip(),mode='eval')
     except (SyntaxError,ValueError,RecursionError) as exc:raise DocumentError('Expresión de cálculo no válida.') from exc
     if len(list(ast.walk(tree)))>100:fail()
     binary={ast.Add:'+',ast.Sub:'-',ast.Mult:'*',ast.Div:'/',ast.Mod:'%'}
-    def walk(node,depth=0):
+    def walk(node,depth=0,condition=False):
         if depth>12:fail()
+        if isinstance(node,ast.IfExp):return ['if',walk(node.test,depth+1,True),walk(node.body,depth+1),walk(node.orelse,depth+1)]
+        comparisons={ast.Lt:'<',ast.LtE:'<=',ast.Gt:'>',ast.GtE:'>=',ast.Eq:'==',ast.NotEq:'!='}
+        if condition and isinstance(node,ast.Compare) and len(node.ops)==1 and type(node.ops[0]) in comparisons:return ['compare',comparisons[type(node.ops[0])],walk(node.left,depth+1),walk(node.comparators[0],depth+1)]
+        if condition and isinstance(node,ast.BoolOp) and type(node.op) in [ast.And,ast.Or]:return ['and' if isinstance(node.op,ast.And) else 'or',[walk(v,depth+1,True) for v in node.values]]
         if isinstance(node,ast.Name) and re.fullmatch(r'F\d{1,2}',node.id) and int(node.id[1:])<len(names):return ['field',int(node.id[1:])]
         if isinstance(node,ast.Constant) and type(node.value) in [int,float]:
             raw=ast.get_source_segment(expression.strip(),node)
@@ -52,11 +94,17 @@ def parse(code):
 def evaluate(expression,inputs):
     def walk(node):
         kind=node[0]
-        if kind=='field':result=inputs[node[1]]
+        if kind=='if':result=walk(node[2] if walk(node[1]) else node[3])
+        elif kind=='compare':
+            a,b=walk(node[2]),walk(node[3]);op=node[1]
+            result=Decimal({'<':lambda:a<b,'<=':lambda:a<=b,'>':lambda:a>b,'>=':lambda:a>=b,'==':lambda:a==b,'!=':lambda:a!=b}[op]())
+        elif kind in ['and','or']:result=Decimal(all(walk(v)!=0 for v in node[1]) if kind=='and' else any(walk(v)!=0 for v in node[1]))
+        elif kind=='field':result=inputs[node[1]]
         elif kind=='literal':result=Decimal(node[1])
         elif kind=='function':
             args=[walk(arg) for arg in node[2]];name=node[1]
             if name=='abs':result=abs(args[0])
+            elif name=='number':result=args[0]
             elif name=='round':result=(args[0]+Decimal('.5')).to_integral_value(rounding=ROUND_FLOOR)
             elif name=='floor':result=args[0].to_integral_value(rounding=ROUND_FLOOR)
             elif name=='ceil':result=args[0].to_integral_value(rounding=ROUND_CEILING)

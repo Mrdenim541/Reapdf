@@ -102,7 +102,7 @@ def search_redactions(base, operations, query):
             'empty_pages': empty_pages, 'unsupported_pages': unsupported_pages}
 
 
-def redact_search(base, operations, query, receipt, selected):
+def redact_search(base, operations, query, receipt, selected, method='native', dpi=200):
     if (not isinstance(selected, list) or not 1 <= len(selected) <= 100
             or any(not isinstance(i, str) for i in selected) or len(set(selected)) != len(selected)):
         raise DocumentError('Selecciona de 1 a 100 coincidencias sin repeticiones.')
@@ -113,5 +113,5 @@ def redact_search(base, operations, query, receipt, selected):
     if any(i not in known for i in selected):
         raise DocumentError('Hay coincidencias que no pertenecen a esta búsqueda.')
     regions = [{'page': known[i]['page'], 'box': known[i]['box']} for i in selected]
-    result = redact_pdf(base, operations, regions)
+    result = redact_pdf(base, operations, regions, method, dpi)
     return result, sorted({r['page'] for r in regions})

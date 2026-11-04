@@ -87,7 +87,9 @@ def verify_fragments(data,prepared,number):
             if len(appearances)!=1 or appearances[0]['type']!=0 or abs(appearances[0]['opacity']-row['opacity'])>1e-6:raise DocumentError('La apariencia del texto mixto no se pudo verificar.')
 
 
-def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,runs,explicit_order=False,continuations=None):
+def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,runs,explicit_order=False,continuations=None,paginate=False):
+    if type(paginate) is not bool:raise DocumentError('La paginación automática debe ser verdadera o falsa.')
+    if paginate and continuations is not None:raise DocumentError('Elige continuación manual o páginas nuevas automáticas, no ambas.')
     if type(explicit_order) is not bool:raise DocumentError('El orden explícito debe ser verdadero o falso.')
     if not isinstance(text,str) or not text.strip() or len(text)>4000 or any((ord(c)<32 and c!='\n') or ord(c)==127 or unicodedata.bidirectional(c) in {'R','AL','AN'} for c in text):raise DocumentError('Usa hasta 4000 caracteres compatibles y sin controles o escritura RTL.')
     if type(number) is not int or not finite(width) or not finite(height) or not 10<=width<=2000 or not 10<=height<=2000:raise DocumentError('Página, ancho o alto del párrafo no válidos.')
@@ -98,7 +100,8 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         if not 0<=number<len(doc):raise DocumentError('Página no válida.')
         if doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null':raise DocumentError('El reflujo mixto afín de texto etiquetado requiere revisión estructural.')
         if not isinstance(box,list) or len(box)!=4 or any(not finite(v) for v in box) or box[2]<=0 or box[3]<=0:raise DocumentError('Región no válida.')
-        page=doc[number];rotation=page.rotation;page.set_rotation(0);region=f.Rect(box[0],box[1],box[0]+box[2],box[1]+box[3]);_,all_rows=native_model(doc,number,page.rect)
+        page=doc[number];rotation=page.rotation;page.set_rotation(0);page_size=(page.rect.width,page.rect.height);original_pages=len(doc);region=f.Rect(box[0],box[1],box[0]+box[2],box[1]+box[3]);_,all_rows=native_model(doc,number,page.rect)
+        if paginate and (doc.get_ocgs() or min(page_size)<=92):raise DocumentError('La paginación automática necesita páginas sin capas y espacio para márgenes de 36 pt.')
         chosen={r['id']:r for r in all_rows if r['id'] in identifiers}
         if len(chosen)!=len(identifiers):raise DocumentError('La selección de grupos está obsoleta.')
         rows=compatible([chosen[i] for i in identifiers],sort=not explicit_order,across_paths=explicit_order);first=rows[0]
@@ -120,7 +123,14 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         while cursor<len(text):
             line,after,_=layout.line(text,cursor,width);group=styles[cursor:cursor+max(1,len(line))];ascent=max(r['_geometry']['ascent'] for r in group);descent=min(r['_geometry']['descent'] for r in group);size=max(r['size'] for r in group)
             if used+ascent-descent>height+.01:
-                if destination<0 and destinations and not lines:raise DocumentError('El alto inicial no permite una línea. Amplía el área inicial; se conserva el borrador.')
+                if destination<0 and (destinations or paginate) and not lines:raise DocumentError('El alto inicial no permite una línea. Amplía el área inicial; se conserva el borrador.')
+                if destination+1>=len(destinations) and paginate:
+                    if len(doc)-original_pages>=16:raise DocumentError('El párrafo supera el límite de 16 páginas nuevas; no se publica texto parcial.')
+                    added=doc.new_page(width=page_size[0],height=page_size[1]);n=added.number
+                    extra,_=continuation_regions(doc,number,[{'page':n,'box':[36,36,page_size[0]-72,page_size[1]-72]}],first['_geometry']['matrix'])
+                    destinations.extend(extra);rotations[n]=rotation;untouched_by_page[n]=Counter()
+                    # Adding pages invalidates previously acquired Page handles.
+                    page=doc[number]
                 if destination+1>=len(destinations):raise DocumentError('El párrafo mixto no cabe completo. Amplía el alto o añade otra continuación; se conserva el borrador.')
                 destination+=1;target=destinations[destination];current=target['page'];frame=target['frame'];top=0.;used=0.;width=target['width'];height=target['height'];details.append({'page':current,'lines':0,'characters':0});continue
             baseline=top-used-ascent;offset=0;x=0.
@@ -136,7 +146,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
                 else:draws.append((current,{**row,'_replacement_kern':layout.kern[cursor+offset:cursor+end]},g,fragment))
                 prepared.append((current,({**row,'origin':list(origin),'_geometry':g,'_replacement_text':fragment,'_replacement_width':extent},b'')));x+=layout.prefix[cursor+end]-layout.prefix[cursor+offset];offset=end
             details[-1]['characters']+=after-cursor;details[-1]['lines']+=1;cursor=after;used+=max(size*1.35,ascent-descent);lines+=1
-        report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':requested_width,'height':requested_height,'preserves_affine':True,'preserves_spacing':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects),'source_paths':len({path_key(r) for r in rows}),'regions':details,'pages':sorted(rotations),'complete':True}
+        report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':requested_width,'height':requested_height,'preserves_affine':True,'preserves_spacing':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects),'source_paths':len({path_key(r) for r in rows}),'regions':details,'pages':sorted(rotations),'complete':True,'automatic_pagination':paginate,'added_pages':len(doc)-original_pages}
         if preview:return report
         patches=[]
         for row in rows:

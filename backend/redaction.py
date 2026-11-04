@@ -5,7 +5,11 @@ from .engine import open_pdf,export_pdf,DocumentError,finite
 from .document_tools import editable
 
 
-def redact_pdf(base,operations,regions):
+def redact_pdf(base,operations,regions,method='native',dpi=200):
+    if method=='raster':
+        from .raster_redaction import redact
+        return redact(base,operations,regions,dpi)
+    if method!='native':raise DocumentError('Elige censura nativa o copia visual rasterizada.')
     if not isinstance(regions,list) or not 1<=len(regions)<=100:raise DocumentError('Marca de 1 a 100 regiones para censurar.')
     with open_pdf(base) as source:
         editable(source)

@@ -284,9 +284,12 @@ def import_docx(data,paper='source'):
     section_report=[];page_labels=[];total=0;previous_format='decimal'
     try:
         for index,segment in enumerate(segments):
+            if index and segment['break'] in ['oddPage','evenPage'] and (total+1)%2!=int(segment['break']=='oddPage'):
+                segments[index-1]['trailing_blanks']=1;section_report[-1]['pages']+=1;section_report[-1]['blank_pages']=1;total+=1
+                if total>=50:raise DocumentError('La paginación Word supera 50 páginas, incluidos los saltos pares/impares.')
             width,height=segment['size'];left,top,right,bottom=segment['margins']
             running=segment['running'];fields=segment['fields'];section=segment['properties']
-            fields.start=1 if index==0 else segments[index-1]['fields'].start+segments[index-1]['count']
+            fields.start=1 if index==0 else segments[index-1]['fields'].start+segments[index-1]['count']+segments[index-1]['trailing_blanks']
             fields.format=previous_format
             # An omitted start continues the previous section; an explicit start restarts it.
             numbering=section.find(tag('pgNumType'))
@@ -305,7 +308,7 @@ def import_docx(data,paper='source'):
             from .docx_fields import number_label
             number_label(fields.start+count[0]-1,fields.format)
             page_labels.append({'startpage':total,'prefix':'','style':{'decimal':'D','upperRoman':'R','lowerRoman':'r','upperLetter':'A','lowerLetter':'a'}[fields.format],'firstpagenum':fields.start})
-            section_report.append({'section':index+1,'first_page':total+1,'pages':count[0],'width':width,'height':height,'margins':list(segment['margins']),'number_start':fields.start,'number_format':fields.format,'header_footer_templates':len(running.templates)})
+            section_report.append({'section':index+1,'first_page':total+1,'pages':count[0],'blank_pages':0,'break':segment['break'],'width':width,'height':height,'margins':list(segment['margins']),'number_start':fields.start,'number_format':fields.format,'header_footer_templates':len(running.templates)})
             total+=count[0]
         with f.open() as doc:
             all_positions=[]
@@ -323,7 +326,7 @@ def import_docx(data,paper='source'):
                     # Story.write reports the next number when closing a prior
                     # device. Bind bottom notes to the device actually opened.
                     if not after:
-                        active_page[0]=number;running.draw(number,total,device,physical_page=segment['offset']+number,section_total=segment['count'])
+                        active_page[0]=number;running.draw(number,total,device,physical_page=segment['offset']+number,section_total=segment['count']+segment['trailing_blanks'])
                     else:notes.draw(segment['note_plan'],active_page[0],width,height,left,right,bottom,css,archive,device,position)
                 stream=BytesIO();writer=f.DocumentWriter(stream)
                 try:segment['story'].write(writer,rectangle,positionfn=position,pagefn=pagefn)
@@ -331,6 +334,7 @@ def import_docx(data,paper='source'):
                 with f.open(stream=stream.getvalue()) as part:
                     if len(part)!=segment['count'] or actual_refs!=segment['note_plan']['ref_pages']:raise DocumentError('La paginación de texto/notas Word cambió durante la conversión.')
                     doc.insert_pdf(part)
+                    if segment['trailing_blanks']:doc.new_page(width=width,height=height)
                 for node in running.positions:node.page_num+=segment['offset'];all_positions.append(node)
             for node in all_positions:
                 if node.href and f.Rect(node.rect).is_empty:node.href=None

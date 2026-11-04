@@ -77,7 +77,7 @@ def test_explicit_paper_applies_consistently_to_all_sections(paper):
     assert r['section_count']==3 and r['text_check_passed']
 
 
-@pytest.mark.parametrize('kind',['continuous','oddPage','evenPage','nextColumn','invalid'])
+@pytest.mark.parametrize('kind',['continuous','nextColumn','invalid'])
 def test_unsupported_section_break_is_explicit_and_atomic(kind):
     with pytest.raises(DocumentError,match='página siguiente'):import_docx(fixture(kind=kind))
     with TestClient(app) as client:

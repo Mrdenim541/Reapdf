@@ -28,7 +28,6 @@ from .conversions import images_to_pdf, export_page_images, MAX_FILES, MAX_INPUT
 from .images import MAX_IMAGE_BYTES
 from fastapi import Form
 from starlette.concurrency import run_in_threadpool
-from threading import Lock
 from .form_data import export_form_data, import_form_data, flatten_form
 from .ocr import ocr_status, ocr_pdf
 from .form_design import create_field,delete_field
@@ -51,7 +50,7 @@ from .docx_import import import_docx,MAX_INPUT as MAX_DOCX_INPUT
 from .styled_text import inspect_styled,replace_styled
 from .document_review import review_document
 from .document_tools import export_text, read_metadata, metadata_pdf, optimize_pdf, protect_pdf, unlock_pdf, PasswordRequired
-OCR_LOCK=Lock()
+from .ocr import OCR_LOCK
 from .existing_annotations import list_annotations
 from .text_style import FONT_OPTIONS
 from .rendering import render_page
@@ -69,7 +68,10 @@ async def lifespan(app):
     with TemporaryDirectory(prefix="reapdf-") as temp:
         app.state.root = Path(temp)
         app.state.recovery = RecoveryStore(data_directory())
-        yield
+        from .scheduled_recipes import Queue
+        queue=Queue(data_directory());app.state.recipe_queue=queue;queue.start()
+        try:yield
+        finally:queue.close()
 
 app = FastAPI(title="Reapdf local", lifespan=lifespan)
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "testserver"])
@@ -151,7 +153,7 @@ async def revise_set(request:Request):
     p=await read_payload(request);items=set_items(p.get('documents'));replacement=set_items([p.get('replacement')])[0]
     apply=p.get('apply') is True
     if apply and p.get('acknowledge') is not True:raise DocumentError('Confirma la revisión de todos los vínculos afectados.')
-    result=await run_in_threadpool(document_sets.revision,items,p.get('relations',[]),p.get('old'),replacement,p.get('choices',{}) if apply else None)
+    result=await run_in_threadpool(document_sets.revision,items,p.get('relations',[]),p.get('old'),replacement,p.get('choices',{}) if apply else None,p.get('remap'))
     if not apply:return result
     docs,relations,report=result
     return {'documents':[{k:v for k,v in d.items() if k!='data'} for d in docs],'relations':relations,'report':report}
@@ -206,7 +208,7 @@ async def reflow_original(doc_id:str,request:Request):
 async def reflow_affine(doc_id:str,request:Request):
     from .affine_reflow import reflow
     p=await read_payload(request)
-    result=await run_in_threadpool(reflow,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('id'),p.get('text'),p.get('width'),p.get('height'),p.get('preview') is True,p.get('ids'),p.get('runs'),p.get('explicit_order',False),p.get('continuations'))
+    result=await run_in_threadpool(reflow,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('id'),p.get('text'),p.get('width'),p.get('height'),p.get('preview') is True,p.get('ids'),p.get('runs'),p.get('explicit_order',False),p.get('continuations'),p.get('paginate',False))
     if p.get('preview') is True:return result
     data,report=result
     return {**store_document(data),'reflow_report':report}
@@ -251,6 +253,17 @@ async def inspect_structure(doc_id:str,request:Request):
     p=await read_payload(request)
     return await run_in_threadpool(structure_editing.model,document_path(doc_id).read_bytes(),p.get('operations',[]))
 
+@app.get('/api/local-models')
+async def list_local_models():
+    from .local_model import models
+    return await run_in_threadpool(models)
+
+@app.post('/api/documents/{doc_id}/local-model-answer')
+async def local_model_answer(doc_id:str,request:Request):
+    from .local_model import answer
+    p=await read_payload(request)
+    return await run_in_threadpool(answer,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('question',''),p.get('model'),p.get('pages'),p.get('summary',False))
+
 @app.post('/api/documents/{doc_id}/variable-fonts')
 async def variable_font_inventory(doc_id:str,request:Request):
     from .variable_fonts import inspect
@@ -287,6 +300,19 @@ async def structure_properties(doc_id:str,request:Request):
     p=await read_payload(request)
     data=await run_in_threadpool(structure_editing.properties,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('id'),p.get('role'),p.get('language'),p.get('scope'))
     return store_document(data)
+
+@app.post('/api/documents/{doc_id}/table-structure')
+async def table_structure(doc_id:str,request:Request):
+    from .table_structure_repair import inspect
+    p=await read_payload(request)
+    return await run_in_threadpool(inspect,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('id'))
+
+@app.post('/api/documents/{doc_id}/repair-table-structure')
+async def repair_table_structure(doc_id:str,request:Request):
+    from .table_structure_repair import repair
+    p=await read_payload(request)
+    data,report=await run_in_threadpool(repair,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('id'),p.get('cells'),p.get('reviewed',False))
+    return {**store_document(data),'table_repair_report':report}
 
 @app.post('/api/documents/{doc_id}/structure/{action}')
 async def edit_structure(doc_id:str,action:str,request:Request):
@@ -400,7 +426,7 @@ async def inspect_layers(doc_id:str,request:Request):
 @app.post('/api/documents/{doc_id}/set-layers')
 async def change_layers(doc_id:str,request:Request):
     p=await read_payload(request)
-    result=await run_in_threadpool(layers.apply,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('visible'),p.get('configuration'))
+    result=await run_in_threadpool(layers.apply,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('visible'),p.get('configuration'),p.get('usage'))
     if p.get('preview') is True:
         image,_=await run_in_threadpool(paragraph_preview,result,[],p.get('page',0),1)
         return Response(image,media_type='image/png')
@@ -554,6 +580,26 @@ async def document_batch(request: Request):
     if review:return result
     return Response(result,media_type='application/zip',headers={'Content-Disposition':'attachment; filename="Reapdf-lote.zip"'})
 
+@app.get('/api/scheduled-recipes')
+async def scheduled_recipe_list():return await run_in_threadpool(app.state.recipe_queue.list)
+
+@app.post('/api/scheduled-recipes')
+async def schedule_recipe(request:Request):
+    p=await read_payload(request)
+    if p.get('secrets'):raise DocumentError('No se guardan contraseñas en tareas programadas.')
+    return await run_in_threadpool(app.state.recipe_queue.create,batch_sources(p),p.get('recipe'),p.get('run_at'))
+
+@app.post('/api/scheduled-recipes/{identity}/cancel')
+async def cancel_scheduled_recipe(identity:str):return await run_in_threadpool(app.state.recipe_queue.cancel,identity)
+
+@app.delete('/api/scheduled-recipes/{identity}')
+async def delete_scheduled_recipe(identity:str):return await run_in_threadpool(app.state.recipe_queue.delete,identity)
+
+@app.get('/api/scheduled-recipes/{identity}/result')
+async def scheduled_recipe_result(identity:str):
+    result=await run_in_threadpool(app.state.recipe_queue.result,identity)
+    return Response(result,media_type='application/zip',headers={'Content-Disposition':'attachment; filename="reapdf-tarea.zip"'})
+
 
 @app.post('/api/documents/{doc_id}/inspect-links')
 async def existing_link_source(doc_id: str, request: Request):
@@ -648,6 +694,18 @@ async def apply_text_flow(doc_id: str, request: Request):
         return {'report':report,'previews':await run_in_threadpool(previews)}
     return store_document(result)
 
+
+@app.post('/api/import/docx-batch')
+async def import_word_batch(files:list[UploadFile],paper:str=Form('source'),review:bool=Form(False)):
+    from .docx_batch import convert
+    items=[]
+    try:
+        if not 1<=len(files)<=10:raise DocumentError('Selecciona de 1 a 10 archivos DOCX.')
+        for file in files:items.append((file.filename or 'Documento.docx',await file.read(10*1024*1024+1)))
+    finally:
+        for file in files:await file.close()
+    result=await run_in_threadpool(convert,items,paper,review)
+    return result if review else Response(result,media_type='application/zip',headers={'Content-Disposition':'attachment; filename="reapdf-word-lote.zip"'})
 
 @app.post('/api/import/docx')
 async def import_word(file: UploadFile, paper: str=Form('source')):
@@ -910,7 +968,7 @@ async def compressed_images(doc_id: str, request: Request):
 @app.post('/api/documents/{doc_id}/redact')
 async def redaction(doc_id: str, request: Request):
     payload=await read_payload(request)
-    result=await run_in_threadpool(redact_pdf,document_path(doc_id).read_bytes(),payload.get('operations',[]),payload.get('regions'))
+    result=await run_in_threadpool(redact_pdf,document_path(doc_id).read_bytes(),payload.get('operations',[]),payload.get('regions'),payload.get('method','native'),payload.get('dpi',200))
     if payload.get('preview') is True:
         with open_pdf(result) as doc:
             number=payload.get('preview_page',payload['regions'][0]['page'])
@@ -928,7 +986,7 @@ async def redaction_candidates(doc_id: str, request: Request):
 @app.post('/api/documents/{doc_id}/redact/search/apply')
 async def redaction_matches(doc_id: str, request: Request):
     payload=await read_payload(request)
-    result,pages=await run_in_threadpool(redact_search,document_path(doc_id).read_bytes(),payload.get('operations',[]),payload.get('query'),payload.get('receipt'),payload.get('selected'))
+    result,pages=await run_in_threadpool(redact_search,document_path(doc_id).read_bytes(),payload.get('operations',[]),payload.get('query'),payload.get('receipt'),payload.get('selected'),payload.get('method','native'),payload.get('dpi',200))
     if payload.get('preview') is True:
         number=payload.get('preview_page')
         if type(number) is not int or number not in pages:
@@ -1216,6 +1274,8 @@ async def print_document(doc_id: str, request: Request):
         if not (doc.permissions & pymupdf.PDF_PERM_PRINT and doc.permissions & pymupdf.PDF_PERM_PRINT_HQ):
             raise HTTPException(403, 'El documento no permite impresión de alta calidad. La impresión con permisos de baja resolución sigue pendiente.')
     result = export_pdf(data, payload.get('operations', []))
+    from .layer_usage import for_print
+    result=for_print(result)
     return Response(result, media_type='application/pdf', headers={'Content-Disposition': 'inline; filename="reapdf-impresion.pdf"', 'Cache-Control': 'no-store'})
 
 
