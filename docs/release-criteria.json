@@ -18,7 +18,7 @@
       "id": "text_editing",
       "status": "partial",
       "description": "Edición de texto general",
-      "remaining": "CFF/Type3, Form, escalas/codificaciones complejas, reflujo original mixto/entre páginas y etiquetas semánticas. Incorporados espaciado TJ/Tc/Tw verificable, inserción Unicode con clic y reflujo uniforme con fuente original sobre la página; corpus comercial y aceptación pendientes."
+      "remaining": "Fuentes/ejes e instancias no predeterminados, CFF2 crudo, Type3 fuera del subconjunto vectorial/bitmap y matrices verificado; reflujo mixto afín/entre objetos/páginas y cambio de fuente generales, composición especial y reparación semántica. Edición sobre página, párrafo mixto en caja única con aplicación directa/undo de estilos y Type3 con matrices diagonales/traslación y bitmaps/máscaras acotados ya incorporados. Corpus externo y cierre general siguen pendientes."
     },
     {
       "id": "office_conversion",
