@@ -6,7 +6,7 @@ from .engine import open_pdf,export_pdf,DocumentError,finite
 from .document_tools import editable
 from .native_text import native_model
 from .affine_text import polygon,rectangle,contains,overlap,bounds
-from .text_flow import next_line
+from .mixed_spacing import Layout,operand
 
 
 def path_key(row):
@@ -26,8 +26,6 @@ def compatible(rows,sort=True,across_paths=False):
     first=rows[0];frame=f.Matrix(*first['_geometry']['matrix']);inverse=~frame
     for r in rows:
         if (not across_paths and r['_native_path']!=first['_native_path']) or max(abs(a-b) for a,b in zip(r['_geometry']['matrix'][:4],first['_geometry']['matrix'][:4]))>1e-4:raise DocumentError('Los estilos deben compartir transformación paralela; las rutas distintas necesitan selección explícita.')
-        state=r['_spacing']['state']
-        if state['char']!=0 or state['word']!=0:raise DocumentError('El párrafo usa espaciado especial que aún no puede redistribuirse conservando sus estilos.')
     ordered=sorted(rows,key=lambda r:(-round((f.Point(r['origin'])*inverse).y,2),(f.Point(r['origin'])*inverse).x))
     return ordered if sort else rows
 
@@ -108,10 +106,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         objects={object_key(r) for r in rows}
         if not complete_objects(rows,all_rows):raise DocumentError('Selecciona completos los objetos de texto para conservar su estado.')
         if not isinstance(runs,list) or len(runs)!=len(rows) or any(not isinstance(r,dict) or set(r)!={'id','text'} or not isinstance(r['text'],str) for r in runs) or [r['id'] for r in runs]!=identifiers or ''.join(r['text'] for r in runs)!=text:raise DocumentError('Los estilos, identificadores y texto completo no coinciden.')
-        styles=[];prefix=[0.]
-        for run,row in zip(runs,rows):
-            for char in run['text']:
-                styles.append(row);prefix.append(prefix[-1]+(0 if char=='\n' else row['_font'].encode(char,row['size'])[1]*row['_spacing']['state']['scale']/100))
+        layout=Layout(rows,runs);styles=layout.styles
         obstacles=[clip for r in rows for clip in r['_obstacles']]+[rectangle(l['from']) for l in page.get_links()]+[rectangle(f.Rect(d['rect'])+(-.5,-.5,.5,.5)) for d in page.get_drawings()]
         untouched=[r for r in all_rows if r['id'] not in identifiers];obstacles +=[r['quad'] or rectangle(f.Rect(r['bbox'])) for r in untouched]
         original_untouched=Counter(stable_key(r) for r in untouched)
@@ -123,7 +118,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
                 native=native_model(doc,n,doc[n].rect)[1] if doc[n].get_text().strip() else [];untouched_by_page[n]=Counter(stable_key(r) for r in native)
         frame=f.Matrix(*first['_geometry']['matrix']);inverse=~frame;top=max((f.Point(r['origin'])*inverse).y+r['_geometry']['ascent'] for r in rows);commands={r['id']:[] for r in rows};prepared=[];cursor=0;used=0.;lines=0;destination=-1;current=number;draws=[];details=[{'page':number,'lines':0,'characters':0}]
         while cursor<len(text):
-            line,after,_=next_line(text,cursor,width,prefix);group=styles[cursor:cursor+max(1,len(line))];ascent=max(r['_geometry']['ascent'] for r in group);descent=min(r['_geometry']['descent'] for r in group);size=max(r['size'] for r in group)
+            line,after,_=layout.line(text,cursor,width);group=styles[cursor:cursor+max(1,len(line))];ascent=max(r['_geometry']['ascent'] for r in group);descent=min(r['_geometry']['descent'] for r in group);size=max(r['size'] for r in group)
             if used+ascent-descent>height+.01:
                 if destination<0 and destinations and not lines:raise DocumentError('El alto inicial no permite una línea. Amplía el área inicial; se conserva el borrador.')
                 if destination+1>=len(destinations):raise DocumentError('El párrafo mixto no cabe completo. Amplía el alto o añade otra continuación; se conserva el borrador.')
@@ -132,16 +127,16 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
             while offset<len(line):
                 row=styles[cursor+offset];end=offset+1
                 while end<len(line) and styles[cursor+end] is row:end+=1
-                fragment=line[offset:end];extent=prefix[cursor+end]-prefix[cursor+offset];g=copy.copy(row['_geometry']);origin=f.Point(x,baseline)*frame;g['matrix']=[*g['matrix'][:4],origin.x,origin.y];cell=polygon(g,extent)
+                fragment=line[offset:end];extent=layout.extent(cursor+offset,cursor+end);g=copy.copy(row['_geometry']);origin=f.Point(x,baseline)*frame;g['matrix']=[*g['matrix'][:4],origin.x,origin.y];cell=polygon(g,extent)
                 if not contains(rectangle(doc[current].rect),cell) or (destination<0 and any(not contains(c,cell) for c in row['_clips'])) or (destination>=0 and not contains(rectangle(destinations[destination]['rect']),cell)):raise DocumentError('El párrafo sale de la página o del recorte original.')
                 if destination<0 and any(overlap(cell,o)>.1 for o in obstacles):raise DocumentError('El párrafo cruza otro texto, imagen, borde, enlace o anotación.')
                 if destination<0:
                     local=origin*~f.Matrix(*row['_geometry']['matrix']);tm=f.Matrix(*row['_line_matrix']);position=f.Point(local.x/(g['factor']*g['horizontal']),local.y/g['factor'])*tm;tm[4]=position.x;tm[5]=position.y
-                    encoded=row['_font'].encode(fragment,row['size'])[0];command=(' '.join(f'{v:.8f}' for v in tm)+' Tm <'+encoded.hex()+'> Tj').encode();commands[row['id']].append(command)
-                else:draws.append((current,row,g,fragment))
-                prepared.append((current,({**row,'origin':list(origin),'_geometry':g,'_replacement_text':fragment,'_replacement_width':extent},b'')));x+=extent;offset=end
+                    command=(' '.join(f'{v:.8f}' for v in tm)+' Tm ').encode()+operand(row['_font'],fragment,layout.kern[cursor+offset:cursor+end]);commands[row['id']].append(command)
+                else:draws.append((current,{**row,'_replacement_kern':layout.kern[cursor+offset:cursor+end]},g,fragment))
+                prepared.append((current,({**row,'origin':list(origin),'_geometry':g,'_replacement_text':fragment,'_replacement_width':extent},b'')));x+=layout.prefix[cursor+end]-layout.prefix[cursor+offset];offset=end
             details[-1]['characters']+=after-cursor;details[-1]['lines']+=1;cursor=after;used+=max(size*1.35,ascent-descent);lines+=1
-        report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':requested_width,'height':requested_height,'preserves_affine':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects),'source_paths':len({path_key(r) for r in rows}),'regions':details,'pages':sorted(rotations),'complete':True}
+        report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':requested_width,'height':requested_height,'preserves_affine':True,'preserves_spacing':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects),'source_paths':len({path_key(r) for r in rows}),'regions':details,'pages':sorted(rotations),'complete':True}
         if preview:return report
         patches=[]
         for row in rows:

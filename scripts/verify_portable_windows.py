@@ -118,12 +118,16 @@ def _compiled_window(folder):
     return found[0]
 
 
-def compiled_gui_check(folder):
+def compiled_gui_check(folder,journey='basic'):
     if os.name!='nt':raise RuntimeError('La comprobación del ejecutable exige Windows.')
     root=Path(__file__).resolve().parents[1];node=shutil.which('node')
     if not node or not (root/'node_modules/@playwright/test').is_dir():raise RuntimeError('La verificación gráfica interna requiere Node y npm ci en el checkout de pruebas.')
     with socket.socket() as reserved:reserved.bind(('127.0.0.1',0));port=reserved.getsockname()[1]
-    sample=folder/'ejemplos/reapdf-demo.pdf';original=sample.read_bytes();output=folder/'comprobacion-ventana.pdf'
+    sample=folder/'ejemplos/reapdf-demo.pdf'
+    if journey=='spacing_flow':
+        from tests.test_mixed_paragraph_spacing import source
+        sample=folder/'spacing-flow-fixture.pdf';sample.write_bytes(source(nested=True))
+    original=sample.read_bytes();output=folder/('comprobacion-'+journey+'.pdf')
     from uuid import uuid4
     state=folder/('.gui-verification-state-'+uuid4().hex)
     env={**os.environ,'REAPDF_DATA_DIR':str(state),'REAPDF_INSTANCE_NAMESPACE':str(state),'QTWEBENGINE_REMOTE_DEBUGGING':f'127.0.0.1:{port}'}
@@ -140,16 +144,19 @@ def compiled_gui_check(folder):
             if time.monotonic()>deadline:raise RuntimeError('La ventana incluida no quedó disponible para su verificación.')
             time.sleep(.1)
         hwnd,pid=_compiled_window(folder)
-        run=subprocess.run([node,str(root/'scripts/smoke_packaged_window.mjs'),endpoint,str(output)],cwd=root,capture_output=True,text=True,timeout=100)
+        driver='smoke_packaged_spacing_flow.mjs' if journey=='spacing_flow' else 'smoke_packaged_window.mjs'
+        run=subprocess.run([node,str(root/'scripts'/driver),endpoint,str(output)],cwd=root,capture_output=True,text=True,timeout=100)
         if run.returncode or 'PASS:' not in run.stdout:raise RuntimeError('Falló el recorrido del ejecutable: '+run.stdout+run.stderr)
-        subprocess.run([str(folder/'runtime/python.exe'),'-I','-c',"import pymupdf as f,sys;d=f.open(sys.argv[1]);assert len(d)==2;assert 'Ejecutable' in d[0].get_text();assert 'Texto original' not in d[0].get_text();assert 'Segunda pagina' in d[1].get_text()",str(output)],check=True,timeout=20)
+        verification="import pymupdf as f,sys;d=f.open(sys.argv[1]);assert len(d)==2;assert 'Ejecutable' in d[0].get_text();assert 'Texto original' not in d[0].get_text();assert 'Segunda pagina' in d[1].get_text()"
+        if journey=='spacing_flow':verification="import pymupdf as f,sys;d=f.open(sys.argv[1]);a=f.open(sys.argv[2]);assert len(d)==3;v=''.join((d[0].get_text()+d[2].get_text()).split());assert v.count('HELLO')==13 and v.count('TEXT')==9;assert 'HELLO' in d[2].get_text() and 'TEXT' in d[2].get_text();assert a[1].get_pixmap().samples==d[1].get_pixmap().samples"
+        subprocess.run([str(folder/'runtime/python.exe'),'-I','-c',verification,str(output),str(sample)],check=True,timeout=20)
         if sample.read_bytes()!=original:raise RuntimeError('La comprobación modificó el PDF de origen.')
         import ctypes
         from ctypes import wintypes as w
         user=ctypes.WinDLL('user32');user.PostMessageW.argtypes=[w.HWND,w.UINT,w.WPARAM,w.LPARAM];user.PostMessageW(hwnd,0x0010,0,0)
         if process.wait(timeout=25)!=0:raise RuntimeError('Reapdf.exe no cerró normalmente.')
         print(run.stdout.strip())
-        return {'compiled_exe_window_and_edit':'ok','compiled_exe_normal_close':'ok','qt_process_pid':pid,'external_browser_used':False,'native_save_in_this_check':False,'windows_execution_verified':True}
+        return {'compiled_exe_window_and_edit':'ok','compiled_exe_normal_close':'ok',**({'compiled_exe_affine_spacing_flow':'ok'} if journey=='spacing_flow' else {}),'qt_process_pid':pid,'external_browser_used':False,'native_save_in_this_check':False,'windows_execution_verified':True}
     finally:
         if process.poll() is None:process.terminate();process.wait(timeout=10)
 
@@ -162,7 +169,7 @@ def main():
     if os.name!='nt':raise SystemExit('La ejecución nativa requiere Windows. Usa --static-only para comprobar integridad.')
     with TemporaryDirectory(prefix='Reapdf prueba con espacios ') as tmp:
         with ZipFile(args.archive) as z:z.extractall(tmp)
-        folder=Path(tmp)/'Reapdf-portable';native=native_check(folder);compiled_gui_check(folder);gui=compiled_gui_check(folder);result={**native,**gui,'compiled_gui_independent_runs':2,'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
+        folder=Path(tmp)/'Reapdf-portable';native=native_check(folder);compiled_gui_check(folder);gui=compiled_gui_check(folder,'spacing_flow');result={**native,**gui,'compiled_gui_independent_runs':2,'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
         from scripts.publish_windows_report import source_objects
         root=Path(__file__).resolve().parents[1]
         result.update(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),source_git_objects=source_objects(root),source_dirty=bool(subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True).strip()))

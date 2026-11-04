@@ -9,10 +9,13 @@ from portable.native_window import create_window
 from tests.test_native_calculations import source
 from tests.test_docx_notes import source as note_source,p as paragraph,reference
 from backend.docx_import import import_docx
-from tests.test_docx_note_runs import ref as custom_reference
+from tests.test_docx_multirun_marks import marked as custom_reference
 import base64
 
-root=Path(tempfile.mkdtemp(prefix='reapdf-native-notes-qt-'));original=root/'Original.pdf';output=root/'Editado.pdf';original.write_bytes(source());digest=hashlib.sha256(original.read_bytes()).hexdigest()
+root=Path(tempfile.mkdtemp(prefix='reapdf-native-notes-qt-'));original=root/'Original.pdf';output=root/'Editado.pdf';
+with f.open(stream=source()) as generated:
+    total=next(w for w in generated[0].widgets() if w.field_name=='Total');generated.xref_set_key(total.xref,'AA/C/JS',f.get_pdf_str('event.value=Math.round((this.getField("A").value+this.getField("B").value)*100)/100;'));original.write_bytes(generated.tobytes())
+digest=hashlib.sha256(original.read_bytes()).hexdigest()
 QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
 app=QApplication([]);QMessageBox.question=lambda *args:QMessageBox.StandardButton.Yes
 window=create_window('http://127.0.0.1:8000',str(original));window.resize(1500,1100);window.show()
@@ -82,7 +85,7 @@ try:
         ref=next(p.number for p in d if p.search_for('NEARBOUNDARY'));note=next(p.number for p in d if p.search_for('FOOTNOTEALPHA'));assert ref==note
         assert any(p.search_for('ENDNOTEBETA') for p in d) and len([l for p in d for l in p.get_links() if l['kind']==f.LINK_GOTO])>=4
     assert hashlib.sha256(word.read_bytes()).hexdigest()==word_digest
-    print('PASS: actual Qt app recalculated native PDF fields across pages and saved atomically with original actions/source preserved; imported and reviewed Word foot/endnotes with custom marks in the following styled run, saved through native PDF dialog, verified same-page footnote/reference and return links with original Word unchanged.')
+    print('PASS: actual Qt app recalculated native PDF fields across pages and saved atomically with original actions/source preserved; imported and reviewed Word foot/endnotes with custom marks split across reference-styled runs and bounded native Math.round arithmetic, saved through native PDF dialog, verified same-page footnote/reference and return links with original Word unchanged.')
 except Exception:
     print(js("document.body.innerText"));raise
 finally:window.allow_close=True;window.close();app.processEvents()

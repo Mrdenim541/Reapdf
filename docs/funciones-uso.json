@@ -49,10 +49,11 @@
       "steps": [
         "Abre Etiquetas y orden de lectura",
         "revisa estructura existente o prepara etiquetas",
-        "asigna roles, orden, idioma y alternativas y aplica."
+        "asigna roles, orden, idioma y alternativas y aplica.",
+        "Para una cabecera TH existente compatible, abre Editar etiquetas, selecciona la etiqueta, despliega sus propiedades y guarda su alcance de fila, columna o ambos."
       ],
       "expected": "El árbol compatible conserva referencias reales y apariencia; admite listas y tablas revisadas.",
-      "limits": "No certifica PDF/UA ni repara cualquier árbol o contenido mixto automáticamente."
+      "limits": "No certifica PDF/UA ni repara cualquier árbol o contenido mixto automáticamente. El alcance de cabeceras TH estándar puede corregirse conservando atributos de otros propietarios y cabeceras no seleccionadas. Atributos ambiguos y espacios de nombres no compatibles permanecen protegidos."
     },
     {
       "id": "preflight",
@@ -65,7 +66,7 @@
         "consulta los hallazgos por página."
       ],
       "expected": "Se informa de fuentes, imágenes, colores y cajas que requieren atención.",
-      "limits": "Inspección orientativa; no certifica todas las condiciones de imprenta ni PDF/X."
+      "limits": "Inspección orientativa; no certifica todas las condiciones de imprenta ni PDF/X. Analiza espacios de color declarados dentro de Forms, nombres de colorantes Separation/DeviceN y estados de sobreimpresión aplicados. Informa análisis parcial ante ciclos o presupuestos agotados; no evalúa funciones de tinta ni cobertura real de impresión."
     },
     {
       "id": "xfdf",
@@ -252,7 +253,7 @@
         "Para continuar un párrafo compatible, pulsa Continuar en otra página, dibuja las áreas vacías y aplica con Ctrl+Enter; el borrador conserva sus estilos."
       ],
       "expected": "El contenido nuevo se guarda con la fuente y geometría originales compatibles. En párrafos mixtos el texto sin cambios conserva sus estilos; las inserciones toman el estilo anterior (al inicio, el primero).",
-      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas. Type3: matrices diagonales positivas acotadas y desplazamientos compatibles; glifos vectoriales o imágenes/máscaras bitmap verificadas sin máscaras externas, con recursos y píxeles conservados. Otras matrices, recursos y filtros siguen protegidos. El ajuste se valida siempre al aplicar; si falla, el borrador permanece disponible. El control por fragmentos está en Ajustar texto por estilo (opcional). Reflujo mixto afín: estilos paralelos de objetos completos, opacos y sin espaciado especial, dentro de la página y recortes originales; conserva la aparición de Form seleccionada. La selección explícita permite bloques separados y rutas Form distintas, incluidos objetos compartidos y relaciones padre/hijo, dentro de una página; conserva los recortes de cada texto y las apariciones no seleccionadas. Exige objetos completos y paralelos; no añade fragmentos sin elegirlos. La continuación explícita admite hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres; conserva fuentes, tamaños, colores y transformación de textos completos paralelos y opacos, también de Forms compartidos. No desplaza otros objetos, no crea páginas y no cubre composición/espaciado especial, etiquetas ni redistribución automática general del documento."
+      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas. Type3: matrices diagonales positivas acotadas y desplazamientos compatibles; glifos vectoriales o imágenes/máscaras bitmap verificadas sin máscaras externas, con recursos y píxeles conservados. Otras matrices, recursos y filtros siguen protegidos. El ajuste se valida siempre al aplicar; si falla, el borrador permanece disponible. El control por fragmentos está en Ajustar texto por estilo (opcional). Reflujo mixto afín: estilos paralelos de objetos completos, opacos, con espaciado Tc/Tw y kerning TJ compatible, dentro de la página y recortes originales; conserva la aparición de Form seleccionada. La selección explícita permite bloques separados y rutas Form distintas, incluidos objetos compartidos y relaciones padre/hijo, dentro de una página; conserva los recortes de cada texto y las apariciones no seleccionadas. Exige objetos completos y paralelos; no añade fragmentos sin elegirlos. La continuación explícita admite hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres; conserva fuentes, tamaños, colores y transformación de textos completos paralelos y opacos, también de Forms compartidos. No desplaza otros objetos, no crea páginas y no cubre composición especial, espaciados no verificables, etiquetas ni redistribución automática general del documento. Se conservan ajustes TJ entre caracteres que siguen siendo vecinos; se rechazan avances invertidos o superpuestos y comparaciones de kerning que superan el presupuesto."
     },
     {
       "id": "paragraph",
@@ -617,7 +618,7 @@
         "introduce y revisa sus valores antes de aplicar."
       ],
       "expected": "Valores y apariencias compatibles persisten al guardar.",
-      "limits": "XFA y acciones no soportadas no se presentan como formularios completamente editables."
+      "limits": "XFA y acciones no soportadas no se presentan como formularios completamente editables. Los cálculos aritméticos nativos admiten resto (%) y Math.abs, round, floor, ceil, min y max con argumentos limitados. Se interpretan como datos; no se ejecuta JavaScript arbitrario y las demás llamadas permanecen protegidas."
     },
     {
       "id": "field_properties",
@@ -803,7 +804,7 @@
         "revisa los cambios y guarda."
       ],
       "expected": "Los adjuntos mantienen sus bytes y las propiedades compatibles persisten.",
-      "limits": "Columnas complejas, carpetas y reglas externas no verificables tienen límites explícitos."
+      "limits": "Columnas complejas, carpetas y reglas externas no verificables tienen límites explícitos. Las columnas nativas de nombre, descripción, tamaño declarado y fechas se muestran desde los datos del adjunto en modo de solo lectura; el tamaño declarado no equivale a comprobar todos sus bytes."
     },
     {
       "id": "attachments",
@@ -830,7 +831,7 @@
         "Desde el párrafo sobre la página también puedes elegir Continuar en otra página: se conserva el borrador, marcas el destino y aplicas directamente. En el flujo avanzado con fuentes originales, escribe en Texto completo del flujo original; los estilos individuales son opcionales."
       ],
       "expected": "El texto se distribuye por el recorrido seleccionado sin publicar una distribución parcial.",
-      "limits": "Las regiones deben ser compatibles; no es reflujo general de cualquier PDF. La continuación nativa desde el párrafo usa hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres, con fuentes y transformación originales compatibles. Las áreas se expresan en la vista enderezada y pueden elegirse con el ratón. No crea páginas ni mueve contenido ajeno. La comparación de distribución es opcional para este recorrido; al aplicar se comprueba el texto completo y un fallo conserva el borrador. El flujo avanzado anterior conserva su comparación por páginas y admite una sola caja para editar las fuentes originales."
+      "limits": "Las regiones deben ser compatibles; no es reflujo general de cualquier PDF. La continuación nativa desde el párrafo usa hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres, con fuentes y transformación originales compatibles. Las áreas se expresan en la vista enderezada y pueden elegirse con el ratón. No crea páginas ni mueve contenido ajeno. La comparación de distribución es opcional para este recorrido; al aplicar se comprueba el texto completo y un fallo conserva el borrador. El flujo avanzado anterior conserva su comparación por páginas y admite una sola caja para editar las fuentes originales. El reflujo nativo conserva espaciado entre letras/palabras y ajustes TJ compatibles, también al continuar en otra página."
     },
     {
       "id": "form_rules",
@@ -974,6 +975,19 @@
       ],
       "expected": "Se entrega una copia saneada solo si supera las comprobaciones previstas.",
       "limits": "Un rectángulo, tachado o recorte no sustituye esta operación; composiciones complejas no verificables quedan protegidas."
+    },
+    {
+      "id": "local_assistant",
+      "label": "Consultar documento",
+      "area": "workspace",
+      "availability": "implemented_with_limits",
+      "steps": [
+        "Abre Documentos y elige Consultar documento",
+        "Elige Resumen extractivo o Buscar pasajes sobre una pregunta, y el documento o la página actual",
+        "Consulta los pasajes y sus referencias; Ver página abre el original correspondiente"
+      ],
+      "expected": "Se muestran citas del texto extraíble con referencias de página, sin modelo generativo ni envío a servicios externos. No cambia el PDF.",
+      "limits": "Procesa como máximo 200 páginas, 400000 caracteres y 8000 fragmentos por consulta; informa si el resultado es parcial. Respeta el permiso de copia. No interpreta imágenes sin OCR, no redacta conclusiones ni ejecuta instrucciones del documento. El cálculo ocurre en el equipo que ejecuta Reapdf."
     }
   ],
   "general_functions": [
@@ -1144,7 +1158,7 @@
         "Convierte y revisa páginas y diferencias antes de abrir el resultado"
       ],
       "expected": "Se obtiene un PDF del contenido y maquetación compatibles.",
-      "limits": "No se promete fidelidad universal de Office; las diferencias se informan. Las marcas personalizadas de notas pueden estar en el fragmento siguiente si es adyacente y contiene solo texto de 1–4 caracteres. No se buscan a través de campos, enlaces o límites estructurales; las notas al pie partidas y otras variantes generales siguen pendientes."
+      "limits": "No se promete fidelidad universal de Office; las diferencias se informan. Las marcas personalizadas de notas pueden estar en el fragmento siguiente si es adyacente y contiene solo texto de 1–4 caracteres. Las marcas repartidas entre fragmentos adyacentes también se reconocen si todos declaran el estilo FootnoteReference o EndnoteReference correspondiente, con un máximo conjunto de cuatro caracteres. No se buscan a través de campos, enlaces o límites estructurales; las notas al pie partidas y otras variantes generales siguen pendientes."
     },
     {
       "id": "general_tools",

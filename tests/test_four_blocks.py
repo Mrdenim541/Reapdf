@@ -329,7 +329,7 @@ def test_formula_numeric_failure_is_atomic(expression):
  'event.value=this.getField("A").value+F0;',
  'event.value=this.getField("A").value**2;',
  'event.value=this.getField("A").value//2;',
- 'event.value=Math.max(this.getField("A").value,2);',
+ 'event.value=Math.pow(this.getField("A").value,2);',
  'event.value=this.getField("A").value++1;',
  'event.value=this.getField("A").value.constructor;',
  'event.value=__import__("os").system("false");',

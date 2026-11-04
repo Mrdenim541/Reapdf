@@ -3,7 +3,9 @@
 The backend's transport is replaced only inside this test process. This is not
 an Internet provider acceptance test and does not install a test hook in Reapdf.
 """
-import os,json,time,tempfile,threading,socket,base64
+import os,json,time,tempfile,threading,socket,base64,faulthandler
+faulthandler.enable();faulthandler.dump_traceback_later(75,repeat=True)
+print('STEP: importing generated TSA UI dependencies',flush=True)
 from pathlib import Path
 import uvicorn
 from backend.app import app as web_app
@@ -24,6 +26,7 @@ while not server.started:
     if time.monotonic()>end:raise AssertionError('Synthetic TSA UI backend did not start')
     time.sleep(.05)
 QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts);app=QApplication([]);QMessageBox.question=lambda *a:QMessageBox.StandardButton.Yes
+print('STEP: creating TSA Qt window',flush=True)
 window=create_window(f'http://127.0.0.1:{port}',str(source));window.resize(1700,1150);window.show()
 def js(script):
     values=[];loop=QEventLoop();window.page.runJavaScript('(()=>{try{return eval('+json.dumps(script)+');}catch(e){return {__error:String(e)};}})()',lambda value:(values.append(value),loop.quit()));QTimer.singleShot(5000,loop.quit);loop.exec()
@@ -44,6 +47,7 @@ def field(label):return 'document.querySelector('+json.dumps('[aria-label="'+lab
 
 
 def click(label):
+    print('STEP: click '+label,flush=True)
     expr='[...document.querySelectorAll("button,[role=button]")].find(e=>(e.getAttribute("aria-label")||e.textContent.trim())==='+json.dumps(label)+')'
     wait('!!'+expr+' && !'+expr+'.disabled');js(expr+'.dispatchEvent(new MouseEvent("click",{bubbles:true}))')
 
@@ -64,6 +68,7 @@ def native_save(path):
 
 def native_open(path):
     QFileDialog.getOpenFileName=lambda *a,**kw:(str(path),'');window.open_action.trigger()
+    print('STEP: waiting for original document',flush=True)
     wait('document.querySelector(".document-bar")?.textContent.includes('+json.dumps(path.name)+')')
 
 def upload(label,data,name):
@@ -82,4 +87,4 @@ try:
     assert source.read_bytes()==base
     print('PASS: Qt document timestamp and P12 signature timestamp using generated TSA responses, review without requests, native cancel/retry with no repeat TSA call, atomic save/reopen and separate timestamp verification. No external provider was contacted.')
 finally:
-    window.allow_close=True;window.close();app.processEvents();server.should_exit=True;thread.join(timeout=8);listener.close()
+    window.allow_close=True;window.close();app.processEvents();server.should_exit=True;thread.join(timeout=8);listener.close();faulthandler.cancel_dump_traceback_later()

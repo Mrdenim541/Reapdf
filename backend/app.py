@@ -285,7 +285,7 @@ async def reading_preview(doc_id:str,request:Request):
 @app.post('/api/documents/{doc_id}/structure-properties')
 async def structure_properties(doc_id:str,request:Request):
     p=await read_payload(request)
-    data=await run_in_threadpool(structure_editing.properties,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('id'),p.get('role'),p.get('language'))
+    data=await run_in_threadpool(structure_editing.properties,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('id'),p.get('role'),p.get('language'),p.get('scope'))
     return store_document(data)
 
 @app.post('/api/documents/{doc_id}/structure/{action}')
@@ -1300,3 +1300,10 @@ def index():
     if not (DIST / "index.html").exists():
         raise HTTPException(503, "Ejecuta npm run build para preparar la interfaz.")
     return FileResponse(DIST / "index.html")
+
+
+@app.post('/api/documents/{doc_id}/local-assistant')
+async def local_document_assistant(doc_id:str,request:Request):
+    from .local_assistant import analyze
+    p=await read_payload(request)
+    return await run_in_threadpool(analyze,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('mode','summary'),p.get('question',''),p.get('pages'),p.get('limit',8))

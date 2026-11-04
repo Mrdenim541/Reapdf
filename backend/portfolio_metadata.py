@@ -21,7 +21,7 @@ def schema(doc):
         key=n.pdf_to_name(n.pdf_dict_get_key(fields,i));field=n.pdf_dict_get_val(fields,i)
         if not key or len(key)>100 or any(ord(c)<32 for c in key) or not n.pdf_is_dict(field):raise DocumentError('El esquema contiene una columna no compatible.')
         kind=n.pdf_to_name(n.pdf_dict_gets(field,'Subtype'));label=n.pdf_to_text_string(n.pdf_dict_gets(field,'N')) or key;flag=n.pdf_dict_gets(field,'E')
-        result.append({'id':key,'label':label[:200],'position':n.pdf_to_int(n.pdf_dict_gets(field,'O')) if n.pdf_is_int(n.pdf_dict_gets(field,'O')) else i,'type':{'S':'text','N':'number','D':'date'}.get(kind,'readonly'),'editable':kind in ['S','N','D'] and key!='ReapdfOrder' and (n.pdf_to_bool(flag) or key in ['ReapdfTitle','ReapdfDescription','ReapdfOrder'])})
+        result.append({'id':key,'label':label[:200],'position':n.pdf_to_int(n.pdf_dict_gets(field,'O')) if n.pdf_is_int(n.pdf_dict_gets(field,'O')) else i,'native_type':kind,'derived':kind in ['F','Desc','Size','CreationDate','ModDate'],'type':{'S':'text','N':'number','D':'date'}.get(kind,'readonly'),'editable':kind in ['S','N','D'] and key!='ReapdfOrder' and (n.pdf_to_bool(flag) or key in ['ReapdfTitle','ReapdfDescription','ReapdfOrder'])})
     return sorted(result,key=lambda r:(r['position'],r['id']))
 
 
@@ -31,6 +31,10 @@ def model(base,ops=()):
         for name,spec in normalize(doc):
             values={};prefixes={};complex_fields=[];ci=n.pdf_dict_gets(spec,'CI')
             for field in columns:
+                if field.get('derived'):
+                    value,limited=derived_value(n,spec,name,field['native_type']);values[field['id']]=value
+                    if limited:complex_fields.append(field['id'])
+                    continue
                 value=n.pdf_dict_gets(ci,field['id'])
                 if n.pdf_is_dict(value):
                     keys={n.pdf_to_name(n.pdf_dict_get_key(value,i)) for i in range(n.pdf_dict_len(value))}
@@ -44,7 +48,25 @@ def model(base,ops=()):
                 elif n.pdf_is_real(value):values[field['id']]=n.pdf_to_real(value)
                 else:values[field['id']]='Valor no editable';complex_fields.append(field['id'])
             files.append({'name':name,'values':values,'prefixes':prefixes,'protected_fields':complex_fields})
-        return {'columns':columns,'files':files,'schema_preserved':True,'scope':'Columnas declaradas de texto, número y fecha con edición permitida. No sustituye el esquema ni modifica archivos incrustados. Los campos complejos o declarados de solo lectura se conservan.'}
+        return {'columns':columns,'files':files,'schema_preserved':True,'scope':'Columnas declaradas de texto, número y fecha con edición permitida. Incluye lectura de nombre, descripción, tamaño declarado y fechas de los adjuntos. No sustituye el esquema ni modifica archivos incrustados. Los campos complejos o declarados de solo lectura se conservan.'}
+
+
+def derived_value(n,spec,name,kind):
+    if kind=='F':
+        value=n.pdf_dict_gets(spec,'UF')
+        if not n.pdf_is_string(value):value=n.pdf_dict_gets(spec,'F')
+        text=n.pdf_to_text_string(value) if n.pdf_is_string(value) else name
+    elif kind=='Desc':
+        value=n.pdf_dict_gets(spec,'Desc');text=n.pdf_to_text_string(value) if n.pdf_is_string(value) else None
+    else:
+        ef=n.pdf_dict_getp(spec,'EF/UF')
+        if n.pdf_is_null(ef):ef=n.pdf_dict_getp(spec,'EF/F')
+        key={'Size':'Size','CreationDate':'CreationDate','ModDate':'ModDate'}[kind];value=n.pdf_dict_getp(ef,'Params/'+key)
+        if n.pdf_is_null(value):return None,False
+        if kind=='Size':return (n.pdf_to_int64(value),False) if n.pdf_is_int(value) and 0<=n.pdf_to_int64(value)<=10**12 else (None,True)
+        if not n.pdf_is_string(value):return None,True
+        text=n.pdf_to_text_string(value)
+    return (text[:2000],len(text)>2000) if isinstance(text,str) else (None,False)
 
 
 def encoded(n,value,kind):

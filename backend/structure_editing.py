@@ -32,6 +32,9 @@ def model(base,ops):
             page=pages.get(n.pdf_to_num(n.pdf_dict_gets(obj,'Pg')),inherited_page);name=role(obj)
             parts,order=children(obj);alt=n.pdf_dict_gets(obj,'Alt');actual=n.pdf_dict_gets(obj,'ActualText')
             rows.append({'id':identity,'parent':parent,'parent_valid':actual_parent==parent,'role':name,'raw_role':n.pdf_to_name(n.pdf_dict_gets(obj,'S')),'language':n.pdf_to_text_string(n.pdf_dict_gets(obj,'Lang')) if n.pdf_is_string(n.pdf_dict_gets(obj,'Lang')) else '', 'depth':depth,'page':page,'alt':n.pdf_to_text_string(alt) if n.pdf_is_string(alt) else '', 'title':n.pdf_to_text_string(n.pdf_dict_gets(obj,'T'))[:200], 'can_alt':bool(identity and name=='Figure' and actual_parent==parent and n.pdf_is_null(actual)), 'children':order if actual_parent==parent else None})
+            if identity and name=='TH' and rows[-1]['raw_role']=='TH' and actual_parent==parent:
+                from .structure_scope import info as scope_info
+                rows[-1].update(scope_info(doc,identity))
             for child in parts:walk(child,identity,depth+1,page)
         parts,order=children(root)
         for part in parts:walk(part,root_id,0,None)
@@ -89,9 +92,9 @@ def reading_preview(base,ops,number):
         return {'page':number,'width':page.rect.width,'height':page.rect.height,'blocks':rows,'untagged_blocks':sum(not r['tagged'] for r in rows),'scope':'Texto interpretado por MuPDF, ordenado por índices de etiquetas hermanas; los bloques sin etiqueta conservan su posición de flujo. Las mezclas de contenido etiquetado y sin etiquetar requieren revisión. No asigna xrefs por semejanza ni valida PDF/UA; figuras sin texto y aceptación con lector de pantalla requieren revisión aparte.'}
 
 
-def properties(base,ops,identity,role=None,language=None):
+def properties(base,ops,identity,role=None,language=None,scope=None):
     from .accessibility import LANGUAGE
-    if type(identity) is not int or (role is None)==(language is None):raise DocumentError('Elige una etiqueta y cambia su rol o idioma por separado.')
+    if type(identity) is not int or sum(v is not None for v in [role,language,scope])!=1:raise DocumentError('Elige una etiqueta y cambia su rol, idioma o alcance de cabecera por separado.')
     with open_pdf(base) as source:editable(source)
     info=model(base,ops);row=next((r for r in info['nodes'] if r['id']==identity),None)
     if not row or not row['parent_valid']:raise DocumentError('La etiqueta necesita identidad y padre verificables.')
@@ -99,10 +102,14 @@ def properties(base,ops,identity,role=None,language=None):
         allowed={'P','H','H1','H2','H3','H4','H5','H6'}
         if row['role'] not in allowed or row['raw_role']!=row['role'] or not isinstance(role,str) or role not in allowed:raise DocumentError('Solo se convierten párrafos y encabezados estándar compatibles.')
     if language is not None and (not isinstance(language,str) or len(language)>63 or not LANGUAGE.fullmatch(language)):raise DocumentError('Usa un idioma básico BCP 47, como es o en-US.')
+    if scope is not None and (not isinstance(scope,str) or row['raw_role']!='TH' or not row.get('can_scope')):raise DocumentError('Solo se cambia el alcance de cabeceras TH compatibles.')
     with open_pdf(export_pdf(base,ops)) as doc:
         if doc.xref_get_key(identity,'NS')[0]!='null':raise DocumentError('Los espacios de nombres PDF 2 requieren revisión especializada.')
         if role is not None:doc.xref_set_key(identity,'S','/'+role)
-        else:doc.xref_set_key(identity,'Lang',pdf_string(language))
+        elif language is not None:doc.xref_set_key(identity,'Lang',pdf_string(language))
+        else:
+            from .structure_scope import set_scope
+            set_scope(doc,identity,scope)
         result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
     model(result,[])
     return result

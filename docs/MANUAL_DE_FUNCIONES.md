@@ -285,7 +285,7 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Resultado esperado:** El texto se distribuye por el recorrido seleccionado sin publicar una distribución parcial.
 
-**Límites actuales:** Las regiones deben ser compatibles; no es reflujo general de cualquier PDF. La continuación nativa desde el párrafo usa hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres, con fuentes y transformación originales compatibles. Las áreas se expresan en la vista enderezada y pueden elegirse con el ratón. No crea páginas ni mueve contenido ajeno. La comparación de distribución es opcional para este recorrido; al aplicar se comprueba el texto completo y un fallo conserva el borrador. El flujo avanzado anterior conserva su comparación por páginas y admite una sola caja para editar las fuentes originales.
+**Límites actuales:** Las regiones deben ser compatibles; no es reflujo general de cualquier PDF. La continuación nativa desde el párrafo usa hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres, con fuentes y transformación originales compatibles. Las áreas se expresan en la vista enderezada y pueden elegirse con el ratón. No crea páginas ni mueve contenido ajeno. La comparación de distribución es opcional para este recorrido; al aplicar se comprueba el texto completo y un fallo conserva el borrador. El flujo avanzado anterior conserva su comparación por páginas y admite una sola caja para editar las fuentes originales. El reflujo nativo conserva espaciado entre letras/palabras y ajustes TJ compatibles, también al continuar en otra página.
 
 <a id="funcion-watermark"></a>
 
@@ -627,7 +627,7 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Resultado esperado:** Valores y apariencias compatibles persisten al guardar.
 
-**Límites actuales:** XFA y acciones no soportadas no se presentan como formularios completamente editables.
+**Límites actuales:** XFA y acciones no soportadas no se presentan como formularios completamente editables. Los cálculos aritméticos nativos admiten resto (%) y Math.abs, round, floor, ceil, min y max con argumentos limitados. Se interpretan como datos; no se ejecuta JavaScript arbitrario y las demás llamadas permanecen protegidas.
 
 <a id="funcion-field_properties"></a>
 
@@ -957,7 +957,7 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Resultado esperado:** El árbol compatible conserva referencias reales y apariencia; admite listas y tablas revisadas.
 
-**Límites actuales:** No certifica PDF/UA ni repara cualquier árbol o contenido mixto automáticamente.
+**Límites actuales:** No certifica PDF/UA ni repara cualquier árbol o contenido mixto automáticamente. El alcance de cabeceras TH estándar puede corregirse conservando atributos de otros propietarios y cabeceras no seleccionadas. Atributos ambiguos y espacios de nombres no compatibles permanecen protegidos.
 
 <a id="funcion-xfdf"></a>
 
@@ -1028,7 +1028,7 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Resultado esperado:** Los adjuntos mantienen sus bytes y las propiedades compatibles persisten.
 
-**Límites actuales:** Columnas complejas, carpetas y reglas externas no verificables tienen límites explícitos.
+**Límites actuales:** Columnas complejas, carpetas y reglas externas no verificables tienen límites explícitos. Las columnas nativas de nombre, descripción, tamaño declarado y fechas se muestran desde los datos del adjunto en modo de solo lectura; el tamaño declarado no equivale a comprobar todos sus bytes.
 
 ## Proteger
 
@@ -1044,7 +1044,7 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Resultado esperado:** Se informa de fuentes, imágenes, colores y cajas que requieren atención.
 
-**Límites actuales:** Inspección orientativa; no certifica todas las condiciones de imprenta ni PDF/X.
+**Límites actuales:** Inspección orientativa; no certifica todas las condiciones de imprenta ni PDF/X. Analiza espacios de color declarados dentro de Forms, nombres de colorantes Separation/DeviceN y estados de sobreimpresión aplicados. Informa análisis parcial ante ciclos o presupuestos agotados; no evalúa funciones de tinta ni cobertura real de impresión.
 
 <a id="funcion-working_copy"></a>
 
@@ -1132,3 +1132,22 @@ Desde Editar texto, selecciona el texto sobre la página y abre el párrafo (o s
 Conserva fuentes, tamaños, colores y giro/inclinación compatibles; mantiene las apariciones compartidas no elegidas. Hasta 7 áreas vacías de otras páginas y 4000 caracteres; no crea páginas, no mueve otros objetos y no cubre texto etiquetado, capas o composición/espaciado especial. Las vistas y coordenadas de los destinos usan páginas enderezadas.
 
 En Continuar texto entre regiones, el modo de fuentes originales ahora se escribe en Texto completo del flujo original. Ajustar estilos del flujo (opcional) conserva los controles por fragmento. Los modos mantienen sus borradores y la comparación del flujo avanzado continúa disponible.
+
+
+## Corregir el alcance de cabeceras existentes
+
+En Etiquetas y orden de lectura, abre Editar etiquetas, elige una cabecera TH estándar y despliega Rol e idioma de la etiqueta. Selecciona Fila, Columna o Fila y columna y pulsa Guardar alcance de cabecera. Cambia su atributo semántico de tabla; conserva el aspecto del PDF y las cabeceras no seleccionadas. Esta corrección no certifica PDF/UA ni reconstruye por sí sola una tabla.
+
+
+<a id="funcion-local_assistant"></a>
+## Consultar documento
+
+Acceso: Documentos → Consultar documento.
+
+1. Abre Documentos y elige Consultar documento
+2. Elige Resumen extractivo o Buscar pasajes sobre una pregunta, y el documento o la página actual
+3. Consulta los pasajes y sus referencias; Ver página abre el original correspondiente
+
+Resultado esperado: Se muestran citas del texto extraíble con referencias de página, sin modelo generativo ni envío a servicios externos. No cambia el PDF.
+
+Límites actuales: Procesa como máximo 200 páginas, 400000 caracteres y 8000 fragmentos por consulta; informa si el resultado es parcial. Respeta el permiso de copia. No interpreta imágenes sin OCR, no redacta conclusiones ni ejecuta instrucciones del documento. El cálculo ocurre en el equipo que ejecuta Reapdf.

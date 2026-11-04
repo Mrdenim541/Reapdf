@@ -36,6 +36,7 @@ const VariableFonts=lazy(()=>import('./variable-fonts.jsx').then(m=>({default:m.
 const RegionOCR=lazy(()=>import('./region-ocr.jsx').then(m=>({default:m.RegionOCR})));
 const TableRegions=lazy(()=>import('./table-regions.jsx').then(m=>({default:m.TableRegions})));
 const StructureEditor=lazy(()=>import('./structure-preflight.jsx').then(m=>({default:m.StructureEditor})));
+const LocalAssistant=lazy(()=>import('./local-assistant.jsx').then(m=>({default:m.LocalAssistant})));
 const Preflight=lazy(()=>import('./structure-preflight.jsx').then(m=>({default:m.Preflight})));
 const Interchange=lazy(()=>import('./interchange.jsx').then(m=>({default:m.Interchange})));
 const WorkingCopy=lazy(()=>import('./interchange.jsx').then(m=>({default:m.WorkingCopy})));
@@ -749,6 +750,7 @@ function App() {
     {doc&&pageTool==='accessibility'&&<Suspense fallback={loadingTool}><AccessibilityDialog doc={doc} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced} onPage={next=>{setPageTool(null);setPage(next);paperScroll.current?.scrollTo(0,0);}}/></Suspense>}
     {doc&&pageTool==='docx'&&<DocxExport doc={doc} page={page} operations={operations} onClose={()=>setPageTool(null)}/>}
     {pageTool==='import_word'&&<Suspense fallback={loadingTool}><WordImport onClose={()=>setPageTool(null)} onImported={(next,name)=>{if(!doc&&recovery.info?.available&&!window.confirm('Abrir el Word convertido reemplazará la sesión recuperable. ¿Continuar?'))return false;if((needsSave||draftMessage)&&!window.confirm('Abrir el Word convertido reemplazará el documento actual. Guarda un proyecto para conservar sus cambios. ¿Continuar?'))return false;adoptNewDocument(next,name);setNotice('Word convertido a PDF. Revisa el resultado y guarda un proyecto o exporta una copia.');return true;}}/></Suspense>}
+    {doc&&pageTool==='local_assistant'&&<Suspense fallback={loadingTool}><LocalAssistant doc={doc} page={page} operations={operations} onClose={()=>setPageTool(null)} onNavigate={number=>{setPageTool(null);setPage(number);setTool('view');}}/></Suspense>}
     {doc&&pageTool==='portfolio'&&<Suspense fallback={loadingTool}><Portfolio doc={doc} busy={busy} error={error} onClose={()=>setPageTool(null)} onAction={runAdvanced}/></Suspense>}
     {doc&&pageTool==='flow'&&<Suspense fallback={loadingTool}>{flowStart?.document_id===doc.id&&flowStart.native?<NativeContinuation start={flowStart} doc={doc} operations={operations} busy={busy} error={error} onClose={()=>{setFlowStart(null);setPageTool(null);}} onAction={runAdvanced}/>:<TextFlow start={flowStart?.document_id===doc.id?flowStart:null} doc={doc} page={page} operations={operations} busy={busy} error={error} onClose={()=>{setFlowStart(null);setPageTool(null);}} onAction={runAdvanced}/>}</Suspense>}
     {doc&&pageTool==='form_rules'&&<Suspense fallback={loadingTool}><FormRules doc={doc} operations={operations} busy={busy} error={error} onClose={()=>setPageTool(null)} onApply={plan=>applyDocumentTool('form_rules',plan)}/></Suspense>}

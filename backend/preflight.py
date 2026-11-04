@@ -29,20 +29,14 @@ def inspect(base,ops,min_dpi=150):
                 if len(fonts)>500:raise DocumentError('Hasta 500 recursos de fuente por inspección.')
             drawings=page.get_drawings();traces=page.get_texttrace();objects+=len(drawings)+sum(len(t['chars']) for t in traces)
             if objects>1_000_000:raise DocumentError('Demasiado contenido para esta inspección.')
-            colors=set()
-            from .pdf_content import operations
-            try:
-                for operator,args,_ in operations(page.read_contents()):
-                    if operator in ['rg','RG']:colors.add('RGB')
-                    elif operator in ['k','K']:colors.add('CMYK')
-                    elif operator in ['g','G']:colors.add('Gray')
-                    elif operator in ['cs','CS']:
-                        colors.add({'DeviceRGB':'RGB','DeviceCMYK':'CMYK','DeviceGray':'Gray'}.get(args[0].value,'Otro') if args else 'Otro')
-            except DocumentError:colors={'No analizado: contenido directo no compatible'}
-            if page.get_xobjects():issues.append({'page':page.number,'code':'form_colors','message':'Los colores internos de objetos Form requieren revisión adicional.','severity':'info'})
+            from .preflight_colors import inspect as inspect_colors
+            color_info=inspect_colors(doc,page);colors=set(color_info['colors'])
+            if color_info['spot_colorants']:issues.append({'page':page.number,'code':'spot_colorants','message':'Colorantes declarados: '+', '.join(color_info['spot_colorants'])+'. Comprueba sus separaciones en imprenta.','severity':'info'})
+            if color_info['overprint_states']:issues.append({'page':page.number,'code':'overprint','message':'Hay estados aplicados con sobreimpresión activada; revisa su resultado en una prueba de impresión.','severity':'warning'})
+            if color_info['limited']:issues.append({'page':page.number,'code':'color_analysis_incomplete','message':'Análisis de color parcial: '+' '.join(color_info['reasons'] or ['Presupuesto de estados agotado.']),'severity':'warning'})
             boxes={key:list(getattr(page,key)) for key in ['mediabox','cropbox','trimbox','bleedbox']}
             if not page.bleedbox.contains(page.trimbox):issues.append({'page':page.number,'code':'bleed_trim','message':'La caja de sangrado no contiene la caja de corte.','severity':'warning'})
             if list(page.widgets() or []):issues.append({'page':page.number,'code':'interactive_fields','message':'La página contiene campos interactivos; revisa su apariencia antes de imprimir.','severity':'info'})
-            pages.append({'page':page.number,'size':[page.rect.width,page.rect.height],'rotation':page.rotation,'boxes':boxes,'images':rows,'vector_colors':sorted(colors)})
+            pages.append({'page':page.number,'size':[page.rect.width,page.rect.height],'rotation':page.rotation,'boxes':boxes,'images':rows,'vector_colors':sorted(colors),'color_analysis':color_info})
             if len(issues)>2000:raise DocumentError('Más de 2000 hallazgos; divide el documento.')
-        return {'pages':pages,'fonts':list(fonts.values()),'issues':issues,'min_dpi':min_dpi,'layers':len(doc.get_ocgs()),'signed':doc.get_sigflags()>0,'scope':'Diagnóstico de resolución efectiva, fuentes, cajas y contenido. No valida PDF/X, tintas planas, sobreimpresión, cobertura de tinta ni fidelidad de imprenta.'}
+        return {'pages':pages,'fonts':list(fonts.values()),'issues':issues,'min_dpi':min_dpi,'layers':len(doc.get_ocgs()),'signed':doc.get_sigflags()>0,'scope':'Diagnóstico de resolución efectiva, fuentes, cajas y contenido. Incluye espacios declarados en Forms, nombres de colorantes y estados de sobreimpresión aplicados. No evalúa funciones de tinta ni certifica PDF/X, cobertura de tinta o fidelidad de imprenta.'}

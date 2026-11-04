@@ -3,6 +3,7 @@ import pymupdf as f
 from .engine import DocumentError,finite
 from .affine_text import bounds
 from .form_text import clone_dictionary
+from .mixed_spacing import operand
 
 
 def regions(doc,source,values,matrix):
@@ -45,8 +46,8 @@ def append(doc,draws):
             while doc.xref_get_key(fonts[number],alias)[0]!='null':alias+='x'
             doc.xref_set_key(fonts[number],alias,f'{font.xref} 0 R');aliases[key]=alias
         matrix=f.Matrix(*geometry['matrix'])*~page.transformation_matrix
-        encoded=font.encode(text,row['size'])[0];color=[((row['color']>>v)&255)/255 for v in [16,8,0]]
-        command=f"q BT 0 Tc 0 Tw {row['_spacing']['state']['scale']:.8f} Tz 0 Ts 0 Tr /{aliases[key]} {row['size']:.8f} Tf {' '.join(str(v) for v in color)} rg {' '.join(f'{v:.8f}' for v in matrix)} Tm <{encoded.hex()}> Tj ET Q"
+        encoded=operand(font,text,row.get('_replacement_kern',[])).decode('ascii');state=row['_spacing']['state'];color=[((row['color']>>v)&255)/255 for v in [16,8,0]]
+        command=f"q BT {state['char']:.8f} Tc {state['word']:.8f} Tw {state['scale']:.8f} Tz 0 Ts 0 Tr /{aliases[key]} {row['size']:.8f} Tf {' '.join(str(v) for v in color)} rg {' '.join(f'{v:.8f}' for v in matrix)} Tm {encoded} ET Q"
         parts.setdefault(number,[]).append(command)
     for number,commands in parts.items():
         page=doc[number];page.wrap_contents();xref=doc.get_new_xref();doc.update_object(xref,'<<>>');doc.update_stream(xref,'\n'.join(commands).encode());doc.xref_set_key(page.xref,'Contents','['+' '.join(f'{x} 0 R' for x in page.get_contents()+[xref])+']')

@@ -94,12 +94,7 @@ class Notes:
             try:
                 definition=deepcopy(item['node'])
                 if item['custom']:
-                    first=next(definition.iter(tag('t')),None)
-                    if first is not None and first.text and first.text.startswith(item['label']):
-                        following=first.text[len(item['label']):]
-                        # Remove only an explicit standalone/reviewable mark,
-                        # never an arbitrary prefix of a source word.
-                        if not following or following[0].isspace():first.text=following.lstrip()
+                    strip_custom_label(definition,item['label'])
                 content=render(definition,self.rels[item['kind']])
             finally:self.inside=False
             item['body']=content
@@ -189,12 +184,7 @@ def checked_text(doc,positions):
 
 
 def following_marks(paragraph):
-    """Resolve a custom note mark stored in the next Word run.
-
-    Only a single adjacent text-only run is consumed. Never cross a link,
-    field, bookmark, paragraph boundary, or a run containing other content.
-    The normal reference validator checks mark length/glyphs afterward.
-    """
+    """Adjacent text-only marks; multi-run marks require reference styles."""
     marks={};consumed=set()
     for container in paragraph.iter():
         if container.tag not in {tag('p'),tag('hyperlink')}:continue
@@ -205,9 +195,38 @@ def following_marks(paragraph):
             if not content:continue
             ref=content[-1]
             if ref.tag not in {tag('footnoteReference'),tag('endnoteReference')} or ref.attrib.get(tag('customMarkFollows'),'0') not in ['1','true']:continue
-            if index+1>=len(children) or children[index+1].tag!=tag('r'):continue
-            adjacent=children[index+1];parts=[c for c in adjacent if c.tag!=tag('rPr')]
-            if len(parts)!=1 or parts[0].tag!=tag('t'):continue
-            if adjacent in consumed:raise DocumentError('La marca personalizada de una nota es ambigua.')
-            marks[ref]=parts[0].text or '';consumed.add(adjacent)
+            expected='FootnoteReference' if ref.tag==tag('footnoteReference') else 'EndnoteReference';values=[];first_style=False
+            for offset,adjacent in enumerate(children[index+1:]):
+                if adjacent.tag!=tag('r'):break
+                parts=[c for c in adjacent if c.tag!=tag('rPr')]
+                if len(parts)!=1 or parts[0].tag!=tag('t'):break
+                style=adjacent.find(tag('rPr')+'/'+tag('rStyle'));matches=style is not None and style.attrib.get(tag('val'))==expected
+                if offset==0:first_style=matches
+                elif not first_style or not matches:break
+                if adjacent in consumed:raise DocumentError('La marca personalizada de una nota es ambigua.')
+                values.append(parts[0].text or '');consumed.add(adjacent)
+                if sum(map(len,values))>4:raise DocumentError('El marcador personalizado admite de uno a cuatro caracteres visibles.')
+                if not first_style:break
+            if values:marks[ref]=''.join(values)
     return marks,consumed
+
+
+def strip_custom_label(definition,label):
+    """Remove only a matching, delimited leading mark, also across text runs."""
+    paragraph=definition.find(tag('p'))
+    if paragraph is None:return
+    consumed=[];position=0
+    for run in paragraph:
+        if run.tag==tag('pPr'):continue
+        if run.tag!=tag('r'):return
+        for node in run:
+            if node.tag in {tag('rPr'),tag('footnoteRef'),tag('endnoteRef')}:continue
+            if node.tag!=tag('t'):return
+            text=node.text or '';take=min(len(text),len(label)-position)
+            if text[:take]!=label[position:position+take]:return
+            consumed.append((node,take));position+=take
+            if position==len(label):
+                remaining=text[take:]
+                if remaining and not remaining[0].isspace():return
+                for item,count in consumed:item.text=(item.text or '')[count:]
+                node.text=(node.text or '').lstrip();return

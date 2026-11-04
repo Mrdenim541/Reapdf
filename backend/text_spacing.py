@@ -34,14 +34,21 @@ def source_layout(font,text,size,obj):
     return width,origins,{'state':obj['spacing'],'kern':kern}
 
 
-def replacement(row,text):
+def retained_kern(row,text):
+    if not any(row['_spacing']['kern']):return [0.]*max(0,len(text)-1)
     old=row['text'];positions={}
+    if len(old)*len(text)>8_000_000:raise DocumentError('La conservación de kerning supera el presupuesto de comparación. Divide el bloque antes de editarlo.')
     for match in SequenceMatcher(None,old,text,autojunk=False).get_matching_blocks():
         for i in range(match.size):positions[match.b+i]=match.a+i
     original=row['_spacing'];kern=[0.]*max(0,len(text)-1)
     for i in range(len(kern)):
         a=positions.get(i);b=positions.get(i+1)
         if a is not None and b==a+1:kern[i]=original['kern'][a]
+    return kern
+
+
+def replacement(row,text):
+    original=row['_spacing'];kern=retained_kern(row,text)
     font=row['_font'];width,origins=layout(font,text,row['size'],original['state'],kern)
     if any(b<=a for a,b in zip(origins,origins[1:])):raise DocumentError('El espaciado haría que los caracteres se superpongan.')
     chunks=[]
