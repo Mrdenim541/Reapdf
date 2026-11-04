@@ -1343,7 +1343,7 @@ async def create_untagged_copy(doc_id:str,request:Request):
 async def split(doc_id: str, request: Request):
     payload = await read_payload(request)
     result = await run_in_threadpool(split_pdf,document_path(doc_id).read_bytes(), payload.get("operations", []),
-                       size=payload.get("size"), groups=payload.get("groups"),names=payload.get("names"),bookmark_level=payload.get("bookmark_level"),manifest=payload.get("manifest",False),preserve_tags=payload.get('preserve_tags',True))
+                       size=payload.get("size"), groups=payload.get("groups"),names=payload.get("names"),bookmark_level=payload.get("bookmark_level"),manifest=payload.get("manifest",False),preserve_tags=payload.get('preserve_tags',True),review_token=payload.get('review_token'))
     return Response(result, media_type="application/zip", headers={"Content-Disposition": 'attachment; filename="reapdf-dividido.zip"'})
 
 @app.post("/api/documents/{doc_id}/extract")

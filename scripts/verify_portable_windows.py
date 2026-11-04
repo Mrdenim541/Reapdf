@@ -96,10 +96,26 @@ def native_check(folder, executable=None):
             entry=json.loads(z.read('manifest.json'))['documents'][0]
             assert 'Portable' in z.read(entry['file']).decode('utf-8')
         with urllib.request.urlopen(urllib.request.Request(url+'/api/scheduled-recipes/'+job['id'],method='DELETE'),timeout=10) as r:assert r.status==200
+        # Run the current split engine inside the actual bundled runtime.
+        fixture=folder/'split-sample.pdf'
+        subprocess.run([str(executable),'-I',str(Path(__file__).with_name('create_split_sample.py')),str(fixture)],check=True,timeout=40)
+        split_source=fixture.read_bytes()
+        body=(f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="split.pdf"\r\nContent-Type: application/pdf\r\n\r\n'.encode()+split_source+f'\r\n--{boundary}--\r\n'.encode())
+        with urllib.request.urlopen(urllib.request.Request(url+'/api/documents',data=body,headers={'Content-Type':'multipart/form-data; boundary='+boundary}),timeout=30) as r:splitdoc=json.load(r)
+        split_config={'operations':[],'size':1,'names':[f'1.46 PINTURA {i:03d}' for i in range(1,43)],'manifest':True}
+        with post_json(f"/api/documents/{splitdoc['id']}/split-plan",split_config) as r:review=json.load(r)
+        split_config['review_token']=review['review_token']
+        request=urllib.request.Request(url+f"/api/documents/{splitdoc['id']}/split",data=json.dumps(split_config).encode(),headers={'Content-Type':'application/json'})
+        with urllib.request.urlopen(request,timeout=120) as r:split_result=r.read()
+        split_archive=folder/'verified-split.zip';split_archive.write_bytes(split_result)
+        with ZipFile(BytesIO(split_result)) as z:
+            receipt=json.loads(z.read('reapdf-division.json'));assert len(receipt['parts'])==42 and receipt['native_content_verified']
+            assert all(p['tagged'] and p['name']==f'1.46 PINTURA {i:03d}.pdf' for i,p in enumerate(receipt['parts'],1))
+        subprocess.run([str(executable),'-I','-c',"import pymupdf as f,sys;from zipfile import ZipFile;s=f.open(sys.argv[1]);z=ZipFile(sys.argv[2]);assert len(z.namelist())==43;\nfor i in range(42):\n d=f.open(stream=z.read(f'1.46 PINTURA {i+1:03d}.pdf'));assert len(d)==1 and d[0].get_text()==s[i].get_text() and d[0].get_pixmap().samples==s[i].get_pixmap().samples;assert d.xref_get_key(d.pdf_catalog(),'StructTreeRoot')[0]!='null'",str(fixture),str(split_archive)],check=True,timeout=45)
         # Usar el mismo intérprete incluido: el verificador host no necesita PyMuPDF.
         check=folder/'comprobacion.pdf';check.write_bytes(pdf)
         subprocess.run([str(executable),'-I','-c',"import pymupdf as f,sys;d=f.open(sys.argv[1]);assert 'Portable' in d[0].get_text();assert 'Texto original' not in d[0].get_text()",str(check)],check=True,timeout=20)
-        return {**report,'http_upload_export':'ok','projects_recovery_print':'ok','packaged_scheduled_worker':'ok','bundled_engine_verified':os.name=='nt' and bundled,'windows_execution_verified':False}
+        return {**report,'http_upload_export':'ok','projects_recovery_print':'ok','packaged_scheduled_worker':'ok','packaged_split_workflow':'ok','packaged_split_pages':42,'bundled_engine_verified':os.name=='nt' and bundled,'windows_execution_verified':False}
     finally:
         process.terminate()
         try:process.wait(timeout=10)

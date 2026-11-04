@@ -557,10 +557,11 @@
         "configura prefijo, separador, número inicial y cifras mínimas; por ejemplo 1.46 PINTURA, espacio, 1 y 3 para obtener 1.46 PINTURA 001.pdf",
         "revisa los nombres, que puedes modificar individualmente; Generar nombres numerados reemplaza los personalizados por la serie",
         "en PDF etiquetados se conservan las etiquetas por defecto; si su estructura no es compatible, puedes desmarcar Conservar etiquetas en las partes, aceptando la pérdida indicada",
+        "espera la comprobación automática de nombres, páginas y estructura; cualquier cambio vuelve a comprobarse antes de habilitar la descarga",
         "descarga las partes en ZIP, con relación de archivos opcional"
       ],
-      "expected": "Se obtiene un ZIP de PDF independientes con nombres como 1.46 PINTURA 001.pdf, 1.46 PINTURA 002.pdf, etc. El original queda intacto. La alternativa sin etiquetas conserva texto, imágenes y apariencia sin rasterizar.",
-      "limits": "Hasta 500 partes; números de 0 a 99999999 y de 1 a 8 cifras mínimas. Se mantienen las validaciones de nombres, firmas/permisos, capas, XFA, acciones y tamaño. La alternativa sin etiquetas pierde estructura de accesibilidad y declaraciones PDF/UA/PDF/A y requiere permisos de copia/modificación; no corrige cualquier PDF dañado."
+      "expected": "Se obtiene un ZIP de PDF independientes con nombres como 1.46 PINTURA 001.pdf, 1.46 PINTURA 002.pdf, etc. El original queda intacto. La alternativa sin etiquetas conserva texto, imágenes y apariencia sin rasterizar. Antes de publicar el ZIP se comprueban texto/estilos, geometría, campos y apariencia de todas las páginas; si una parte difiere, se cancela el ZIP completo.",
+      "limits": "Hasta 500 partes; números de 0 a 99999999 y de 1 a 8 cifras mínimas. Se mantienen las validaciones de nombres, firmas/permisos, capas, XFA, acciones y tamaño. La alternativa sin etiquetas pierde estructura de accesibilidad y declaraciones PDF/UA/PDF/A y requiere permisos de copia/modificación; no corrige cualquier PDF dañado. La conservación nativa admite atributos Layout y ActualText asociados a páginas completas hasta 100.000 nodos, profundidad 64 y 500.000 pasos; no IDTree, ClassMap, MCR con Stm ni relaciones semánticas que crucen partes. Comprobación visual hasta 72 ppp, adaptativa hasta 4 Mpx por página/64 Mpx por documento: no certifica impresión ni conformidad PDF/UA."
     },
     {
       "id": "labels",

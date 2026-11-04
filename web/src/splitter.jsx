@@ -1,10 +1,11 @@
 import React,{useEffect,useRef,useState} from 'react';
 import {splitGroups,namedParts,numberedPartNames} from './split-plan.js';
-export function Splitter({doc,operations,busy,error,onClose,onSplit}){
+export function Splitter({doc,operations,busy,error,onClearError,onClose,onSplit}){
  const dialog=useRef(null),pending=useRef(null);
  const [mode,setMode]=useState('blocks'),[size,setSize]=useState(1),[draft,setDraft]=useState(`1-${doc.pages.length}`),[names,setNames]=useState({});
  const [prefix,setPrefix]=useState('parte'),[separator,setSeparator]=useState(' '),[start,setStart]=useState(1),[padding,setPadding]=useState(3);
  const [level,setLevel]=useState(1),[bookmarks,setBookmarks]=useState(null),[working,setWorking]=useState(false),[issue,setIssue]=useState(''),[status,setStatus]=useState(''),[receipt,setReceipt]=useState(false),[preserveTags,setPreserveTags]=useState(true);
+ const [checked,setChecked]=useState(null),[checking,setChecking]=useState(false);
  const disabled=busy||working;let groups=[],parts=[],generated=[],validation='';
  try{
   groups=mode==='bookmarks'?bookmarks?.parts.map(p=>p.pages):splitGroups(mode,size,draft,doc.pages.length);
@@ -12,6 +13,22 @@ export function Splitter({doc,operations,busy,error,onClose,onSplit}){
   if(groups.length){generated=numberedPartNames(groups.length,{prefix,separator,start,padding});parts=namedParts(groups,Object.fromEntries(generated.map((name,i)=>[i,names[i]??name])));}
  }catch(e){validation=e.message;}
  useEffect(()=>{dialog.current.showModal();return()=>{pending.current?.abort();dialog.current?.close();};},[]);
+ const reviewKey=JSON.stringify({id:doc.id,operations,groups:parts.map(p=>p.pages),names:parts.map(p=>p.name),preserve_tags:preserveTags});
+ useEffect(()=>{
+  setChecked(null);setIssue('');setStatus('');onClearError?.();
+  if(validation||!parts.length){setChecking(false);return;}
+  const controller=new AbortController();setChecking(true);
+  const timer=setTimeout(async()=>{
+   try{
+    const config=JSON.parse(reviewKey);
+    const response=await fetch(`/api/documents/${config.id}/split-plan`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(config),signal:controller.signal});
+    const result=await response.json();if(!response.ok)throw new Error(result.detail);
+    if(!controller.signal.aborted)setChecked({key:reviewKey,token:result.review_token});
+   }catch(e){if(!controller.signal.aborted)setIssue(e.message);}
+   finally{if(!controller.signal.aborted)setChecking(false);}
+  },350);
+  return()=>{clearTimeout(timer);controller.abort();};
+ },[reviewKey,validation]);
  async function fromBookmarks(){
   const c=new AbortController();pending.current?.abort();pending.current=c;setWorking(true);setIssue('');setStatus('');
   try{
@@ -46,8 +63,8 @@ export function Splitter({doc,operations,busy,error,onClose,onSplit}){
   </>}
   <div style={{maxHeight:300,overflow:'auto'}} className="page-tool-fields">{groups.map((pages,i)=>({pages,name:names[i]??generated[i]??''})).map((part,i)=><label key={i}>Archivo {i+1} · páginas {part.pages.map(n=>n+1).join(', ')}<input aria-label={`Nombre de parte ${i+1}`} value={names[i]??part.name} maxLength="120" disabled={disabled} onChange={e=>{setNames({...names,[i]:e.target.value});setStatus('');}}/></label>)}</div>
   <label><input aria-label="Incluir relación de archivos de división" type="checkbox" checked={receipt} disabled={disabled} onChange={e=>setReceipt(e.target.checked)}/>Incluir relación de archivos y páginas en el ZIP</label>
-  {(error||issue||validation)&&<p role="alert">{error||issue||validation}</p>}{status&&<p role="status">{status}</p>}
+  {(error||issue||validation)&&<p role="alert">{error||issue||validation}</p>}{checking&&<p role="status">Comprobando páginas, nombres y etiquetas…</p>}{checked?.key===reviewKey&&<p role="status">Configuración comprobada. Antes de publicar el ZIP se verificará el contenido y la apariencia de cada parte.</p>}{status&&<p role="status">{status}</p>}
   <p className="organizer-note">Se conserva el orden escrito. Cada página debe aparecer una vez; los enlaces a otra parte se retiran. Nombres compatibles con Windows, sin duplicados. Máximo 100 MB de PDF de salida. Los documentos firmados y otras estructuras no compatibles requieren una copia adecuada.</p>
-  <div className="organizer-footer"><button disabled={disabled} onClick={onClose}>Cerrar</button><button className="primary" disabled={disabled||!!validation||!parts.length} onClick={async()=>{setStatus('');if(await onSplit({groups:parts.map(p=>p.pages),names:parts.map(p=>p.name),manifest:receipt,preserve_tags:preserveTags}))setStatus('ZIP preparado para descargar. El documento abierto no cambió.');}}>Descargar partes ZIP</button></div>
+  <div className="organizer-footer"><button disabled={disabled} onClick={onClose}>Cerrar</button><button className="primary" disabled={disabled||!!validation||!parts.length||checked?.key!==reviewKey} onClick={async()=>{setStatus('');if(await onSplit({groups:parts.map(p=>p.pages),names:parts.map(p=>p.name),manifest:receipt,preserve_tags:preserveTags,review_token:checked.token}))setStatus('ZIP preparado para descargar. El documento abierto no cambió.');}}>Descargar partes ZIP</button></div>
  </dialog>;
 }

@@ -51,7 +51,7 @@ try:
     print('STEP: tagged image unblocked via explicit native copy; image moved/resized, previewed, applied and saved with other page/text unchanged.',flush=True)
     open_native(original);tool('Organizar páginas','Dividir PDF');edit('Prefijo de nombres de partes','1.46 PINTURA');assert js(field('Nombre de parte 3')+'.value')=='1.46 PINTURA 003.pdf'
     edit('Nombre de parte 1','bad/name');assert js(field('Nombre de parte 1')+'.value')=='bad/name';assert js('[...document.querySelectorAll("button")].find(e=>e.textContent==="Descargar partes ZIP").disabled');click('Generar nombres numerados')
-    click('Descargar partes ZIP');wait('document.querySelector("dialog").innerText.includes("estructura etiquetada")');js(field('Conservar etiquetas al dividir')+'.click()');js(field('Incluir relación de archivos de división')+'.click()')
+    wait('document.querySelector("dialog").innerText.includes("estructura etiquetada")');js(field('Conservar etiquetas al dividir')+'.click()');js(field('Incluir relación de archivos de división')+'.click()')
     archive=root/'Parts.zip';QFileDialog.getSaveFileName=lambda *a,**kw:(str(archive),'');click('Descargar partes ZIP');end=time.monotonic()+25
     while not archive.exists() and time.monotonic()<end:QTest.qWait(100)
     assert archive.exists()

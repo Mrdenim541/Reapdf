@@ -10,6 +10,13 @@ from .merge import _check_source, _check_bookmarks, _incoming_links
 MAX_SPLIT_BYTES = 100 * 1024 * 1024
 
 
+def split_token(data,operations,review,preserve_tags):
+    import hashlib,json
+    try:payload=json.dumps({"input":hashlib.sha256(data).hexdigest(),"operations":operations,"parts":review["parts"],"rotations":review["rotations"],"preserve_tags":preserve_tags},sort_keys=True,ensure_ascii=True,allow_nan=False)
+    except (TypeError,ValueError):raise DocumentError("No se puede verificar el plan de división.") from None
+    return hashlib.sha256(payload.encode()).hexdigest()
+
+
 def _selection(pages, count):
     if not isinstance(pages, list) or not pages or len(pages) > count or any(type(p) is not int or not 0 <= p < count for p in pages) or len(set(pages)) != len(pages):
         raise DocumentError('Selecciona páginas válidas, sin repeticiones.')
@@ -66,10 +73,15 @@ def prepare_split(data,operations,*,size=None,groups=None,names=None,bookmark_le
         # Pending changes must pass the same partition guards as the original.
         _check_source(doc);_check_bookmarks(doc);_incoming_links(doc)
         from .structure_partition import partition
-        partition(doc,[p.xref for p in doc])
+        structure=partition(doc,[p.xref for p in doc])
         result=plan(doc,size=size,groups=groups,names=names,bookmark_level=bookmark_level)
+        for part in result['parts']:
+            chosen=set(part['pages'])
+            if any(chosen.intersection(group) and not set(group)<=chosen for group in structure['atomic_page_groups']):raise DocumentError('Un texto alternativo o una caja de maquetación abarca páginas de distintas partes. Ajusta los grupos o elige partes sin etiquetas.')
+        result['structure_nodes']=structure['nodes']
         result['rotations']=[p.rotation for p in doc]
         result['accessibility_tags_retained']=preserve_tags
+    result["review_token"]=split_token(data,operations,result,preserve_tags)
     return edited,result
 
 
@@ -78,17 +90,22 @@ def inspect_split(data,operations,**options):
     result.pop('rotations');return result
 
 
-def split_pdf(data, operations, *, size=None, groups=None,names=None,bookmark_level=None,manifest=False,preserve_tags=True):
+def split_pdf(data, operations, *, size=None, groups=None,names=None,bookmark_level=None,manifest=False,preserve_tags=True,review_token=None):
     import json,hashlib
     if type(manifest) is not bool:raise DocumentError('La opción de relación de archivos debe ser verdadera o falsa.')
     edited,review=prepare_split(data,operations,size=size,groups=groups,names=names,bookmark_level=bookmark_level,preserve_tags=preserve_tags)
+    if review_token is not None and (not isinstance(review_token,str) or review_token!=review['review_token']):raise DocumentError('La configuración o el documento cambió desde la comprobación. Revisa de nuevo antes de descargar.')
+    from .split_integrity import scales,fingerprint,verify
+    with open_pdf(edited) as source:
+        page_scales=scales(source);labels=bool(source.get_page_labels());expected=[fingerprint(p,page_scales[p.number],labels) for p in source]
     buffer=BytesIO();total=0;records=[]
     with ZipFile(buffer,'w',ZIP_DEFLATED) as archive:
         for part in review['parts']:
             group=part['pages'];plan=[{'page':p,'rotation':review['rotations'][p]} for p in group]
             result=organize_pdf(edited,[],plan,extract=True,partition_tags=True);total+=len(result)
             if total>MAX_SPLIT_BYTES:raise DocumentError('La división supera 100 MB de PDF de salida. Reduce el documento antes de dividirlo.')
+            integrity=verify(result,expected,group,page_scales,labels)
             archive.writestr(part['name'],result)
-            records.append({'name':part['name'],'source_pages':[p+1 for p in group],'pages':len(group),'bytes':len(result),'sha256':hashlib.sha256(result).hexdigest()})
-        if manifest:archive.writestr('reapdf-division.json',json.dumps({'format':'reapdf-split-receipt','version':1,'source_sha256':hashlib.sha256(edited).hexdigest(),'original_source_sha256':hashlib.sha256(data).hexdigest(),'accessibility_tags_retained':preserve_tags,'source_pages':review['pages'],'parts':records},ensure_ascii=False,indent=2).encode('utf-8'))
+            records.append({'name':part['name'],'source_pages':[p+1 for p in group],'pages':len(group),'bytes':len(result),'sha256':hashlib.sha256(result).hexdigest(),**integrity})
+        if manifest:archive.writestr('reapdf-division.json',json.dumps({'format':'reapdf-split-receipt','version':1,'source_sha256':hashlib.sha256(edited).hexdigest(),'original_source_sha256':hashlib.sha256(data).hexdigest(),'accessibility_tags_retained':preserve_tags,'review_token':review['review_token'],'native_content_verified':True,'source_pages':review['pages'],'parts':records},ensure_ascii=False,indent=2).encode('utf-8'))
     return buffer.getvalue()
