@@ -13,3 +13,5 @@
 - Pruebas propias de escritorio: `scripts/check_desktop_candidate.py`. Linux offscreen no acredita Windows, DPI ni impresión física. El recorrido histórico `scripts/smoke-ui.mjs` requiere migración de controles anteriores y no figura como aprobado.
 - REA es opcional y separado del producto. Evaluación y plan en `docs/REA_PARA_REAPDF.md`. No asumir que instalar su MCP permite controlar Acrobat/Nitro o importar funciones automáticamente.
 - No descartar trabajo de otro checkout ni usar push forzado. En PC usar una rama distinta de la de nube; integrar cambios revisados mediante Git.
+
+- Solicitud vigente del 4 de noviembre: el usuario pide únicamente la entrega final técnicamente completa, con pruebas personales al final. No presentar otra tanda parcial como cumplimiento ni prometer trabajo autónomo después de acabar el turno. Si el cierre solicitado no se logra, reconocer expresamente que no está cumplido.

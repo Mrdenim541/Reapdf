@@ -1,3 +1,11 @@
+# Continuidad · 4 de noviembre de 2026 · solicitud de cierre final NO cumplida
+
+El usuario prohíbe entregar otro avance parcial como final. No afirmar listo ni pedirle pruebas personales: persisten las implementaciones del plan. No prometer que el resto es solo aceptación. No se recalculó porcentaje global por el cambio aislado DSS. La cifra anterior es una estimación provisional, no evidencia de cierre.
+
+Incorporado y comprobado: conservación DSS/VRI de CRL/OCSP vigentes con confianza explícita, validación previa/posterior y copia incremental; reutilización de evidencia incorporada solo por opción explícita. Nunca confiar en certificados del PDF automáticamente. Descompresión y tamaño acotados. Sin consultas de red, validación histórica o acreditación LT/LTA. No repetir este subconjunto como futuro; falta conservación histórica/archivo real.
+
+Fuente d9007362e8d5485983ce70563ccdb1fd25b8d25b, respaldada en recovery/editing-20261029. 3778 Python, 96 dirigidas, 130 JS, build, recorrido DSS Chromium y 13 recorridos Qt Linux/Windows Server 2025 aprobados. Reapdf.exe interno pasó arranque/edición/deshacer/rehacer/exportación/cierre; comprobante 41746473806-1, fuente/objetos/logs/huella contrastados. El diálogo DSS nuevo no se acredita como recorrido gráfico nativo Windows. Informe CONSERVACION_DSS_20261104.md; evidencia validation/dss-20261104/results.json. Modelo recomendado: 6.1 Sol medio. Entradas siguientes históricas.
+
 # Estado vigente · 31 de octubre de 2026 · RFC3161 y revocación TSA
 
 **85,68 % global provisional (≈86 %)**. `technical_complete` y `accepted_complete` siguen falsos; no quedan solo pruebas personales. Ocho bloques abiertos en `PLAN_ACTUAL.md`. Sin portables intermedios; revisión del usuario al final. Modelo recomendado: **6.1 Sol medio**.

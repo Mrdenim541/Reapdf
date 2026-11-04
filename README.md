@@ -2,7 +2,7 @@
 
 [Manual de funciones](docs/MANUAL_DE_FUNCIONES.md): acceso, pasos, resultado esperado y límites de cada herramienta. Revisión personal aplazada hasta después de la entrega técnica final; sin paquetes intermedios.
 
-Estado vigente: [sellos RFC3161 y revocación TSA local](docs/SELLOS_RFC3161_Y_REVOCACION_TSA_20261031.md), **85,68 % del programa completo (≈86 %)**, estimación provisional de madurez. Trece recorridos desde fuente aprobados en Windows/Linux; paquete interno `Reapdf.exe` probado en Windows Server 2025. Persisten implementaciones y verificaciones: no es una entrega final. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
+Último trabajo interno: [conservación DSS local](docs/CONSERVACION_DSS_20261104.md), sin cierre del alcance ni nueva estimación global. Referencia anterior: [sellos RFC3161 y revocación TSA local](docs/SELLOS_RFC3161_Y_REVOCACION_TSA_20261031.md), **85,68 % del programa completo (≈86 %)**, estimación provisional de madurez. Trece recorridos desde fuente aprobados en Windows/Linux; paquete interno `Reapdf.exe` probado en Windows Server 2025. Persisten implementaciones y verificaciones: no es una entrega final. [Plan actual](docs/PLAN_ACTUAL.md) y [matriz con pesos estables](docs/avance-global.json).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 

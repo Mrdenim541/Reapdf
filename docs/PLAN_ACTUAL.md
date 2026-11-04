@@ -4,7 +4,7 @@
 
 La estimación global actual es **85,68 % (≈86 %)** y se consulta en [avance-global.json](avance-global.json); es una valoración provisional de ingeniería de diecisiete áreas con pesos estables, no un porcentaje objetivo de paridad con Acrobat ni de tiempo restante. No elevarla por documentación, preparación del entorno o repetición de pruebas. `technical_complete` y `accepted_complete` se registran por separado.
 
-Último trabajo: [sellos RFC3161 y revocación TSA local](SELLOS_RFC3161_Y_REVOCACION_TSA_20261031.md). Anterior: [comodines, trazados curvos e intersecciones](BUSQUEDA_Y_CURVAS_20261031.md), doce recorridos Windows/Linux y ejecutable interno comprobado. Anterior: [imágenes por aparición y comprobación del ejecutable](IMAGENES_Y_EJECUTABLE_20261031.md). Estado anterior: [guía integrada y Windows desde fuente](ENTREGA_TECNICA_Y_GUIA_20261031.md). El historial detallado permanece en [WORK_STATE.md](WORK_STATE.md); no repetir sus entregables como tareas futuras.
+Último trabajo parcial interno: [conservación DSS](CONSERVACION_DSS_20261104.md), sin acreditación LT/LTA ni reevaluación global. La solicitud de entrega final sigue pendiente. Anterior: [sellos RFC3161 y revocación TSA local](SELLOS_RFC3161_Y_REVOCACION_TSA_20261031.md). Anterior: [comodines, trazados curvos e intersecciones](BUSQUEDA_Y_CURVAS_20261031.md), doce recorridos Windows/Linux y ejecutable interno comprobado. Anterior: [imágenes por aparición y comprobación del ejecutable](IMAGENES_Y_EJECUTABLE_20261031.md). Estado anterior: [guía integrada y Windows desde fuente](ENTREGA_TECNICA_Y_GUIA_20261031.md). El historial detallado permanece en [WORK_STATE.md](WORK_STATE.md); no repetir sus entregables como tareas futuras.
 
 ## Alcance que permanece abierto
 
@@ -23,7 +23,7 @@ Se conserva la numeración de ocho bloques. No trasladar los pendientes de 1–4
 
 Los cuatro primeros bloques **no están completados al 100 %**. Los límites anteriores son trabajo técnico, no una lista de fallos que se delegue al usuario para descubrirlos. Tampoco basta que pasen las 74 herramientas documentadas para afirmar que todo el alcance comercial está implementado.
 
-**Siguiente prioridad recomendada:** conservación de evidencias DSS y PAdES-LT/LTA, distinguiendo evidencia actual e histórica y renovación de archivo; no repetir solicitud RFC3161 ni DocTimeStamp básico. Mantener interoperabilidad con proveedores reales como verificación pendiente. Continuar también los pendientes concretos de edición del bloque 1. No contratar servicios ni inventar credenciales.
+**Siguiente prioridad recomendada:** validación histórica, PAdES-LT/LTA y renovación de archivo. Conservación DSS local básica, solicitud RFC3161 y DocTimeStamp básico ya incorporados; no repetirlos como nuevas implementaciones. Mantener interoperabilidad con proveedores reales como verificación pendiente. Continuar los pendientes concretos de edición del bloque 1. No contratar servicios ni inventar credenciales.
 
 ## Cómo continuar sin repetir avances
 

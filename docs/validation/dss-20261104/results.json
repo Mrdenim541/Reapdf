@@ -1,0 +1,19 @@
+{
+  "source_commit": "d9007362e8d5485983ce70563ccdb1fd25b8d25b",
+  "python_passed": 3778,
+  "directed_passed": 96,
+  "javascript_passed": 130,
+  "build_passed": true,
+  "dss_browser_passed": true,
+  "linux_qt_checks": 13,
+  "dss_native_dialog_tested": false,
+  "technical_complete": false,
+  "human_acceptance": false,
+  "new_package_delivered": false,
+  "scope": "Local DSS preservation and explicit opt-in CRL/OCSP reuse; no LT/LTA or historical validation claim.",
+  "global_estimate_recalculated": false,
+  "windows_qt_checks": 13,
+  "packaged_windows_verified": true,
+  "windows_run": "41746473806-1",
+  "windows_scope": "Windows Server 2025; 13 existing source Qt checks and compiled Reapdf.exe start/edit/undo/redo/export/close. New DSS dialog tested separately in browser only."
+}

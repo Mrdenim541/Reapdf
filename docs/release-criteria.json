@@ -36,7 +36,7 @@
       "id": "advanced_signatures",
       "status": "partial",
       "description": "Validación avanzada de firmas",
-      "remaining": "Revocación, sellado de tiempo TSA y perfiles LT/LTA."
+      "remaining": "Revocación por red/histórica, conservación LT/LTA y renovación de archivo. Firmas P12, solicitudes RFC3161, DocTimeStamp, revocación local de firmantes/TSA y conservación DSS local básica incorporadas con límites; no acreditan cierre general."
     },
     {
       "id": "semantic_accessibility",

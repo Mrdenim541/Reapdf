@@ -1,0 +1,67 @@
+
+> reapdf@0.43.0 build
+> vite build --config web/vite.config.js
+
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 106 modules transformed.
+rendering chunks...
+computing gzip size...
+web/dist/index.html                                0.36 kB │ gzip:   0.27 kB
+web/dist/assets/portfolio-C2fDs-mY.css             0.23 kB │ gzip:   0.17 kB
+web/dist/assets/table-regions-Dq6c0GfO.css         1.01 kB │ gzip:   0.44 kB
+web/dist/assets/word-import-BeLwxWcJ.css           1.06 kB │ gzip:   0.49 kB
+web/dist/assets/find-replace-CtLxuizE.css          1.42 kB │ gzip:   0.56 kB
+web/dist/assets/text-flow-C97hApAu.css             1.43 kB │ gzip:   0.65 kB
+web/dist/assets/automation-BSplge_a.css            2.13 kB │ gzip:   0.79 kB
+web/dist/assets/document-workspace-BrOPC6zW.css    4.08 kB │ gzip:   1.11 kB
+web/dist/assets/index-Dr1XxINw.css                59.35 kB │ gzip:  12.34 kB
+web/dist/assets/ranges-CM8Xrzej.js                 0.68 kB │ gzip:   0.42 kB
+web/dist/assets/variable-fonts-B6LrkFKs.js         2.58 kB │ gzip:   1.27 kB
+web/dist/assets/layers-Bf4-29ih.js                 3.68 kB │ gzip:   1.64 kB
+web/dist/assets/comparison-BBRQwm7a.js             4.12 kB │ gzip:   1.79 kB
+web/dist/assets/organizer-C1i8sok6.js              4.29 kB │ gzip:   1.72 kB
+web/dist/assets/page-creation-BoAHaThK.js          4.50 kB │ gzip:   1.77 kB
+web/dist/assets/signature-Df6XaZok.js              5.57 kB │ gzip:   2.26 kB
+web/dist/assets/interchange-BrIcR8mw.js            6.07 kB │ gzip:   2.36 kB
+web/dist/assets/compression-Dea6oy1T.js            6.24 kB │ gzip:   2.49 kB
+web/dist/assets/inserter-CMWFFg5a.js               6.28 kB │ gzip:   2.61 kB
+web/dist/assets/bookmarks-Yfz0Vwnk.js              6.71 kB │ gzip:   2.60 kB
+web/dist/assets/form-calculations-CpboTN79.js      6.75 kB │ gzip:   2.59 kB
+web/dist/assets/form-rules-qquVtvaw.js             6.76 kB │ gzip:   2.59 kB
+web/dist/assets/batch-processor-BLUsZ9qE.js        6.85 kB │ gzip:   2.58 kB
+web/dist/assets/conversions-CDFNNaSY.js            6.86 kB │ gzip:   2.44 kB
+web/dist/assets/docx-export-DCjHffc2.js            7.33 kB │ gzip:   2.81 kB
+web/dist/assets/headers-Dpji4uqQ.js                7.36 kB │ gzip:   2.79 kB
+web/dist/assets/comments-Bfnh-e5K.js               7.39 kB │ gzip:   2.68 kB
+web/dist/assets/existing-images-B0Xn5dXB.js        7.57 kB │ gzip:   3.02 kB
+web/dist/assets/link-editor-CAhj_WH1.js            7.60 kB │ gzip:   2.84 kB
+web/dist/assets/find-replace-DCZMFVYu.js           8.01 kB │ gzip:   2.98 kB
+web/dist/assets/region-ocr-C8-86bv6.js             9.09 kB │ gzip:   3.23 kB
+web/dist/assets/word-import-KnQL7XXU.js            9.20 kB │ gzip:   3.48 kB
+web/dist/assets/portfolio-eNyYjI4L.js              9.86 kB │ gzip:   3.37 kB
+web/dist/assets/forms-sQKFdgf5.js                 10.12 kB │ gzip:   3.79 kB
+web/dist/assets/page-tools-D2TTb4bZ.js            10.86 kB │ gzip:   4.10 kB
+web/dist/assets/standards-w5OC1UYo.js             11.67 kB │ gzip:   4.04 kB
+web/dist/assets/redaction-D12w7ZJH.js             11.90 kB │ gzip:   4.30 kB
+web/dist/assets/field-properties-VLfjaeKN.js      11.90 kB │ gzip:   3.74 kB
+web/dist/assets/field-designer-B0a_VyGv.js        12.13 kB │ gzip:   3.85 kB
+web/dist/assets/pro-tools-74YDjuZe.js             13.22 kB │ gzip:   4.45 kB
+web/dist/assets/advanced-tools-CKAGlzk_.js        14.44 kB │ gzip:   4.76 kB
+web/dist/assets/table-regions-85GbTtoC.js         14.53 kB │ gzip:   5.30 kB
+web/dist/assets/paragraph-editor-yWQ6H3uT.js      14.61 kB │ gzip:   4.98 kB
+web/dist/assets/measurements-DqeTHI_P.js          18.46 kB │ gzip:   6.46 kB
+web/dist/assets/text-flow-DUEVAsIR.js             18.76 kB │ gzip:   6.17 kB
+web/dist/assets/automation-QKEuYnCe.js            19.61 kB │ gzip:   6.40 kB
+web/dist/assets/digital-signatures-CIh0wIM-.js    20.13 kB │ gzip:   6.56 kB
+web/dist/assets/document-links-B_Kiq9jr.js        20.91 kB │ gzip:   6.46 kB
+web/dist/assets/structure-preflight-C2ZKU8ro.js   21.35 kB │ gzip:   6.65 kB
+web/dist/assets/function-guide-CZOaZQcd.js        38.41 kB │ gzip:  10.92 kB
+web/dist/assets/index-BQ37R4jU.js                345.07 kB │ gzip: 106.30 kB
+
+✓ built in 402ms
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
