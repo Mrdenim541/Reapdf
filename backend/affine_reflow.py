@@ -85,6 +85,15 @@ def inspect(doc,number,origin,text):
         matches=[r for r in all_rows if r['origin']==origin and r['text']==text]
         if len(matches)!=1 or not matches[0]['editable']:raise DocumentError('El párrafo no se identifica de forma única con fuente original.')
         anchor=matches[0];rows=[r for r in all_rows if r['_text_object']==anchor['_text_object'] and r['_native_path']==anchor['_native_path']]
+        block=anchor['id'].split(':',1)[0]
+        candidate=[r for r in all_rows if r['id'].split(':',1)[0]==block and r['_native_path']==anchor['_native_path']]
+        if len({r['_text_object'] for r in candidate})>1:
+            objects={r['_text_object'] for r in candidate}
+            candidate=[r for r in all_rows if r['_text_object'] in objects and r['_native_path']==anchor['_native_path']]
+            try:
+                from .affine_mixed_reflow import inspect_rows
+                return inspect_rows(candidate)
+            except DocumentError:pass # Keep the original single-object route.
         if not rows or any(not r['editable'] for r in rows):raise DocumentError('El párrafo contiene grupos originales no editables.')
         rect=f.Rect(rows[0]['bbox'])
         for r in rows[1:]:rect|=f.Rect(r['bbox'])

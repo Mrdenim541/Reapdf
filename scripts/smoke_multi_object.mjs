@@ -1,0 +1,21 @@
+import {chromium,expect} from '@playwright/test';
+import {execFileSync} from 'node:child_process';
+import {mkdtempSync,rmSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';
+import {openTool} from './smoke-tool-navigation.mjs';
+const root=mkdtempSync(join(tmpdir(),'reapdf-mixed-text-')),source=join(root,'Original.pdf'),output=join(root,'Edited.pdf'),python=process.env.REAPDF_TEST_PYTHON||'.venv/bin/python';
+execFileSync(python,['-c','from pathlib import Path;import sys;from tests.test_multi_object_reflow import source;Path(sys.argv[1]).write_bytes(source(form=True))',source]);
+const browser=await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium'});
+try{
+ const page=await browser.newPage({viewport:{width:1600,height:1100}}),errors=[];page.setDefaultTimeout(20000);page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>d.accept());await page.goto(process.env.REAPDF_TEST_URL||'http://127.0.0.1:8000');
+ await page.getByLabel('Archivo PDF',{exact:true}).setInputFiles(source);await expect(page.locator('.document-bar')).toContainText('Original.pdf');await openTool(page,'Editar texto');await page.getByRole('button',{name:/^Editar en página: HELLO/}).first().click();await page.getByRole('button',{name:'Editar párrafo',exact:true}).click();
+ const input=page.getByLabel('Párrafo sobre la página',{exact:true});await expect(input).toBeEnabled();await expect(input).toHaveValue('HELLO TEXT');await expect(page.getByLabel('Fragmento original 1',{exact:true})).not.toBeVisible();await page.getByLabel('Ancho del párrafo en página').fill('130');await page.getByLabel('Alto del párrafo en página').fill('180');
+ const overflow='HELLO '.repeat(300)+'TEXT';await input.fill(overflow);await input.press('Control+Enter');await expect(page.locator('.inline-text-status')).toContainText('no cabe');await expect(input).toHaveValue(overflow);
+ await input.fill('HELLO HELLO TEXT');await input.press('Control+a');await input.press('Backspace');await expect(input).toHaveValue('');await input.press('Control+z');await expect(input).toHaveValue('HELLO HELLO TEXT');await expect(page.getByLabel('Fragmento original 2',{exact:true})).toHaveValue('TEXT');await input.press('Control+Enter');await expect(input).toHaveCount(0);const downloaded=page.waitForEvent('download');await page.getByRole('button',{name:'Exportar copia',exact:true}).click();await(await downloaded).saveAs(output);
+ execFileSync(python,['-c',`import sys,pymupdf as f
+with f.open(sys.argv[1]) as a,f.open(sys.argv[2]) as b:
+ assert b[0].get_text().count('HELLO')==3 and b[0].get_text().count('TEXT')==2
+ styles=lambda d:{(s['font'],round(s['size'],3),s['color']) for block in d[0].get_text('dict')['blocks'] for line in block.get('lines',[]) for s in line['spans'] if s['font'] in ['Helvetica-Bold','Helvetica-Oblique']}
+ assert styles(a)==styles(b) and a[1].get_pixmap().samples==b[1].get_pixmap().samples
+ assert a[0].search_for('NEIGHBOR UNCHANGED')==b[0].search_for('NEIGHBOR UNCHANGED')`,source,output]);
+ if(errors.length)throw new Error(errors.join('\n'));console.log('PASS: transformed paragraph across separate text objects in a shared Form in one on-page textarea, advanced controls collapsed, overflow retains draft, direct Ctrl+Enter apply and exported original fonts/styles preserved.');
+}finally{await browser.close();rmSync(root,{recursive:true,force:true});}

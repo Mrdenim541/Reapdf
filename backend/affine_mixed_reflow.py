@@ -13,7 +13,7 @@ def compatible(rows):
     if not rows or any(not r['editable'] or r['original_only'] for r in rows):raise DocumentError('El párrafo mixto necesita grupos visibles sin composición especial.')
     first=rows[0];frame=f.Matrix(*first['_geometry']['matrix']);inverse=~frame
     for r in rows:
-        if r['_native_path']!=first['_native_path'] or r['_text_object']!=first['_text_object'] or max(abs(a-b) for a,b in zip(r['_geometry']['matrix'][:4],first['_geometry']['matrix'][:4]))>1e-4:raise DocumentError('Los estilos deben compartir objeto y transformación paralela.')
+        if r['_native_path']!=first['_native_path'] or max(abs(a-b) for a,b in zip(r['_geometry']['matrix'][:4],first['_geometry']['matrix'][:4]))>1e-4:raise DocumentError('Los estilos deben compartir ruta y transformación paralela.')
         state=r['_spacing']['state']
         if state['char']!=0 or state['word']!=0:raise DocumentError('El párrafo usa espaciado especial que aún no puede redistribuirse conservando sus estilos.')
     ordered=sorted(rows,key=lambda r:(-round((f.Point(r['origin'])*inverse).y,2),(f.Point(r['origin'])*inverse).x))
@@ -88,8 +88,9 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         if len(chosen)!=len(identifiers):raise DocumentError('La selección de grupos está obsoleta.')
         rows=compatible([chosen[i] for i in identifiers]);first=rows[0]
         if [r['id'] for r in rows]!=identifiers or any(not (region+(-.1,-.1,.1,.1)).contains(f.Rect(r['bbox'])) for r in rows):raise DocumentError('La región corta el párrafo o cambia su orden.')
-        full=[r for r in all_rows if r['_text_object']==first['_text_object'] and r['_native_path']==first['_native_path']]
-        if {r['id'] for r in full}!=set(identifiers):raise DocumentError('Selecciona el objeto de texto completo para conservar su estado.')
+        objects={r['_text_object'] for r in rows}
+        full=[r for r in all_rows if r['_text_object'] in objects and r['_native_path']==first['_native_path']]
+        if {r['id'] for r in full}!=set(identifiers):raise DocumentError('Selecciona completos los objetos de texto para conservar su estado.')
         if not isinstance(runs,list) or len(runs)!=len(rows) or any(not isinstance(r,dict) or set(r)!={'id','text'} or not isinstance(r['text'],str) for r in runs) or [r['id'] for r in runs]!=identifiers or ''.join(r['text'] for r in runs)!=text:raise DocumentError('Los estilos, identificadores y texto completo no coinciden.')
         styles=[];prefix=[0.]
         for run,row in zip(runs,rows):
@@ -113,7 +114,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
                 encoded=row['_font'].encode(fragment,row['size'])[0];command=(' '.join(f'{v:.8f}' for v in tm)+' Tm <'+encoded.hex()+'> Tj').encode();commands[row['id']].append(command)
                 prepared.append(({**row,'origin':list(origin),'_geometry':g,'_replacement_text':fragment,'_replacement_width':extent},b''));x+=extent;offset=end
             cursor=after;used+=max(size*1.35,ascent-descent);lines+=1
-        report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':width,'height':height,'preserves_affine':True,'mixed':True,'source_groups':len(rows)}
+        report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':width,'height':height,'preserves_affine':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects)}
         if preview:return report
         patches=[]
         for row in rows:
