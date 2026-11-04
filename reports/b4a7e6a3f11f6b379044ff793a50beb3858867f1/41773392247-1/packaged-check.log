@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 170, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 163, in main
+    folder=Path(tmp)/'Reapdf-portable';result={**native_check(folder),**compiled_gui_check(folder),'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 142, in compiled_gui_check
+    if run.returncode or 'PASS:' not in run.stdout:raise RuntimeError('Fall� el recorrido del ejecutable: '+run.stdout+run.stderr)
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Fall� el recorrido del ejecutable: file:///D:/a/Reapdf/Reapdf/scripts/smoke_packaged_window.mjs:19
+ const adopted=await(await edited).json();if(!adopted.id)throw new Error('Edited version was not adopted');
+                                                               ^
+
+Error: Edited version was not adopted
+    at file:///D:/a/Reapdf/Reapdf/scripts/smoke_packaged_window.mjs:19:64
+
+Node.js v24.22.2
+
