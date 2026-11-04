@@ -2,7 +2,7 @@
 
 [Manual de funciones](docs/MANUAL_DE_FUNCIONES.md): acceso, pasos, resultado esperado y límites de cada herramienta. Revisión personal aplazada hasta después de la entrega técnica final; sin paquetes intermedios.
 
-Último trabajo interno: [continuación nativa entre páginas](docs/CONTINUACION_NATIVA_20261104.md). 4077 pruebas Python, 140 JavaScript y 22 recorridos Qt en Linux/Windows; ejecutable interno comprobado en Windows Server 2025. Persisten implementaciones pendientes: no es una entrega final. La estimación global registrada es 85,68 % provisional. [Plan actual](docs/PLAN_ACTUAL.md), [matriz con pesos estables](docs/avance-global.json) e [historial](docs/WORK_STATE.md).
+Último trabajo interno: [trabajo integral local](docs/AVANCE_LOCAL_INTEGRAL_20261104.md). 4.229 pruebas Python, 140 JavaScript y 24 recorridos Qt en Linux/Windows; dos recorridos independientes del ejecutable interno comprobados en Windows Server 2025. Consulta local extractiva con referencias, sin servicios de pago. Persisten implementaciones pendientes: no es una entrega final. Estimación global registrada: 85,68 % provisional. [Plan actual](docs/PLAN_ACTUAL.md), [matriz](docs/avance-global.json) e [historial](docs/WORK_STATE.md).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 

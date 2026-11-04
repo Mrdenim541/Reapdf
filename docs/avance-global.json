@@ -163,9 +163,10 @@
         "docs/OBJETOS_CURVAS_Y_NOTAS_20261104.md",
         "docs/validation/paths-curves-notes-20261104/results.json",
         "docs/CONTINUACION_NATIVA_20261104.md",
-        "docs/validation/native-continuation-20261104/results.json"
+        "docs/validation/native-continuation-20261104/results.json",
+        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md"
       ],
-      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con recursos/matrices/filtros fuera del subconjunto vectorial y bitmap verificado, reflujo mixto con transformaciones no paralelas, bloques incompatibles, redistribución/paginación automática general, composición/espaciado especial, etiquetas y cambio de fuente generales; la selección explícita entre rutas y continuación explícita entre páginas de objetos completos paralelos/opacos ya están incorporadas; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
+      "remaining": "Tc/Tw/TJ compatibles en párrafo mixto y continuación ya incorporados; quedan otros espaciados/composición especiales y los demás límites documentados. Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con recursos/matrices/filtros fuera del subconjunto vectorial y bitmap verificado, reflujo mixto con transformaciones no paralelas, bloques incompatibles, redistribución/paginación automática general, composición/espaciado especial, etiquetas y cambio de fuente generales; la selección explícita entre rutas y continuación explícita entre páginas de objetos completos paralelos/opacos ya están incorporadas; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
     },
     {
       "id": "annotations",
@@ -207,9 +208,10 @@
         "scripts/smoke_native_calcs_notes.mjs",
         "scripts/smoke_native_calcs_notes_qt.py",
         "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
-        "tests/test_four_blocks.py"
+        "tests/test_four_blocks.py",
+        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md"
       ],
-      "remaining": "XFA, JavaScript general, otras acciones/validadores y fórmulas fuera del subconjunto; fuentes no compatibles, grafos mixtos con reglas del proyecto y corpus externo. Horas/formatos especiales y aritmética nativa explícita + - * / incorporados; no equivalen al runtime ECMAScript completo."
+      "remaining": "Math.abs/round/floor/ceil/min/max y resto compatibles ya incorporados sin ejecutar JS general. XFA, JavaScript general, otras acciones/validadores y fórmulas fuera del subconjunto; fuentes no compatibles, grafos mixtos con reglas del proyecto y corpus externo. Horas/formatos especiales y aritmética nativa explícita + - * / incorporados; no equivalen al runtime ECMAScript completo."
     },
     {
       "id": "ocr_conversion",
@@ -245,9 +247,10 @@
         "docs/REFLUJO_PERSPECTIVA_REVOCACION_20261031.md",
         "tests/test_affine_perspective_revocation.py",
         "docs/OBJETOS_CURVAS_Y_NOTAS_20261104.md",
-        "docs/validation/paths-curves-notes-20261104/results.json"
+        "docs/validation/paths-curves-notes-20261104/results.json",
+        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md"
       ],
-      "remaining": "Esquinas generales/bajo contraste, tablas en perspectiva/irregulares/multilínea, otros idiomas y fidelidad Office general; notas partidas/reinicio por página de notas finales y marcas repartidas entre varios fragmentos/límites estructurales; marca en un fragmento adyacente compatible ya incorporada. Reinicio por página de notas al pie compatibles ya incorporado con convergencia y enlaces. Perspectiva convexa con OCR/revisión ya incorporada; siguen tablas irregulares/curvas/multilínea generales."
+      "remaining": "Marcas en runs consecutivos con estilo de referencia compatibles ya incorporadas; quedan límites estructurales y otros casos documentados. Esquinas generales/bajo contraste, tablas en perspectiva/irregulares/multilínea, otros idiomas y fidelidad Office general; notas partidas/reinicio por página de notas finales y marcas fuera de los runs consecutivos compatibles o a través de límites estructurales; marca en un fragmento adyacente compatible ya incorporada. Reinicio por página de notas al pie compatibles ya incorporado con convergencia y enlaces. Perspectiva convexa con OCR/revisión ya incorporada; siguen tablas irregulares/curvas/multilínea generales."
     },
     {
       "id": "security_signatures",
@@ -270,7 +273,7 @@
         "docs/SELLOS_RFC3161_Y_REVOCACION_TSA_20261031.md",
         "docs/validation/tsa-workflows-20261031/results.json"
       ],
-      "remaining": "Revocación por red e histórica, conservación PAdES-LT/LTA y renovación de archivo; variantes certificadas/DocMDP/FieldMDP protegidas, censura compleja y PDF/X/preflight avanzado. Interoperabilidad con TSA y lectores externos pendiente. Solicitud RFC3161, DocTimeStamp básico y revocación TSA local incorporados; no equivalen a conservación de archivo."
+      "remaining": "Revocación por red e histórica, conservación PAdES-LT/LTA y renovación de archivo; variantes certificadas/DocMDP/FieldMDP protegidas, censura compleja y PDF/X/preflight avanzado. Interoperabilidad con TSA y lectores externos pendiente. Solicitud RFC3161, DocTimeStamp básico y revocación TSA local incorporados; no equivalen a conservación de archivo. Diagnóstico acotado de colores declarados en Forms, tintas planas y sobreimpresión aplicada incorporado; no certifica PDF/X."
     },
     {
       "id": "standards_optimization",
@@ -307,9 +310,11 @@
         "docs/RECORRIDOS_EXTENDIDOS_20261031.md",
         "tests/test_extended_workflows.py",
         "scripts/smoke_extended_workflows.mjs",
-        "scripts/smoke_extended_workflows_qt.py"
+        "scripts/smoke_extended_workflows_qt.py",
+        "backend/structure_scope.py",
+        "tests/test_structure_scope.py"
       ],
-      "remaining": "Semántica general/mixta interna de Forms, imágenes inline/recortes, enlaces ambiguos, otros modelos de lista, celdas con contenido mixto, reparación general y PDF/UA. Lector de pantalla/aceptación externos pendientes. Lbl separados y celdas vacías revisadas ya incorporados."
+      "remaining": "Semántica general/mixta interna de Forms, imágenes inline/recortes, enlaces ambiguos, otros modelos de lista, semántica interna compleja de celdas con imágenes/composición no cubierta, reparación general y PDF/UA. Lector de pantalla/aceptación externos pendientes. Lbl separados y celdas vacías revisadas ya incorporados. Scope de TH existentes y texto mixto compatible ya incorporados."
     },
     {
       "id": "automation_linking",
@@ -359,7 +364,7 @@
         "docs/IMAGENES_Y_EJECUTABLE_20261031.md",
         "docs/validation/images-executable-20261031/results.json"
       ],
-      "remaining": "Windows cliente limpio, DPI/asociaciones/impresión física, recuperación empaquetada y estabilidad/carga sostenida, migración del recorrido histórico extendido y aceptación personal al final. El paquete interno con Reapdf.exe y Python 3.13.16 ya pasó arranque Qt, edición sobre página, deshacer/rehacer, exportación y cierre en Windows Server 2025; once recorridos desde fuente también pasaron en Windows/Linux. No acredita cierre técnico de todo el producto."
+      "remaining": "Windows cliente limpio, DPI/asociaciones/impresión física, recuperación empaquetada y estabilidad/carga sostenida, migración del recorrido histórico extendido y aceptación personal al final. El paquete interno con Reapdf.exe y Python 3.13.16 ya pasó arranque Qt, edición sobre página, deshacer/rehacer, exportación y cierre en Windows Server 2025; veinticuatro recorridos desde fuente también pasaron en Windows/Linux. No acredita cierre técnico de todo el producto."
     },
     {
       "id": "migration_interoperability",
@@ -450,9 +455,10 @@
         "backend/layer_configs.py",
         "tests/test_portfolio_metadata.py",
         "docs/ENTREGA_TECNICA_Y_GUIA_20261031.md",
-        "docs/validation/delivery-guide-windows-20261031/results.json"
+        "docs/validation/delivery-guide-windows-20261031/results.json",
+        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md"
       ],
-      "remaining": "Carpetas y variantes complejas de esquema de portfolio; tipos/valores/columnas protegidos restantes, OCG con reglas automáticas AS/uso/estados complejos y edición de contenido de capas. Interoperabilidad externa pendiente. Configuraciones básicas y metadatos S/N/D editables de esquemas existentes incorporados. Diseño compatible de columnas S/N/D (crear, renombrar, ordenar y retirar) ya incorporado, sin conversión automática de tipos existentes."
+      "remaining": "Columnas nativas derivadas de nombre/descripcion/tamaño declarado/fechas ya incorporadas como solo lectura. Carpetas y variantes complejas de esquema de portfolio; tipos/valores/columnas protegidos restantes, OCG con reglas automáticas AS/uso/estados complejos y edición de contenido de capas. Interoperabilidad externa pendiente. Configuraciones básicas y metadatos S/N/D editables de esquemas existentes incorporados. Diseño compatible de columnas S/N/D (crear, renombrar, ordenar y retirar) ya incorporado, sin conversión automática de tipos existentes."
     },
     {
       "id": "collaboration_services",
@@ -461,16 +467,19 @@
       "evidence": [
         "docs/FUNCIONES.md"
       ],
-      "remaining": "Compartir, sincronización, revisión y solicitud remota de firmas."
+      "remaining": "Compartir, sincronización, revisión y firmas remotas; priorizar funcionamiento local sin servicios de pago, sin asumir proveedor ni gastos."
     },
     {
       "id": "ai_assistance",
       "weight": 1,
       "maturity": 0,
       "evidence": [
-        "docs/FUNCIONES.md"
+        "docs/FUNCIONES.md",
+        "backend/local_assistant.py",
+        "tests/test_local_assistant.py",
+        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md"
       ],
-      "remaining": "Asistencia dentro del producto con referencias y costes definidos."
+      "remaining": "Consulta extractiva local con referencias implementada, no generativa. No se reevalúa aún su madurez como IA; faltan motor/modelo local, licencia, recursos y evaluación para asistencia generativa."
     }
   ],
   "completion_gates": [
@@ -528,27 +537,32 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "835ae5b92140fe1742ab0f1707e4919a5bbff273",
+    "source_commit": "c6de8ff99a836899f7884bdaf28d1ddddf888778",
     "linux": {
-      "checks": 22,
-      "evidence": "docs/validation/native-continuation-20261104/linux/desktop-report.json"
+      "checks": 24,
+      "evidence": "docs/validation/ordered-local-20261104/linux/desktop-report.json"
     },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 22,
-      "evidence": "docs/validation/native-continuation-20261104/windows/assessment.json"
+      "checks": 24,
+      "evidence": "docs/validation/ordered-local-20261104/windows/assessment.json"
     },
     "packaged_executable_verified": true,
     "compiled_gui_independent_runs": 2,
-    "packaged_scope": "Ventana/edición/undo/redo/exportación/cierre; no cierre general ni Windows cliente/impresión/carga sostenida ni causa de intermitencia previa confirmada."
+    "packaged_scope": "Edición básica y párrafo con espaciado/continuación entre páginas, undo/redo/exportación/cierre. No Windows cliente/DPI/impresión física/carga sostenida ni corrección acreditada de intermitencias."
   },
   "last_implementation": {
     "date": "2026-11-04",
-    "evidence": "docs/validation/native-continuation-20261104/results.json",
+    "evidence": "docs/validation/ordered-local-20261104/results.json",
     "features": [
-      "Continuación nativa con fuentes y marco originales entre páginas, selección visual y aplicación directa",
-      "Caja única del flujo avanzado original con estilos opcionales",
-      "Guardas atómicas de alto inicial y texto visible con extracción vacía"
+      "Tc/Tw/TJ en párrafo mixto y continuación",
+      "Scope de TH existente",
+      "Math nativo restringido",
+      "Notas Word con marcas en runs consecutivos",
+      "Diagnóstico Form/tintas/sobreimpresión",
+      "Columnas derivadas de portfolio",
+      "Consulta extractiva local con referencias, no generativa",
+      "Ejecutable Windows con recorrido adicional de espaciado/continuación"
     ],
     "global_estimate_recalculated": false
   }

@@ -42,19 +42,19 @@
       "id": "semantic_accessibility",
       "status": "partial",
       "description": "Accesibilidad semántica",
-      "remaining": "Crear/reparar etiquetas generales, MCID/tablas y aceptación asistiva. Edición acotada de alternativas y orden entre hermanos existentes ya implementada."
+      "remaining": "Reparación general de etiquetas/MCID/tablas y aceptación asistiva. Alternativas, orden entre hermanos y Scope de encabezados TH existentes compatibles incorporados; no certifica PDF/UA."
     },
     {
       "id": "automation",
       "status": "partial",
       "description": "Automatización de flujos generales",
-      "remaining": "Anclas manuales y revisiones con códigos cambiados; lotes y corpus real. Vinculación configurable con ambigüedades, persistencia, PDF enlazado y revisión explícita de destinos ya incorporadas. También permanecen rangos por paso, OCR en recetas, Office por lotes y planificación."
+      "remaining": "Revisiones con códigos cambiados, lotes mayores y corpus real; rangos por paso, OCR en recetas, Office por lotes y planificación. Anclas manuales, vinculación configurable, ambigüedades, persistencia, PDF enlazado y revisión explícita de destinos ya incorporados."
     },
     {
       "id": "windows_execution",
-      "status": "unverified",
+      "status": "partial",
       "description": "Ejecutable propio en Windows",
-      "remaining": "Workflow de ocho recorridos de fuente preparado. Ejecución Windows aún sin resultado ratificado; pendientes DPI, asociaciones, impresión física, recuperación y prueba del paquete ensamblado en Windows limpio."
+      "remaining": "24 recorridos desde fuente en Linux y Windows Server 2025, y dos aperturas independientes del ejecutable con edición básica y espaciado/continuación, verificados en c6de8ff. Pendientes Windows cliente limpio, DPI/asociaciones, impresión física, recuperación/carga y paquete final del alcance completo; intermitencias históricas sin causa confirmada."
     },
     {
       "id": "independent_corpus",
@@ -66,7 +66,7 @@
       "id": "advanced_forms",
       "status": "partial",
       "description": "Formularios avanzados",
-      "remaining": "Fórmulas PDF nativas interoperables, XFA, multiselección, scripts y corpus real. Reglas de proyecto conservadas al organizar/insertar/reemplazar/duplicar/añadir hojas/recortar y editar propiedades/nombres/crear/eliminar campos compatibles; dependencias eliminadas o incompatibles rechazan el cambio. Otras transformaciones aún materializan valores."
+      "remaining": "XFA, JavaScript/acciones generales, variantes XFDF y corpus real. Aritmética y Math.abs/round/floor/ceil/min/max/resto compatibles ya incorporados como analizador restringido, conservando acciones nativas. Grafos mixtos con reglas de proyecto y transformaciones restantes requieren ampliación."
     },
     {
       "id": "image_compression",
@@ -78,7 +78,7 @@
       "id": "professional_standards",
       "status": "partial",
       "description": "Preimpresión y estándares profesionales",
-      "remaining": "PDF/X, comprobación de impresión avanzada y perfiles pendientes."
+      "remaining": "PDF/X, perfiles y preflight avanzado. Diagnóstico acotado de colores declarados en Forms, tintas planas y estados de sobreimpresión aplicados ya incorporado; sin cobertura de tinta ni certificación."
     }
   ]
 }
