@@ -16,7 +16,7 @@ try{
  await page.getByLabel('Texto sobre la página',{exact:true}).fill('Ejecutable');
  const edited=page.waitForResponse(r=>/\/(replace-styled-text|replace-paragraph)$/.test(r.url())&&r.request().method()==='POST');
  await page.getByLabel('Texto sobre la página',{exact:true}).press('Control+Enter');
- const adopted=await(await edited).json();if(!adopted.id)throw new Error('Edited version was not adopted');
+ const response=await edited,adopted=await response.json();if(!adopted.id)throw new Error('Edited version was not adopted: HTTP '+response.status()+' '+JSON.stringify(adopted));
  await expect(page.locator('.text-layer')).toContainText('Ejecutable');
  await page.getByRole('button',{name:'Deshacer',exact:false}).click();await expect(page.locator('.text-layer')).toContainText('Texto original');
  await page.getByRole('button',{name:'Rehacer',exact:false}).click();await expect(page.locator('.text-layer')).toContainText('Ejecutable');
