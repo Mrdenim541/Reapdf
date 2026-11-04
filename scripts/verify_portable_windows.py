@@ -160,6 +160,9 @@ def compiled_gui_check(folder,journey='basic'):
     if journey in ['spacing_flow','pagination']:
         from tests.test_mixed_paragraph_spacing import source
         sample=folder/(journey+'-fixture.pdf');sample.write_bytes(source(nested=True))
+    if journey=='tagged_images':
+        sample=folder/'tagged-images-fixture.pdf'
+        subprocess.run([str(folder/'runtime/python.exe'),'-I',str(root/'scripts/create_tagged_image_sample.py'),str(sample)],check=True,timeout=30)
     original=sample.read_bytes();output=folder/('comprobacion-'+journey+'.pdf')
     from uuid import uuid4
     state=folder/('.gui-verification-state-'+uuid4().hex)
@@ -177,21 +180,42 @@ def compiled_gui_check(folder,journey='basic'):
             if time.monotonic()>deadline:raise RuntimeError('La ventana incluida no quedó disponible para su verificación.')
             time.sleep(.1)
         hwnd,pid=_compiled_window(folder)
-        driver='smoke_packaged_spacing_flow.mjs' if journey in ['spacing_flow','pagination'] else 'smoke_packaged_window.mjs'
+        driver='smoke_packaged_tagged_images.mjs' if journey=='tagged_images' else 'smoke_packaged_spacing_flow.mjs' if journey in ['spacing_flow','pagination'] else 'smoke_packaged_window.mjs'
         run=subprocess.run([node,str(root/'scripts'/driver),endpoint,str(output)]+(['pagination'] if journey=='pagination' else []),cwd=root,capture_output=True,text=True,timeout=100)
         if run.returncode or 'PASS:' not in run.stdout:raise RuntimeError('Falló el recorrido del ejecutable: '+run.stdout+run.stderr)
         verification="import pymupdf as f,sys;d=f.open(sys.argv[1]);assert len(d)==2;assert 'Ejecutable' in d[0].get_text();assert 'Texto original' not in d[0].get_text();assert 'Segunda pagina' in d[1].get_text()"
         if journey=='spacing_flow':verification="import pymupdf as f,sys;d=f.open(sys.argv[1]);a=f.open(sys.argv[2]);assert len(d)==3;v=''.join((d[0].get_text()+d[2].get_text()).split());assert v.count('HELLO')==13 and v.count('TEXT')==9;assert 'HELLO' in d[2].get_text() and 'TEXT' in d[2].get_text();assert a[1].get_pixmap().samples==d[1].get_pixmap().samples"
-        if journey!='pagination':subprocess.run([str(folder/'runtime/python.exe'),'-I','-c',verification,str(output),str(sample)],check=True,timeout=20)
+        if journey not in ['pagination','tagged_images']:subprocess.run([str(folder/'runtime/python.exe'),'-I','-c',verification,str(output),str(sample)],check=True,timeout=20)
         if journey=='pagination':
             subprocess.run([str(folder/'runtime/python.exe'),'-I','-c',"import pymupdf as f,sys;d=f.open(sys.argv[1]);a=f.open(sys.argv[2]);assert len(d)>len(a);v=''.join((d[0].get_text()+''.join(d[i].get_text() for i in range(len(a),len(d)))).split());assert v.count('HELLO')==13 and v.count('TEXT')==9;assert all(a[i].get_pixmap().samples==d[i].get_pixmap().samples for i in range(1,len(a)))",str(output),str(sample)],check=True,timeout=20)
+        if journey=='tagged_images':
+            check_script="""import pymupdf as f,sys
+source=f.open(sys.argv[1]);before=source[0].get_image_info(hashes=True);moved=None
+for index,path in enumerate(sys.argv[2:]):
+ d=f.open(path);assert len(d)==2 and d[0].get_text('dict',flags=f.TEXTFLAGS_TEXT)==source[0].get_text('dict',flags=f.TEXTFLAGS_TEXT);assert d[1].get_pixmap().samples==source[1].get_pixmap().samples
+ images=d[0].get_image_info(hashes=True);assert len(images)==(2 if index<2 else 1);assert images[-1]['bbox']==before[1]['bbox'] and images[-1]['digest']==before[1]['digest']
+ n=f.mupdf;pdf=f._as_pdf_document(d);root=n.pdf_dict_gets(n.pdf_dict_gets(n.pdf_trailer(pdf),'Root'),'StructTreeRoot');figures=[]
+ def walk(v):
+  if n.pdf_is_array(v):
+   for i in range(n.pdf_array_len(v)):walk(n.pdf_array_get(v,i))
+  elif n.pdf_is_dict(v):
+   if n.pdf_to_name(n.pdf_dict_gets(v,'S'))=='Figure':figures.append(v)
+   walk(n.pdf_dict_gets(v,'K'))
+ walk(n.pdf_dict_gets(root,'K'));assert len(figures)==(2 if index<2 else 1)
+ assert n.pdf_to_text_string(n.pdf_dict_gets(figures[-1],'Alt'))=='Other diagram'
+ if index==0:assert images[0]['digest']==before[0]['digest'] and images[0]['bbox']!=before[0]['bbox'];moved=images[0]['bbox']
+ if index==1:assert images[0]['bbox']==moved and images[0]['digest']!=before[0]['digest'];assert n.pdf_to_text_string(n.pdf_dict_gets(figures[0],'Alt'))=='New green diagram'
+ if index==2:
+  nums=n.pdf_dict_gets(n.pdf_dict_gets(root,'ParentTree'),'Nums');row=n.pdf_array_get(nums,1);assert n.pdf_is_null(n.pdf_array_get(row,1));assert b'MCID 1' not in d[0].read_contents()
+"""
+            subprocess.run([str(folder/'runtime/python.exe'),'-I','-c',check_script,str(sample),str(output.with_name(output.stem+'-moved.pdf')),str(output.with_name(output.stem+'-replaced.pdf')),str(output)],check=True,timeout=30)
         if sample.read_bytes()!=original:raise RuntimeError('La comprobación modificó el PDF de origen.')
         import ctypes
         from ctypes import wintypes as w
         user=ctypes.WinDLL('user32');user.PostMessageW.argtypes=[w.HWND,w.UINT,w.WPARAM,w.LPARAM];user.PostMessageW(hwnd,0x0010,0,0)
         if process.wait(timeout=25)!=0:raise RuntimeError('Reapdf.exe no cerró normalmente.')
         print(run.stdout.strip())
-        return {'compiled_exe_window_and_edit':'ok','compiled_exe_normal_close':'ok',**({'compiled_exe_affine_spacing_flow':'ok'} if journey=='spacing_flow' else {'compiled_exe_automatic_pagination':'ok'} if journey=='pagination' else {}),'qt_process_pid':pid,'external_browser_used':False,'native_save_in_this_check':False,'windows_execution_verified':True}
+        return {'compiled_exe_window_and_edit':'ok','compiled_exe_normal_close':'ok',**({'compiled_exe_affine_spacing_flow':'ok'} if journey=='spacing_flow' else {'compiled_exe_automatic_pagination':'ok'} if journey=='pagination' else {'compiled_exe_tagged_images':'ok'} if journey=='tagged_images' else {}),'qt_process_pid':pid,'external_browser_used':False,'native_save_in_this_check':False,'windows_execution_verified':True}
     finally:
         if process.poll() is None:process.terminate();process.wait(timeout=10)
 
@@ -204,7 +228,7 @@ def main():
     if os.name!='nt':raise SystemExit('La ejecución nativa requiere Windows. Usa --static-only para comprobar integridad.')
     with TemporaryDirectory(prefix='Reapdf prueba con espacios ') as tmp:
         with ZipFile(args.archive) as z:z.extractall(tmp)
-        folder=Path(tmp)/'Reapdf-portable';native=native_check(folder);compiled_gui_check(folder);spacing=compiled_gui_check(folder,'spacing_flow');gui=compiled_gui_check(folder,'pagination');result={**native,**spacing,**gui,'compiled_gui_independent_runs':3,'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
+        folder=Path(tmp)/'Reapdf-portable';native=native_check(folder);compiled_gui_check(folder);spacing=compiled_gui_check(folder,'spacing_flow');gui=compiled_gui_check(folder,'pagination');images=compiled_gui_check(folder,'tagged_images');result={**native,**spacing,**gui,**images,'compiled_gui_independent_runs':4,'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
         from scripts.publish_windows_report import source_objects
         root=Path(__file__).resolve().parents[1]
         result.update(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),source_git_objects=source_objects(root),source_dirty=bool(subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True).strip()))

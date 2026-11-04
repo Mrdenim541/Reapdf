@@ -84,6 +84,11 @@ def image_model(doc,number,*,private=False):
     except DocumentError as exc:invocations=[];failure=str(exc)
     ocr=any('GlyphLessFont' in font[3] for font in page.get_fonts())
     tagged=doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null'
+    semantics=None;semantic_failure=''
+    if tagged:
+        from .tagged_image_integrity import context
+        try:semantics=context(doc,number)
+        except DocumentError as exc:semantic_failure=str(exc)
     items=[];used=set()
     for index,info in enumerate(infos):
         if min(info['width'],info['height'])<=1:continue
@@ -94,14 +99,21 @@ def image_model(doc,number,*,private=False):
             i,invocation=candidates[0];used.add(i)
         reason=''
         if doc.get_sigflags()>0 or not doc.permissions & fitz.PDF_PERM_MODIFY:reason='Documento firmado o sin permiso de edición.'
-        elif tagged:reason='La imagen pertenece a un PDF etiquetado; su estructura requiere una edición semántica coordinada.'
         elif not xref or invocation is None:reason=failure or 'No se pudo aislar esta aparición de imagen de forma segura.'
         elif doc.xref_get_key(xref,'OC')[0]!='null':reason='Imagen asociada a una capa no compatible.'
         elif ocr:reason='La página tiene una capa OCR; mover la imagen desalinearía el texto.'
         elif abs(invocation['_matrix'].a*invocation['_matrix'].d-invocation['_matrix'].b*invocation['_matrix'].c)<1e-8:reason='Transformación de imagen degenerada.'
         elif not page.rect.contains(box):reason='Imagen parcialmente fuera de la página.'
         elif any(not _inside(box,p) for p in invocation['_clips']):reason='La imagen está parcialmente recortada por un Form.'
+        semantic=None
+        if not reason and tagged:
+            from .tagged_image_integrity import probe
+            try:
+                if semantic_failure:raise DocumentError(semantic_failure)
+                semantic=probe(doc,number,invocation,semantics)
+            except DocumentError as exc:reason='La imagen pertenece a un PDF etiquetado; '+str(exc)
         row={'xref':xref,'occurrence':invocation['occurrence'] if invocation else None,'width':info['width'],'height':info['height'],'rect':list(box),'digest':info['digest'].hex(),'editable':not reason,'reason':reason,'direct_content':not reason,'notice':'Solo cambia esta aparición. Se conservan orientación, compresión, recorte y transparencia; revisa la vista previa.' if not reason else ''}
+        if semantic:row.update(tagged_figure=True,alt=semantic['alt'],actions=semantic['actions'])
         if private and invocation:row.update(invocation);row['_render_index']=index
         items.append(row)
     return {'images':items}
@@ -116,7 +128,7 @@ def _remaining_unchanged(before,after):
     return True
 
 
-def edit_image(base,operations,number,xref,action,box=None,data=None,occurrence=None):
+def edit_image(base,operations,number,xref,action,box=None,data=None,occurrence=None,alt=None):
     if type(xref) is not int or action not in ['move','replace','delete']:raise DocumentError('Imagen o acción no válida.')
     if occurrence is not None and (not isinstance(occurrence,str) or len(occurrence)!=64):raise DocumentError('Aparición de imagen no válida.')
     with open_pdf(base) as source:
@@ -126,6 +138,7 @@ def edit_image(base,operations,number,xref,action,box=None,data=None,occurrence=
         if not selected:raise DocumentError('Imagen o aparición inexistente.')
         original=selected[0]
         if not original['editable']:raise DocumentError(original['reason'])
+        if action not in original.get('actions',['move','replace','delete']):raise DocumentError('Esta figura tiene referencias que impiden eliminarla de forma segura.')
     with open_pdf(export_pdf(base,operations,preserve_streams=True)) as doc:
         rows=image_model(doc,number,private=True)['images']
         candidates=[r for r in rows if r['digest']==original['digest'] and _same_box(r['rect'],original['rect'])]
@@ -154,12 +167,26 @@ def edit_image(base,operations,number,xref,action,box=None,data=None,occurrence=
             resource_owner=_resources(doc,owner);alias='ReapdfImage'
             while doc.xref_get_key(resource_owner,'Resources/XObject/'+alias)[0]!='null':alias+='x'
             item['_native_xobjects']={alias:replacement_xref};value=('/'+alias+' Do').encode()
-        write(doc,page,[(item,value)])
+        prepared=[(item,value)];semantic_expected=None
+        if item.get('tagged_figure'):
+            from .tagged_image_integrity import context,probe,update
+            from .tagged_text_integrity import snapshot,marker_signature
+            from .pdf_content import patch
+            ctx=context(doc,number);selection=probe(doc,number,item,ctx)
+            removals=update(doc,number,ctx,selection,action,rect,alt)
+            semantic_expected=snapshot(doc,number,allow_actual_text=True)
+            if removals:
+                semantic_expected['markers']=marker_signature(patch(page.read_contents(),[(a,b,b'') for a,b in removals]))
+                prepared.extend(({**item,'_native':[a,b,'marker']},b'') for a,b in removals)
+        write(doc,page,prepared)
         result=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=False)
     # Reopen the serialized result: PyMuPDF caches display lists and image info
     # on loaded pages, so inspecting the old page could validate stale data.
     with open_pdf(result) as verified:
         page=verified[number]
+        if semantic_expected is not None:
+            from .tagged_text_integrity import snapshot
+            if snapshot(verified,number,allow_actual_text=True)!=semantic_expected:raise DocumentError('La edición no conserva la estructura semántica prevista; no se publicó el PDF.')
         # Verify the rendered invocation list, not just the edited PDF syntax.
         after=page.get_image_info(xrefs=True);others=[v for i,v in enumerate(before) if i!=item['_render_index']]
         if action!='delete':
