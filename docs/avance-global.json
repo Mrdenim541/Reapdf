@@ -1,14 +1,14 @@
 {
   "schema": 1,
   "review_date": "2026-11-04",
-  "status": "provisional_verified_offline_workflows_and_dense_tagged_editing",
+  "status": "provisional_with_bounded_native_split_module_closed",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 86.87,
+  "weighted_percent": 87.08,
   "reported_percent": 87,
   "subjective_range_percent": [
     62,
-    87
+    88
   ],
   "anchors": {
     "0": "Sin implementación",
@@ -22,7 +22,7 @@
     {
       "id": "reader_pages",
       "weight": 7,
-      "maturity": 93,
+      "maturity": 96,
       "evidence": [
         "backend/viewer.py",
         "backend/pages.py",
@@ -32,9 +32,13 @@
         "docs/DIVISION_CON_NOMBRES_Y_LISTAS_20261029.md",
         "backend/split_plan.py",
         "docs/CORRECCIONES_OBSERVADAS_20261104.md",
-        "docs/validation/observations-20261104/results.json"
+        "docs/validation/observations-20261104/results.json",
+        "backend/split_integrity.py",
+        "backend/structure_partition.py",
+        "docs/CIERRE_DIVISION_20261104.md",
+        "docs/validation/split-closure-20261104/results.json"
       ],
-      "remaining": "Corpus de documentos complejos y aceptación; variantes protegidas de división (árboles de etiquetas complejos/ActualText/atributos, capas, XFA y cálculos/scripts), modos adicionales por contenido. División por rangos/bloques/marcadores y nombres personalizados incorporada. Alternativa explícita de partes sin etiquetas ya incorporada; no equivale a conservar/reparar árboles complejos."
+      "remaining": "Corpus complejo e interoperabilidad externa; IDTree, ClassMap, Stm, relaciones semánticas entre partes y variantes protegidas (capas, XFA, cálculos/scripts). Modos por contenido adicionales. Ya incorporados: bloques/grupos/marcadores, nombres personalizados con serie configurable, preflight automático, vinculación del plan a la descarga, Layout/ActualText de páginas completas, árboles mayores y comprobación de contenido/apariencia antes de publicar ZIP. Alternativa explícita sin etiquetas ya disponible; no reparación semántica universal."
     },
     {
       "id": "interface",
@@ -527,74 +531,22 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261104-before-functional-closing.json",
-    "before_weighted": 85.68,
-    "before_unrounded": "85.6775",
-    "after_weighted": 86.87,
-    "new_points": 1.19,
-    "unrounded_delta": "1.1950",
-    "unrounded_after_weighted": "86.8725",
+    "baseline": "docs/progress/20261104-before-split-closure.json",
+    "before_weighted": 86.87,
+    "before_unrounded": "86.8725",
+    "after_weighted": 87.08,
+    "new_points": 0.21,
+    "unrounded_delta": "0.2100",
+    "unrounded_after_weighted": "87.0825",
     "changes": [
       {
-        "id": "forms",
-        "before": 91,
-        "after": 93,
-        "points": 0.12,
-        "reason": "Condicionales numéricos, comparaciones y lógica acotada en acciones de cálculo PDF nativas, con evaluación perezosa y conservación tras guardar. No XFA ni JavaScript general."
-      },
-      {
-        "id": "ocr_conversion",
-        "before": 96.5,
-        "after": 97,
-        "points": 0.045,
-        "reason": "Importación Word por lotes con resultados atómicos y saltos de sección par/impar con numeración coherente. No fidelidad Office general ni todos los idiomas."
-      },
-      {
-        "id": "security_signatures",
-        "before": 77,
-        "after": 80,
+        "id": "reader_pages",
+        "before": 93,
+        "after": 96,
         "points": 0.21,
-        "reason": "Alternativa explícita de censura mediante reconstrucción raster completa, sin copiar objetos ni metadatos originales. Tiene pérdida de texto/tags/formularios; no recibe crédito por LT/LTA ni censura nativa universal."
-      },
-      {
-        "id": "accessibility",
-        "before": 91,
-        "after": 93,
-        "points": 0.06,
-        "reason": "Reparación transaccional de rol, RowSpan, ColSpan y Scope de tablas existentes; edición nativa de un fragmento etiquetado compatible y conservación de identidad de celdas vacías al guardar. No reparación general ni PDF/UA."
-      },
-      {
-        "id": "automation_linking",
-        "before": 90,
-        "after": 94,
-        "points": 0.36,
-        "reason": "OCR y rangos por paso, planificación persistente local con proceso propio y remapeo explícito de identificadores cambiados en revisiones. No servicio siempre activo, lotes ilimitados ni automatización arbitraria."
-      },
-      {
-        "id": "performance_reliability",
-        "before": 77.5,
-        "after": 79,
-        "points": 0.06,
-        "reason": "Indexación del contexto nativo para páginas densas e aislamiento de conversiones programadas en proceso propio que termina al morir el padre. No se certifica carga sostenida ni pérdida de energía."
-      },
-      {
-        "id": "portfolios_layers",
-        "before": 87,
-        "after": 90,
-        "points": 0.09,
-        "reason": "Preferencias nativas Print/Export compatibles y copia temporal de impresión resuelta. No carpetas de portfolio ni reglas OCG generales."
-      },
-      {
-        "id": "ai_assistance",
-        "before": 0,
-        "after": 25,
-        "points": 0.25,
-        "reason": "Consulta extractiva local con referencias y adaptador opcional Ollama exclusivamente loopback, sin descargas ni acciones y con rechazo de modelos Cloud. Solo protocolo simulado probado; no hay modelo real distribuido ni calidad generativa validada."
+        "reason": "Conservación nativa Layout/ActualText de páginas completas y árboles mayores; comprobación previa automática y exportación íntegra verificada con fallo atómico. Caso privado conservando etiquetas y 42 partes genéricas. No puntos por nombres ya existentes, documentación o repetición de pruebas; no semántica universal ni cierre de los ocho bloques generales."
       }
-    ],
-    "all_weights_and_scope_unchanged": true,
-    "no_credit_for_documentation_or_ci_preparation": true,
-    "desktop_maturity_unchanged_for_additional_checks": true
+    ]
   },
   "technical_complete": false,
   "delivery_policy": {
@@ -648,19 +600,16 @@
   },
   "last_implementation": {
     "date": "2026-11-04",
-    "evidence": "docs/validation/functional-closing-20261104/results.json",
+    "source_commit": "1103094eddcf1e4e1a29313a69cd43d21143a598",
+    "evidence": "docs/validation/split-closure-20261104/results.json",
     "features": [
-      "Edición nativa densa y etiquetada compatible",
-      "Paginación automática compatible",
-      "Reparación de tablas existentes",
-      "Cálculos condicionales numéricos",
-      "Word par/impar y lotes",
-      "OCR/rangos por paso y programación local aislada",
-      "Censura raster explícita",
-      "Revisiones con códigos cambiados",
-      "Preferencias Print/Export de capas",
-      "Adaptador opcional Ollama exclusivamente local"
+      "División con comprobación automática previa y descarga vinculada al plan",
+      "Conservación de Layout/ActualText de páginas completas y árboles mayores",
+      "Verificación independiente de cada parte y publicación atómica del ZIP",
+      "Apertura inicial con plazo monotónico, aviso asíncrono y reintento recuperable"
     ],
+    "bounded_module_closed": "division_pdf",
+    "global_blocks_closed": [],
     "global_estimate_recalculated": true
   },
   "last_observations": {
@@ -696,5 +645,14 @@
     "new_portable_published": false,
     "previous_preview_includes_changes": false,
     "report": "docs/CORRECCIONES_OBSERVADAS_20261104.md"
+  },
+  "last_split_closure": {
+    "source_commit": "1103094eddcf1e4e1a29313a69cd43d21143a598",
+    "report": "docs/CIERRE_DIVISION_20261104.md",
+    "evidence": "docs/validation/split-closure-20261104/results.json",
+    "bounded_module_closed": true,
+    "global_blocks_closed": [],
+    "technical_complete": false,
+    "accepted_complete": false
   }
 }
