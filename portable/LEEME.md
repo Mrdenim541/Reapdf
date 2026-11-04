@@ -1,4 +1,4 @@
-> Guía de distribución en preparación. El paquete interno con Reapdf.exe ya se ensambló y comprobó en Windows Server 2025; no es una entrega completa del producto. Las pruebas personales se harán después de la entrega técnica final. El ZIP histórico 0.43 usa navegador y no contiene estas mejoras.
+> Versión de prueba actual solicitada expresamente por el usuario. Abre **Reapdf.exe**, no el archivo alternativo de navegador. Guía rápida: `docs/PROBAR_VERSION_ACTUAL.md`. El programa no está completado al 100 %; el ZIP histórico 0.43 no contiene estas mejoras.
 
 # Reapdf — guía de distribución Windows x64
 
@@ -34,4 +34,4 @@ La vinculación configurable entre documentos está incorporada con límites. Lo
 
 ## Estado de validación
 
-El paquete interno de la revisión c24f305 fue ejecutado en Windows Server 2025 con Python 3.13.16 incluido. Se comprobó Reapdf.exe, su ventana Qt, apertura de un PDF, edición directa, deshacer/rehacer, exportación y cierre normal, además de once recorridos desde fuente Windows/Linux. La exportación del recorrido del ejecutable usa el servidor de la ventana; guardado atómico y diálogos se verifican por separado. No acredita impresión física, DPI, asociaciones, Windows cliente limpio ni cierre de todas las funciones. El resultado del paquete se vincula a su SHA256 mediante un comprobante separado del manifiesto de construcción; véase `docs/IMAGENES_Y_EJECUTABLE_20261031.md`. No es una prueba personal del equipo del usuario.
+La fuente de aplicación 51ffe62 ya pasó 28 recorridos de escritorio en Linux y Windows Server 2025, además de tres aperturas independientes de Reapdf.exe con edición básica, continuación con espaciado y paginación automática. Se comprobó también una tarea programada real dentro del paquete. La compilación de prueba vuelve a comprobar su propio ejecutable y ofrece la huella SHA256 del ZIP. No acredita impresión física, DPI, asociaciones, Windows cliente limpio ni cierre de todas las funciones. La exportación del recorrido del ejecutable usa el servidor de la ventana; guardado atómico y diálogos se verifican por separado. Evidencia previa: `docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md`.

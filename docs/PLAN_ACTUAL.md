@@ -1,5 +1,7 @@
 # Plan vigente de cierre
 
+**Solicitud posterior del usuario:** entregar la versión actual para probarla en su PC. Se autoriza una entrega portable de prueba, descrita en [la guía rápida](PROBAR_VERSION_ACTUAL.md), sin declarar cierre técnico ni cambiar la estimación global. La prohibición anterior de paquetes intermedios no impide esta entrega expresamente solicitada.
+
 **Entrega solicitada:** programa Windows técnicamente completo, en ventana propia, instalable o portable, con guía por función. Las revisiones personales del usuario son la última etapa. No pedirle pruebas intermedias ni entregar candidatos internos como producto terminado. Una protección o incompatibilidad del motor no equivale a una implementación completada.
 
 La última estimación global registrada es **86,87 % (≈87 %)** y se consulta en [avance-global.json](avance-global.json); es una valoración provisional de ingeniería de diecisiete áreas con pesos estables, no un porcentaje objetivo de paridad con Acrobat ni de tiempo restante. No elevarla por documentación, preparación del entorno o repetición de pruebas. `technical_complete` y `accepted_complete` se registran por separado.

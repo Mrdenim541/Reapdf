@@ -16,3 +16,5 @@
 - No descartar trabajo de otro checkout ni usar push forzado. En PC usar una rama distinta de la de nube; integrar cambios revisados mediante Git.
 
 - Solicitud vigente del 4 de noviembre: el usuario pide únicamente la entrega final técnicamente completa, con pruebas personales al final. No presentar otra tanda parcial como cumplimiento ni prometer trabajo autónomo después de acabar el turno. Si el cierre solicitado no se logra, reconocer expresamente que no está cumplido.
+
+- Instrucción posterior expresa del usuario: «Generame la versión actual para probarlo en mi pc». Autoriza entregar ahora una versión de prueba Windows portable, con descarga accesible, instrucciones y límites. Esta excepción solicitada prevalece sobre la prohibición anterior de paquetes intermedios; no implica un 100 % ni una entrega técnica final y no autoriza generar paquetes en cada avance futuro.
