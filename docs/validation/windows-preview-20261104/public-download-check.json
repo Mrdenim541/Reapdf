@@ -1,0 +1,8 @@
+{
+  "public_download_http": 206,
+  "zip_magic_verified": true,
+  "published_checksum_matches_tested_archive": true,
+  "content_range": "bytes 0-1023/325574685",
+  "content_length": "1024",
+  "full_release_download_roundtrip_verified_in_windows_ci": true
+}

@@ -1,0 +1,26 @@
+{
+  "source_commit": "ddd9bddf55a2fcea23c0c4e21ebc2d0655825bcd",
+  "runtime_source_unchanged_from": "51ffe62b32f12d2e1c414e9c2c44285505c02ad4",
+  "release": {
+    "url": "https://github.com/Mrdenim541/Reapdf/releases/tag/preview-windows-20261104-ddd9bdd",
+    "download_url": "https://github.com/Mrdenim541/Reapdf/releases/download/preview-windows-20261104-ddd9bdd/Reapdf-prueba-20261104-Windows-x64.zip",
+    "archive_sha256": "44b62022562596e2e41cfd8d8aedc6e3a38560c9a4a03bbbf930bb36eb7b9394",
+    "size_bytes": 325574685,
+    "download_roundtrip_verified": true
+  },
+  "windows_checks": 28,
+  "compiled_gui_independent_runs": 3,
+  "native_queued_worker": "ok",
+  "public_download": {
+    "public_download_http": 206,
+    "zip_magic_verified": true,
+    "published_checksum_matches_tested_archive": true,
+    "content_range": "bytes 0-1023/325574685",
+    "content_length": "1024",
+    "full_release_download_roundtrip_verified_in_windows_ci": true
+  },
+  "technical_complete": false,
+  "accepted_complete": false,
+  "user_requested_preview": true,
+  "global_estimate_unchanged": 86.87
+}

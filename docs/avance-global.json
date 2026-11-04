@@ -595,7 +595,20 @@
       "Manual por función: acceso, pasos, resultado esperado y límites",
       "Notas de compatibilidad y resultados de pruebas técnicas"
     ],
-    "user_review_blocks_independent_development": false
+    "user_review_blocks_independent_development": false,
+    "requested_preview_exception": {
+      "date": "2026-11-04",
+      "user_requested": true,
+      "published": true,
+      "source_commit": "ddd9bddf55a2fcea23c0c4e21ebc2d0655825bcd",
+      "url": "https://github.com/Mrdenim541/Reapdf/releases/tag/preview-windows-20261104-ddd9bdd",
+      "download_url": "https://github.com/Mrdenim541/Reapdf/releases/download/preview-windows-20261104-ddd9bdd/Reapdf-prueba-20261104-Windows-x64.zip",
+      "archive_sha256": "44b62022562596e2e41cfd8d8aedc6e3a38560c9a4a03bbbf930bb36eb7b9394",
+      "size_bytes": 325574685,
+      "download_roundtrip_verified": true,
+      "technical_complete": false,
+      "changes_global_estimate": false
+    }
   },
   "technical_completion_gates": [
     "Fuente completa respaldada y restauración limpia comprobada",

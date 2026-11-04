@@ -1,12 +1,14 @@
 # Reapdf
 
-[Manual de funciones](docs/MANUAL_DE_FUNCIONES.md): acceso, pasos, resultado esperado y límites de cada herramienta. Revisión personal aplazada hasta después de la entrega técnica final; sin paquetes intermedios.
+**Versión actual de prueba para Windows:** [descargar ZIP](https://github.com/Mrdenim541/Reapdf/releases/download/preview-windows-20261104-ddd9bdd/Reapdf-prueba-20261104-Windows-x64.zip) · [guía para abrirlo](docs/PROBAR_VERSION_ACTUAL.md). Portable solicitado por el usuario; no es la entrega final.
+
+[Manual de funciones](docs/MANUAL_DE_FUNCIONES.md): acceso, pasos, resultado esperado y límites de cada herramienta. La prueba portable actual fue solicitada expresamente por el usuario; el cierre técnico completo sigue pendiente.
 
 Último trabajo interno: [implementaciones y validación integral](docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md). 4397 pruebas Python, 148 JavaScript y 28 recorridos Qt en Linux/Windows; tres aperturas independientes de Reapdf.exe y tareas programadas en el paquete, comprobadas en Windows Server 2025. Edición directa densa/etiquetada compatible, paginación automática, tablas, lotes, recetas y consulta local opcional. Persisten implementaciones pendientes: no es una entrega final. Estimación global recalculada: **86,87 % provisional (≈87 %)**. [Plan actual](docs/PLAN_ACTUAL.md), [matriz](docs/avance-global.json) e [historial](docs/WORK_STATE.md).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 
-Ventana propia Qt, edición de fuentes compatibles, vinculación configurable, medición, capas, XFDF y OCR regional comprobados en Linux. No se entrega un instalador/portable intermedio; el paquete de comprobación permanece interno de CI. La base procede de 0.43 recuperado y mejoras nuevas; 0.55 no se ha recuperado. Generación de informes/registros/ensayos excluida.
+Ventana propia Qt, edición de fuentes compatibles, vinculación configurable, medición, capas, XFDF y OCR regional comprobados en Linux. El portable de prueba actual está publicado por petición expresa del usuario, con descarga y huella verificadas. La base procede de 0.43 recuperado y mejoras nuevas; 0.55 no se ha recuperado. Generación de informes/registros/ensayos excluida.
 
 Primera versión experimental de un editor PDF personal, con Adobe Acrobat como referencia funcional. Primero se construye el editor general; la vinculación entre documentos usa archivos y funciones elegidos por el usuario.
 
