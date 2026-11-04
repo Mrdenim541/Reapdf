@@ -9,7 +9,7 @@ from .affine_text import polygon,rectangle,contains,overlap,bounds
 from .text_flow import next_line
 
 
-def compatible(rows):
+def compatible(rows,sort=True):
     if not rows or any(not r['editable'] or r['original_only'] for r in rows):raise DocumentError('El párrafo mixto necesita grupos visibles sin composición especial.')
     first=rows[0];frame=f.Matrix(*first['_geometry']['matrix']);inverse=~frame
     for r in rows:
@@ -17,13 +17,13 @@ def compatible(rows):
         state=r['_spacing']['state']
         if state['char']!=0 or state['word']!=0:raise DocumentError('El párrafo usa espaciado especial que aún no puede redistribuirse conservando sus estilos.')
     ordered=sorted(rows,key=lambda r:(-round((f.Point(r['origin'])*inverse).y,2),(f.Point(r['origin'])*inverse).x))
-    return ordered
+    return ordered if sort else rows
 
 
-def inspect_rows(rows):
-    rows=compatible(rows);first=rows[0];inverse=~f.Matrix(*first['_geometry']['matrix']);positions=[f.Point(r['origin'])*inverse for r in rows]
+def inspect_rows(rows,continuous=True):
+    rows=compatible(rows,sort=continuous);first=rows[0];inverse=~f.Matrix(*first['_geometry']['matrix']);positions=[f.Point(r['origin'])*inverse for r in rows]
     if abs(positions[0].x)>.5:raise DocumentError('El párrafo no empieza en el marco seleccionado.')
-    for i,(a,b) in enumerate(zip(positions,positions[1:])):
+    for i,(a,b) in enumerate(zip(positions,positions[1:])) if continuous else []:
         if abs(a.y-b.y)<.3:
             if abs(b.x-a.x-rows[i]['_geometry']['width'])>.5:raise DocumentError('Los estilos no forman una línea continua.')
         elif abs(b.x)>.5 or not .5*max(rows[i]['size'],rows[i+1]['size'])<=a.y-b.y<=3*max(rows[i]['size'],rows[i+1]['size']):raise DocumentError('Los estilos no forman líneas continuas.')
@@ -32,6 +32,9 @@ def inspect_rows(rows):
     runs=[]
     for i,r in enumerate(rows):
         separator=' ' if i+1<len(rows) and abs(positions[i+1].y-positions[i].y)>.3 else ''
+        if not continuous:
+            separated=i+1<len(rows) and (abs(positions[i+1].y-positions[i].y)>.3 or abs(positions[i+1].x-positions[i].x-r['_geometry']['width'])>.5)
+            separator=' ' if separated and not r['text'].endswith((' ','\n')) and not rows[i+1]['text'].startswith((' ','\n')) else ''
         runs.append({'id':r['id'],'text':r['text']+separator,'font':r['font'],'size':r['size'],'color':r['color']})
     top=max(p.y+r['_geometry']['ascent'] for p,r in zip(positions,rows));bottom=min(p.y+r['_geometry']['descent'] for p,r in zip(positions,rows))
     return {'affine':True,'mixed':True,'ids':[r['id'] for r in rows],'runs':runs,'text':''.join(r['text'] for r in runs),'font':' · '.join(sorted({r['font'] for r in rows})),'box':[rect.x0,rect.y0,rect.width,rect.height],'original_available':True,'reason':'','local_width':max(10,max(p.x+r['_geometry']['width'] for p,r in zip(positions,rows))+.5),'local_height':max(10,top-bottom+.5)}
@@ -74,7 +77,8 @@ def verify_fragments(data,prepared,number):
             if len(appearances)!=1 or appearances[0]['type']!=0 or abs(appearances[0]['opacity']-row['opacity'])>1e-6:raise DocumentError('La apariencia del texto mixto no se pudo verificar.')
 
 
-def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,runs):
+def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,runs,explicit_order=False):
+    if type(explicit_order) is not bool:raise DocumentError('El orden explícito debe ser verdadero o falso.')
     if not isinstance(text,str) or not text.strip() or len(text)>4000 or any((ord(c)<32 and c!='\n') or ord(c)==127 or unicodedata.bidirectional(c) in {'R','AL','AN'} for c in text):raise DocumentError('Usa hasta 4000 caracteres compatibles y sin controles o escritura RTL.')
     if type(number) is not int or not finite(width) or not finite(height) or not 10<=width<=2000 or not 10<=height<=2000:raise DocumentError('Página, ancho o alto del párrafo no válidos.')
     if not isinstance(identifiers,list) or not 1<=len(identifiers)<=100 or any(not isinstance(i,str) for i in identifiers) or len(set(identifiers))!=len(identifiers) or identifiers[0]!=identifier:raise DocumentError('Selecciona todos los grupos del párrafo en orden.')
@@ -86,7 +90,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         page=doc[number];rotation=page.rotation;page.set_rotation(0);region=f.Rect(box[0],box[1],box[0]+box[2],box[1]+box[3]);_,all_rows=native_model(doc,number,page.rect)
         chosen={r['id']:r for r in all_rows if r['id'] in identifiers}
         if len(chosen)!=len(identifiers):raise DocumentError('La selección de grupos está obsoleta.')
-        rows=compatible([chosen[i] for i in identifiers]);first=rows[0]
+        rows=compatible([chosen[i] for i in identifiers],sort=not explicit_order);first=rows[0]
         if [r['id'] for r in rows]!=identifiers or any(not (region+(-.1,-.1,.1,.1)).contains(f.Rect(r['bbox'])) for r in rows):raise DocumentError('La región corta el párrafo o cambia su orden.')
         objects={r['_text_object'] for r in rows}
         full=[r for r in all_rows if r['_text_object'] in objects and r['_native_path']==first['_native_path']]
@@ -126,3 +130,23 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         check[number].set_rotation(0);_,remaining=native_model(check,number,check[number].rect)
         if original_untouched-Counter(stable_key(r) for r in remaining):raise DocumentError('La comprobación detectó cambios en otro texto. No se publicó el párrafo.')
     return data,report
+
+
+def inspect_selection(base,ops,number,selection):
+    if type(number) is not int or not isinstance(selection,list) or not 1<=len(selection)<=100:raise DocumentError('Selecciona de 1 a 100 textos en una página.')
+    with open_pdf(base) as source:editable(source)
+    with open_pdf(export_pdf(base,ops)) as doc:
+        if not 0<=number<len(doc):raise DocumentError('Página no válida.')
+        page=doc[number];page.set_rotation(0)
+        if doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null':raise DocumentError('La selección de párrafos etiquetados necesita revisión estructural.')
+        _,all_rows=native_model(doc,number,page.rect);chosen=[]
+        for ref in selection:
+            if not isinstance(ref,dict) or set(ref)!={'origin','text'} or not isinstance(ref['origin'],list) or len(ref['origin'])!=2 or any(not finite(v) for v in ref['origin']) or not isinstance(ref['text'],str):raise DocumentError('Referencia de selección no válida.')
+            matches=[r for r in all_rows if r['origin']==ref['origin'] and r['text']==ref['text']]
+            if len(matches)!=1 or matches[0]['id'] in {r['id'] for r in chosen}:raise DocumentError('Selección repetida, ambigua u obsoleta.')
+            chosen.append(matches[0])
+        rows=compatible(chosen,sort=False);objects={r['_text_object'] for r in rows};path=rows[0]['_native_path']
+        full=[r for r in all_rows if r['_text_object'] in objects and r['_native_path']==path]
+        if {r['id'] for r in full}!={r['id'] for r in rows}:raise DocumentError('Selecciona también los otros fragmentos de esos objetos. No se añade texto sin tu selección.')
+        result=inspect_rows(rows,continuous=False);result['explicit_selection']=True
+        return result

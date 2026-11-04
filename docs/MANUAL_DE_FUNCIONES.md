@@ -1117,3 +1117,9 @@ En el etiquetado inicial, un objeto **Lbl** precede a su cuerpo **LI**. Las celd
 La relación de pendientes técnicos está en [el plan](PLAN_ACTUAL.md): edición/composición avanzadas, reparación/accesibilidad general, XFA y scripts generales, fidelidad OCR/Office general, TSA/LT/LTA y estándares avanzados, curvas/carpetas/OCG complejos, distribución Windows y servicios remotos/IA. Una entrada de este manual no acredita todas las variantes comerciales de la función.
 
 La entrega final incluirá ejecutable instalable o portable de Windows, esta guía actualizada, notas de compatibilidad y resultados de comprobaciones técnicas. **La revisión personal queda al final y no detiene implementaciones independientes.**
+
+### Selección explícita para redistribuir texto
+
+Desde Editar texto sobre la página, pulsa Seleccionar varios bloques. El primero queda seleccionado; pulsa otros textos para añadirlos o quitarlos. Redistribuir selección abre el párrafo siguiendo el orden de tus elecciones. Cambiar selección permite volver sin empezar desde cero; avisa si descarta un borrador. Cancelar selección conserva el documento.
+
+Solo admite objetos completos y paralelos de una misma ruta y página; referencias incompletas, repetidas, obsoletas o incompatibles se rechazan. Los fragmentos no elegidos no se añaden automáticamente.

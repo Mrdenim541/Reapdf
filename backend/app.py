@@ -188,6 +188,9 @@ async def import_set(file:UploadFile):
 async def inspect_inline_block(doc_id:str,request:Request):
     from .original_reflow import inspect
     p=await read_payload(request)
+    if 'selection' in p:
+        from .affine_mixed_reflow import inspect_selection
+        return await run_in_threadpool(inspect_selection,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p['selection'])
     return await run_in_threadpool(inspect,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('origin'),p.get('text'))
 
 @app.post('/api/documents/{doc_id}/reflow-original')
@@ -203,7 +206,7 @@ async def reflow_original(doc_id:str,request:Request):
 async def reflow_affine(doc_id:str,request:Request):
     from .affine_reflow import reflow
     p=await read_payload(request)
-    result=await run_in_threadpool(reflow,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('id'),p.get('text'),p.get('width'),p.get('height'),p.get('preview') is True,p.get('ids'),p.get('runs'))
+    result=await run_in_threadpool(reflow,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('id'),p.get('text'),p.get('width'),p.get('height'),p.get('preview') is True,p.get('ids'),p.get('runs'),p.get('explicit_order',False))
     if p.get('preview') is True:return result
     data,report=result
     return {**store_document(data),'reflow_report':report}
