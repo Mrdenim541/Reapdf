@@ -12,49 +12,49 @@
       "id": "annotations",
       "status": "partial",
       "description": "Anotaciones individuales y selección múltiple",
-      "remaining": "Transformación de resaltados importados, grupos persistentes y corpus de fabricantes."
+      "remaining": "Transformación de resaltados importados, FreeText/llamadas y apariencias avanzadas, tipos XFDF restantes, mezcla de grupos y corpus externo. RT=Group compatible en la misma página ya incorporado; no repetirlo como totalmente ausente."
     },
     {
       "id": "text_editing",
       "status": "partial",
       "description": "Edición de texto general",
-      "remaining": "Fuentes/ejes e instancias no predeterminados, CFF2 crudo, Type3 fuera del subconjunto vectorial/bitmap y matrices verificado; reflujo mixto fuera del subconjunto de objetos completos paralelos/opacos y con selección explícita entre rutas compatibles; transformaciones no paralelas, redistribución/paginación automática general y cambios de fuente generales, composición especial y reparación semántica. Edición sobre página, párrafo mixto en caja única con aplicación directa/undo de estilos y Type3 con matrices diagonales/traslación y bitmaps/máscaras acotados ya incorporados. Continuación nativa explícita entre otras páginas ya incorporada para objetos completos paralelos/opacos. Corpus externo y cierre general siguen pendientes."
+      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo no paralelo/composición y espaciados restantes, cambio general de fuente, etiquetas/ActualText/Stm o mezcla etiquetada general, imágenes inline/etiquetadas/OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada."
     },
     {
       "id": "office_conversion",
       "status": "partial",
       "description": "Conversión Office",
-      "remaining": "Saltos de sección continuos/pares/impares, columnas, campos fuera de PAGE/NUMPAGES/SECTIONPAGES y estructuras complejas; corpus y contraste visual Office. PAGE/NUMPAGES simples/complejos en encabezados/pies, inicio/formato de numeración, etiquetas PDF y tablas con combinaciones rectangulares ya implementados con límites y revisión. Secciones con salto a página siguiente conservan papel/márgenes/encabezados, continuidad/reinicio y etiquetas; SECTIONPAGES y saltos manuales implementados en 0.42."
+      "remaining": "Importación Word por lotes y saltos de sección par/impar con numeración ya incorporados. Quedan secciones continuas/columnas, campos y fidelidad Office general, OCR con esquinas/bajo contraste/idiomas y tablas irregulares/curvas/multilínea generales, notas Word partidas o con marcas fuera de fragmentos consecutivos compatibles y corpus externo."
     },
     {
       "id": "complex_redaction",
       "status": "partial",
       "description": "Censura de estructuras complejas",
-      "remaining": "Contenido marcado, Form XObjects, recursos compartidos y corpus OCR complejo."
+      "remaining": "Reconstrucción raster completa incorporada como alternativa explícita con pérdidas. Quedan censura nativa sin pérdida de estructuras complejas (Forms compartidos, marcado/composición) y corpus OCR externo; proteger un caso no lo completa."
     },
     {
       "id": "advanced_signatures",
       "status": "partial",
       "description": "Validación avanzada de firmas",
-      "remaining": "Revocación por red/histórica, conservación LT/LTA y renovación de archivo. Firmas P12, solicitudes RFC3161, DocTimeStamp, revocación local de firmantes/TSA y conservación DSS local básica incorporadas con límites; no acreditan cierre general."
+      "remaining": "Revocación por red/histórica, PAdES-LT/LTA y renovación de archivo, certificados/DocMDP/FieldMDP protegidos e interoperabilidad externa. Firmas P12, RFC3161/DocTimeStamp, revocación local y conservación DSS local compatibles ya incorporados."
     },
     {
       "id": "semantic_accessibility",
       "status": "partial",
       "description": "Accesibilidad semántica",
-      "remaining": "Reparación general de etiquetas/MCID/tablas y aceptación asistiva. Alternativas, orden entre hermanos y Scope de encabezados TH existentes compatibles incorporados; no certifica PDF/UA."
+      "remaining": "Reparación compatible de rol/RowSpan/ColSpan/Scope de tablas existentes, conservación de identidad de nodos iguales al guardar y edición de un fragmento nativo etiquetado incorporadas. Quedan semántica general/mixta interna de Forms, imágenes inline/recortes, enlaces ambiguos/listas/celdas complejas, ActualText/Stm y reparación general/PDF/UA. El texto nuevo no se etiqueta automáticamente. Lector de pantalla e interoperabilidad externos pendientes."
     },
     {
       "id": "automation",
       "status": "partial",
       "description": "Automatización de flujos generales",
-      "remaining": "Revisiones con códigos cambiados, lotes mayores y corpus real; rangos por paso, OCR en recetas, Office por lotes y planificación. Anclas manuales, vinculación configurable, ambigüedades, persistencia, PDF enlazado y revisión explícita de destinos ya incorporados."
+      "remaining": "Revisiones con identificadores cambiados, rangos por paso, OCR en recetas, Word por lotes y programación persistente local ya incorporados. Quedan corpus amplio, lotes mayores y flujos profesionales fuera de las acciones declarativas. La programación requiere aplicación abierta, ejecuta vencidas al reiniciar y marca las interrumpidas; no servicio siempre activo ni contraseñas persistidas."
     },
     {
       "id": "windows_execution",
       "status": "partial",
       "description": "Ejecutable propio en Windows",
-      "remaining": "24 recorridos desde fuente en Linux y Windows Server 2025, y dos aperturas independientes del ejecutable con edición básica y espaciado/continuación, verificados en c6de8ff. Pendientes Windows cliente limpio, DPI/asociaciones, impresión física, recuperación/carga y paquete final del alcance completo; intermitencias históricas sin causa confirmada."
+      "remaining": "28 recorridos desde fuente en Linux/Windows Server 2025 y tres aperturas independientes de Reapdf.exe (básica, espaciado/continuación y paginación automática), además de tarea programada real dentro del paquete, comprobados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga y recuperación sostenidas, migración del recorrido histórico extendido y aceptación personal al final. Intermitencias históricas sin causa demostrada."
     },
     {
       "id": "independent_corpus",
@@ -66,7 +66,7 @@
       "id": "advanced_forms",
       "status": "partial",
       "description": "Formularios avanzados",
-      "remaining": "XFA, JavaScript/acciones generales, variantes XFDF y corpus real. Aritmética y Math.abs/round/floor/ceil/min/max/resto compatibles ya incorporados como analizador restringido, conservando acciones nativas. Grafos mixtos con reglas de proyecto y transformaciones restantes requieren ampliación."
+      "remaining": "Condicionales numéricos, comparaciones y lógica acotada, aritmética y Math compatibles ya incorporados como analizador restringido. Quedan XFA, JavaScript/acciones/validadores generales, fórmulas fuera de su gramática, fuentes no compatibles, grafos mixtos con reglas de proyecto e interoperabilidad externa."
     },
     {
       "id": "image_compression",

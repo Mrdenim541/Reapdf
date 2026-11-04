@@ -1,4 +1,4 @@
-> Documento histórico: esta matriz contiene estados antiguos que ya no describen todas las capacidades actuales. Para uso del programa consulta [el manual de funciones](MANUAL_DE_FUNCIONES.md), contrastado con las 73 herramientas del catálogo actual. Para pendientes técnicos consulta [el plan vigente](PLAN_ACTUAL.md). Ninguna guía declara por sí sola un cierre al 100 %.
+> Documento histórico: esta matriz contiene estados antiguos que ya no describen todas las capacidades actuales. Para uso del programa consulta [el manual de funciones](MANUAL_DE_FUNCIONES.md), contrastado con las 75 herramientas del catálogo actual. Para pendientes técnicos consulta [el plan vigente](PLAN_ACTUAL.md). Ninguna guía declara por sí sola un cierre al 100 %.
 
 # Matriz funcional inicial
 

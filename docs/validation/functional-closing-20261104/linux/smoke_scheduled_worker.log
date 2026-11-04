@@ -1,0 +1,1 @@
+PASS: scheduled PDF work runs in its own actual process; forced parent exit closes its pipe, worker exits, no result is published, and restart records interruption. No unrelated process is terminated.

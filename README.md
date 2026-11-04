@@ -2,7 +2,7 @@
 
 [Manual de funciones](docs/MANUAL_DE_FUNCIONES.md): acceso, pasos, resultado esperado y límites de cada herramienta. Revisión personal aplazada hasta después de la entrega técnica final; sin paquetes intermedios.
 
-Último trabajo interno: [trabajo integral local](docs/AVANCE_LOCAL_INTEGRAL_20261104.md). 4.229 pruebas Python, 140 JavaScript y 24 recorridos Qt en Linux/Windows; dos recorridos independientes del ejecutable interno comprobados en Windows Server 2025. Consulta local extractiva con referencias, sin servicios de pago. Persisten implementaciones pendientes: no es una entrega final. Estimación global registrada: 85,68 % provisional. [Plan actual](docs/PLAN_ACTUAL.md), [matriz](docs/avance-global.json) e [historial](docs/WORK_STATE.md).
+Último trabajo interno: [implementaciones y validación integral](docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md). 4397 pruebas Python, 148 JavaScript y 28 recorridos Qt en Linux/Windows; tres aperturas independientes de Reapdf.exe y tareas programadas en el paquete, comprobadas en Windows Server 2025. Edición directa densa/etiquetada compatible, paginación automática, tablas, lotes, recetas y consulta local opcional. Persisten implementaciones pendientes: no es una entrega final. Estimación global recalculada: **86,87 % provisional (≈87 %)**. [Plan actual](docs/PLAN_ACTUAL.md), [matriz](docs/avance-global.json) e [historial](docs/WORK_STATE.md).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 

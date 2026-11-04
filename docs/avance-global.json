@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "review_date": "2026-10-31",
-  "status": "provisional_verified_rfc3161_requests_document_timestamps_and_local_tsa_revocation",
+  "review_date": "2026-11-04",
+  "status": "provisional_verified_offline_workflows_and_dense_tagged_editing",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 85.68,
-  "reported_percent": 86,
+  "weighted_percent": 86.87,
+  "reported_percent": 87,
   "subjective_range_percent": [
     62,
     87
@@ -164,9 +164,11 @@
         "docs/validation/paths-curves-notes-20261104/results.json",
         "docs/CONTINUACION_NATIVA_20261104.md",
         "docs/validation/native-continuation-20261104/results.json",
-        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md"
+        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md",
+        "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
+        "docs/validation/functional-closing-20261104/results.json"
       ],
-      "remaining": "Tc/Tw/TJ compatibles en párrafo mixto y continuación ya incorporados; quedan otros espaciados/composición especiales y los demás límites documentados. Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con recursos/matrices/filtros fuera del subconjunto vectorial y bitmap verificado, reflujo mixto con transformaciones no paralelas, bloques incompatibles, redistribución/paginación automática general, composición/espaciado especial, etiquetas y cambio de fuente generales; la selección explícita entre rutas y continuación explícita entre páginas de objetos completos paralelos/opacos ya están incorporadas; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
+      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo no paralelo/composición y espaciados restantes, cambio general de fuente, etiquetas/ActualText/Stm o mezcla etiquetada general, imágenes inline/etiquetadas/OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada."
     },
     {
       "id": "annotations",
@@ -191,7 +193,7 @@
     {
       "id": "forms",
       "weight": 6,
-      "maturity": 91,
+      "maturity": 93,
       "evidence": [
         "backend/form_import.py",
         "backend/form_calculations.py",
@@ -209,14 +211,16 @@
         "scripts/smoke_native_calcs_notes_qt.py",
         "docs/AVANCE_CUATRO_BLOQUES_20261030.md",
         "tests/test_four_blocks.py",
-        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md"
+        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md",
+        "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
+        "docs/validation/functional-closing-20261104/results.json"
       ],
-      "remaining": "Math.abs/round/floor/ceil/min/max y resto compatibles ya incorporados sin ejecutar JS general. XFA, JavaScript general, otras acciones/validadores y fórmulas fuera del subconjunto; fuentes no compatibles, grafos mixtos con reglas del proyecto y corpus externo. Horas/formatos especiales y aritmética nativa explícita + - * / incorporados; no equivalen al runtime ECMAScript completo."
+      "remaining": "Condicionales numéricos, comparaciones y lógica acotada, aritmética y Math compatibles ya incorporados como analizador restringido. Quedan XFA, JavaScript/acciones/validadores generales, fórmulas fuera de su gramática, fuentes no compatibles, grafos mixtos con reglas de proyecto e interoperabilidad externa."
     },
     {
       "id": "ocr_conversion",
       "weight": 9,
-      "maturity": 96.5,
+      "maturity": 97,
       "evidence": [
         "backend/ocr.py",
         "backend/docx_import.py",
@@ -248,14 +252,16 @@
         "tests/test_affine_perspective_revocation.py",
         "docs/OBJETOS_CURVAS_Y_NOTAS_20261104.md",
         "docs/validation/paths-curves-notes-20261104/results.json",
-        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md"
+        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md",
+        "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
+        "docs/validation/functional-closing-20261104/results.json"
       ],
-      "remaining": "Marcas en runs consecutivos con estilo de referencia compatibles ya incorporadas; quedan límites estructurales y otros casos documentados. Esquinas generales/bajo contraste, tablas en perspectiva/irregulares/multilínea, otros idiomas y fidelidad Office general; notas partidas/reinicio por página de notas finales y marcas fuera de los runs consecutivos compatibles o a través de límites estructurales; marca en un fragmento adyacente compatible ya incorporada. Reinicio por página de notas al pie compatibles ya incorporado con convergencia y enlaces. Perspectiva convexa con OCR/revisión ya incorporada; siguen tablas irregulares/curvas/multilínea generales."
+      "remaining": "Importación Word por lotes y saltos de sección par/impar con numeración ya incorporados. Quedan secciones continuas/columnas, campos y fidelidad Office general, OCR con esquinas/bajo contraste/idiomas y tablas irregulares/curvas/multilínea generales, notas Word partidas o con marcas fuera de fragmentos consecutivos compatibles y corpus externo."
     },
     {
       "id": "security_signatures",
       "weight": 7,
-      "maturity": 77,
+      "maturity": 80,
       "evidence": [
         "backend/digital_signatures.py",
         "backend/redaction.py",
@@ -271,9 +277,11 @@
         "tests/test_timestamp_requests.py",
         "scripts/smoke_timestamp_qt.py",
         "docs/SELLOS_RFC3161_Y_REVOCACION_TSA_20261031.md",
-        "docs/validation/tsa-workflows-20261031/results.json"
+        "docs/validation/tsa-workflows-20261031/results.json",
+        "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
+        "docs/validation/functional-closing-20261104/results.json"
       ],
-      "remaining": "Revocación por red e histórica, conservación PAdES-LT/LTA y renovación de archivo; variantes certificadas/DocMDP/FieldMDP protegidas, censura compleja y PDF/X/preflight avanzado. Interoperabilidad con TSA y lectores externos pendiente. Solicitud RFC3161, DocTimeStamp básico y revocación TSA local incorporados; no equivalen a conservación de archivo. Diagnóstico acotado de colores declarados en Forms, tintas planas y sobreimpresión aplicada incorporado; no certifica PDF/X."
+      "remaining": "Censura mediante reconstrucción raster completa incorporada como alternativa explícita con pérdidas, no censura nativa universal. Quedan revocación por red/histórica, PAdES-LT/LTA y renovación de archivo; certificaciones/DocMDP/FieldMDP protegidas, censura nativa compleja sin pérdida y PDF/X/preflight. RFC3161, DocTimeStamp básico, revocación local y DSS local básico ya incorporados; no equivalen a archivo LT/LTA."
     },
     {
       "id": "standards_optimization",
@@ -290,7 +298,7 @@
     {
       "id": "accessibility",
       "weight": 3,
-      "maturity": 91,
+      "maturity": 93,
       "evidence": [
         "backend/accessibility.py",
         "backend/structure_editing.py",
@@ -312,14 +320,16 @@
         "scripts/smoke_extended_workflows.mjs",
         "scripts/smoke_extended_workflows_qt.py",
         "backend/structure_scope.py",
-        "tests/test_structure_scope.py"
+        "tests/test_structure_scope.py",
+        "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
+        "docs/validation/functional-closing-20261104/results.json"
       ],
-      "remaining": "Semántica general/mixta interna de Forms, imágenes inline/recortes, enlaces ambiguos, otros modelos de lista, semántica interna compleja de celdas con imágenes/composición no cubierta, reparación general y PDF/UA. Lector de pantalla/aceptación externos pendientes. Lbl separados y celdas vacías revisadas ya incorporados. Scope de TH existentes y texto mixto compatible ya incorporados."
+      "remaining": "Reparación compatible de rol/RowSpan/ColSpan/Scope de tablas existentes, conservación de identidad de nodos iguales al guardar y edición de un fragmento nativo etiquetado incorporadas. Quedan semántica general/mixta interna de Forms, imágenes inline/recortes, enlaces ambiguos/listas/celdas complejas, ActualText/Stm y reparación general/PDF/UA. El texto nuevo no se etiqueta automáticamente. Lector de pantalla e interoperabilidad externos pendientes."
     },
     {
       "id": "automation_linking",
       "weight": 9,
-      "maturity": 90,
+      "maturity": 94,
       "evidence": [
         "backend/automation.py",
         "backend/batch_tools.py",
@@ -331,9 +341,11 @@
         "tests/test_revision_quick_spacing.py",
         "web/src/manual-links.jsx",
         "tests/test_manual_document_links.py",
-        "scripts/smoke_scaled_manual.mjs"
+        "scripts/smoke_scaled_manual.mjs",
+        "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
+        "docs/validation/functional-closing-20261104/results.json"
       ],
-      "remaining": "Corpus real amplio y aceptación personal, revisiones con identificadores cambiados, lotes mayores y automatizaciones profesionales restantes. Áreas manuales, persistencia, compilación y remarcado explícito en revisión incorporados."
+      "remaining": "Revisiones con identificadores cambiados, rangos por paso, OCR en recetas, Word por lotes y programación persistente local ya incorporados. Quedan corpus amplio, lotes mayores y flujos profesionales fuera de las acciones declarativas. La programación requiere aplicación abierta, ejecuta vencidas al reiniciar y marca las interrumpidas; no servicio siempre activo ni contraseñas persistidas."
     },
     {
       "id": "desktop_distribution",
@@ -362,9 +374,11 @@
         "scripts/verify_portable_windows.py",
         "scripts/smoke_packaged_window.mjs",
         "docs/IMAGENES_Y_EJECUTABLE_20261031.md",
-        "docs/validation/images-executable-20261031/results.json"
+        "docs/validation/images-executable-20261031/results.json",
+        "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
+        "docs/validation/functional-closing-20261104/results.json"
       ],
-      "remaining": "Windows cliente limpio, DPI/asociaciones/impresión física, recuperación empaquetada y estabilidad/carga sostenida, migración del recorrido histórico extendido y aceptación personal al final. El paquete interno con Reapdf.exe y Python 3.13.16 ya pasó arranque Qt, edición sobre página, deshacer/rehacer, exportación y cierre en Windows Server 2025; veinticuatro recorridos desde fuente también pasaron en Windows/Linux. No acredita cierre técnico de todo el producto."
+      "remaining": "28 recorridos desde fuente en Linux/Windows Server 2025 y tres aperturas independientes de Reapdf.exe (básica, espaciado/continuación y paginación automática), además de tarea programada real dentro del paquete, comprobados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga y recuperación sostenidas, migración del recorrido histórico extendido y aceptación personal al final. Intermitencias históricas sin causa demostrada."
     },
     {
       "id": "migration_interoperability",
@@ -395,7 +409,7 @@
     {
       "id": "performance_reliability",
       "weight": 4,
-      "maturity": 77.5,
+      "maturity": 79,
       "evidence": [
         "backend/projects.py",
         "portable/native_save.py",
@@ -405,9 +419,11 @@
         "backend/document_sets.py",
         "scripts/smoke_parent_exit.py",
         "scripts/check_desktop_candidate.py",
-        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md"
+        "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md",
+        "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
+        "docs/validation/functional-closing-20261104/results.json"
       ],
-      "remaining": "Carga sostenida y memoria de corpus grande, pérdida de energía, borradores y estrés/recuperación Windows. Corregido el aborto al finalizar tras carga fallida en Qt Linux; sondeo Windows aún pendiente allí."
+      "remaining": "Contexto nativo denso indexado y conversiones programadas en proceso propio con finalización al morir el padre incorporados. Quedan carga/memoria sostenida con corpus grande, pérdida de energía, estrés de borradores y recuperación en Windows cliente. No se infiere estabilidad universal de los recorridos aprobados."
     },
     {
       "id": "measurement",
@@ -439,7 +455,7 @@
     {
       "id": "portfolios_layers",
       "weight": 3,
-      "maturity": 87,
+      "maturity": 90,
       "evidence": [
         "backend/pro_tools.py",
         "docs/FUNCIONES.md",
@@ -456,9 +472,11 @@
         "tests/test_portfolio_metadata.py",
         "docs/ENTREGA_TECNICA_Y_GUIA_20261031.md",
         "docs/validation/delivery-guide-windows-20261031/results.json",
-        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md"
+        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md",
+        "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
+        "docs/validation/functional-closing-20261104/results.json"
       ],
-      "remaining": "Columnas nativas derivadas de nombre/descripcion/tamaño declarado/fechas ya incorporadas como solo lectura. Carpetas y variantes complejas de esquema de portfolio; tipos/valores/columnas protegidos restantes, OCG con reglas automáticas AS/uso/estados complejos y edición de contenido de capas. Interoperabilidad externa pendiente. Configuraciones básicas y metadatos S/N/D editables de esquemas existentes incorporados. Diseño compatible de columnas S/N/D (crear, renombrar, ordenar y retirar) ya incorporado, sin conversión automática de tipos existentes."
+      "remaining": "Preferencias nativas Print/Export y resolución temporal de Print compatibles incorporadas; Export permanece preferencia del lector y no filtro del guardado. Quedan carpetas/esquemas complejos y tipos/valores restantes de portfolio, AS View/Zoom/Language y reglas OCG generales, edición de contenido de capas e interoperabilidad externa."
     },
     {
       "id": "collaboration_services",
@@ -472,14 +490,16 @@
     {
       "id": "ai_assistance",
       "weight": 1,
-      "maturity": 0,
+      "maturity": 25,
       "evidence": [
         "docs/FUNCIONES.md",
         "backend/local_assistant.py",
         "tests/test_local_assistant.py",
-        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md"
+        "docs/AVANCE_LOCAL_INTEGRAL_20261104.md",
+        "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
+        "docs/validation/functional-closing-20261104/results.json"
       ],
-      "remaining": "Consulta extractiva local con referencias implementada, no generativa. No se reevalúa aún su madurez como IA; faltan motor/modelo local, licencia, recursos y evaluación para asistencia generativa."
+      "remaining": "Consulta extractiva local y adaptador opcional Ollama loopback sin descargas/acciones y con rechazo Cloud incorporados. Protocolo simulado comprobado; faltan selección/distribución con licencia, recursos y evaluación de un modelo real local. No hay validación factual automática de respuestas ni modelo empaquetado."
     }
   ],
   "completion_gates": [
@@ -497,24 +517,74 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261031-before-tsa.json",
-    "before_weighted": 85.26,
-    "before_unrounded": "85.2575",
-    "after_weighted": 85.68,
-    "new_points": 0.42,
-    "unrounded_delta": "0.4200",
-    "unrounded_after_weighted": "85.6775",
+    "baseline": "docs/progress/20261104-before-functional-closing.json",
+    "before_weighted": 85.68,
+    "before_unrounded": "85.6775",
+    "after_weighted": 86.87,
+    "new_points": 1.19,
+    "unrounded_delta": "1.1950",
+    "unrounded_after_weighted": "86.8725",
     "changes": [
       {
+        "id": "forms",
+        "before": 91,
+        "after": 93,
+        "points": 0.12,
+        "reason": "Condicionales numéricos, comparaciones y lógica acotada en acciones de cálculo PDF nativas, con evaluación perezosa y conservación tras guardar. No XFA ni JavaScript general."
+      },
+      {
+        "id": "ocr_conversion",
+        "before": 96.5,
+        "after": 97,
+        "points": 0.045,
+        "reason": "Importación Word por lotes con resultados atómicos y saltos de sección par/impar con numeración coherente. No fidelidad Office general ni todos los idiomas."
+      },
+      {
         "id": "security_signatures",
-        "before": 71,
-        "after": 77,
-        "points": 0.42,
-        "reason": "Solicitud RFC3161 con nonce/huella/confianza, firma con token, DocTimeStamp incremental, revocación TSA local CRL/OCSP y recorrido nativo con cancelación/reintento sin nueva solicitud. Sin crédito por LT/LTA, proveedor real o validación histórica."
+        "before": 77,
+        "after": 80,
+        "points": 0.21,
+        "reason": "Alternativa explícita de censura mediante reconstrucción raster completa, sin copiar objetos ni metadatos originales. Tiene pérdida de texto/tags/formularios; no recibe crédito por LT/LTA ni censura nativa universal."
+      },
+      {
+        "id": "accessibility",
+        "before": 91,
+        "after": 93,
+        "points": 0.06,
+        "reason": "Reparación transaccional de rol, RowSpan, ColSpan y Scope de tablas existentes; edición nativa de un fragmento etiquetado compatible y conservación de identidad de celdas vacías al guardar. No reparación general ni PDF/UA."
+      },
+      {
+        "id": "automation_linking",
+        "before": 90,
+        "after": 94,
+        "points": 0.36,
+        "reason": "OCR y rangos por paso, planificación persistente local con proceso propio y remapeo explícito de identificadores cambiados en revisiones. No servicio siempre activo, lotes ilimitados ni automatización arbitraria."
+      },
+      {
+        "id": "performance_reliability",
+        "before": 77.5,
+        "after": 79,
+        "points": 0.06,
+        "reason": "Indexación del contexto nativo para páginas densas e aislamiento de conversiones programadas en proceso propio que termina al morir el padre. No se certifica carga sostenida ni pérdida de energía."
+      },
+      {
+        "id": "portfolios_layers",
+        "before": 87,
+        "after": 90,
+        "points": 0.09,
+        "reason": "Preferencias nativas Print/Export compatibles y copia temporal de impresión resuelta. No carpetas de portfolio ni reglas OCG generales."
+      },
+      {
+        "id": "ai_assistance",
+        "before": 0,
+        "after": 25,
+        "points": 0.25,
+        "reason": "Consulta extractiva local con referencias y adaptador opcional Ollama exclusivamente loopback, sin descargas ni acciones y con rechazo de modelos Cloud. Solo protocolo simulado probado; no hay modelo real distribuido ni calidad generativa validada."
       }
     ],
     "all_weights_and_scope_unchanged": true,
-    "no_credit_for_documentation_or_ci_preparation": true
+    "no_credit_for_documentation_or_ci_preparation": true,
+    "desktop_maturity_unchanged_for_additional_checks": true
   },
   "technical_complete": false,
   "delivery_policy": {
@@ -537,33 +607,35 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "c6de8ff99a836899f7884bdaf28d1ddddf888778",
+    "source_commit": "51ffe62b32f12d2e1c414e9c2c44285505c02ad4",
     "linux": {
-      "checks": 24,
-      "evidence": "docs/validation/ordered-local-20261104/linux/desktop-report.json"
+      "checks": 28,
+      "evidence": "docs/validation/functional-closing-20261104/linux/desktop-report.json"
     },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 24,
-      "evidence": "docs/validation/ordered-local-20261104/windows/assessment.json"
+      "checks": 28,
+      "evidence": "docs/validation/functional-closing-20261104/windows/assessment.json"
     },
     "packaged_executable_verified": true,
-    "compiled_gui_independent_runs": 2,
-    "packaged_scope": "Edición básica y párrafo con espaciado/continuación entre páginas, undo/redo/exportación/cierre. No Windows cliente/DPI/impresión física/carga sostenida ni corrección acreditada de intermitencias."
+    "compiled_gui_independent_runs": 3,
+    "packaged_scope": "Edición básica, párrafo con espaciado/continuación y paginación automática; tarea programada real en proceso propio incluido. No Windows cliente/DPI/impresión física/carga sostenida ni corrección demostrada de intermitencias."
   },
   "last_implementation": {
     "date": "2026-11-04",
-    "evidence": "docs/validation/ordered-local-20261104/results.json",
+    "evidence": "docs/validation/functional-closing-20261104/results.json",
     "features": [
-      "Tc/Tw/TJ en párrafo mixto y continuación",
-      "Scope de TH existente",
-      "Math nativo restringido",
-      "Notas Word con marcas en runs consecutivos",
-      "Diagnóstico Form/tintas/sobreimpresión",
-      "Columnas derivadas de portfolio",
-      "Consulta extractiva local con referencias, no generativa",
-      "Ejecutable Windows con recorrido adicional de espaciado/continuación"
+      "Edición nativa densa y etiquetada compatible",
+      "Paginación automática compatible",
+      "Reparación de tablas existentes",
+      "Cálculos condicionales numéricos",
+      "Word par/impar y lotes",
+      "OCR/rangos por paso y programación local aislada",
+      "Censura raster explícita",
+      "Revisiones con códigos cambiados",
+      "Preferencias Print/Export de capas",
+      "Adaptador opcional Ollama exclusivamente local"
     ],
-    "global_estimate_recalculated": false
+    "global_estimate_recalculated": true
   }
 }

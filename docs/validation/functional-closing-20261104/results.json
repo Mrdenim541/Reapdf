@@ -1,0 +1,49 @@
+{
+  "source_commit": "51ffe62b32f12d2e1c414e9c2c44285505c02ad4",
+  "python": {
+    "passed": 4397,
+    "warnings": 3,
+    "seconds": 682.47,
+    "net_test_count_increase_from_previous_4229": 168
+  },
+  "javascript": {
+    "passed": 148
+  },
+  "build": true,
+  "manual": {
+    "tools": 75,
+    "general_operations": 15
+  },
+  "linux": {
+    "checks": 28,
+    "passed": true,
+    "clean_before_after": true
+  },
+  "windows": {
+    "run": "41865765763-1",
+    "checks": 28,
+    "assessment": "windows/assessment.json",
+    "compiled_gui_independent_runs": 3,
+    "basic_spacing_continuation_and_automatic_pagination": true,
+    "packaged_owned_recipe_worker": true,
+    "platform": "Windows Server 2025"
+  },
+  "private_user_pdf": {
+    "actual_qt_mouse_and_caret_edit": true,
+    "click_to_type_insert": true,
+    "native_save_and_editable_reopen": true,
+    "original_unchanged": true,
+    "other_text_geometry_and_style_unchanged": true,
+    "paragraph_context_opened": true,
+    "private_paragraph_reflow_applied": false,
+    "raw_personal_data_archived": false
+  },
+  "global_estimate": 86.87,
+  "technical_complete": false,
+  "accepted_complete": false,
+  "physical_print_verified": false,
+  "windows_client_verified": false,
+  "real_local_model_quality_verified": false,
+  "package_delivered": false,
+  "user_tests_requested": false
+}
