@@ -1,4 +1,5 @@
 """Conversión local entre imágenes y PDF con límites explícitos de resolución."""
+from .engine import pdf_garbage
 import base64
 from io import BytesIO
 import math
@@ -34,7 +35,7 @@ def images_to_pdf(images, paper='A4', dpi=150, margin=18):
             _,checked=prepare_image(page,{'data':base64.b64encode(data).decode(),'points':[[x,y],[x+w,y+h]]})
             # El JPEG mantiene su flujo comprimido; no se redimensionan píxeles.
             page.insert_image(fitz.Rect(x,y,x+w,y+h),stream=checked,keep_proportion=True)
-        return doc.tobytes(garbage=4,deflate=True)
+        return doc.tobytes(garbage=pdf_garbage(doc),deflate=True)
 
 
 def export_page_images(data,operations,pages,dpi=150,format='png',quality=90):

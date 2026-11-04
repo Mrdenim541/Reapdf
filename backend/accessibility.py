@@ -1,4 +1,5 @@
 """Bounded accessibility preparation and diagnostics; never manufactures tag compliance."""
+from .engine import pdf_garbage
 from io import BytesIO
 from datetime import datetime,timezone
 import hashlib,re
@@ -149,4 +150,4 @@ def prepare_accessibility(base,operations,title,language,display_title=True):
             target=catalog;key='ViewerPreferences/DisplayDocTitle'
         else:raise DocumentError('Las preferencias del visor tienen una estructura no compatible.')
         doc.xref_set_key(target,key,'true' if display_title else 'false')
-        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)

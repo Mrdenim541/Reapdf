@@ -1,4 +1,5 @@
 """Native PDF review threads and bounded, copy-permission-aware review reports."""
+from .engine import pdf_garbage
 from datetime import datetime,timezone
 from uuid import uuid4
 from io import StringIO
@@ -94,7 +95,7 @@ def edit_comment(base,operations,number,xref,action,content=None,author='',state
                 doc.xref_set_key(a.xref,'StateModel','(Review)');doc.xref_set_key(a.xref,'State',pdf_string(state))
                 a.set_flags((a.flags&~f.PDF_ANNOT_IS_PRINT)|f.PDF_ANNOT_IS_HIDDEN|f.PDF_ANNOT_IS_NO_VIEW)
             a.update()
-        result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     with open_pdf(result) as check:comment_model(check)
     return result
 

@@ -1,4 +1,5 @@
 """Creación y eliminación explícita de campos AcroForm simples."""
+from .engine import pdf_garbage
 import pymupdf as fitz
 from .engine import open_pdf,export_pdf,DocumentError,finite
 from .document_tools import editable
@@ -51,7 +52,7 @@ def create_field(base,operations,config):
             doc.xref_set_key(owner,'TU',pdf_string(formatting['label']))
             if formatting['required']:doc.xref_set_key(owner,'Ff',str(32768|2))
             apply_fill(doc,prepare_fill(doc,[{'page':number,'xref':refs[0],'value':config.get('value','')}]))
-            return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+            return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
         widget=fitz.Widget();widget.field_name=name.strip();widget.field_type={'text':fitz.PDF_WIDGET_TYPE_TEXT,'multiline':fitz.PDF_WIDGET_TYPE_TEXT,'checkbox':fitz.PDF_WIDGET_TYPE_CHECKBOX,'choice':fitz.PDF_WIDGET_TYPE_COMBOBOX}[kind]
         widget.rect=rect;widget.text_font=formatting['font'];widget.text_fontsize=formatting['size'];widget.text_color=formatting['color'];widget.border_color=formatting['border'];widget.border_width=formatting['width'];widget.border_style=formatting['style'];widget.fill_color=formatting['fill'];widget.field_label=formatting['label']
         if kind=='multiline':widget.field_flags=4096
@@ -62,7 +63,7 @@ def create_field(base,operations,config):
         # Validate the created field using exactly the same rules as imported ones.
         value=config.get('value',False if kind=='checkbox' else '')
         apply_fill(doc,prepare_fill(doc,[{'page':number,'xref':created.xref,'value':value}]))
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
 
 
 def delete_field(base,operations,number,xref):
@@ -88,7 +89,7 @@ def delete_field(base,operations,number,xref):
         else:
             roots=[r for r in _references(doc,doc.pdf_catalog(),'AcroForm/Fields') if r[0]!=node]
             set_form_key(doc,'Fields',_array(roots))
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
 
 
 def add_radio_group(doc,page,name,rect,options):

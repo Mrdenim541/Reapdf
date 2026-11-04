@@ -1,4 +1,5 @@
 """Herramientas de documento: texto, metadatos, optimización y copias cifradas."""
+from .engine import pdf_garbage
 import pymupdf as fitz
 from .engine import open_pdf,export_pdf,DocumentError
 
@@ -32,14 +33,14 @@ def metadata_pdf(base,operations,values,remove_xml=False):
     with open_pdf(export_pdf(base,operations)) as doc:
         doc.set_metadata({**doc.metadata,**values})
         if remove_xml:doc.del_xml_metadata()
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
 
 
 def optimize_pdf(base,operations):
     with open_pdf(base) as source:editable(source)
     edited=export_pdf(base,operations)
     with open_pdf(edited) as doc:
-        candidate=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True,deflate_images=True,deflate_fonts=True,use_objstms=1)
+        candidate=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True,deflate_images=True,deflate_fonts=True,use_objstms=1)
     result=candidate if len(candidate)<len(edited) else edited
     return result,{'before':len(edited),'after':len(result),'saved':len(edited)-len(result)}
 
@@ -52,7 +53,7 @@ def protect_pdf(base,operations,password,owner_password,allow_copy=True,allow_pr
         permissions=fitz.PDF_PERM_FORM|fitz.PDF_PERM_MODIFY|fitz.PDF_PERM_ANNOTATE|fitz.PDF_PERM_ASSEMBLE|fitz.PDF_PERM_ACCESSIBILITY
         if allow_copy:permissions|=fitz.PDF_PERM_COPY
         if allow_print:permissions|=fitz.PDF_PERM_PRINT|fitz.PDF_PERM_PRINT_HQ
-        return doc.tobytes(garbage=4,deflate=True,encryption=fitz.PDF_ENCRYPT_AES_256,user_pw=password,owner_pw=owner_password,permissions=permissions)
+        return doc.tobytes(garbage=pdf_garbage(doc),deflate=True,encryption=fitz.PDF_ENCRYPT_AES_256,user_pw=password,owner_pw=owner_password,permissions=permissions)
 
 
 class PasswordRequired(DocumentError):pass
@@ -70,4 +71,4 @@ def unlock_pdf(data,password=''):
         if not authorization & 4 and doc.permissions & all_rights != all_rights:
             raise PasswordRequired('Este PDF tiene restricciones. Introduce la contraseña de propietario para trabajar con una copia descifrada.')
         if doc.get_sigflags()>0:raise DocumentError('Los PDF cifrados con firmas no se descifran en esta versión.')
-        return doc.tobytes(garbage=4,deflate=True,encryption=fitz.PDF_ENCRYPT_NONE),True
+        return doc.tobytes(garbage=pdf_garbage(doc),deflate=True,encryption=fitz.PDF_ENCRYPT_NONE),True

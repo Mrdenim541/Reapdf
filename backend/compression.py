@@ -1,4 +1,5 @@
 """Controlled downsampling of RGB/gray/CMYK images, including nested forms; always a separate copy."""
+from .engine import pdf_garbage
 import hashlib
 import math
 import pymupdf as fitz
@@ -69,7 +70,7 @@ def compress_images(base,operations,dpi,quality):
                 # would invert these samples a second time.
                 doc.xref_set_key(xref,'Decode','null')
             changes.append({'pages':pages,'before':[width,height],'after':target,'source_min_dpi':round(effective,2)})
-        candidate=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True) if changes else edited
+        candidate=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True) if changes else edited
     with open_pdf(candidate) as after:
         if (original_text!=[p.get_text() for p in after]
                 or geometry!=[(tuple(p.rect),tuple(p.cropbox),p.rotation) for p in after]):

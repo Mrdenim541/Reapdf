@@ -9,9 +9,26 @@ from .engine import DocumentError
 from .pdf_content import placements
 
 
-def matching_traces(traces,text,origin):
+def trace_index(traces):
+    index={}
+    for t,trace in enumerate(traces):
+        for at,char in enumerate(trace['chars']):
+            x,y=char[2]
+            if math.isfinite(x) and math.isfinite(y):index.setdefault((char[0],math.floor(x*50),math.floor(y*50)),[]).append((t,at))
+    return index
+
+
+def matching_traces(traces,text,origin,index=None):
     result=[]
     if not text:return result
+    if index is not None:
+        x,y=origin;candidates=[]
+        for dx in [-1,0,1]:
+            for dy in [-1,0,1]:candidates.extend(index.get((ord(text[0]),math.floor(x*50)+dx,math.floor(y*50)+dy),[]))
+        for t,at in candidates:
+            trace=traces[t];sample=trace['chars'][at:at+len(text)]
+            if math.dist(trace['chars'][at][2],origin)<.02 and ''.join(chr(c[0]) for c in sample)==text:result.append({**trace,'chars':sample})
+        return result
     for trace in traces:
         chars=trace['chars']
         for at,char in enumerate(chars):
@@ -21,7 +38,7 @@ def matching_traces(traces,text,origin):
     return result
 
 
-def native_model(doc,number,rect,font_cache=None):
+def native_model(doc,number,rect,font_cache=None,*,context=False):
     from .styled_text import OriginalFont,normal_name
     page=doc[number]
     if doc.get_ocgs():raise DocumentError('El texto asociado a capas todavía requiere otra edición.')
@@ -32,6 +49,7 @@ def native_model(doc,number,rect,font_cache=None):
         from .form_text import structure
         cache['_structure']=(structure(doc,page),page.get_fonts(full=True),page.get_texttrace())
     objects,fonts,traces=cache['_structure']
+    if type(context) is not bool:raise DocumentError('Modo de inspección de texto no válido.')
     if '_obstacles' not in cache:
         from .affine_text import obstacles
         cache['_obstacles']=obstacles(page)
@@ -66,6 +84,18 @@ def native_model(doc,number,rect,font_cache=None):
         reasons=list(dict.fromkeys(cache[xref] for xref in metadata if isinstance(cache.get(xref),str)))
         detail=' '+reasons[0] if len(reasons)==1 else ''
         raise DocumentError('No se encontró una fuente original compatible en el contenido seleccionado.'+detail)
+    # Context scans protect/locate neighbors and complete objects on dense pages;
+    # they are not an editable selection. Keep the selection limit at 100 while
+    # retaining the existing hard bounds of 5000 source groups/100000 characters.
+    limit=5000 if context else 100
+    if '_trace_index' not in cache:cache['_trace_index']=trace_index(traces)
+    if '_origin_objects' not in cache:
+        origin_objects={}
+        for obj in objects:
+            if (obj['scope'],obj['font']) not in compatible:continue
+            point=obj['origin']*obj['matrix']*page.transformation_matrix
+            if all(math.isfinite(v) for v in point):origin_objects.setdefault((math.floor(point.x*50),math.floor(point.y*50)),[]).append((obj,point))
+        cache['_origin_objects']=origin_objects
     rows=[]
     from .type3_text import merge_lines,trace as type3_trace
     blocks=merge_lines(doc,page,page.get_text('rawdict',sort=True,flags=f.TEXTFLAGS_TEXT)['blocks'],objects,list(compatible.values()))
@@ -77,10 +107,13 @@ def native_model(doc,number,rect,font_cache=None):
                 text=''.join(c['c'] for c in span['chars']);reason='';font=None;native=None;spacing=None;actual_size=span['size']
                 found=[];g=None
                 from .affine_text import geometry,polygon,contains,rectangle,overlap
-                for obj in objects:
+                px,py=span['origin'];nearby=[]
+                if not math.isfinite(px) or not math.isfinite(py):raise DocumentError('La página contiene posiciones de texto no finitas; no se edita.')
+                for dx in [-1,0,1]:
+                    for dy in [-1,0,1]:nearby.extend(cache['_origin_objects'].get((math.floor(px*50)+dx,math.floor(py*50)+dy),[]))
+                for obj,origin in nearby:
                     face=compatible.get((obj['scope'],obj['font']))
                     if face is None or normal_name(span['font']) not in face.aliases:continue
-                    origin=obj['origin']*obj['matrix']*page.transformation_matrix
                     if math.dist(origin,span['origin'])>.02:continue
                     try:
                         candidate=geometry(obj,page,span)
@@ -93,7 +126,7 @@ def native_model(doc,number,rect,font_cache=None):
                     font,obj,g=found[0]
                     if not (rect+(-.05,-.05,.05,.05)).contains(bounds):raise DocumentError('La región corta este fragmento de texto.')
                     if line.get('wmode',0)!=0:raise DocumentError('La escritura vertical requiere otro tratamiento.')
-                    trace=matching_traces(traces,text,span['origin'])
+                    trace=matching_traces(traces,text,span['origin'],cache['_trace_index'])
                     if font.type=='Type3':
                         verified=type3_trace(font,span,traces)
                         trace=[verified] if verified else []
@@ -114,5 +147,5 @@ def native_model(doc,number,rect,font_cache=None):
                 row={'original_only':bool(native and (trace[0]['opacity']<1 or original_only(doc,obj))),'id':f'{bi}:{li}:{si}','text':text,'font':span['font'],'size':actual_size,'display_size':span['size'],'color':span['color'],'alpha':span.get('alpha',255),'opacity':trace[0]['opacity'] if native else None,'origin':list(span['origin']),'bbox':list(bounds),'editable':not reason,'reason':reason,'subset':bool(font and font.restricted),'method':'form-occurrence' if native and obj['path'] else 'direct-content','_font':font,'_native':native,'_spacing':spacing,'_native_path':obj['path'] if native else [],'_clips':obj['clips'] if native else [],'_obstacles':cache['_obstacles'],'_text_object':obj['object'] if native else None,'_line_matrix':list(obj['line_matrix']) if native else None,'_geometry':g if native else None,'quad':polygon(g) if g else None,'transformed':g['transformed'] if g else tuple(line['dir'])!=(1.,0.)}
                 if native is None:row.pop('_geometry')
                 rows.append(row)
-    if len(rows)>100:raise DocumentError('Hasta 100 fragmentos por región.')
+                if len(rows)>limit:raise DocumentError('Hasta 5000 fragmentos de contexto por página.' if context else 'Hasta 100 fragmentos por región.')
     return rect,rows

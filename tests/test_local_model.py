@@ -10,13 +10,13 @@ from tests.test_local_assistant import source
 
 @pytest.fixture
 def local_engine(monkeypatch):
-    state={'requests':[],'content':json.dumps({'answer':'La temperatura indicada es 25 grados [1].','citations':[1]})}
+    state={'models':[{'name':'test-local:latest'}],'show':{'details':{}},'requests':[],'content':json.dumps({'answer':'La temperatura indicada es 25 grados [1].','citations':[1]})}
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args):pass
         def do_GET(self):
-            state['requests'].append(('GET',self.path));self.send_response(200);self.end_headers();self.wfile.write(json.dumps({'models':[{'name':'test-local:latest'}]}).encode())
+            state['requests'].append(('GET',self.path));self.send_response(200);self.end_headers();self.wfile.write(json.dumps({'models':state['models']}).encode())
         def do_POST(self):
-            body=json.loads(self.rfile.read(int(self.headers['Content-Length'])));state['requests'].append(('POST',self.path,body));self.send_response(200);self.end_headers();self.wfile.write(json.dumps({'message':{'content':state['content']}}).encode())
+            body=json.loads(self.rfile.read(int(self.headers['Content-Length'])));state['requests'].append(('POST',self.path,body));self.send_response(200);self.end_headers();self.wfile.write(json.dumps(state['show'] if self.path=='/api/show' else {'message':{'content':state['content']}}).encode())
     server=HTTPServer(('127.0.0.1',0),Handler);thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start();monkeypatch.setattr(lm,'ORIGIN',f'http://127.0.0.1:{server.server_port}')
     try:yield state
     finally:server.shutdown();server.server_close();thread.join(timeout=2)
@@ -26,8 +26,8 @@ def test_loopback_protocol_cited_answer_and_no_model_pull(local_engine):
     r=lm.answer(source(),[],'temperatura','test-local:latest')
     assert r['generative'] and r['local_engine_used'] and not r['external_network_used'] and r['citations']==[1]
     assert any('25 grados' in s['text'] for s in r['sources'])
-    assert [r[1] for r in local_engine['requests']]==['/api/tags','/api/chat']
-    payload=local_engine['requests'][1][2];assert payload['stream'] is False and payload['format']=='json' and not payload.get('tools')
+    assert [r[1] for r in local_engine['requests']]==['/api/tags','/api/show','/api/chat']
+    payload=local_engine['requests'][2][2];assert payload['stream'] is False and payload['format']=='json' and not payload.get('tools')
     assert 'datos no confiables' in payload['messages'][0]['content']
     assert json.loads(payload['messages'][1]['content'])['task']=='temperatura'
 
@@ -60,3 +60,15 @@ def test_api_uses_optional_local_model(local_engine):
         doc=c.post('/api/documents',files={'file':('Example.pdf',source(),'application/pdf')}).json()
         r=c.post(f"/api/documents/{doc['id']}/local-model-answer",json={'operations':[],'model':'test-local:latest','question':'temperatura'})
         assert r.status_code==200 and r.json()['generative']
+
+
+@pytest.mark.parametrize('show',[{'remote_host':'https://ollama.com'},{'remote_model':'remote-engine'},{'details':{'remote_host':'https://ollama.com'}}])
+def test_remote_alias_is_rejected_before_any_inference(local_engine,show):
+    local_engine['show']=show
+    with pytest.raises(DocumentError,match='remoto'):lm.answer(source(),[],'temperatura','test-local:latest')
+    assert not any(row[1]=='/api/chat' for row in local_engine['requests'])
+
+
+def test_cloud_models_are_not_offered_as_local(local_engine):
+    local_engine['models']=[{'name':'test-local:latest'},{'name':'example:cloud'},{'name':'alias','remote_host':'https://ollama.com'}]
+    assert lm.models()['models']==['test-local:latest']

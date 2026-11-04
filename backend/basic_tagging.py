@@ -1,4 +1,5 @@
 """Reviewed initial direct-content tagging, including image occurrences and text links."""
+from .engine import pdf_garbage
 import hashlib,math
 import pymupdf as f
 from .engine import open_pdf,export_pdf,DocumentError
@@ -265,7 +266,7 @@ def create(base,ops,entries,language='es',reviewed=False,empty_cells=None):
         if not any(c['role']=='TH' for c in cells):raise DocumentError('Revisa al menos un encabezado TH por tabla.')
     edited=export_pdf(base,ops)
     with open_pdf(edited) as before,open_pdf(edited) as doc:
-        prepared=plans(doc);build(doc,prepared,selection,language,virtual);result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        prepared=plans(doc);build(doc,prepared,selection,language,virtual);result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
         with open_pdf(result) as saved:
             for a,b in zip(before,saved):
                 scale=min(.75,math.sqrt(4_000_000/max(1,a.rect.get_area())))

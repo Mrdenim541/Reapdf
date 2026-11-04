@@ -1,4 +1,5 @@
 """Etiquetas, adjuntos, tablas CSV y numeración Bates entre documentos."""
+from .engine import pdf_garbage
 from io import BytesIO, StringIO
 from hashlib import sha256
 import csv
@@ -37,7 +38,7 @@ def labels_pdf(base, operations, rules):
             if rule['style'] in {'R','r'} and rule['firstpagenum']+end-rule['startpage']-1>3999:raise DocumentError('Las etiquetas romanas admiten hasta 3999.')
     with open_pdf(export_pdf(base,operations)) as doc:
         write_rules(doc,rules)
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
 
 
 def attachment_info(doc,index):
@@ -75,7 +76,7 @@ def add_attachment(base,operations,name,data):
         sizes=[doc.embfile_info(i).get('size',0) for i in range(len(names))]
         if any(type(n) is not int or n<0 for n in sizes) or sum(sizes)+len(data)>32*1024*1024:raise DocumentError('Los tamaños declarados de adjuntos superan 32 MB o no son válidos.')
         doc.embfile_add(name,data,filename=name,ufilename=name,desc='Adjuntado con Reapdf')
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
 
 
 def attachment_pdf(base,operations,index):
@@ -84,7 +85,7 @@ def attachment_pdf(base,operations,index):
         normalize_embedded(doc)
         if type(index) is not int or not 0<=index<doc.embfile_count():raise DocumentError('Adjunto no encontrado.')
         doc.embfile_del(index)
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
 
 
 def download_attachment(base,index):
@@ -159,7 +160,7 @@ def bates_batch(items,prefix='',suffix='',start=1,padding=6):
             slots={key:'' for key in SLOTS};slots['bottom_right']=prefix+'{numero}'+suffix
             plan={'pages':list(range(len(doc))),'slots':slots,'start':counter,'padding':padding,'size':9,'font':'helv','color':[0,0,0],'margins':[20,24,20,24]}
             prepared=prepare_headers(doc,plan);apply_headers(doc,prepared)
-            output=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+            output=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
             first=prefix+str(counter).zfill(padding)+suffix;counter+=len(doc)
             last=prefix+str(counter-1).zfill(padding)+suffix
             filename=f'{index+1:02d}-{safe_name(name)}'

@@ -1,4 +1,5 @@
 """Copia censurada de regiones explícitas; nunca sustituye la sesión de origen."""
+from .engine import pdf_garbage
 import re
 import pymupdf as fitz
 from .engine import open_pdf,export_pdf,DocumentError,finite
@@ -57,4 +58,4 @@ def redact_pdf(base,operations,regions,method='native',dpi=200):
                 if doc.xref_get_key(xref,key)[0]!='null':doc.xref_set_key(xref,key,'null')
         for key in ['StructTreeRoot','MarkInfo','OpenAction','Collection','PieceInfo']:
             doc.xref_set_key(doc.pdf_catalog(),key,'null')
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True,clean=True)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True,clean=True)

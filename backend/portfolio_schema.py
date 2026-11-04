@@ -1,4 +1,5 @@
 """Reviewed collection schema authoring with conservative removal and stable IDs."""
+from .engine import pdf_garbage
 from uuid import uuid4
 import re
 import pymupdf as f
@@ -73,7 +74,7 @@ def configure(base,ops,columns,reviewed=False):
                 copy=n.pdf_deep_copy_obj(n.pdf_resolve_indirect(spec));ci=n.pdf_deep_copy_obj(n.pdf_resolve_indirect(ci))
                 for key in removed:n.pdf_dict_dels(ci,key)
                 n.pdf_dict_puts(copy,'CI',ci);n.pdf_array_put(names,i*2+1,copy)
-        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     with open_pdf(data) as saved:
         actual=schema(saved)
         if [(r['id'],r['label'],r['type']) for r in actual]!=[(identity,label,kind) for identity,label,kind,_ in planned]:raise DocumentError('La comprobación del diseño no coincide con las columnas guardadas.')

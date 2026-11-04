@@ -4,6 +4,7 @@ No scripts, external resources, rich text, DTDs or entities are interpreted.
 Import is additive for annotations, idempotent for identical imported records,
 and rejects a conflicting native name rather than overwriting a review.
 """
+from .engine import pdf_garbage
 import hashlib,json,re
 import xml.etree.ElementTree as E
 import pymupdf as f
@@ -258,4 +259,4 @@ def _annotations(snapshot,nodes,field_count,preview):
             if name:parent_refs[number_page,name]=a.xref
             doc.xref_set_key(a.xref,'ReapdfXFDFDigest',pdf_string(sig));digests.add(sig);report['annotations']+=1;page.set_rotation(rotation)
         if not report['annotations'] and not report['fields'] and not report['duplicates']:raise DocumentError('El XFDF no contiene anotaciones o valores compatibles.')
-        return report if preview else (doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True),report)
+        return report if preview else (doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True),report)

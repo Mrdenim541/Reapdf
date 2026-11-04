@@ -1,4 +1,5 @@
 """Measurement coordinates anchored to PDF space, bounded regional scales and snaps."""
+from .engine import pdf_garbage
 import json,math,re
 from uuid import uuid4
 import pymupdf as f
@@ -105,7 +106,7 @@ def configure_profile(base,ops,number,name=None,box=None,cal=None,identity=None,
             if 'box' in row:row={k:v for k,v in row.items() if k in ['id','name','corners','calibration']};row['calibration']=cal_to_pdf(page,row['calibration'])
             stored.append(row)
         doc.xref_set_key(page.xref,'ReapdfMeasurementScales',pdf_string(json.dumps({'version':1,'profiles':stored},ensure_ascii=False,allow_nan=False)))
-        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
 
 
 def targets(base,ops,number):

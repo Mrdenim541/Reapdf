@@ -1,4 +1,5 @@
 """Portable, hash-bound document sets with explicit, reviewable PDF anchors."""
+from .engine import pdf_garbage
 from collections import defaultdict
 from hashlib import sha256
 from io import BytesIO
@@ -215,7 +216,7 @@ def compile_pdf(items,relations,name):
         for entry in toc:
             if isinstance(entry[2],dict):r=entry[2]['target'];entry[2]=offsets[r['document']]+r['page']+1
         out.set_toc(toc);out.set_metadata({'title':name,'creator':'Reapdf','subject':'Compilación de páginas con vínculos revisados. Los originales se conservan en el conjunto Reapdf.'})
-        data=out.tobytes(garbage=4,deflate=True)
+        data=out.tobytes(garbage=pdf_garbage(out),deflate=True)
     if len(data)>MAX_SET:raise DocumentError('El PDF compilado supera 60 MB.')
     with open_pdf(data) as check:
         if len(check)!=total or sum(1 for p in check for link in p.get_links() if link['kind']==f.LINK_GOTO)<len(relations):raise DocumentError('No se pudo comprobar el PDF vinculado.')

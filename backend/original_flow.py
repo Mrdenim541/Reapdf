@@ -1,4 +1,5 @@
 """Atomic flow through explicit regions using verified source font programs."""
+from .engine import pdf_garbage
 import math,re,unicodedata
 import pymupdf as f
 from .engine import DocumentError,open_pdf,export_pdf,finite
@@ -82,7 +83,7 @@ def flow(base,operations,regions,text,runs,align,line_height,auto_fit,min_size):
                 page.apply_redactions(images=0,graphics=0,text=0);page.wrap_contents()
         write_draws(doc,draws)
         for number,rotation in rotations.items():doc[number].set_rotation(rotation)
-        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     with open_pdf(data) as check:
         for number in rotations:check[number].set_rotation(0)
         actual=''

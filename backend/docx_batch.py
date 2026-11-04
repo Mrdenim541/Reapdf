@@ -13,7 +13,7 @@ def convert(items,paper='source',review=False):
     if not isinstance(items,list) or not 1<=len(items)<=10:raise DocumentError('Selecciona de 1 a 10 archivos DOCX.')
     total=0
     for i,item in enumerate(items,1):
-        if not isinstance(item,(tuple,list)) or len(item)!=2 or not isinstance(item[0],str) or not 1<=len(item[0])<=255 or any(ord(c)<32 or ord(c)==127 for c in item[0]) or not isinstance(item[1],bytes):raise DocumentError('Nombre o archivo Word de lote no válido.')
+        if not isinstance(item,(tuple,list)) or len(item)!=2 or not isinstance(item[0],str) or not 1<=len(item[0])<=255 or any(ord(c)<32 or ord(c)==127 or 0xd800<=ord(c)<=0xdfff for c in item[0]) or not isinstance(item[1],bytes):raise DocumentError('Nombre o archivo Word de lote no válido.')
         total+=len(item[1])
         if total>40*1024*1024:raise DocumentError('El lote Word supera 40 MB de entrada.')
         try:read_package(item[1])

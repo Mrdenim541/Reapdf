@@ -10,11 +10,11 @@ from pathlib import Path
 from threading import RLock,Event,Thread
 from uuid import uuid4
 from zipfile import ZipFile,ZIP_DEFLATED,BadZipFile
-import hashlib,json,os,re,shutil
+import hashlib,json,os,re,shutil,subprocess,sys
 import pymupdf as f
 from .engine import DocumentError,open_pdf,export_pdf
 from .document_tools import editable
-from .automation import validate_recipe,process_recipe
+from .automation import validate_recipe
 
 ID=re.compile(r'[0-9a-f]{32}');STATES={'queued','running','completed','failed','cancelled','interrupted'}
 QUOTA=300*1024*1024
@@ -37,7 +37,7 @@ def atomic(path,data):
 
 class Queue:
     def __init__(self,root,clock=now):
-        self.root=Path(root)/'scheduled-recipes';self.clock=clock;self.lock=RLock();self.stop=Event();self.thread=None
+        self.root=Path(root)/'scheduled-recipes';self.clock=clock;self.lock=RLock();self.stop=Event();self.thread=None;self.process=None
 
     def directory(self,identity):
         if not isinstance(identity,str) or not ID.fullmatch(identity):raise DocumentError('Identificador de tarea no válido.')
@@ -83,7 +83,7 @@ class Queue:
         if not isinstance(items,list) or not 1<=len(items)<=10:raise DocumentError('La tarea necesita entre 1 y 10 PDF.')
         prepared=[];total=0;pages=0;mutates=any(s['type'] not in ['text','docx'] for s in recipe['steps'])
         for index,item in enumerate(items,1):
-            if not isinstance(item,(tuple,list)) or len(item)!=3 or not isinstance(item[0],str) or not 1<=len(item[0])<=255 or any(ord(c)<32 for c in item[0]) or not isinstance(item[1],bytes):raise DocumentError('Documento de tarea no válido.')
+            if not isinstance(item,(tuple,list)) or len(item)!=3 or not isinstance(item[0],str) or not 1<=len(item[0])<=255 or any(ord(c)<32 or ord(c)==127 or 0xd800<=ord(c)<=0xdfff for c in item[0]) or not isinstance(item[1],bytes):raise DocumentError('Documento de tarea no válido.')
             name,base,ops=item
             with open_pdf(base) as doc:
                 if mutates:editable(doc)
@@ -128,18 +128,47 @@ class Queue:
             if not due:return False
             row=self.read(min(due,key=lambda r:r['run_at'])['id']);row['status']='running';self.save(row)
         try:
-            output=process_recipe(self.inputs(row),row['recipe'])
+            output=self.execute(row)
             with self.lock:
                 current=self.read(row['id'])
-                if current['cancel_requested']:current['status']='cancelled'
+                if self.stop.is_set():current.update(status='interrupted',error='La aplicación se cerró durante la ejecución; no se presenta un resultado parcial.')
+                elif current['cancel_requested']:current['status']='cancelled'
                 else:
                     if self.size()+len(output)>QUOTA:raise DocumentError('La salida supera la cuota local de 300 MB; elimina tareas antiguas.')
                     atomic(self.directory(row['id'])/'result.zip',output);current.update(status='completed',output_sha256=digest(output))
                 current['finished_at']=self.clock().isoformat();self.save(current)
         except Exception as e:
             with self.lock:
-                current=self.read(row['id']);current.update(status='cancelled' if current['cancel_requested'] else 'failed',error=str(e) if isinstance(e,DocumentError) else 'No se pudo completar la tarea. No hay resultado parcial disponible.',finished_at=self.clock().isoformat());self.save(current)
+                current=self.read(row['id']);current.update(status='interrupted' if self.stop.is_set() else 'cancelled' if current['cancel_requested'] else 'failed',error=str(e) if isinstance(e,DocumentError) else 'No se pudo completar la tarea. No hay resultado parcial disponible.',finished_at=self.clock().isoformat());self.save(current)
         return True
+
+    def execute(self,row):
+        # PyMuPDF must not execute a scheduled conversion concurrently in a
+        # background thread with the UI's PDF rendering. Use an owned process,
+        # with an explicit trusted module path and no shell command strings.
+        folder=self.directory(row['id']);candidate=folder/'candidate.zip';error=folder/'worker-error.json'
+        candidate.unlink(missing_ok=True);error.unlink(missing_ok=True)
+        kwargs={'creationflags':subprocess.CREATE_NO_WINDOW} if os.name=='nt' else {}
+        process=subprocess.Popen([sys.executable,'-I',str(Path(__file__).with_name('scheduled_worker.py')),str(folder.resolve())],stdin=subprocess.PIPE,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,**kwargs)
+        self.process=process
+        if self.stop.is_set():process.terminate()
+        try:
+            try:code=process.wait(timeout=600)
+            except subprocess.TimeoutExpired:
+                process.terminate();process.wait(timeout=10);raise DocumentError('La tarea superó diez minutos de ejecución; no se entrega un resultado parcial.')
+            if code or not candidate.is_file() or candidate.is_symlink():
+                message='La conversión local se interrumpió; no hay resultado parcial disponible.'
+                if error.is_file() and not error.is_symlink() and error.stat().st_size<=10000:
+                    try:message=json.loads(error.read_bytes())['error']
+                    except (ValueError,KeyError,TypeError):pass
+                raise DocumentError(message)
+            if candidate.stat().st_size>100*1024*1024:raise DocumentError('La tarea supera 100 MB de salida.')
+            return candidate.read_bytes()
+        finally:
+            self.process=None
+            if process.poll() is None:process.terminate();process.wait(timeout=10)
+            if process.stdin:process.stdin.close()
+            candidate.unlink(missing_ok=True);error.unlink(missing_ok=True)
 
     def cancel(self,identity):
         with self.lock:
@@ -181,4 +210,8 @@ class Queue:
 
     def close(self):
         self.stop.set()
-        if self.thread:self.thread.join(timeout=2)
+        process=self.process
+        if process is not None and process.poll() is None:
+            try:process.terminate()
+            except OSError:pass
+        if self.thread:self.thread.join(timeout=12)

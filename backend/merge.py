@@ -1,3 +1,4 @@
+from .engine import pdf_garbage
 from .page_labels import visible_labels,write_rules
 """Inserción de páginas con destinos explícitos y campos independientes."""
 import copy
@@ -165,7 +166,7 @@ def merge_pdf(base_data, operations, incoming_data, pages, position, source_name
                 for xref,kind,_ in page.annot_xrefs():
                     if kind==fitz.PDF_ANNOT_WIDGET:output.xref_set_key(xref,'P',f'{page.xref} 0 R')
             if source_rows:verify_imported_fields(output, source_fields, position)
-            result = output.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4, deflate=True)
+            result = output.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(output), deflate=True)
             if source_rows or replace_count:validate_result(result)
             if source_rows:
                 with open_pdf(result) as verified:verify_imported_fields(verified, source_fields, position, include_appearance=False)

@@ -1,4 +1,5 @@
 """Native PDF Collection dictionaries, with bounded embedded-file metadata."""
+from .engine import pdf_garbage
 import pymupdf as f
 from .engine import open_pdf,export_pdf,DocumentError
 from .document_tools import editable
@@ -43,7 +44,7 @@ def configure(base,operations,enabled,view='details',files=None):
         specs=normalize(doc)
         if not enabled:
             doc.xref_set_key(doc.pdf_catalog(),'Collection','null')
-            return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+            return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
         if not supported(doc):raise DocumentError('El portfolio externo tiene un esquema que no se sobrescribe automáticamente.')
         if not specs:raise DocumentError('Adjunta al menos un archivo antes de crear el portfolio.')
         if not isinstance(files,list) or len(files)!=len(specs):raise DocumentError('Revisa todos los archivos del portfolio.')
@@ -75,7 +76,7 @@ def configure(base,operations,enabled,view='details',files=None):
             ci=n.pdf_deep_copy_obj(n.pdf_resolve_indirect(ci)) if n.pdf_is_dict(ci) else n.pdf_new_dict(pdf,3)
             n.pdf_dict_puts(spec,'CI',ci);n.pdf_array_put(flat,position*2+1,spec)
             n.pdf_dict_puts(ci,'ReapdfTitle',n.pdf_new_text_string(row['title']));n.pdf_dict_puts(ci,'ReapdfDescription',n.pdf_new_text_string(row['description']));n.pdf_dict_puts(ci,'ReapdfOrder',n.pdf_new_int(index))
-        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     check=model(data)
     if not check['enabled'] or [r['name'] for r in check['files']]!=[r['name'] for r in files] or any((r['title'],r['description'])!=(v['title'],v['description']) for r,v in zip(check['files'],files)):raise DocumentError('La verificación del portfolio detectó diferencias. No se publicó el cambio.')
     return data

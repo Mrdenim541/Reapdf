@@ -1,4 +1,5 @@
 """Firma manuscrita visual vectorial. No contiene certificado ni validación de identidad."""
+from .engine import pdf_garbage
 import pymupdf as fitz
 from .engine import open_pdf,export_pdf,DocumentError,finite
 
@@ -22,4 +23,4 @@ def visual_signature(base,operations,page,box,strokes,name=''):
         target=doc[page];matrix=target.derotation_matrix
         paths=[[list(fitz.Point(ox+(px-min(xs))*scale,oy+(py-min(ys))*scale)*matrix) for px,py in s] for s in strokes]
         annot=target.add_ink_annot(paths);annot.set_border(width=1.2);annot.set_colors(stroke=(0,.08,.3));annot.set_info(title=name or 'Reapdf',content='Firma visual manuscrita; sin certificado digital ni verificación de identidad.');annot.update()
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)

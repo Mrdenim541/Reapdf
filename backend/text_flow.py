@@ -1,4 +1,5 @@
 """Explicit, atomic text flow through user-selected regions on existing pages."""
+from .engine import pdf_garbage
 import math
 from bisect import bisect_right
 import unicodedata
@@ -133,7 +134,7 @@ def flow_text(base,operations,regions,text,size=12,family='sans',style='regular'
             draw_mixed(doc,draws)
         doc.subset_fonts()
         for number,rotation in rotations.items():doc[number].set_rotation(rotation)
-        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
         if runs is not None:
             from .mixed_flow import verify_mixed
             verify_mixed(data,rows,text)

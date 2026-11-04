@@ -8,6 +8,15 @@ MAX_OPERATIONS = 1000
 class DocumentError(ValueError):
     pass
 
+
+def pdf_garbage(doc,requested=4):
+    """Compact tagged PDFs without merging distinct structure-element objects.
+
+    Two empty cells can have equal dictionaries and still be different semantic
+    nodes. MuPDF garbage >= 3 can merge them; preserve their identities instead.
+    """
+    return 2 if requested>=3 and doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null' else requested
+
 def open_pdf(data: bytes):
     doc = None
     try:
@@ -62,6 +71,7 @@ def metadata(doc):
             "pages": [{"width": p.rect.width, "height": p.rect.height,
                         "rotation": p.rotation, "label": labels[p.number]} for p in doc],
             "signed": doc.get_sigflags() > 0,
+            "tagged": doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null',
             "can_organize": bool(doc.permissions & (fitz.PDF_PERM_ASSEMBLE | fitz.PDF_PERM_MODIFY)),
             "can_extract": bool(doc.permissions & fitz.PDF_PERM_COPY),
             "can_print": bool(doc.permissions & fitz.PDF_PERM_PRINT and doc.permissions & fitz.PDF_PERM_PRINT_HQ),
@@ -259,4 +269,4 @@ def export_pdf(data, operations, *, preserve_streams=False):
                 annot.set_rect(rect)
             annot.set_info(title="Reapdf", content={"ink": "Trazo libre", "line": "Línea", "arrow": "Flecha", "rectangle": "Rectángulo"}[kind])
             annot.update()
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4, deflate=not preserve_streams)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc), deflate=not preserve_streams)

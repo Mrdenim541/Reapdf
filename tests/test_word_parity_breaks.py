@@ -30,3 +30,12 @@ def test_sectionpages_includes_its_automatic_blank_and_global_total_is_final():
     with f.open(stream=out) as d:
         assert 'de 2 / 4' in d[0].get_text() and not d[1].get_text()
     assert r['sections'][0]['pages']==2
+
+
+def test_automatic_blank_must_fit_roman_numbering_limit():
+    from io import BytesIO
+    from zipfile import ZipFile
+    from backend.engine import DocumentError
+    data=fixture(kind='oddPage')
+    with ZipFile(BytesIO(data)) as z:body=z.read('word/document.xml').decode().replace('w:start="3"','w:start="3999"')
+    with pytest.raises(DocumentError,match='3999'):import_docx(rewrite(data,{'word/document.xml':body}))

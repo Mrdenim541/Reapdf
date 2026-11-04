@@ -1,4 +1,5 @@
 """Reflow parallel original mixed-style text through native operand patches."""
+from .engine import pdf_garbage
 import copy,math,unicodedata
 from collections import Counter,defaultdict
 import pymupdf as f
@@ -100,7 +101,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         if not 0<=number<len(doc):raise DocumentError('Página no válida.')
         if doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null':raise DocumentError('El reflujo mixto afín de texto etiquetado requiere revisión estructural.')
         if not isinstance(box,list) or len(box)!=4 or any(not finite(v) for v in box) or box[2]<=0 or box[3]<=0:raise DocumentError('Región no válida.')
-        page=doc[number];rotation=page.rotation;page.set_rotation(0);page_size=(page.rect.width,page.rect.height);original_pages=len(doc);region=f.Rect(box[0],box[1],box[0]+box[2],box[1]+box[3]);_,all_rows=native_model(doc,number,page.rect)
+        page=doc[number];rotation=page.rotation;page.set_rotation(0);page_size=(page.rect.width,page.rect.height);original_pages=len(doc);region=f.Rect(box[0],box[1],box[0]+box[2],box[1]+box[3]);_,all_rows=native_model(doc,number,page.rect,context=True)
         if paginate and (doc.get_ocgs() or min(page_size)<=92):raise DocumentError('La paginación automática necesita páginas sin capas y espacio para márgenes de 36 pt.')
         chosen={r['id']:r for r in all_rows if r['id'] in identifiers}
         if len(chosen)!=len(identifiers):raise DocumentError('La selección de grupos está obsoleta.')
@@ -118,7 +119,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         untouched_by_page={number:original_untouched}
         for n in rotations:
             if n!=number:
-                native=native_model(doc,n,doc[n].rect)[1] if doc[n].get_text().strip() else [];untouched_by_page[n]=Counter(stable_key(r) for r in native)
+                native=native_model(doc,n,doc[n].rect,context=True)[1] if doc[n].get_text().strip() else [];untouched_by_page[n]=Counter(stable_key(r) for r in native)
         frame=f.Matrix(*first['_geometry']['matrix']);inverse=~frame;top=max((f.Point(r['origin'])*inverse).y+r['_geometry']['ascent'] for r in rows);commands={r['id']:[] for r in rows};prepared=[];cursor=0;used=0.;lines=0;destination=-1;current=number;draws=[];details=[{'page':number,'lines':0,'characters':0}]
         while cursor<len(text):
             line,after,_=layout.line(text,cursor,width);group=styles[cursor:cursor+max(1,len(line))];ascent=max(r['_geometry']['ascent'] for r in group);descent=min(r['_geometry']['descent'] for r in group);size=max(r['size'] for r in group)
@@ -154,13 +155,13 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         from .form_text import write
         write(doc,page,patches);append_continuations(doc,draws)
         for n,angle in rotations.items():doc[n].set_rotation(angle)
-        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     for n in rotations:verify_fragments(data,[value for page,value in prepared if page==n],n)
     with open_pdf(data) as check:
         for n in rotations:
             check[n].set_rotation(0)
             if not untouched_by_page[n]:continue
-            _,remaining=native_model(check,n,check[n].rect)
+            _,remaining=native_model(check,n,check[n].rect,context=True)
             if untouched_by_page[n]-Counter(stable_key(r) for r in remaining):raise DocumentError('La comprobación detectó cambios en otro texto. No se publicó el párrafo.')
     return data,report
 
@@ -172,7 +173,7 @@ def inspect_selection(base,ops,number,selection):
         if not 0<=number<len(doc):raise DocumentError('Página no válida.')
         page=doc[number];page.set_rotation(0)
         if doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null':raise DocumentError('La selección de párrafos etiquetados necesita revisión estructural.')
-        _,all_rows=native_model(doc,number,page.rect);chosen=[]
+        _,all_rows=native_model(doc,number,page.rect,context=True);chosen=[]
         for ref in selection:
             if not isinstance(ref,dict) or set(ref)!={'origin','text'} or not isinstance(ref['origin'],list) or len(ref['origin'])!=2 or any(not finite(v) for v in ref['origin']) or not isinstance(ref['text'],str):raise DocumentError('Referencia de selección no válida.')
             matches=[r for r in all_rows if r['origin']==ref['origin'] and r['text']==ref['text']]

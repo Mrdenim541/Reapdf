@@ -1,4 +1,5 @@
 """OCR local: superpone solo texto invisible y conserva imágenes/contenido originales."""
+from .engine import pdf_garbage
 from pathlib import Path
 from hashlib import sha256
 import json
@@ -55,4 +56,4 @@ def ocr_pdf(base,operations,pages,language='spa+eng',dpi=200,orientation=0):
                     page.show_pdf_page(page.rect,textdoc,0,overlay=True,rotate=orientation)
             finally:page.set_rotation(rotation)
             report['processed'].append(number)
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True) if report['processed'] else edited,report
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True) if report['processed'] else edited,report

@@ -1,3 +1,4 @@
+from .engine import pdf_garbage
 from .page_labels import visible_labels,write_rules
 """Organización de copias: selección única, orden y rotación absoluta por página."""
 import pymupdf as fitz
@@ -45,4 +46,4 @@ def organize_pdf(data, operations, pages, *, extract=False,partition_tags=False)
         if has_labels:
             write_rules(doc,[{'startpage': i, 'prefix': label, 'style': ''}
                                  for i, label in enumerate(labels)])
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4, deflate=True)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc), deflate=True)

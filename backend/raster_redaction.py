@@ -4,6 +4,7 @@ No source PDF object, text layer, embedded file, structure, action or metadata i
 copied into the output. This is an alternative for complex content, not a claim
 of lossless native redaction. All visible occurrences must still be selected.
 """
+from .engine import pdf_garbage
 import math
 import pymupdf as f
 from .engine import DocumentError,open_pdf,export_pdf,finite
@@ -41,7 +42,7 @@ def redact(base,operations,regions,dpi=200):
                 pix.set_rect(pixel,(0,0,0))
             dest=output.new_page(width=page.rect.width,height=page.rect.height)
             dest.insert_image(dest.rect,pixmap=pix)
-        result=output.tobytes(garbage=4,deflate=True)
+        result=output.tobytes(garbage=pdf_garbage(output),deflate=True)
     if len(result)>100*1024*1024:raise DocumentError('La copia visual supera 100 MB; reduce la resolución.')
     with open_pdf(result) as check:
         if check.embfile_count() or check.get_toc() or any(p.get_text().strip() or list(p.annots() or []) or list(p.widgets() or []) or p.get_links() or len(p.get_images())!=1 for p in check):raise DocumentError('La comprobación de la copia visual detectó contenido adicional; no se publica.')

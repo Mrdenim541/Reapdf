@@ -1,4 +1,5 @@
 """Recorte reversible por versiones y división sin alterar la fuente."""
+from .engine import pdf_garbage
 from io import BytesIO
 from zipfile import ZipFile, ZIP_DEFLATED
 import pymupdf as fitz
@@ -45,7 +46,7 @@ def crop_pdf(data, operations, pages, margins=None, *, reset=False):
                 old = page.cropbox
                 page.set_cropbox(fitz.Rect(native.x0+old.x0, native.y0+old.y0,
                                            native.x1+old.x0, native.y1+old.y0))
-        return output.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4, deflate=True)
+        return output.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(output), deflate=True)
 
 
 def prepare_split(data,operations,*,size=None,groups=None,names=None,bookmark_level=None):

@@ -101,6 +101,10 @@ def verify(data,prepared):
     with open_pdf(data) as doc:
         for number,rows in prepared.items():
             page=doc[number];page.set_rotation(0);traces=page.get_texttrace()
+            semantic=next((r['_semantic_snapshot'] for r,_ in rows if '_semantic_snapshot' in r),None)
+            if semantic is not None:
+                from .tagged_text_integrity import verify as verify_semantic
+                verify_semantic(doc,number,semantic)
             from .type3_text import merge_lines,trace as type3_trace
             blocks=merge_lines(doc,page,page.get_text('rawdict')['blocks']);spans=[{**s,'text':''.join(c['c'] for c in s['chars'])} for b in blocks for line in b.get('lines',[]) for s in line['spans']]
             for row,_ in rows:
@@ -119,6 +123,14 @@ def verify(data,prepared):
                     if len(appearances)!=1 or appearances[0]['type']!=0 or abs(appearances[0]['opacity']-row['opacity'])>1e-6:raise DocumentError('La transparencia del texto cambió al guardar. No se publicó el cambio.')
                 expected=bounds(polygon(row['_geometry'],row['_replacement_width']))
                 if max(abs(a-b) for a,b in zip(expected,matches[0]['bbox']))>.3 or matches[0]['color']!=row['color'] or matches[0].get('alpha',255)!=row.get('alpha',255):raise DocumentError('La geometría o el color cambió después de guardar. No se publicó el cambio.')
+            snapshot=next((r['_neighbor_snapshot'] for r,_ in rows if '_neighbor_snapshot' in r),None)
+            if snapshot is not None:
+                from collections import Counter
+                from .native_text import native_model
+                from .affine_mixed_reflow import stable_key
+                _,current=native_model(doc,number,page.rect,context=True)
+                neighbors=snapshot-Counter(stable_key(r) for r,_ in rows)
+                if neighbors-Counter(stable_key(r) for r in current):raise DocumentError('La edición alteró otro texto en una página con cajas superpuestas; se conserva el original.')
 
 
 def obstacles(page):

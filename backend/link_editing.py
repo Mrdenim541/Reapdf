@@ -1,4 +1,5 @@
 """Edit native web / internal links without replacing unrelated annotation keys."""
+from .engine import pdf_garbage
 import pymupdf as f
 from .engine import open_pdf,export_pdf,DocumentError,finite
 from .document_tools import editable
@@ -71,7 +72,7 @@ def edit_link(base,operations,number,xref,action,changes=None):
                     if type(target) is not int or not 0<=target<len(doc):raise DocumentError('Página de destino no válida.')
                     doc.xref_set_key(xref,'A','null');doc.xref_set_key(xref,'Dest',f'[{doc[target].xref} 0 R /Fit]')
                 else:raise DocumentError('Selecciona un destino web o una página sin propiedades contradictorias.')
-        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     with open_pdf(data) as check:
         output=link_model(check,number)['links']
         if len(output)!=len(rows)-(action=='delete'):raise DocumentError('No se pudo verificar la modificación del enlace.')

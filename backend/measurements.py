@@ -1,4 +1,5 @@
 """Calibrated distances, polylines, areas and counts stored as PDF annotations."""
+from .engine import pdf_garbage
 import json
 import math
 from uuid import uuid4
@@ -174,7 +175,7 @@ def measure(base,ops,number,kind,pts,cal,unit='m',preview=False,identity=None,pr
         anchor=native[0];width=min(180,page.cropbox.width-4);height=18
         x=min(max(2,anchor.x),page.rect.width-width-2);y=min(max(2,anchor.y+5),page.rect.height-height-2)
         label_annot=page.add_freetext_annot(f.Rect(x,y,x+width,y+height),label,fontsize=9/max(.0001,abs(matrices(page)[0].a)),text_color=(.08,.32,.26),fill_color=(1,1,1));doc.xref_set_key(label_annot.xref,'ReapdfMeasureLabel',pdf_string(identity));doc.xref_set_key(label_annot.xref,'NM',pdf_string('reapdf-measure-label-'+identity));page.set_rotation(rotation)
-        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
 
 
 def remove_from_page(doc,page,identity):
@@ -195,4 +196,4 @@ def delete_measure(base,ops,number,identity):
     with open_pdf(export_pdf(base,ops)) as doc:
         from .measurement_geometry import page_at
         page=page_at(doc,number);remove_from_page(doc,page,identity)
-        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)

@@ -1,4 +1,5 @@
 """Datos vinculados al PDF base y aplanado explícito de campos con apariencia."""
+from .engine import pdf_garbage
 from hashlib import sha256
 import pymupdf as fitz
 from .engine import open_pdf, export_pdf, DocumentError
@@ -63,4 +64,4 @@ def flatten_form(base,operations):
         doc.bake(annots=False,widgets=True)
         doc.xref_set_key(doc.pdf_catalog(),'AcroForm','null')
         if any(list(p.widgets() or []) for p in doc):raise DocumentError('No se pudieron aplanar todos los campos.')
-        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)

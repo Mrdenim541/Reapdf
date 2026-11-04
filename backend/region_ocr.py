@@ -1,4 +1,5 @@
 """OCR for selected scanned regions on otherwise digital pages, preserving source images and adding invisible text."""
+from .engine import pdf_garbage
 import math
 import pymupdf as f
 from .engine import DocumentError,open_pdf,export_pdf,finite
@@ -55,4 +56,4 @@ def recognize(base,ops,regions,language='spa+eng',dpi=200,orientation=0,correcti
                     page.show_pdf_page(rect,textdoc,0,overlay=True,rotate=orientation)
                     report['words']+=words;report['regions'].append({'page':number,'rect':list(rect),'words':words})
             finally:page.set_rotation(rotation)
-        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True),report
+        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True),report

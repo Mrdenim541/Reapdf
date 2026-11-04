@@ -1,4 +1,5 @@
 """Mixed paragraphs reusing validated original resources, sizes and colors."""
+from .engine import pdf_garbage
 import re,unicodedata
 import pymupdf as f
 from .engine import open_pdf,export_pdf,DocumentError
@@ -70,7 +71,7 @@ def reflow(base,ops,number,box,text,runs,preview=False,source_box=None):
                 doc.xref_set_key(resources,alias,f'{key} 0 R');aliases[key]=alias
             point=point*~page.transformation_matrix;color=[((row['color']>>v)&255)/255 for v in [16,8,0]];encoded=font.encode(fragment,row['size'])[0]
             snippets.append(f"q BT 0 Tc 0 Tw 100 Tz 0 Tr 0 Ts /{aliases[key]} {row['size']:.8f} Tf {' '.join(str(v) for v in color)} rg 1 0 0 1 {point.x:.8f} {point.y:.8f} Tm <{encoded.hex()}> Tj ET Q")
-        xref=doc.get_new_xref();doc.update_object(xref,'<<>>');doc.update_stream(xref,'\n'.join(snippets).encode());doc.xref_set_key(page.xref,'Contents','['+' '.join(f'{x} 0 R' for x in page.get_contents()+[xref])+']');page.set_rotation(rotation);data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        xref=doc.get_new_xref();doc.update_object(xref,'<<>>');doc.update_stream(xref,'\n'.join(snippets).encode());doc.xref_set_key(page.xref,'Contents','['+' '.join(f'{x} 0 R' for x in page.get_contents()+[xref])+']');page.set_rotation(rotation);data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     with open_pdf(data) as check:
         check[number].set_rotation(0);clean=lambda v:re.sub(r'\s+','',v)
         if clean(check[number].get_text(clip=rect,sort=True))!=clean(text):raise DocumentError('La comprobación del texto mixto detectó diferencias. No se publicó el cambio.')

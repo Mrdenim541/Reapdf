@@ -33,7 +33,8 @@ def insert(base,ops,number,point,text,size=12,family='sans',style='regular',colo
                 for span in line['spans']:
                     if (f.Rect(span['bbox'])&native).get_area()>.1:raise DocumentError('El área automática cruza texto existente. Cambia el punto o el ancho para no taparlo.')
         if any((a.rect&native).get_area()>.1 for a in page.annots() or []) or any((w.rect&native).get_area()>.1 for w in page.widgets() or []):raise DocumentError('El área cruza campos o anotaciones.')
-        report={'box':list(box),'lines':len(lines),'size':size,'width':width}
+        tagged=doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null'
+        report={'box':list(box),'lines':len(lines),'size':size,'width':width,'new_text_tagged':False}
         if preview:return report
         if not page.rotation:
             writer=f.TextWriter(page.rect)
@@ -49,4 +50,4 @@ def insert(base,ops,number,point,text,size=12,family='sans',style='regular',colo
                 writer.write_text(target,color=color);rotation=page.rotation;rect=page.rect*page.derotation_matrix;page.set_rotation(0)
                 try:page.show_pdf_page(rect,overlay,0,rotate=rotation,overlay=True)
                 finally:page.set_rotation(rotation)
-        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True),report
+        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=2 if tagged else 4,deflate=True),report

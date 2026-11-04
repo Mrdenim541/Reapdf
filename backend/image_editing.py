@@ -1,4 +1,5 @@
 """Edit one image invocation without changing other uses of its PDF object."""
+from .engine import pdf_garbage
 import hashlib
 import pymupdf as fitz
 from .engine import open_pdf,export_pdf,DocumentError,finite
@@ -154,7 +155,7 @@ def edit_image(base,operations,number,xref,action,box=None,data=None,occurrence=
             while doc.xref_get_key(resource_owner,'Resources/XObject/'+alias)[0]!='null':alias+='x'
             item['_native_xobjects']={alias:replacement_xref};value=('/'+alias+' Do').encode()
         write(doc,page,[(item,value)])
-        result=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=False)
+        result=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=False)
     # Reopen the serialized result: PyMuPDF caches display lists and image info
     # on loaded pages, so inspecting the old page could validate stale data.
     with open_pdf(result) as verified:

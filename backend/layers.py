@@ -1,4 +1,5 @@
 """Inspect and persist default OCG visibility without flattening page content."""
+from .engine import pdf_garbage
 import pymupdf as f
 from .engine import DocumentError,open_pdf,export_pdf
 from .document_tools import editable
@@ -36,4 +37,4 @@ def apply(base,ops,visible,configuration=None,usage=None):
             apply_usage(doc,usage)
             original={r['id']:r for r in info['usage']['layers']}
             if any(groups[r['id']]['locked'] and r!=original[r['id']] for r in usage):raise DocumentError('No se pueden cambiar las preferencias de una capa bloqueada.')
-        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)

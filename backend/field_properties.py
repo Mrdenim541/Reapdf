@@ -1,4 +1,5 @@
 """Native AcroForm design changes with group-aware validation and appearance refresh."""
+from .engine import pdf_garbage
 import pymupdf as f
 from .engine import open_pdf,export_pdf,DocumentError,finite
 from .document_tools import editable
@@ -116,7 +117,7 @@ def edit_properties(base,operations,number,xref,changes):
         if selected['kind']!='checkbox' or style_keys:apply_fill(doc,prepare_fill(doc,values))
         final_flags=(flags|1) if settings['readonly'] else flags&~1
         doc.xref_set_key(owner,'Ff',str(final_flags))
-        output=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        output=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     with open_pdf(output) as check:
         final=[v for v in form_model(check)['fields'] if v['name']==final_name]
         if len(final)!=len(group) or any(v['value']!=selected['value'] for v in final):raise DocumentError('No se pudieron conservar el grupo y sus valores.')

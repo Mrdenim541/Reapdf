@@ -1,4 +1,5 @@
 """Bounded DOCX-to-PDF re-layout with explicit omissions; no Office execution."""
+from .engine import pdf_garbage
 from collections import Counter
 from io import BytesIO
 from pathlib import Path,PurePosixPath
@@ -285,6 +286,8 @@ def import_docx(data,paper='source'):
     try:
         for index,segment in enumerate(segments):
             if index and segment['break'] in ['oddPage','evenPage'] and (total+1)%2!=int(segment['break']=='oddPage'):
+                from .docx_fields import number_label
+                previous=segments[index-1];number_label(previous['fields'].start+previous['count'],previous['fields'].format)
                 segments[index-1]['trailing_blanks']=1;section_report[-1]['pages']+=1;section_report[-1]['blank_pages']=1;total+=1
                 if total>=50:raise DocumentError('La paginación Word supera 50 páginas, incluidos los saltos pares/impares.')
             width,height=segment['size'];left,top,right,bottom=segment['margins']
@@ -342,7 +345,7 @@ def import_docx(data,paper='source'):
             page_labels_preserved=any(s['properties'].find(tag('pgNumType')) is not None for s in segments) or len(segments)>1
             if page_labels_preserved:doc.set_page_labels(page_labels)
             doc.set_metadata({'title':'Importado desde Word','producer':'Reapdf / DOCX compatible'})
-            result=doc.tobytes(garbage=4,deflate=True);actual=checked_text(doc,all_positions) if notes.used else '\n'.join(p.get_text() for p in doc);pages=len(doc)
+            result=doc.tobytes(garbage=pdf_garbage(doc),deflate=True);actual=checked_text(doc,all_positions) if notes.used else '\n'.join(p.get_text() for p in doc);pages=len(doc)
     except DocumentError:raise
     except Exception as exc:raise DocumentError('No se pudo distribuir el contenido Word; revisa tablas, imágenes y tamaños.') from exc
     if len(result)>30*1024*1024:raise DocumentError('El PDF importado supera 30 MB.')

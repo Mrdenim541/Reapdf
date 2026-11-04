@@ -50,11 +50,11 @@ def test_interrupted_running_job_is_explicit_and_not_restarted(queue):
 def test_running_cancellation_discards_computed_result(queue,monkeypatch):
     import backend.scheduled_recipes as module
     j=add(queue)
-    def fake(items,plan):
+    def fake(row):
         queue.cancel(j['id'])
         with pytest.raises(DocumentError,match='espera'):queue.delete(j['id'])
         return b'PK-result-discarded'
-    monkeypatch.setattr(module,'process_recipe',fake)
+    monkeypatch.setattr(queue,'execute',fake)
     assert queue.tick() and queue.list()[0]['status']=='cancelled'
     assert not (queue.directory(j['id'])/'result.zip').exists()
 

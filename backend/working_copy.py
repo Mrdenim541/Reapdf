@@ -1,4 +1,5 @@
 """An explicitly unsigned, visibly identified working copy of a signed PDF."""
+from .engine import pdf_garbage
 import hashlib
 import pymupdf as f
 from .engine import open_pdf,DocumentError
@@ -24,7 +25,7 @@ def create(base,acknowledge=False):
                 size=min(8,(page.rect.width-24)/font.text_length(LABEL,fontsize=1))
                 page.insert_text((12,page.rect.height-8),LABEL,fontsize=size,fontname='helv',color=(.65,.12,.08));page.set_rotation(rotation)
             out.set_metadata({'title':(source.metadata.get('title') or 'Documento')+' - copia de trabajo','author':source.metadata.get('author') or '', 'subject':'Copia sin firmas digitales; original SHA256 '+hashlib.sha256(base).hexdigest(),'creator':'Reapdf','producer':'Reapdf'})
-            data=out.tobytes(garbage=4,deflate=True)
+            data=out.tobytes(garbage=pdf_garbage(out),deflate=True)
     with open_pdf(data) as check:
         if check.get_sigflags()>0 or any(list(p.widgets() or []) for p in check):raise DocumentError('No se pudo comprobar la retirada de campos de firma de la copia.')
         if any(LABEL not in p.get_text() for p in check):raise DocumentError('No se pudo verificar la identificación de la copia en todas las páginas.')

@@ -3,6 +3,7 @@
 No axis is guessed and no font is substituted. Publish only after rendering and
 text geometry agree on every page. Non-default design changes stay protected.
 """
+from .engine import pdf_garbage
 from io import BytesIO
 import math
 from fontTools.ttLib import TTFont
@@ -85,7 +86,7 @@ def freeze(base,ops,selection,reviewed=False):
             except Exception as exc:raise DocumentError('No se pudo obtener una instancia estática con mapas y métricas conservados.') from exc
             finally:original.close()
             doc.update_stream(x,data);doc.xref_set_key(x,'Length1',str(len(data)));reports.append({'xref':x,'axes':axes,'bytes':len(data)})
-        result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     with open_pdf(snapshot) as before,open_pdf(result) as after:
         page_count=len(before)
         for a,b in zip(before,after):

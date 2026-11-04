@@ -286,7 +286,15 @@ def styled_model(doc,number,box,font_cache=None):
     if cache['_route_native']:
         from .native_text import native_model
         return native_model(doc,number,rect,cache)
-    region_model(doc,number,box,minimum=.1)
+    try:region_model(doc,number,box,minimum=.1)
+    except DocumentError as exc:
+        if str(exc).startswith('La región corta un fragmento de texto.'):
+            # The redaction-based fallback cannot safely cut a neighbor. A
+            # verified native operand edit can preserve its bytes and geometry.
+            from .native_text import native_model
+            cache['_route_native']=True
+            return native_model(doc,number,rect,cache)
+        raise
     if page.get_xobjects() or doc.get_ocgs() or doc.xref_get_key(page.xref,'Resources')[0]=='null':raise DocumentError('Este modo requiere texto directo sin capas ni objetos de formulario internos.')
     if any(doc.xref_get_key(page.xref,key)[0]!='null' for key in ['Resources/ExtGState','Resources/Pattern','Resources/Shading']):raise DocumentError('Las transparencias, patrones o sombreados necesitan una edición adicional antes de conservar estilos.')
     if re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?)(?![A-Za-z])',page.read_contents()):raise DocumentError('El contenido marcado o recortado todavía no es compatible con este modo.')
@@ -350,7 +358,7 @@ def replace_styled(base,operations,number,box,changes,expand=False):
         prepared=prepare_changes(doc,number,rect,rows,changes,expand)
         write_changes(doc,number,prepared)
         doc[number].set_rotation(rotation)
-        data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=2 if any('_semantic_snapshot' in row for row,_ in prepared) else 4,deflate=True)
     from .affine_text import verify
     verify(data,{number:prepared});return data
 
@@ -374,6 +382,7 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
             from .text_spacing import replacement
             encoded,width=replacement(row,text)
         else:encoded,width=row['_font'].encode(text,row['size'])
+        existing_overlap=False
         if '_geometry' in row:
             from .affine_text import polygon,contains,rectangle,overlap
             g=row['_geometry'];target=polygon(g,width)
@@ -387,14 +396,31 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
                     for span in line['spans']:
                         if span['origin']==tuple(row['origin']) and span['font']==row['font'] and span['text']==row['text']:continue
                         neighbor=neighbor_quads.get(id(span),rectangle(fitz.Rect(span['bbox'])))
-                        if overlap(neighbor,target)>.1 or overlap(neighbor,original)>.1:raise DocumentError('El texto se cruza con otro fragmento.')
+                        if overlap(neighbor,target)>.1 or overlap(neighbor,original)>.1:
+                            # Native operand edits do not remove neighboring
+                            # content. Dense forms often have overlapping font
+                            # metric boxes already. Permit only edits contained
+                            # in the original footprint, then independently
+                            # verify every unselected text's saved geometry.
+                            if '_native' not in row or not contains(original,target):raise DocumentError('El texto se cruza con otro fragmento.')
+                            existing_overlap=True
         else:
             available=rect.x1-row['origin'][0] if expand else fitz.Rect(row['bbox']).width
             if width>available+.1:raise DocumentError('El texto no cabe en el ancho disponible. Acórtalo o amplía el área y activa su ancho disponible; este modo no redistribuye las líneas.')
             if not page_contains(doc[number],row,width):raise DocumentError('El texto sale de la página o se cruza con otro fragmento.')
-        prepared.append(({**row,'_replacement_text':text,'_replacement_width':width},encoded))
+        prepared.append(({**row,'_replacement_text':text,'_replacement_width':width,'_existing_overlap':existing_overlap},encoded))
     if total>4000:raise DocumentError('Hasta 4000 caracteres entre los fragmentos editados.')
     if not prepared:raise DocumentError('No hay cambios de texto para aplicar.')
+    if any(row.get('_existing_overlap') for row,_ in prepared):
+        from .native_text import native_model
+        from .affine_mixed_reflow import stable_key
+        from collections import Counter
+        _,context=native_model(doc,number,doc[number].rect,context=True)
+        prepared[0][0]['_neighbor_snapshot']=Counter(stable_key(r) for r in context)
+    if prepared and all('_native' in row for row,_ in prepared):
+        from .tagged_text_integrity import snapshot
+        semantic=snapshot(doc,number)
+        if semantic is not None:prepared[0][0]['_semantic_snapshot']=semantic
     return prepared
 
 
@@ -446,7 +472,7 @@ def replace_styled_regions(base,operations,regions):
             prepared[number].extend(items)
         for number,items in prepared.items():
             write_changes(doc,number,items);doc[number].set_rotation(rotations[number])
-        data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=2 if any('_semantic_snapshot' in row for items in prepared.values() for row,_ in items) else 4,deflate=True)
     from .affine_text import verify
     verify(data,prepared);return data
 

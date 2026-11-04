@@ -1,4 +1,5 @@
 """Edit existing Figure alternatives and sibling reading order, without inventing tags."""
+from .engine import pdf_garbage
 import pymupdf as f
 from .engine import open_pdf,export_pdf,DocumentError
 from .document_tools import editable
@@ -57,7 +58,7 @@ def edit(base,ops,identity,alt=None,order=None):
     with open_pdf(export_pdf(base,ops)) as doc:
         if alt is not None:doc.xref_set_key(identity,'Alt',pdf_string(alt.strip()))
         else:doc.xref_set_key(identity,'K','['+' '.join(f'{i} 0 R' for i in order)+']')
-        result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     # Re-parse the saved structure; malformed parent relations never become a
     # successful edit. Full PDF/UA and screen-reader acceptance remain separate.
     model(result,[])
@@ -110,6 +111,6 @@ def properties(base,ops,identity,role=None,language=None,scope=None):
         else:
             from .structure_scope import set_scope
             set_scope(doc,identity,scope)
-        result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        result=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     model(result,[])
     return result

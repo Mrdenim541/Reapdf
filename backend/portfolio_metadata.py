@@ -1,4 +1,5 @@
 """Edit declared collection columns while preserving foreign schemas and attachments."""
+from .engine import pdf_garbage
 import math,re
 from datetime import datetime
 import pymupdf as f
@@ -113,4 +114,4 @@ def edit(base,ops,changes):
             elif n.pdf_is_dict(old):
                 sub=n.pdf_deep_copy_obj(n.pdf_resolve_indirect(old));n.pdf_dict_puts(sub,'D',value);n.pdf_dict_puts(ci,key,sub)
             else:n.pdf_dict_puts(ci,key,value)
-        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)

@@ -1,4 +1,5 @@
 """Uniform original-font paragraph reflow in explicit, untagged text regions."""
+from .engine import pdf_garbage
 import re,unicodedata
 import pymupdf as f
 from .engine import open_pdf,export_pdf,DocumentError
@@ -35,13 +36,18 @@ def inspect(base,ops,number,origin,text):
             from .affine_reflow import inspect as inspect_affine
             value=inspect_affine(doc,number,origin,text)
             if transformed or value['mixed']:return value
-        compatible_page(doc,page);matches=[]
-        for block in page.get_text('dict',sort=True,flags=f.TEXTFLAGS_TEXT)['blocks']:
-            for line in block.get('lines',[]):
-                for span in line['spans']:
-                    if list(span['origin'])==origin and span['text']==text:matches.append(block)
-        if len(matches)!=1:raise DocumentError('El párrafo no se identifica de forma única.')
-        block=matches[0];rect=(f.Rect(block['bbox'])+(-2,-2,2,2))&page.rect;box=[rect.x0,rect.y0,rect.width,rect.height];_,value=region_model(doc,number,box)
+        try:
+            compatible_page(doc,page);matches=[]
+            for block in page.get_text('dict',sort=True,flags=f.TEXTFLAGS_TEXT)['blocks']:
+                for line in block.get('lines',[]):
+                    for span in line['spans']:
+                        if list(span['origin'])==origin and span['text']==text:matches.append(block)
+            if len(matches)!=1:raise DocumentError('El párrafo no se identifica de forma única.')
+            block=matches[0];rect=(f.Rect(block['bbox'])+(-2,-2,2,2))&page.rect;box=[rect.x0,rect.y0,rect.width,rect.height];_,value=region_model(doc,number,box)
+        except DocumentError as legacy_error:
+            from .affine_reflow import inspect as inspect_affine
+            try:return inspect_affine(doc,number,origin,text)
+            except DocumentError:raise legacy_error
         reason='';runs=[];mixed=False
         try:
             from .original_mixed_reflow import source_runs,public_runs
@@ -86,7 +92,7 @@ def reflow(base,ops,number,box,text,preview=False,source_box=None,runs=None):
             if not line:continue
             encoded=font.encode(line,size)[0];point=f.Point(rect.x0+padding,baseline)*~page.transformation_matrix
             snippets.append(f"q BT 0 Tc 0 Tw 100 Tz 0 Tr 0 Ts /{alias} {size:.8f} Tf {' '.join(f'{v:.8f}' for v in color)} rg 1 0 0 1 {point.x:.8f} {point.y:.8f} Tm <{encoded.hex()}> Tj ET Q")
-        xref=doc.get_new_xref();doc.update_object(xref,'<<>>');doc.update_stream(xref,'\n'.join(snippets).encode());doc.xref_set_key(page.xref,'Contents','['+' '.join(f'{x} 0 R' for x in page.get_contents()+[xref])+']');page.set_rotation(rotation);data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        xref=doc.get_new_xref();doc.update_object(xref,'<<>>');doc.update_stream(xref,'\n'.join(snippets).encode());doc.xref_set_key(page.xref,'Contents','['+' '.join(f'{x} 0 R' for x in page.get_contents()+[xref])+']');page.set_rotation(rotation);data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     with open_pdf(data) as check:
         check[number].set_rotation(0);actual=check[number].get_text(clip=rect,sort=True)
         clean=lambda v:re.sub(r'\s+','',v)

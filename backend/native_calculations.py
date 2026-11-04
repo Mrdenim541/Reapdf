@@ -1,4 +1,5 @@
 """Standard AFSimple_Calculate calls as bounded declarative PDF data, never JS."""
+from .engine import pdf_garbage
 import re
 from decimal import Decimal,localcontext,InvalidOperation
 from .engine import DocumentError
@@ -113,7 +114,7 @@ def repair_order(base,operations):
         if model.get('native_calculation_error') or not model.get('native_calculations'):raise DocumentError(model.get('native_calculation_error') or 'No hay cálculos compatibles cuyo orden se pueda corregir.')
         rules=model['native_calculations'];before=[r for r in model['native_calculation_order']];after=[r['target'] for r in rules]
         if before==after:raise DocumentError('El orden de cálculo ya respeta sus dependencias.')
-        set_form_key(doc,'CO','['+' '.join(f'{ref} 0 R' for ref in after)+']');data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        set_form_key(doc,'CO','['+' '.join(f'{ref} 0 R' for ref in after)+']');data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     with open_pdf(data) as doc:
         check=form_model(doc)
         if check.get('native_calculation_error'):raise DocumentError('No se pudo verificar el nuevo orden de cálculo.')

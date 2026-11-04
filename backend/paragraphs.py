@@ -1,4 +1,5 @@
 """Reemplazo explícito de bloques digitales con fuente libre y control de espacio."""
+from .engine import pdf_garbage
 from pathlib import Path
 import pymupdf as fitz
 from .engine import open_pdf,export_pdf,DocumentError,finite
@@ -139,5 +140,5 @@ def replace_paragraph(base,operations,number,box,text,size=12,color=None,align=0
         if text:writer.write_text(page,color=color)
         doc.subset_fonts()
         page.set_rotation(rotation)
-        data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
         return (data,report) if return_report else data

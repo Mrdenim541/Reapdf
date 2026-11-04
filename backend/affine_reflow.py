@@ -25,18 +25,24 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview=False,identi
     with open_pdf(export_pdf(base,ops)) as doc:
         if not 0<=number<len(doc):raise DocumentError('Página no válida.')
         page=doc[number];rotation=page.rotation;page.set_rotation(0)
-        if doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null':raise DocumentError('El reflujo afín de contenido etiquetado necesita revisión estructural adicional.')
+        from .tagged_text_integrity import snapshot as semantic_snapshot
+        semantic=semantic_snapshot(doc,number)
         if not isinstance(box,list) or len(box)!=4 or any(not finite(v) for v in box):raise DocumentError('Región de texto no válida.')
         region=f.Rect(box[0],box[1],box[0]+box[2],box[1]+box[3]);_,selected=native_model(doc,number,region)
         identifiers=[identifier] if identifiers is None else identifiers
         if not isinstance(identifiers,list) or not 1<=len(identifiers)<=100 or any(not isinstance(i,str) for i in identifiers) or len(set(identifiers))!=len(identifiers) or identifiers[0]!=identifier:raise DocumentError('Selecciona grupos originales únicos y ordenados.')
+        if semantic is not None and len(identifiers)!=1:raise DocumentError('La redistribución etiquetada admite un único fragmento nativo dentro de sus marcadores originales.')
         by_id={r['id']:r for r in selected};rows=[by_id[i] for i in identifiers if i in by_id]
         if len(rows)!=len(identifiers) or any(not r['editable'] for r in rows):raise DocumentError('Selecciona una línea original compatible.')
         row=rows[0];g=row['_geometry'];font=row['_font'];spacing=row['_spacing']['state']
         if len(rows)>1:
             for other in rows:
                 if other['original_only'] or other['_native_path']!=row['_native_path'] or other['_font'].xref!=font.xref or abs(other['size']-row['size'])>.01 or other['color']!=row['color'] or other['alpha']!=row['alpha'] or other['_spacing']['state']!=spacing or max(abs(a-b) for a,b in zip(other['_geometry']['matrix'][:4],g['matrix'][:4]))>1e-4:raise DocumentError('El reflujo conjunto requiere grupos paralelos con la misma fuente, tamaño, color y espaciado, sin composición especial.')
-        _,neighbors=native_model(doc,number,page.rect)
+        _,neighbors=native_model(doc,number,page.rect,context=True)
+        from collections import Counter
+        from .affine_mixed_reflow import stable_key
+        unchanged=Counter(stable_key(r) for r in neighbors if r['id'] not in identifiers)
+        original_cells=[polygon(r['_geometry']) for r in rows]
         obstacles=list(row['_obstacles'])+[rectangle(link['from']) for link in page.get_links()]
         obstacles += [rectangle(f.Rect(d['rect'])+(-.5,-.5,.5,.5)) for d in page.get_drawings()]
         obstacles += [other['quad'] or rectangle(f.Rect(other['bbox'])) for other in neighbors if other['id'] not in identifiers]
@@ -57,7 +63,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview=False,identi
             if extent<0 or extent>width+.05:raise DocumentError('El espaciado supera el ancho elegido.')
             cell=polygon(local,extent)
             if not contains(rectangle(page.rect),cell) or any(not contains(clip,cell) for clip in row['_clips']):raise DocumentError('El texto sale de la página o del recorte original.')
-            if any(overlap(cell,obstacle)>.1 for obstacle in obstacles):raise DocumentError('El texto cruza otro texto, imagen, borde, enlace o anotación. Reduce el área o el contenido.')
+            if any(overlap(cell,obstacle)>.1 for obstacle in obstacles) and not any(contains(original,cell) for original in original_cells):raise DocumentError('El texto cruza otro texto, imagen, borde, enlace o anotación. Reduce el área o el contenido.')
             encoded=font.encode(line,row['size'])[0];operand=b'<'+encoded.hex().encode()+b'>'
             # Absolute Tm keeps every output line independently editable. The
             # source font, graphics state, opacity, clipping and Form path stay.
@@ -78,40 +84,53 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview=False,identi
         from .form_text import write
         removed=[(other,b'[] TJ' if other['_native'][2]=='operator-array' else b'<>' if other['_native'][2]=='string' else b'[]') for other in rows[1:]]
         write(doc,page,[(row,b' '.join(commands)+tail)]+removed)
-        page.set_rotation(rotation);data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+        page.set_rotation(rotation);data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=2 if semantic is not None else 4,deflate=True)
     verify(data,{number:prepared})
+    with open_pdf(data) as check:
+        if semantic is not None:
+            from .tagged_text_integrity import verify as verify_semantic
+            verify_semantic(check,number,semantic)
+        check[number].set_rotation(0);_,remaining=native_model(check,number,check[number].rect,context=True)
+        if unchanged-Counter(stable_key(r) for r in remaining):raise DocumentError('La redistribución alteró otro texto; no se publica el párrafo.')
     return data,report
 
 
 def inspect(doc,number,origin,text):
     page=doc[number];rotation=page.rotation;page.set_rotation(0)
     try:
-        _,all_rows=native_model(doc,number,page.rect)
+        _,all_rows=native_model(doc,number,page.rect,context=True)
+        from .tagged_text_integrity import snapshot as semantic_snapshot
+        semantic=semantic_snapshot(doc,number)
         matches=[r for r in all_rows if r['origin']==origin and r['text']==text]
         if len(matches)!=1 or not matches[0]['editable']:raise DocumentError('El párrafo no se identifica de forma única con fuente original.')
-        anchor=matches[0];rows=[r for r in all_rows if r['_text_object']==anchor['_text_object'] and r['_native_path']==anchor['_native_path']]
+        anchor=matches[0]
         block=anchor['id'].split(':',1)[0]
+        rows=[r for r in all_rows if r['_text_object']==anchor['_text_object'] and r['_native_path']==anchor['_native_path']]
         candidate=[r for r in all_rows if r['id'].split(':',1)[0]==block and r['_native_path']==anchor['_native_path']]
-        if len({r['_text_object'] for r in candidate})>1:
+        from .affine_mixed_reflow import complete_objects
+        if semantic is None and len(candidate)<=100 and len({r['_text_object'] for r in candidate})>1 and complete_objects(candidate,all_rows):
             objects={r['_text_object'] for r in candidate}
             candidate=[r for r in all_rows if r['_text_object'] in objects and r['_native_path']==anchor['_native_path']]
             try:
                 from .affine_mixed_reflow import inspect_rows
                 return inspect_rows(candidate)
             except DocumentError:pass # Keep the original single-object route.
-        if not rows or any(not r['editable'] for r in rows):raise DocumentError('El párrafo contiene grupos originales no editables.')
-        rect=f.Rect(rows[0]['bbox'])
-        for r in rows[1:]:rect|=f.Rect(r['bbox'])
-        box=[rect.x0,rect.y0,rect.width,rect.height]
+        if semantic is not None or not rows or len(rows)>100 or any(not r['editable'] for r in rows):rows=[anchor]
         frame=f.Matrix(*rows[0]['_geometry']['matrix']);inverse=~frame
         rows.sort(key=lambda r:(-round((f.Point(r['origin'])*inverse).y,2),(f.Point(r['origin'])*inverse).x))
         if any((r['_font'].xref,r['size'],r['color'])!=(rows[0]['_font'].xref,rows[0]['size'],rows[0]['color']) for r in rows):
             from .affine_mixed_reflow import inspect_rows
-            return inspect_rows(rows)
+            if complete_objects(rows,all_rows):
+                try:return inspect_rows(rows)
+                except DocumentError:pass
+            rows=[anchor];inverse=~f.Matrix(*anchor['_geometry']['matrix'])
         local_origins=[f.Point(r['origin'])*inverse for r in rows]
-        if any(abs(p.x-local_origins[0].x)>.5 for p in local_origins) or any(not .5*rows[0]['size']<=a.y-b.y<=3*rows[0]['size'] for a,b in zip(local_origins,local_origins[1:])):raise DocumentError('Los grupos no forman un párrafo paralelo continuo. Usa la edición de línea o delimita otro bloque.')
+        if any(abs(p.x-local_origins[0].x)>.5 for p in local_origins) or any(not .5*rows[0]['size']<=a.y-b.y<=3*rows[0]['size'] for a,b in zip(local_origins,local_origins[1:])):rows=[anchor]
+        rect=f.Rect(rows[0]['bbox'])
+        for r in rows[1:]:rect|=f.Rect(r['bbox'])
+        box=[rect.x0,rect.y0,rect.width,rect.height]
         first=rows[0];frame=f.Matrix(*first['_geometry']['matrix']);inverse=~frame
         width=max((f.Point(r['origin'])*inverse).x+r['_geometry']['width'] for r in rows)
         height=max(-(f.Point(r['origin'])*inverse).y+r['_geometry']['ascent']-r['_geometry']['descent'] for r in rows)
-        return {'affine':True,'ids':[r['id'] for r in rows],'box':box,'text':' '.join(r['text'] for r in rows),'font':first['font'],'original_available':True,'reason':'','mixed':False,'runs':[],'local_width':max(10,width+.5),'local_height':max(10,height+.5)}
+        return {'affine':True,'ids':[r['id'] for r in rows],'box':box,'text':' '.join(r['text'] for r in rows),'font':first['font'],'original_available':True,'reason':'','mixed':False,'runs':[],'local_width':max(10,width+.5),'local_height':max(10,height+.5),'complete_object_selection':semantic is None and complete_objects(rows,all_rows),'tagged_native':semantic is not None}
     finally:page.set_rotation(rotation)

@@ -94,9 +94,10 @@ def test_neighbor_collision_and_page_exit_are_atomic():
     with pytest.raises(DocumentError):apply(source(),'HELLO '*100,'TEXT '*100,400,1500)
 
 
-def test_tagged_document_remains_protected():
-    with f.open(stream=source()) as d:d.xref_set_key(d.pdf_catalog(),'StructTreeRoot','<< /Type/StructTreeRoot >>');base=d.tobytes()
-    with pytest.raises(DocumentError,match='etiquetado'):apply(base)
+def test_tagged_mixed_reflow_remains_protected():
+    base=source();m=model(base);runs=[{'id':r['id'],'text':r['text']} for r in m['runs']]
+    with f.open(stream=base) as d:d.xref_set_key(d.pdf_catalog(),'StructTreeRoot','<< /Type/StructTreeRoot >>');base=d.tobytes()
+    with pytest.raises(DocumentError,match='etiquetado'):reflow(base,[],0,m['box'],m['ids'][0],''.join(r['text'] for r in runs),130,150,False,m['ids'],runs)
 
 
 def test_api_mixed_affine_preview_and_apply():
@@ -135,12 +136,17 @@ def test_special_spacing_and_nonparallel_styles_remain_protected(kind):
     with pytest.raises(DocumentError):apply(base)
 
 
-def test_uniform_horizontal_form_keeps_the_existing_paragraph_guard():
+def test_uniform_horizontal_form_uses_verified_native_paragraph_reflow():
     from tests.test_cff_forms_mixed import form_pdf
     base=form_pdf()
     with f.open(stream=base) as d:
-        s=next(s for b in d[0].get_text('dict')['blocks'] for l in b.get('lines',[]) for s in l['spans'] if s['text']=='HELLO TEXT')
-    with pytest.raises(DocumentError):inspect(base,[],0,list(s['origin']),s['text'])
+        span=next(s for b in d[0].get_text('dict')['blocks'] for l in b.get('lines',[]) for s in l['spans'] if s['text']=='HELLO TEXT')
+    m=inspect(base,[],0,list(span['origin']),span['text']);assert m['affine'] and m['original_available']
+    out,_=reflow(base,[],0,m['box'],m['ids'][0],'TEXT HELLO',m['local_width'],m['local_height'],False,m['ids'])
+    with f.open(stream=base) as a,f.open(stream=out) as b:
+        assert b[0].search_for('TEXT HELLO')
+        assert a[1].get_pixmap().samples==b[1].get_pixmap().samples
+        assert a[0].search_for('UNCHANGED')==b[0].search_for('UNCHANGED')
 
 
 def test_deleting_an_intermediate_style_can_join_equal_outer_styles():
