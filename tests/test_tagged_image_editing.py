@@ -180,3 +180,46 @@ def test_image_in_large_42_page_tag_tree_keeps_all_other_pages_and_tags():
         with pytest.raises(DocumentError):snapshot(a,0) # Las alternativas siguen protegidas en la edición de texto.
         assert snapshot(b,0,allow_actual_text=True)['nodes']>2000
         assert all(a[i].get_text()==b[i].get_text() and a[i].get_pixmap().samples==b[i].get_pixmap().samples for i in range(1,42))
+
+
+@pytest.mark.parametrize('transformed',[False,True])
+def test_native_rectangular_page_clip_allows_full_frame_inside_clip(transformed):
+    from backend.pdf_content import set_content
+    base=source()
+    with f.open(stream=base) as d:
+        prefix=b'q 2 0 0 2 -20 -20 cm 10 10 250 200 re W n 0.5 0 0 0.5 10 10 cm\n' if transformed else b'q 0 0 500 400 re W n\n'
+        set_content(d,d[0],prefix+d[0].read_contents()+b'\nQ');base=d.tobytes()
+    row=selected(base);assert row['editable'];assert edit_image(base,[],0,row['xref'],'move',[44,164,150,100],occurrence=row['occurrence'])
+
+
+def test_crossing_native_page_clip_is_rejected_before_publication():
+    from backend.pdf_content import set_content
+    base=source()
+    with f.open(stream=base) as d:set_content(d,d[0],b'q 40 120 180 120 re W n\n'+d[0].read_contents()+b'\nQ');base=d.tobytes()
+    row=selected(base);assert row['editable']
+    with pytest.raises(DocumentError,match='recorte de la página'):edit_image(base,[],0,row['xref'],'move',[80,164,180,120],occurrence=row['occurrence'])
+
+
+def test_curved_page_clip_requires_coordinated_clipping_edit():
+    from backend.pdf_content import set_content
+    base=source()
+    with f.open(stream=base) as d:set_content(d,d[0],b'q 0 0 m 500 0 l 500 400 0 400 0 0 c W n\n'+d[0].read_contents()+b'\nQ');base=d.tobytes()
+    row=selected(base);assert row['editable'] and row['actions']==['replace','delete']
+    assert edit_image(base,[],0,row['xref'],'delete',occurrence=row['occurrence'])
+    replacement=edit_image(base,[],0,row['xref'],'replace',data=base64.b64encode(picture()).decode(),occurrence=row['occurrence'],alt='Replacement within original clip')
+    assert len(inspect(replacement)[1])==2
+
+
+@pytest.mark.parametrize('masked',[False,True])
+def test_external_softmask_keeps_replacement_and_delete_but_protects_movement(masked):
+    from backend.pdf_content import set_content
+    base=source()
+    with f.open(stream=base) as d:
+        form=d.get_new_xref();d.update_object(form,'<</Type /XObject /Subtype /Form /BBox [0 0 500 400] /Resources <<>> /Group <</S /Transparency /CS /DeviceGray>>>>');d.update_stream(form,b'1 g 0 0 500 400 re f')
+        mask=f'<</S /Alpha /G {form} 0 R>>' if masked else '/None'
+        resources=int(d.xref_get_key(d[0].xref,'Resources')[1].split()[0]);d.xref_set_key(resources,'ExtGState',f'<</Mask <</Type /ExtGState /SMask {mask}>>>>');set_content(d,d[0],b'q /Mask gs\n'+d[0].read_contents()+b'\nQ');base=d.tobytes()
+    row=selected(base);assert row['editable'] and ('move' in row['actions']) is not masked
+    replacement=edit_image(base,[],0,row['xref'],'replace',data=base64.b64encode(picture()).decode(),occurrence=row['occurrence'],alt='New masked image')
+    assert len(inspect(replacement)[1])==2
+    if masked:
+        with pytest.raises(DocumentError,match='recorte'):edit_image(base,[],0,row['xref'],'move',[44,164,150,100],occurrence=row['occurrence'])

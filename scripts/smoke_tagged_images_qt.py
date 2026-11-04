@@ -36,6 +36,7 @@ def save(path,force_as=True):
     QFileDialog.getSaveFileName=lambda *a,**kw:(str(path),'');(window.save_as_action if force_as else window.save_action).trigger();wait('document.body.innerText.includes("PDF guardado.")&&!window.__reapdfCloseState.dirty');assert path.exists()
 try:
     wait('document.querySelector(".document-bar")?.textContent.includes("Tagged.pdf")');tool('Editar','Editar imágenes del PDF');wait(field('Acción de imagen existente')+'?.disabled===false')
+    edit('Imagen existente','1',True);wait('!Array.from(document.querySelector(\'[aria-label="Acción de imagen existente"]\').options).some(o=>o.value===\'move\')');assert js('document.querySelector(\'[aria-label="Acción de imagen existente"]\').value===\'replace\'');edit('Imagen existente','0',True)
     target_expr='document.querySelector('+json.dumps('[aria-label="Mover imagen existente en muestra"] rect[data-image-index="0"]')+')'
     wait('!!'+target_expr)
     bounds=json.loads(js('JSON.stringify((()=>{const e='+target_expr+';e.scrollIntoView({block:"center"});const b=e.getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2];})())'))

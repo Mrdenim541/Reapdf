@@ -6,7 +6,7 @@ stream-bound tags, mixed marked content and shared semantic owners stay protecte
 import math
 import pymupdf as f
 from .engine import DocumentError
-from .pdf_content import operations
+from .pdf_content import operations,numbers
 from .tagged_text_integrity import snapshot
 from .form_structure import pdf_string
 
@@ -61,7 +61,28 @@ def context(doc,number):
     for record in records.values():
         for reference in references(n.pdf_dict_gets(record['object'],'K'),record['page']):owners[reference]=owners.get(reference,0)+1
     scopes={};stack=[];paint={'Do','Tj','TJ',"'",'"','S','s','f','F','f*','B','B*','b','b*','sh'}
+    matrix=f.Matrix(1,1);graphics=[];clips=[];path=[];path_other=False;pending_clip=False;masked=False
+    from .image_editing import _resources
+    from .form_text import SAFE
+    resource_owner=_resources(doc,page.xref)
     for op,args,token in operations(page.read_contents()):
+        if op=='q':graphics.append((f.Matrix(matrix),list(clips),masked))
+        elif op=='Q':
+            if not graphics:fail('Estado gráfico desequilibrado.')
+            matrix,clips,masked=graphics.pop()
+        elif op=='cm':matrix=f.Matrix(*numbers(args,6))*matrix
+        elif op=='re':
+            x,y,w,h=numbers(args,4);path.append([f.Point(px,py)*matrix for px,py in [(x,y),(x+w,y),(x+w,y+h),(x,y+h)]])
+        elif op in ['m','l','c','v','y','h']:path_other=True
+        elif op in ['W','W*']:pending_clip=True
+        elif op=='gs':
+            if len(args)!=1 or args[0].kind!='name' or not SAFE.fullmatch(args[0].value):fail('Estado gráfico no verificable.')
+            key='Resources/ExtGState/'+args[0].value
+            kind,_=doc.xref_get_key(resource_owner,key)
+            if kind not in ['dict','xref']:masked=True
+            else:
+                kind,value=doc.xref_get_key(resource_owner,key+'/SMask')
+                if kind!='null':masked=(kind,value)!=('name','/None')
         if op in ['BDC','BMC']:
             props={};code=None
             if op=='BDC':
@@ -76,7 +97,7 @@ def context(doc,number):
                     code=int(v.value)
             if not args or args[0].kind!='name':fail()
             if len(stack)>=64:fail()
-            stack.append({'code':code,'start':args[0].start,'open_end':token.end,'paint':[],'unsafe':bool(set(props)-{'MCID'}),'artifact':args[0].value=='Artifact'})
+            stack.append({'code':code,'start':args[0].start,'open_end':token.end,'paint':[],'unsafe':bool(set(props)-{'MCID'}),'artifact':args[0].value=='Artifact','clips':[],'masked':False})
         elif op=='EMC':
             if not stack:fail('Contenido marcado desequilibrado.')
             scope=stack.pop();scope['close_start']=token.start;scope['end']=token.end
@@ -86,9 +107,13 @@ def context(doc,number):
         elif op in paint:
             for scope in stack:
                 if scope['code'] is not None:
-                    scope['paint'].append((op,args[0].start if args else token.start,token.end))
+                    scope['paint'].append((op,args[0].start if args else token.start,token.end));scope['clips']=list(clips)
+                    if masked:scope['masked']=True
                     if any(v['unsafe'] or v['artifact'] for v in stack):scope['unsafe']=True
-    if stack:fail('Contenido marcado sin cierre.')
+        if op in ['n','S','s','f','F','f*','B','B*','b','b*']:
+            if pending_clip:clips=clips+[path[0] if len(path)==1 and not path_other else None]
+            path=[];path_other=False;pending_clip=False
+    if stack or graphics or pending_clip:fail('Contenido marcado o gráfico sin cierre.')
     return {'root':root,'records':records,'parent_row':rows[0],'scopes':scopes,'has_refs':has_refs,'owners':owners}
 
 
@@ -114,6 +139,9 @@ def probe(doc,number,invocation,ctx):
     matches=[(code,s) for code,s in ctx['scopes'].items() if s['paint']==[('Do',invocation['_native'][0],invocation['_native'][1])]]
     if len(matches)!=1 or matches[0][1]['unsafe']:fail('La imagen comparte contenido marcado o alternativas no verificables.')
     code,scope=matches[0];row=ctx['parent_row'][3]
+    from .image_editing import _inside
+    native_box=f.Rect(0,0,1,1)*invocation['_matrix']
+    can_move=not scope['masked'] and all(p is not None and _inside(native_box,p) for p in scope['clips'])
     if code>=n.pdf_array_len(row):fail()
     identity=n.pdf_to_num(n.pdf_array_get(row,code));record=ctx['records'].get(identity)
     if not record or record['page']!=doc[number].xref:fail()
@@ -146,7 +174,7 @@ def probe(doc,number,invocation,ctx):
     # Object references attached to the XObject would be another semantic owner.
     if any(doc.xref_get_key(invocation['xref'],k)[0]!='null' for k in ['StructParent','StructParents']):fail()
     alt=n.pdf_dict_gets(node,'Alt')
-    actions=['move','replace']
+    actions=['move','replace'] if can_move else ['replace']
     if not ctx['has_refs'] and n.pdf_is_null(n.pdf_dict_gets(ctx['root'],'IDTree')) and n.pdf_is_null(n.pdf_dict_gets(node,'ID')):actions.append('delete')
     return {'id':identity,'code':code,'scope':scope,'record':record,'alt':n.pdf_to_text_string(alt) if n.pdf_is_string(alt) else '', 'actions':actions}
 
@@ -162,7 +190,7 @@ def update(doc,number,ctx,selection,action,rect,alt):
         for i in range(n.pdf_array_len(obj)):n.pdf_array_push(out,n.pdf_array_get(obj,i))
         return out
     extra=[]
-    if action not in selection['actions']:fail('Esta figura tiene referencias que impiden eliminar su etiqueta de forma segura.')
+    if action not in selection['actions']:fail('La acción requiere coordinar el recorte o las referencias de esta figura.')
     if action=='delete':
         parent=n.pdf_new_indirect(pdf,selection['record']['parent'],0);k=n.pdf_dict_gets(parent,'K')
         if n.pdf_is_array(k):
@@ -179,9 +207,12 @@ def update(doc,number,ctx,selection,action,rect,alt):
         if action=='replace':
             if not isinstance(alt,str) or not 1<=len(alt.strip())<=2000 or any(ord(c)<32 and c not in '\n\t' for c in alt):fail('Revisa la descripción de la imagen de reemplazo (1–2000 caracteres).')
             doc.xref_set_key(selection['id'],'Alt',pdf_string(alt.strip()))
+            return [] # Replacement keeps the existing frame and clipping; geometry is unchanged.
         # Clone local attributes: the input can reuse the same A dictionary.
         from .image_editing import _page_matrix
         native=rect*~(_page_matrix(doc[number])*doc[number].rotation_matrix)
+        from .image_editing import _inside
+        if any(not _inside(native,p) for p in selection['scope']['clips']):fail('La nueva caja sale del recorte de la página; reduce o desplaza la imagen dentro de él.')
         def changed(value):
             if not n.pdf_is_dict(value):return value
             result=copy_dict(value)

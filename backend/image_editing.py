@@ -85,7 +85,7 @@ def image_model(doc,number,*,private=False):
     ocr=any('GlyphLessFont' in font[3] for font in page.get_fonts())
     tagged=doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null'
     semantics=None;semantic_failure=''
-    if tagged:
+    if tagged and invocations:
         from .tagged_image_integrity import context
         try:semantics=context(doc,number)
         except DocumentError as exc:semantic_failure=str(exc)
@@ -113,7 +113,9 @@ def image_model(doc,number,*,private=False):
                 semantic=probe(doc,number,invocation,semantics)
             except DocumentError as exc:reason='La imagen pertenece a un PDF etiquetado; '+str(exc)
         row={'xref':xref,'occurrence':invocation['occurrence'] if invocation else None,'width':info['width'],'height':info['height'],'rect':list(box),'digest':info['digest'].hex(),'editable':not reason,'reason':reason,'direct_content':not reason,'notice':'Solo cambia esta aparición. Se conservan orientación, compresión, recorte y transparencia; revisa la vista previa.' if not reason else ''}
-        if semantic:row.update(tagged_figure=True,alt=semantic['alt'],actions=semantic['actions'])
+        if semantic:
+            row.update(tagged_figure=True,alt=semantic['alt'],actions=semantic['actions'])
+            if 'move' not in semantic['actions']:row['notice']='El marco tiene recorte o máscara: puedes reemplazar la imagen conservando su marco'+(' o eliminarla.' if 'delete' in semantic['actions'] else '.')
         if private and invocation:row.update(invocation);row['_render_index']=index
         items.append(row)
     return {'images':items}
@@ -138,7 +140,7 @@ def edit_image(base,operations,number,xref,action,box=None,data=None,occurrence=
         if not selected:raise DocumentError('Imagen o aparición inexistente.')
         original=selected[0]
         if not original['editable']:raise DocumentError(original['reason'])
-        if action not in original.get('actions',['move','replace','delete']):raise DocumentError('Esta figura tiene referencias que impiden eliminarla de forma segura.')
+        if action not in original.get('actions',['move','replace','delete']):raise DocumentError('La acción elegida requiere coordinar el recorte o las referencias de esta figura.')
     with open_pdf(export_pdf(base,operations,preserve_streams=True)) as doc:
         rows=image_model(doc,number,private=True)['images']
         candidates=[r for r in rows if r['digest']==original['digest'] and _same_box(r['rect'],original['rect'])]

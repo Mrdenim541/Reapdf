@@ -8,10 +8,12 @@ def create():
     pix=f.Pixmap(f.csRGB,f.IRect(0,0,80,40),False);pix.clear_with(100)
     x=p.insert_image(f.Rect(40,140,200,220),pixmap=pix);p.insert_image(f.Rect(240,140,400,220),xref=x)
     for i,stream in enumerate(p.get_contents()):
-        role='P' if i==0 else 'Figure';d.update_stream(stream,f'/{role} <</MCID {i}>> BDC\n'.encode()+d.xref_stream(stream)+b'\nEMC')
+        role='P' if i==0 else 'Figure';content=d.xref_stream(stream)
+        if i==2:content=b'q 250 190 140 60 re W n\n'+content+b'\nQ'
+        d.update_stream(stream,f'/{role} <</MCID {i}>> BDC\n'.encode()+content+b'\nEMC')
         node=d.get_new_xref();nodes.append(node);extra=''
         if i:
-            box=[40 if i==1 else 240,180,200 if i==1 else 400,260]
+            box=[40,180,200,260] if i==1 else [250,190,390,250]
             extra=f'/Alt ({"Original diagram" if i==1 else "Other diagram"}) /A [<</O /Layout /BBox [{" ".join(map(str,box))}]>> {attrs} 0 R 0]'
         d.update_object(node,f'<</Type /StructElem /S /{role} /P {document} 0 R /Pg {p.xref} 0 R /K {i} {extra}>>')
     d.update_object(document,f'<</Type /StructElem /S /Document /P {root} 0 R /K ['+' '.join(f'{n} 0 R' for n in nodes)+']>>')
