@@ -9,7 +9,10 @@ def main():
     from backend.scheduled_recipes import Queue,atomic
     from backend.automation import process_recipe
     from backend.engine import DocumentError
-    from portable.parent_pipe import parent_alive
+    if (Path(__file__).resolve().parents[1]/'parent_pipe.py').is_file():
+        from parent_pipe import parent_alive # Flat app layout of the Windows bundle.
+    else:
+        from portable.parent_pipe import parent_alive
     folder=Path(sys.argv[1]);queue=Queue(folder.parent.parent)
     if queue.directory(folder.name).resolve()!=folder.resolve():return 2
     finished=Event()

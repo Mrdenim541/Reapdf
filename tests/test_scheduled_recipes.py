@@ -100,3 +100,23 @@ def test_api_schedule_survives_document_session_removal(tmp_path,monkeypatch):
         assert app.state.recipe_queue.tick()
         result=c.get(f'/api/scheduled-recipes/{identity}/result');assert result.status_code==200 and result.content.startswith(b'PK')
         assert c.delete(f'/api/scheduled-recipes/{identity}').status_code==200
+
+
+def test_isolated_worker_runs_in_flat_windows_application_layout(queue,tmp_path):
+    import shutil,subprocess,sys
+    from pathlib import Path
+    root=Path(__file__).resolve().parents[1];app=tmp_path/'app';app.mkdir()
+    shutil.copytree(root/'backend',app/'backend',ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+    shutil.copy2(root/'portable'/'parent_pipe.py',app/'parent_pipe.py')
+    job=add(queue);row=queue.read(job['id']);row['status']='running';queue.save(row)
+    folder=queue.directory(job['id'])
+    process=subprocess.Popen([sys.executable,'-I',str(app/'backend'/'scheduled_worker.py'),str(folder)],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    try:
+        code=process.wait(timeout=30)
+        assert code==0,process.stderr.read().decode(errors='replace')
+        with ZipFile(folder/'candidate.zip') as z:
+            manifest=json.loads(z.read('manifest.json'))
+            assert 'Documento de prueba' in z.read(manifest['documents'][0]['file']).decode()
+    finally:
+        if process.poll() is None:process.kill();process.wait(timeout=5)
+        for handle in [process.stdin,process.stdout,process.stderr]:handle.close()

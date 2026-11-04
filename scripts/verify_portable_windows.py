@@ -79,10 +79,27 @@ def native_check(folder, executable=None):
         with post_json('/api/recovery/restore',{'revision':checkpoint['revision']}) as r:recovered=json.load(r)
         assert recovered['operations'][0]['text']=='Portable'
         with post_json(f"/api/documents/{doc['id']}/print",{'operations':[op]}) as r:assert r.read().startswith(b'%PDF')
+        # Execute the real owned worker from the bundle's flat app layout.
+        from datetime import datetime,timezone
+        from io import BytesIO
+        recipe={'format':'reapdf-recipe','version':1,'name':'Bundled local worker','filename':'{name}','steps':[{'type':'text','pages':'1'}]}
+        with post_json('/api/scheduled-recipes',{'documents':[{'id':doc['id'],'name':'demo.pdf','operations':[op]}],'recipe':recipe,'run_at':datetime.now(timezone.utc).isoformat()}) as r:job=json.load(r)
+        deadline=time.monotonic()+40
+        while True:
+            with urllib.request.urlopen(url+'/api/scheduled-recipes',timeout=10) as r:state=next(v for v in json.load(r) if v['id']==job['id'])
+            if state['status'] in ['completed','failed','interrupted','cancelled']:break
+            if time.monotonic()>deadline:raise RuntimeError('La tarea del paquete no terminó dentro del plazo.')
+            time.sleep(.2)
+        assert state['status']=='completed',state
+        with urllib.request.urlopen(url+'/api/scheduled-recipes/'+job['id']+'/result',timeout=10) as r:archive=r.read()
+        with ZipFile(BytesIO(archive)) as z:
+            entry=json.loads(z.read('manifest.json'))['documents'][0]
+            assert 'Portable' in z.read(entry['file']).decode('utf-8')
+        with urllib.request.urlopen(urllib.request.Request(url+'/api/scheduled-recipes/'+job['id'],method='DELETE'),timeout=10) as r:assert r.status==200
         # Usar el mismo intérprete incluido: el verificador host no necesita PyMuPDF.
         check=folder/'comprobacion.pdf';check.write_bytes(pdf)
         subprocess.run([str(executable),'-I','-c',"import pymupdf as f,sys;d=f.open(sys.argv[1]);assert 'Portable' in d[0].get_text();assert 'Texto original' not in d[0].get_text()",str(check)],check=True,timeout=20)
-        return {**report,'http_upload_export':'ok','projects_recovery_print':'ok','bundled_engine_verified':os.name=='nt' and bundled,'windows_execution_verified':False}
+        return {**report,'http_upload_export':'ok','projects_recovery_print':'ok','packaged_scheduled_worker':'ok','bundled_engine_verified':os.name=='nt' and bundled,'windows_execution_verified':False}
     finally:
         process.terminate()
         try:process.wait(timeout=10)
