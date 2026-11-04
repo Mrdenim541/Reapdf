@@ -9,7 +9,10 @@ from .text_spacing import layout
 from .text_flow import next_line
 
 
-def reflow(base,ops,number,box,identifier,text,width,height,preview=False,identifiers=None):
+def reflow(base,ops,number,box,identifier,text,width,height,preview=False,identifiers=None,runs=None):
+    if runs is not None:
+        from .affine_mixed_reflow import reflow as mixed
+        return mixed(base,ops,number,box,identifier,text,width,height,preview,identifiers,runs)
     if not isinstance(text,str) or not text.strip() or len(text)>4000 or any((ord(c)<32 and c!='\n') or ord(c)==127 or unicodedata.bidirectional(c) in {'R','AL','AN'} for c in text):raise DocumentError('Usa de 1 a 4000 caracteres compatibles, con saltos de línea opcionales.')
     if not finite(width) or not finite(height) or not 10<=width<=2000 or not 10<=height<=2000:raise DocumentError('El ancho y alto deben estar entre 10 y 2000 pt en el marco del texto.')
     if type(number) is not int:raise DocumentError('Página no válida.')
@@ -88,6 +91,9 @@ def inspect(doc,number,origin,text):
         box=[rect.x0,rect.y0,rect.width,rect.height]
         frame=f.Matrix(*rows[0]['_geometry']['matrix']);inverse=~frame
         rows.sort(key=lambda r:(-round((f.Point(r['origin'])*inverse).y,2),(f.Point(r['origin'])*inverse).x))
+        if any((r['_font'].xref,r['size'],r['color'])!=(rows[0]['_font'].xref,rows[0]['size'],rows[0]['color']) for r in rows):
+            from .affine_mixed_reflow import inspect_rows
+            return inspect_rows(rows)
         local_origins=[f.Point(r['origin'])*inverse for r in rows]
         if any(abs(p.x-local_origins[0].x)>.5 for p in local_origins) or any(not .5*rows[0]['size']<=a.y-b.y<=3*rows[0]['size'] for a,b in zip(local_origins,local_origins[1:])):raise DocumentError('Los grupos no forman un párrafo paralelo continuo. Usa la edición de línea o delimita otro bloque.')
         first=rows[0];frame=f.Matrix(*first['_geometry']['matrix']);inverse=~frame
