@@ -246,10 +246,11 @@
       "steps": [
         "Elige Editar texto",
         "pulsa el texto directamente en la página",
-        "escribe y aplica o usa Ctrl+Enter."
+        "escribe y aplica o usa Ctrl+Enter.",
+        "Para un párrafo compatible, pulsa Editar párrafo: escribe en la caja única y aplica o usa Ctrl+Enter; comprobar ajuste por separado es opcional."
       ],
-      "expected": "El contenido nuevo se guarda con la fuente y geometría originales compatibles.",
-      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas. Type3: matrices diagonales positivas acotadas y desplazamientos compatibles; glifos vectoriales o imágenes/máscaras bitmap verificadas sin máscaras externas, con recursos y píxeles conservados. Otras matrices, recursos y filtros siguen protegidos."
+      "expected": "El contenido nuevo se guarda con la fuente y geometría originales compatibles. En párrafos mixtos el texto sin cambios conserva sus estilos; las inserciones toman el estilo anterior (al inicio, el primero).",
+      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas. Type3: matrices diagonales positivas acotadas y desplazamientos compatibles; glifos vectoriales o imágenes/máscaras bitmap verificadas sin máscaras externas, con recursos y píxeles conservados. Otras matrices, recursos y filtros siguen protegidos. El ajuste se valida siempre al aplicar; si falla, el borrador permanece disponible. El control por fragmentos está en Ajustar texto por estilo (opcional)."
     },
     {
       "id": "paragraph",

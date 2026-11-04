@@ -1104,7 +1104,7 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 ## Funciones complementarias
 
-Desde el texto de la página, **Distribuir en líneas** conserva fuente y transformación originales compatibles. **Editar párrafo** permite revisar el ajuste; un párrafo transformado debe cumplir paralelismo, estilo y composición. La edición no exige localizar el texto en una lista lateral.
+Desde el texto de la página, **Distribuir en líneas** conserva fuente y transformación originales compatibles. **Editar párrafo** ofrece una caja única, también con estilos mixtos. El texto sin cambios conserva sus estilos y las inserciones toman el del carácter anterior (al inicio, el primero). Aplica o usa Ctrl+Enter: el ajuste se valida internamente y un fallo conserva el borrador. Comprobar ajuste por separado es opcional. Los fragmentos por estilo quedan en el apartado avanzado plegado. Un párrafo transformado debe cumplir paralelismo, estilo y composición. La edición no exige localizar el texto en una lista lateral.
 
 En **Medir planos**, «Actualizar referencia» migra mediciones antiguas interpretables con referencia nueva e identificador conservado. Los ángulos usan tres puntos y grados/radianes; los cruces de segmentos sirven como ajuste del cursor.
 
