@@ -1,3 +1,11 @@
+# Continuidad · 4 de noviembre de 2026 · reflujo mixto afín nuevo
+
+Solicitud de entrega final aún NO cumplida. No pedir pruebas personales ni entregar paquetes intermedios. Sin nueva estimación global; la referencia anterior es provisional. Modelo: 6.1 Sol medio.
+
+Trabajo distinto del anterior: el párrafo mixto inclinado/girado/reflejado o de escala no uniforme puede redistribuirse dentro del mismo objeto de texto, conservando fuentes/tamaños/colores/matriz; también una aparición horizontal opaca de Form compartido. Caja única/Ctrl+Enter existentes, con runs en payload afín. Escritura nativa sin censura/rasterización, copia de la aparición, comprobación de texto vecino y borde superior con fuentes de distintos tamaños. Espaciado especial, texto etiquetado, composición especial, mezcla entre objetos y páginas siguen protegidos/pendientes. No repetir como futuro el subconjunto paralelo y opaco del mismo objeto.
+
+Fuente 3730f140548a565bd682f02dab8b3c26e46ef0a2 respaldada en recovery/editing-20261029. 3900 Python; 45 dirigidas nuevas; 140 JS; build, Qt con ratón/cursor/undo/redo/guardado/reapertura, Chromium con desbordamiento/borrador conservado. Dieciséis recorridos Linux fuente limpia aprobados y Windows Server 2025 también pasó 16 y el Reapdf.exe interno (ventana/edición/undo/redo/exportación/cierre), comprobante 41756542882-1 contrastado. App 3730f14 idéntica entre plataformas; dos scripts Linux sincronizaron teclado en 585fe0b sin tocar app tras una comprobación inmediata fallida. Dos repeticiones y batería final aprobadas; fuentes/logs conservados. No acreditar todas las herramientas empaquetadas ni Windows cliente/DPI/impresión física. Informe REFLUJO_MIXTO_AFIN_20261104.md; evidencia validation/affine-mixed-20261104/results.json. Entradas siguientes históricas.
+
 # Continuidad · 4 de noviembre de 2026 · edición sobre página
 
 La solicitud de entrega final sigue SIN cumplirse: no pedir pruebas personales ni entregar otro paquete parcial. No se recalculó porcentaje global por esta tanda. Modelo: 6.1 Sol medio. Plan vigente conserva ocho bloques abiertos.

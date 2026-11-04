@@ -1,0 +1,12 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[84560:84580:1104/015809.012320:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 84581: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_affine_mixed_qt.py", line 58, in <module>
+    assert js(field('Párrafo sobre la página')+'.value')=='HELLO HELLO TEXT'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

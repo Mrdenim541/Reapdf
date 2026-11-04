@@ -1,0 +1,40 @@
+{
+  "source_commit": "3730f140548a565bd682f02dab8b3c26e46ef0a2",
+  "python_passed": 3900,
+  "directed_passed": 45,
+  "new_affine_mixed_test_cases": 45,
+  "javascript_passed": 140,
+  "build_passed": true,
+  "native_linux_checks": 16,
+  "linux_harness_commit": "585fe0b91475beae2aab334d6644473a6d037470",
+  "application_code_unchanged_after_windows_run": true,
+  "native_mouse_caret_undo_redo_save_reopen": true,
+  "browser_overflow_draft_retained": true,
+  "windows_current_source_verified": true,
+  "technical_complete": false,
+  "human_acceptance": false,
+  "package_delivered": false,
+  "global_estimate_recalculated": false,
+  "completed_scope": [
+    "Parallel mixed styles in a single transformed text object",
+    "Opaque mixed horizontal shared-Form occurrence with copy-on-write",
+    "Original fonts/sizes/colours, transformed geometry and top edge retained",
+    "Unselected text checked after output; other shared occurrence/page retained"
+  ],
+  "remaining_scope": [
+    "Mixed affine reflow across different text objects or pages",
+    "Special composition, Tc/Tw and tagged content remain protected",
+    "All other open blocks in PLAN_ACTUAL.md"
+  ],
+  "windows_application_source_commit": "3730f140548a565bd682f02dab8b3c26e46ef0a2",
+  "native_windows_checks": 16,
+  "windows_run": "41756542882-1",
+  "packaged_windows_verified": true,
+  "application_source_blobs_identical_across_platforms": true,
+  "harness_only_difference": [
+    "scripts/smoke_affine_mixed_qt.py",
+    "scripts/smoke_mixed_paragraph_qt.py"
+  ],
+  "harness_synchronization_fix": "Wait for the expected textarea state after asynchronous key events; 20 ms key delay. Product code unchanged; two directed repeats and final Linux suite pass.",
+  "windows_scope": "Windows Server 2025; source Qt 16 checks. Internal compiled Reapdf.exe tested for own window/edit/undo/redo/export/close, not every specialised dialog."
+}

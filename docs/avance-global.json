@@ -147,9 +147,13 @@
         "scripts/smoke_type3_extended_qt.py",
         "web/src/mixed-text-edit.js",
         "scripts/smoke_mixed_paragraph_qt.py",
-        "docs/EDICION_DIRECTA_MIXTA_Y_TYPE3_20261104.md"
+        "docs/EDICION_DIRECTA_MIXTA_Y_TYPE3_20261104.md",
+        "backend/affine_mixed_reflow.py",
+        "tests/test_affine_mixed_reflow.py",
+        "scripts/smoke_affine_mixed_qt.py",
+        "docs/REFLUJO_MIXTO_AFIN_20261104.md"
       ],
-      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con recursos/matrices/filtros fuera del subconjunto vectorial y bitmap verificado, reflujo afín mixto, entre objetos/páginas y con composición especial y cambio de fuente; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
+      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con recursos/matrices/filtros fuera del subconjunto vectorial y bitmap verificado, reflujo mixto fuera del subconjunto paralelo/opaco de un mismo objeto, entre objetos/páginas y con composición especial y cambio de fuente; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
     },
     {
       "id": "annotations",
@@ -508,26 +512,33 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "300072732915c456641f3831c30158111d8ec07b",
+    "source_commit": "3730f140548a565bd682f02dab8b3c26e46ef0a2",
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 15,
-      "evidence": "docs/validation/mixed-type3-20261104/windows/desktop-report.json"
+      "checks": 16,
+      "evidence": "docs/validation/affine-mixed-20261104/windows/desktop-report.json"
     },
     "linux": {
-      "checks": 15,
-      "evidence": "docs/validation/mixed-type3-20261104/linux/desktop-report.json"
+      "source_commit": "585fe0b91475beae2aab334d6644473a6d037470",
+      "checks": 16,
+      "evidence": "docs/validation/affine-mixed-20261104/linux/desktop-report.json"
     },
+    "application_source_blobs_identical": true,
+    "harness_only_difference": [
+      "scripts/smoke_affine_mixed_qt.py",
+      "scripts/smoke_mixed_paragraph_qt.py"
+    ],
     "packaged_executable_verified": true,
-    "packaged_scope": "Ventana propia/edición/deshacer/rehacer/exportación/cierre; no todas las herramientas especializadas ni cierre general."
+    "packaged_scope": "Ventana/edición/deshacer/rehacer/exportación/cierre. No todas las herramientas ni cierre general."
   },
   "last_implementation": {
     "date": "2026-11-04",
-    "evidence": "docs/validation/mixed-type3-20261104/results.json",
+    "evidence": "docs/validation/affine-mixed-20261104/results.json",
     "features": [
-      "Párrafo mixto en caja única, aplicación directa y conservación del borrador",
-      "Deshacer/rehacer que restaura texto y estilos",
-      "Type3 con matrices diagonales/traslación e imágenes bitmap/máscara verificadas"
+      "Parallel mixed styles in a single transformed text object",
+      "Opaque mixed horizontal shared-Form occurrence with copy-on-write",
+      "Original fonts/sizes/colours, transformed geometry and top edge retained",
+      "Unselected text checked after output; other shared occurrence/page retained"
     ],
     "global_estimate_recalculated": false
   }
