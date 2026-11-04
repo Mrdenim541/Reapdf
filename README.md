@@ -1,10 +1,12 @@
 # Reapdf
 
-**Versión actual de prueba para Windows:** [descargar ZIP](https://github.com/Mrdenim541/Reapdf/releases/download/preview-windows-20261104-ddd9bdd/Reapdf-prueba-20261104-Windows-x64.zip) · [guía para abrirlo](docs/PROBAR_VERSION_ACTUAL.md). Portable solicitado por el usuario; no es la entrega final.
+**Código actualizado:** [OCR, nombres y bloqueos por etiquetas](docs/CORRECCIONES_OBSERVADAS_20261104.md). El portable enlazado a continuación corresponde a una versión anterior y aún no incluye estas correcciones.
+
+**Última versión publicada de prueba para Windows:** [descargar ZIP](https://github.com/Mrdenim541/Reapdf/releases/download/preview-windows-20261104-ddd9bdd/Reapdf-prueba-20261104-Windows-x64.zip) · [guía para abrirlo](docs/PROBAR_VERSION_ACTUAL.md). Portable solicitado por el usuario; no es la entrega final.
 
 [Manual de funciones](docs/MANUAL_DE_FUNCIONES.md): acceso, pasos, resultado esperado y límites de cada herramienta. La prueba portable actual fue solicitada expresamente por el usuario; el cierre técnico completo sigue pendiente.
 
-Último trabajo interno: [implementaciones y validación integral](docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md). 4397 pruebas Python, 148 JavaScript y 28 recorridos Qt en Linux/Windows; tres aperturas independientes de Reapdf.exe y tareas programadas en el paquete, comprobadas en Windows Server 2025. Edición directa densa/etiquetada compatible, paginación automática, tablas, lotes, recetas y consulta local opcional. Persisten implementaciones pendientes: no es una entrega final. Estimación global recalculada: **86,87 % provisional (≈87 %)**. [Plan actual](docs/PLAN_ACTUAL.md), [matriz](docs/avance-global.json) e [historial](docs/WORK_STATE.md).
+Última comprobación del código: **4.419 pruebas Python, 151 JavaScript y 29 recorridos Qt en Linux y Windows Server 2025**. Se verificaron también tres aperturas independientes del ejecutable de comprobación. [Correcciones y límites](docs/CORRECCIONES_OBSERVADAS_20261104.md). Persisten implementaciones pendientes: no es una entrega final. Estimación global sin incremento por estas correcciones: **86,87 % provisional**. [Plan actual](docs/PLAN_ACTUAL.md), [matriz](docs/avance-global.json) e [historial](docs/WORK_STATE.md).
 
 Continuar en una PC Windows con Codex local: [guía de traslado y configuración](docs/CONTINUAR_EN_PC.md). Uso opcional de [REA](docs/REA_PARA_REAPDF.md) para investigaciones concretas.
 

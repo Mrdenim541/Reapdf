@@ -1,0 +1,3 @@
+[8692:4140:1104/185502.737:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[8692:4140:1104/185502.737:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: actual Qt caret and mixed-style undo, occupied-area failure retains draft, mouse-drawn destination on rotated page, direct Ctrl+Enter cross-page original-font continuation, document undo/redo, native atomic save/reopen; other appearances/pages and source intact.

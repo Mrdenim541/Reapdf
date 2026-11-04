@@ -30,9 +30,11 @@
         "backend/engine.py",
         "scripts/smoke_advanced_workflows.mjs",
         "docs/DIVISION_CON_NOMBRES_Y_LISTAS_20261029.md",
-        "backend/split_plan.py"
+        "backend/split_plan.py",
+        "docs/CORRECCIONES_OBSERVADAS_20261104.md",
+        "docs/validation/observations-20261104/results.json"
       ],
-      "remaining": "Corpus de documentos complejos y aceptación; variantes protegidas de división (árboles de etiquetas complejos/ActualText/atributos, capas, XFA y cálculos/scripts), modos adicionales por contenido. División por rangos/bloques/marcadores y nombres personalizados incorporada."
+      "remaining": "Corpus de documentos complejos y aceptación; variantes protegidas de división (árboles de etiquetas complejos/ActualText/atributos, capas, XFA y cálculos/scripts), modos adicionales por contenido. División por rangos/bloques/marcadores y nombres personalizados incorporada. Alternativa explícita de partes sin etiquetas ya incorporada; no equivale a conservar/reparar árboles complejos."
     },
     {
       "id": "interface",
@@ -70,7 +72,9 @@
         "scripts/smoke_extended_workflows.mjs",
         "scripts/smoke_extended_workflows_qt.py",
         "docs/CONTINUACION_NATIVA_20261104.md",
-        "docs/validation/native-continuation-20261104/results.json"
+        "docs/validation/native-continuation-20261104/results.json",
+        "docs/CORRECCIONES_OBSERVADAS_20261104.md",
+        "docs/validation/observations-20261104/results.json"
       ],
       "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados."
     },
@@ -166,9 +170,11 @@
         "docs/validation/native-continuation-20261104/results.json",
         "docs/AVANCE_LOCAL_INTEGRAL_20261104.md",
         "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
-        "docs/validation/functional-closing-20261104/results.json"
+        "docs/validation/functional-closing-20261104/results.json",
+        "docs/CORRECCIONES_OBSERVADAS_20261104.md",
+        "docs/validation/observations-20261104/results.json"
       ],
-      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo no paralelo/composición y espaciados restantes, cambio general de fuente, etiquetas/ActualText/Stm o mezcla etiquetada general, imágenes inline/etiquetadas/OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada."
+      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo no paralelo/composición y espaciados restantes, cambio general de fuente, etiquetas/ActualText/Stm o mezcla etiquetada general, imágenes inline/etiquetadas/OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada. Copia explícita sin etiquetas para imágenes/texto compatibles ya incorporada; permanece pendiente la edición semántica nativa sin esa pérdida."
     },
     {
       "id": "annotations",
@@ -254,9 +260,11 @@
         "docs/validation/paths-curves-notes-20261104/results.json",
         "docs/AVANCE_LOCAL_INTEGRAL_20261104.md",
         "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
-        "docs/validation/functional-closing-20261104/results.json"
+        "docs/validation/functional-closing-20261104/results.json",
+        "docs/CORRECCIONES_OBSERVADAS_20261104.md",
+        "docs/validation/observations-20261104/results.json"
       ],
-      "remaining": "Importación Word por lotes y saltos de sección par/impar con numeración ya incorporados. Quedan secciones continuas/columnas, campos y fidelidad Office general, OCR con esquinas/bajo contraste/idiomas y tablas irregulares/curvas/multilínea generales, notas Word partidas o con marcas fuera de fragmentos consecutivos compatibles y corpus externo."
+      "remaining": "Importación Word por lotes y saltos de sección par/impar con numeración ya incorporados. Quedan secciones continuas/columnas, campos y fidelidad Office general, OCR con esquinas/bajo contraste/idiomas y tablas irregulares/curvas/multilínea generales, notas Word partidas o con marcas fuera de fragmentos consecutivos compatibles y corpus externo. OCR comprueba ahora aspecto y límites antes de publicar; no incrementa su exactitud de reconocimiento ni garantiza otros visores."
     },
     {
       "id": "security_signatures",
@@ -421,7 +429,9 @@
         "scripts/check_desktop_candidate.py",
         "docs/FLUJO_PORTFOLIO_Y_CIERRE_20261029.md",
         "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
-        "docs/validation/functional-closing-20261104/results.json"
+        "docs/validation/functional-closing-20261104/results.json",
+        "docs/CORRECCIONES_OBSERVADAS_20261104.md",
+        "docs/validation/observations-20261104/results.json"
       ],
       "remaining": "Contexto nativo denso indexado y conversiones programadas en proceso propio con finalización al morir el padre incorporados. Quedan carga/memoria sostenida con corpus grande, pérdida de energía, estrés de borradores y recuperación en Windows cliente. No se infiere estabilidad universal de los recorridos aprobados."
     },
@@ -607,7 +617,9 @@
       "size_bytes": 325574685,
       "download_roundtrip_verified": true,
       "technical_complete": false,
-      "changes_global_estimate": false
+      "changes_global_estimate": false,
+      "contains_latest_corrections": false,
+      "newer_unreleased_source_commit": "909959d0baa04448afc3cb74ca3da038156f376f"
     }
   },
   "technical_completion_gates": [
@@ -620,19 +632,19 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "51ffe62b32f12d2e1c414e9c2c44285505c02ad4",
+    "source_commit": "909959d0baa04448afc3cb74ca3da038156f376f",
     "linux": {
-      "checks": 28,
-      "evidence": "docs/validation/functional-closing-20261104/linux/desktop-report.json"
+      "checks": 29,
+      "evidence": "docs/validation/observations-20261104/linux/desktop-report.json"
     },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 28,
-      "evidence": "docs/validation/functional-closing-20261104/windows/assessment.json"
+      "checks": 29,
+      "evidence": "docs/validation/observations-20261104/windows/assessment.json"
     },
     "packaged_executable_verified": true,
     "compiled_gui_independent_runs": 3,
-    "packaged_scope": "Edición básica, párrafo con espaciado/continuación y paginación automática; tarea programada real en proceso propio incluido. No Windows cliente/DPI/impresión física/carga sostenida ni corrección demostrada de intermitencias."
+    "packaged_scope": "Edición básica, espaciado/continuación, paginación automática y tarea programada empaquetada. Los recorridos nuevos de copias/división/OCR son Qt desde fuente Windows/Linux; no se acredita todo el alcance en Windows cliente, DPI ni impresión física."
   },
   "last_implementation": {
     "date": "2026-11-04",
@@ -650,5 +662,39 @@
       "Adaptador opcional Ollama exclusivamente local"
     ],
     "global_estimate_recalculated": true
+  },
+  "last_observations": {
+    "source_commit": "909959d0baa04448afc3cb74ca3da038156f376f",
+    "python_passed": 4419,
+    "warnings": 3,
+    "net_new_python_tests": 22,
+    "javascript_passed": 151,
+    "manual": {
+      "tools": 75,
+      "general_operations": 15
+    },
+    "linux_checks": 29,
+    "windows_checks": 29,
+    "windows_receipt": "41891361800-1",
+    "compiled_gui_independent_runs": 3,
+    "private_sample": {
+      "actual_qt_image_copy_edit_save": true,
+      "original_unchanged": true,
+      "all_text_geometry_unchanged": true,
+      "other_images_unchanged": true,
+      "new_save_identity_verified": true,
+      "raw_private_data_archived": false
+    },
+    "exact_42_page_document_verified": false,
+    "small_qt_window_verified": [
+      1280,
+      760
+    ],
+    "partially_tagged_document_regression_fixed": true,
+    "global_estimate_unchanged": 86.87,
+    "technical_complete": false,
+    "new_portable_published": false,
+    "previous_preview_includes_changes": false,
+    "report": "docs/CORRECCIONES_OBSERVADAS_20261104.md"
   }
 }

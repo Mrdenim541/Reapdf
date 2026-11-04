@@ -18,7 +18,7 @@
       "id": "text_editing",
       "status": "partial",
       "description": "Edición de texto general",
-      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo no paralelo/composición y espaciados restantes, cambio general de fuente, etiquetas/ActualText/Stm o mezcla etiquetada general, imágenes inline/etiquetadas/OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada."
+      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo no paralelo/composición y espaciados restantes, cambio general de fuente, etiquetas/ActualText/Stm o mezcla etiquetada general, imágenes inline/etiquetadas/OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada. Copias sin etiquetas para edición/división compatibles ya incorporadas como alternativa explícita; no equivalen a conservar/reparar la semántica general."
     },
     {
       "id": "office_conversion",
@@ -48,13 +48,13 @@
       "id": "automation",
       "status": "partial",
       "description": "Automatización de flujos generales",
-      "remaining": "Revisiones con identificadores cambiados, rangos por paso, OCR en recetas, Word por lotes y programación persistente local ya incorporados. Quedan corpus amplio, lotes mayores y flujos profesionales fuera de las acciones declarativas. La programación requiere aplicación abierta, ejecuta vencidas al reiniciar y marca las interrumpidas; no servicio siempre activo ni contraseñas persistidas."
+      "remaining": "Revisiones con identificadores cambiados, rangos por paso, OCR en recetas, Word por lotes y programación persistente local ya incorporados. Quedan corpus amplio, lotes mayores y flujos profesionales fuera de las acciones declarativas. La programación requiere aplicación abierta, ejecuta vencidas al reiniciar y marca las interrumpidas; no servicio siempre activo ni contraseñas persistidas. Copias sin etiquetas para edición/división compatibles ya incorporadas como alternativa explícita; no equivalen a conservar/reparar la semántica general."
     },
     {
       "id": "windows_execution",
       "status": "partial",
       "description": "Ejecutable propio en Windows",
-      "remaining": "28 recorridos desde fuente en Linux/Windows Server 2025 y tres aperturas independientes de Reapdf.exe (básica, espaciado/continuación y paginación automática), además de tarea programada real dentro del paquete, comprobados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga y recuperación sostenidas, migración del recorrido histórico extendido y aceptación personal al final. Intermitencias históricas sin causa demostrada."
+      "remaining": "29 recorridos desde fuente en Linux/Windows Server 2025 y tres aperturas independientes de Reapdf.exe (básica, espaciado/continuación y paginación automática), además de tarea programada real dentro del paquete, comprobados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga y recuperación sostenidas, migración del recorrido histórico extendido y aceptación personal al final. Intermitencias históricas sin causa demostrada."
     },
     {
       "id": "independent_corpus",
