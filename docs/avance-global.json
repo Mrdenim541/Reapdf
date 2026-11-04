@@ -151,9 +151,12 @@
         "backend/affine_mixed_reflow.py",
         "tests/test_affine_mixed_reflow.py",
         "scripts/smoke_affine_mixed_qt.py",
-        "docs/REFLUJO_MIXTO_AFIN_20261104.md"
+        "docs/REFLUJO_MIXTO_AFIN_20261104.md",
+        "tests/test_multi_object_reflow.py",
+        "scripts/smoke_multi_object_qt.py",
+        "docs/REFLUJO_ENTRE_OBJETOS_20261104.md"
       ],
-      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con recursos/matrices/filtros fuera del subconjunto vectorial y bitmap verificado, reflujo mixto fuera del subconjunto paralelo/opaco de un mismo objeto, entre objetos/páginas y con composición especial y cambio de fuente; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
+      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con recursos/matrices/filtros fuera del subconjunto vectorial y bitmap verificado, reflujo mixto fuera del subconjunto de objetos completos, continuos, paralelos/opacos y de la misma ruta, entre rutas/bloques distintos y páginas y con composición especial y cambio de fuente; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
     },
     {
       "id": "annotations",
@@ -512,33 +515,25 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "3730f140548a565bd682f02dab8b3c26e46ef0a2",
+    "source_commit": "f63fe3c23b31e1864c6766b4518656fe296bddcf",
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 16,
-      "evidence": "docs/validation/affine-mixed-20261104/windows/desktop-report.json"
+      "checks": 17,
+      "evidence": "docs/validation/multi-object-20261104/windows/desktop-report.json"
     },
     "linux": {
-      "source_commit": "585fe0b91475beae2aab334d6644473a6d037470",
-      "checks": 16,
-      "evidence": "docs/validation/affine-mixed-20261104/linux/desktop-report.json"
+      "checks": 17,
+      "evidence": "docs/validation/multi-object-20261104/linux/desktop-report.json"
     },
-    "application_source_blobs_identical": true,
-    "harness_only_difference": [
-      "scripts/smoke_affine_mixed_qt.py",
-      "scripts/smoke_mixed_paragraph_qt.py"
-    ],
     "packaged_executable_verified": true,
-    "packaged_scope": "Ventana/edición/deshacer/rehacer/exportación/cierre. No todas las herramientas ni cierre general."
+    "packaged_scope": "Ventana/edición/undo/redo/exportación/cierre; no cierre funcional general."
   },
   "last_implementation": {
     "date": "2026-11-04",
-    "evidence": "docs/validation/affine-mixed-20261104/results.json",
+    "evidence": "docs/validation/multi-object-20261104/results.json",
     "features": [
-      "Parallel mixed styles in a single transformed text object",
-      "Opaque mixed horizontal shared-Form occurrence with copy-on-write",
-      "Original fonts/sizes/colours, transformed geometry and top edge retained",
-      "Unselected text checked after output; other shared occurrence/page retained"
+      "Reflujo mixto entre objetos completos y continuos de la misma ruta",
+      "Edición repetida del resultado y conservación de otras apariciones"
     ],
     "global_estimate_recalculated": false
   }

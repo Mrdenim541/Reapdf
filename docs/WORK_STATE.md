@@ -1,3 +1,11 @@
+# Continuidad · 4 de noviembre de 2026 · reflujo entre objetos
+
+Entrega final aún NO cumplida: no pedir pruebas personales ni entregar paquetes intermedios. No se recalculó porcentaje global; la referencia previa es provisional. Modelo recomendado: 6.1 Sol medio.
+
+Implementado ahora: reflujo afín mixto entre objetos completos, paralelos y opacos de un bloque visual continuo y una misma ruta. Selección geométrica automática; huecos/incompatibilidades mantienen recorrido anterior. Conserva contextos/font/size/color, valida integridad y permite volver a editar el resultado. Form compartido: solo cambia la aparición seleccionada. No repetir como pendiente la mezcla entre objetos dentro de este subconjunto. Faltan rutas/bloques distintos, composición/espaciado especial, texto etiquetado y distribución general entre páginas.
+
+Fuente f63fe3c23b31e1864c6766b4518656fe296bddcf en recovery/editing-20261029. 3935 Python, 362 dirigidas con 35 nuevas, 140 JS, build, Qt real con ratón/cursor/undo/redo/guardado/reapertura y Chromium con fallo de ajuste/borrador conservado. Diecisiete recorridos Linux fuente limpia aprobados; Windows Server 2025 aprobó también 17 y el Reapdf.exe interno (ventana/edición/undo/redo/exportación/cierre), comprobante 41760358411-1 y objetos/logs/huella contrastados. No acredita todas las herramientas empaquetadas ni Windows cliente/DPI/impresión física. Informe REFLUJO_ENTRE_OBJETOS_20261104.md; evidencia validation/multi-object-20261104/results.json. Entradas siguientes históricas.
+
 # Continuidad · 4 de noviembre de 2026 · reflujo mixto afín nuevo
 
 Solicitud de entrega final aún NO cumplida. No pedir pruebas personales ni entregar paquetes intermedios. Sin nueva estimación global; la referencia anterior es provisional. Modelo: 6.1 Sol medio.

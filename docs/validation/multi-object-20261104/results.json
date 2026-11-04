@@ -1,0 +1,19 @@
+{
+  "source_commit": "f63fe3c23b31e1864c6766b4518656fe296bddcf",
+  "python_passed": 3935,
+  "directed_passed": 362,
+  "new_cases": 35,
+  "javascript_passed": 140,
+  "build_passed": true,
+  "linux_qt_checks": 17,
+  "windows_verified": true,
+  "human_acceptance": false,
+  "technical_complete": false,
+  "package_delivered": false,
+  "global_estimate_recalculated": false,
+  "scope": "Complete parallel opaque text objects in a continuous visual block and common Form path. Does not merge discontinuous blocks, different Form paths or pages.",
+  "windows_qt_checks": 17,
+  "windows_run": "41760358411-1",
+  "packaged_windows_verified": true,
+  "windows_scope": "Windows Server 2025 source Qt 17 checks; internal compiled executable own window/edit/undo/redo/export/close. Does not certify every specialised dialog in the bundle or clean Windows client/DPI/physical print."
+}
