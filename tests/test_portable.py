@@ -57,6 +57,7 @@ def test_launcher_self_test_http_and_export_in_staged_folder_with_spaces(tmp_pat
     (app/'web/dist/index.html').write_text('<html><div id="root"></div></html>')
     shutil.copy2(root/'portable/launcher.py',app/'launcher.py')
     shutil.copy2(root/'portable/desktop.py',app/'desktop.py')
+    shutil.copy2(root/'portable/parent_pipe.py',app/'parent_pipe.py')
     (folder/'ejemplos').mkdir()
     with f.open() as d:
         p=d.new_page();p.insert_text((40,80),'Texto original',fontsize=18)
@@ -65,6 +66,7 @@ def test_launcher_self_test_http_and_export_in_staged_folder_with_spaces(tmp_pat
     assert report['portable_self_test']=='ok' and report['http_upload_export']=='ok'
     # Ejecutar con Python del host no certifica el binario Windows incluido.
     assert report['projects_recovery_print']=='ok'
+    assert report['packaged_scheduled_worker']=='ok'
     assert not report['windows_execution_verified']
 
 
