@@ -127,12 +127,23 @@ def test_expansion_along_reflected_baseline_and_new_image_collision():
     with pytest.raises(DocumentError,match='imagen'):replace_styled(blocked,[],0,area,[{'id':row['id'],'text':'HELLO TEXT TEXT'}],True)
 
 
-def test_overlap_with_actual_neighbor_rejected():
+def test_contained_native_edit_preserves_preexisting_affine_overlap():
+    from collections import Counter
+    from backend.native_text import native_model
+    from backend.affine_mixed_reflow import stable_key
     base=source(MATRICES[5],mode='direct')
     with f.open(stream=base) as doc:
         p=doc[0];p.insert_text((220,190),'COLLISION',fontsize=10);base=doc.tobytes()
     box=box_for(base);rows=inspect_styled(base,[],0,box)['runs'];row=next(r for r in rows if r['text']=='HELLO TEXT')
-    with pytest.raises(DocumentError,match='otro fragmento'):replace_styled(base,[],0,box,[{'id':row['id'],'text':'HELLO TEX'}])
+    with f.open(stream=base) as doc:_,before=native_model(doc,0,doc[0].rect,context=True)
+    out=replace_styled(base,[],0,box,[{'id':row['id'],'text':'HELLO TEX'}])
+    with f.open(stream=out) as doc,f.open(stream=base) as original:
+        _,after=native_model(doc,0,doc[0].rect,context=True)
+        assert 'HELLO TEX' in doc[0].get_text()
+        assert not (Counter(stable_key(r) for r in before if r['text']!='HELLO TEXT')-Counter(stable_key(r) for r in after))
+        assert original[1].get_pixmap().samples==doc[1].get_pixmap().samples
+    wider=box.copy();wider[2]+=200
+    with pytest.raises(DocumentError):replace_styled(base,[],0,wider,[{'id':row['id'],'text':'HELLO TEXT TEXT'}],True)
 
 
 def test_batch_two_affine_occurrences_is_atomic_and_isolated():
