@@ -1,0 +1,13 @@
+Added {--remote-allow-origins=*} to command-line arguments to avoid web socket connection errors during remote debugging.
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+
+DevTools listening on ws://127.0.0.1:9229/devtools/browser/ae47e91b-e2f7-4ca8-97c5-11556fd26069
+[105367:105388:1104/044117.666967:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 105389: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Remote debugging server started successfully. Try pointing a Chromium-based browser to http://127.0.0.1:9229
+PASS: attached embedded Qt window loads PDF, edits text on page, undoes/redoes and exports through its server. Executable identity is checked by the Windows verifier.
+ 

@@ -1,3 +1,11 @@
+# Continuidad · 4 de noviembre de 2026 · selección explícita
+
+Entrega final aún NO cumplida. No pedir pruebas personales ni entregar paquetes intermedios. Sin reevaluación global. Modelo: 6.1 Sol medio.
+
+Nuevo: selección explícita de bloques separados sobre la página. Desde el texto, Seleccionar varios bloques activa marcadores; pulsar añade/quita, Redistribuir selección respeta el orden elegido, Cambiar selección vuelve al selector sin reiniciar y cancelar conserva el PDF. Misma caja única y protecciones de ajuste/undo/redo. Referencias duplicadas/obsoletas o selección parcial se rechazan; no se amplía el texto implícitamente. Solo objetos completos paralelos/opacos en la misma ruta y página; rutas distintas, composición/espaciado especial y redistribución entre páginas siguen pendientes.
+
+Fuente b4a7e6a3f11f6b379044ff793a50beb3858867f1 respaldada en recovery/editing-20261029. 3946 Python, 91 dirigidas (11 nuevas), 140 JS, build, navegador con retorno/toggle/reordenación/overflow y Qt con cursor/undo/redo/guardado/reapertura. Dieciocho recorridos Linux/Windows Server 2025 aprobaron; Windows 41775054129-1 contrastado y Reapdf.exe pasó dos aperturas independientes. App b4a7e6a idéntica a 37ab9fd (solo verificadores cambiados). Primer fallo empaquetado conservado, causa no identificada; tres aperturas posteriores aprobaron. No declarar resuelta definitivamente la intermitencia ni Windows cliente/DPI/impresión física. Informe SELECCION_EXPLICITA_20261104.md; evidencia validation/explicit-selection-20261104/results.json. Entradas siguientes históricas.
+
 # Continuidad · 4 de noviembre de 2026 · reflujo entre objetos
 
 Entrega final aún NO cumplida: no pedir pruebas personales ni entregar paquetes intermedios. No se recalculó porcentaje global; la referencia previa es provisional. Modelo recomendado: 6.1 Sol medio.
