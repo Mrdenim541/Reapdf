@@ -1000,7 +1000,7 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Resultado esperado:** Se guarda trazado y etiqueta anclados al PDF. En curvas compatibles se conserva un margen de aproximación que se vuelve a comprobar al leer su trazado de origen.
 
-**Límites actuales:** La curva se aproxima por hasta 200 vértices con margen explícito; no incluye errores del plano ni de calibración. Se protegen capas, recortes que cortan geometría, trazados excesivos o ambiguos. Los ángulos no requieren escala; Cruces de línea con Bézier compatibles incorporados; cruces entre dos curvas y migraciones antiguas ambiguas siguen pendientes.
+**Límites actuales:** La curva se aproxima por hasta 200 vértices con margen explícito; no incluye errores del plano ni de calibración. Se protegen capas, recortes que cortan geometría, trazados excesivos o ambiguos. Los ángulos no requieren escala; Cruces de línea con Bézier y entre dos Bézier compatibles incorporados, con tolerancia numérica de 0,000002 pt para el ajuste entre curvas. Se omiten curvas coincidentes, pares no aislables y geometría que agota el presupuesto; el ajuste parcial se informa. Las migraciones antiguas ambiguas siguen pendientes.
 
 <a id="funcion-layers"></a>
 
@@ -1122,4 +1122,4 @@ La entrega final incluirá ejecutable instalable o portable de Windows, esta gu�
 
 Desde Editar texto sobre la página, pulsa Seleccionar varios bloques. El primero queda seleccionado; pulsa otros textos para añadirlos o quitarlos. Redistribuir selección abre el párrafo siguiendo el orden de tus elecciones. Cambiar selección permite volver sin empezar desde cero; avisa si descarta un borrador. Cancelar selección conserva el documento.
 
-Solo admite objetos completos y paralelos de una misma ruta y página; referencias incompletas, repetidas, obsoletas o incompatibles se rechazan. Los fragmentos no elegidos no se añaden automáticamente.
+Admite objetos completos y paralelos de rutas distintas dentro de la misma página; conserva cada recorte y las apariciones compartidas no seleccionadas; referencias incompletas, repetidas, obsoletas o incompatibles se rechazan. Los fragmentos no elegidos no se añaden automáticamente.

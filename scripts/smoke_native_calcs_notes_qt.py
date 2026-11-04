@@ -9,6 +9,7 @@ from portable.native_window import create_window
 from tests.test_native_calculations import source
 from tests.test_docx_notes import source as note_source,p as paragraph,reference
 from backend.docx_import import import_docx
+from tests.test_docx_note_runs import ref as custom_reference
 import base64
 
 root=Path(tempfile.mkdtemp(prefix='reapdf-native-notes-qt-'));original=root/'Original.pdf';output=root/'Editado.pdf';original.write_bytes(source());digest=hashlib.sha256(original.read_bytes()).hexdigest()
@@ -66,7 +67,7 @@ try:
         values={w.field_name:w.field_value for p in b for w in p.widgets() or []};assert values['Total']=='10' and values['Final']=='20' and '20,00' in b[1].get_text()
         old={w.field_name:a.xref_get_key(w.xref,'AA/C/JS') for p in a for w in p.widgets() or []};new={w.field_name:b.xref_get_key(w.xref,'AA/C/JS') for p in b for w in p.widgets() or []};assert old==new
     assert hashlib.sha256(original.read_bytes()).hexdigest()==digest
-    word=root/'Notes.docx';word.write_bytes(note_source(body=paragraph('Texto anterior de prueba. '*140)+reference('footnote',1,'NEARBOUNDARY')+paragraph('Texto posterior de prueba. '*90)+reference('endnote',2,'FINALREFERENCE')));word_digest=hashlib.sha256(word.read_bytes()).hexdigest()
+    word=root/'Notes.docx';word.write_bytes(note_source(body=paragraph('Texto anterior de prueba. '*140)+custom_reference('footnote',1,'**').replace('BEFOREWORD','NEARBOUNDARY')+paragraph('Texto posterior de prueba. '*90)+custom_reference('endnote',2,'AB12').replace('BEFOREWORD','FINALREFERENCE')));word_digest=hashlib.sha256(word.read_bytes()).hexdigest()
     js('document.querySelector(".file-menu").open=true');click('Crear PDF desde Word');wait('!!'+field('Archivo Word para convertir'))
     encoded=base64.b64encode(word.read_bytes()).decode()
     js('(()=>{const raw=atob('+json.dumps(encoded)+');const bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));const data=new DataTransfer();data.items.add(new File([bytes],"Notes.docx",{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}));const input='+field('Archivo Word para convertir')+';input.files=data.files;input.dispatchEvent(new Event("change",{bubbles:true}));})()')
@@ -81,7 +82,7 @@ try:
         ref=next(p.number for p in d if p.search_for('NEARBOUNDARY'));note=next(p.number for p in d if p.search_for('FOOTNOTEALPHA'));assert ref==note
         assert any(p.search_for('ENDNOTEBETA') for p in d) and len([l for p in d for l in p.get_links() if l['kind']==f.LINK_GOTO])>=4
     assert hashlib.sha256(word.read_bytes()).hexdigest()==word_digest
-    print('PASS: actual Qt app recalculated native PDF fields across pages and saved atomically with original actions/source preserved; imported and reviewed Word foot/endnotes, saved through native PDF dialog, verified same-page footnote/reference and return links with original Word unchanged.')
+    print('PASS: actual Qt app recalculated native PDF fields across pages and saved atomically with original actions/source preserved; imported and reviewed Word foot/endnotes with custom marks in the following styled run, saved through native PDF dialog, verified same-page footnote/reference and return links with original Word unchanged.')
 except Exception:
     print(js("document.body.innerText"));raise
 finally:window.allow_close=True;window.close();app.processEvents()

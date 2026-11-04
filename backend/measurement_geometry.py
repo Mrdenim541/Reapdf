@@ -116,8 +116,8 @@ def targets(base,ops,number):
         drawings=page.get_drawings();result=[];seen=set();limited=len(drawings)>20000;segments=[]
         def add(point,kind):
             nonlocal limited
-            p=f.Point(point)*rotate;key=(round(p.x,5),round(p.y,5))
-            if key in seen or not view_rect.contains(p):return
+            px,py=point;p=[px*rotate.a+py*rotate.c+rotate.e,px*rotate.b+py*rotate.d+rotate.f];key=(round(p[0],5),round(p[1],5))
+            if key in seen or not view_rect.contains(f.Point(p)):return
             if len(result)>=10000:limited=True;return
             seen.add(key);result.append({'point':list(p),'source':kind})
         for drawing in drawings[:20000]:
@@ -152,7 +152,7 @@ def targets(base,ops,number):
         # Curves are taken only from the clip-aware trace model. Intersections
         # solve the original cubic, not its displayed polyline approximation.
         from .measurement_paths import paths_on_page
-        from .vector_intersections import line_cubic
+        from .vector_intersections import line_cubic,cubic_cubic
         safe=paths_on_page(doc,page,private=True);safe_lines=[];curves=[];curve_comparisons=0;curve_hits=0;solves=0
         for path in safe['paths']:
             for segment in path['_segments']:
@@ -169,12 +169,29 @@ def targets(base,ops,number):
                 for point in line_cubic(line,curve):
                     before=len(result);add(point,'curve_intersection');curve_hits+=len(result)-before
             if curve_comparisons>250000 or solves>10000:break
+        # Pairwise original-cubic subdivision has its own shared work budget.
+        # Omitted/non-isolated pairs are disclosed instead of using polyline
+        # intersections as if they were intersections of the actual curves.
+        cubic_comparisons=0;cubic_hits=0;cubic_omitted=0;cubic_budget=[0]
+        selected=curves[:500]
+        boxes=[(min(p[0] for p in c),min(p[1] for p in c),max(p[0] for p in c),max(p[1] for p in c)) for c in selected]
+        for i,curve in enumerate(selected):
+            for j in range(i):
+                cubic_comparisons+=1
+                a=boxes[i];b=boxes[j]
+                if a[2]<b[0]-1e-8 or b[2]<a[0]-1e-8 or a[3]<b[1]-1e-8 or b[3]<a[1]-1e-8:continue
+                found=cubic_cubic(curve,selected[j],cubic_budget)
+                if found['limited']:limited=True;cubic_omitted+=1
+                for point in found['points']:
+                    before=len(result);add(point,'curve_curve_intersection');cubic_hits+=len(result)-before
+                if cubic_budget[0]>100000:break
+            if cubic_budget[0]>100000:break
         images=page.get_image_info()
         if len(images)>1000:limited=True
         for info in images[:1000]:
             matrix=f.Matrix(*info['transform'])
             for p in [(0,0),(1,0),(1,1),(0,1)]:add(f.Point(p)*matrix,'image')
-        return {'points':result,'limited':limited,'intersection_comparisons':comparisons,'curve_line_comparisons':curve_comparisons,'curve_intersections':curve_hits,'reason':'Ajuste parcial: se omitieron trazados recortados/incompatibles o se alcanzó un límite de geometría o de cruces.' if limited else ''}
+        return {'points':result,'limited':limited,'intersection_comparisons':comparisons,'curve_line_comparisons':curve_comparisons,'curve_intersections':curve_hits,'curve_curve_intersections':cubic_hits,'curve_curve_comparisons':cubic_comparisons,'curve_curve_nodes':cubic_budget[0],'curve_curve_omitted_pairs':cubic_omitted,'curve_curve_tolerance_pt':.000002,'curve_curve_merge_tolerance_pt':.00001,'reason':'Ajuste parcial: se omitieron trazados recortados/incompatibles, curvas coincidentes o se alcanzó un límite de geometría o de cruces.' if limited else ''}
 
 
 def native_vertices(page,annot,kind):

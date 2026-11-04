@@ -74,7 +74,7 @@ class Notes:
         kind='footnote' if node.tag==tag('footnoteReference') else 'endnote';raw=node.attrib.get(tag('id'),'')
         if not re.fullmatch(r'\d{1,9}',raw) or node.attrib.get(tag('customMarkFollows'),'0') not in ['0','false','1','true']:raise DocumentError('La referencia de nota necesita un identificador y marcador compatibles.')
         custom=node.attrib.get(tag('customMarkFollows'),'0') in ['1','true']
-        if custom!=(custom_label is not None) or custom and (not isinstance(custom_label,str) or not 1<=len(custom_label)<=4 or any(c.isspace() or not c.isprintable() for c in custom_label)):raise DocumentError('El marcador personalizado necesita de uno a cuatro caracteres visibles en el mismo fragmento.')
+        if custom!=(custom_label is not None) or custom and (not isinstance(custom_label,str) or not 1<=len(custom_label)<=4 or any(c.isspace() or not c.isprintable() for c in custom_label)):raise DocumentError('El marcador personalizado necesita de uno a cuatro caracteres visibles en el mismo fragmento o en el siguiente fragmento de texto.')
         if custom:
             if self.marker_font is None:self.marker_font=f.Font(fontfile=str(Path(__file__).resolve().parent.parent/'resources/fonts/DejaVuSans.ttf'))
             if any(not self.marker_font.has_glyph(ord(c),fallback=0) for c in custom_label):raise DocumentError('La fuente incluida no cubre la marca personalizada de la nota.')
@@ -186,3 +186,28 @@ def checked_text(doc,positions):
                         text.append(' ' if any(r.contains(center) for r in markers[page.number]) else char['c'])
                 result.append(''.join(text))
     return '\n'.join(result)
+
+
+def following_marks(paragraph):
+    """Resolve a custom note mark stored in the next Word run.
+
+    Only a single adjacent text-only run is consumed. Never cross a link,
+    field, bookmark, paragraph boundary, or a run containing other content.
+    The normal reference validator checks mark length/glyphs afterward.
+    """
+    marks={};consumed=set()
+    for container in paragraph.iter():
+        if container.tag not in {tag('p'),tag('hyperlink')}:continue
+        children=list(container)
+        for index,node in enumerate(children):
+            if node.tag!=tag('r'):continue
+            content=[c for c in node if c.tag!=tag('rPr')]
+            if not content:continue
+            ref=content[-1]
+            if ref.tag not in {tag('footnoteReference'),tag('endnoteReference')} or ref.attrib.get(tag('customMarkFollows'),'0') not in ['1','true']:continue
+            if index+1>=len(children) or children[index+1].tag!=tag('r'):continue
+            adjacent=children[index+1];parts=[c for c in adjacent if c.tag!=tag('rPr')]
+            if len(parts)!=1 or parts[0].tag!=tag('t'):continue
+            if adjacent in consumed:raise DocumentError('La marca personalizada de una nota es ambigua.')
+            marks[ref]=parts[0].text or '';consumed.add(adjacent)
+    return marks,consumed

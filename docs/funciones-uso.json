@@ -118,7 +118,7 @@
         "guarda la medición en el PDF y exporta o guarda el documento."
       ],
       "expected": "Se guarda trazado y etiqueta anclados al PDF. En curvas compatibles se conserva un margen de aproximación que se vuelve a comprobar al leer su trazado de origen.",
-      "limits": "La curva se aproxima por hasta 200 vértices con margen explícito; no incluye errores del plano ni de calibración. Se protegen capas, recortes que cortan geometría, trazados excesivos o ambiguos. Los ángulos no requieren escala; Cruces de línea con Bézier compatibles incorporados; cruces entre dos curvas y migraciones antiguas ambiguas siguen pendientes."
+      "limits": "La curva se aproxima por hasta 200 vértices con margen explícito; no incluye errores del plano ni de calibración. Se protegen capas, recortes que cortan geometría, trazados excesivos o ambiguos. Los ángulos no requieren escala; Cruces de línea con Bézier y entre dos Bézier compatibles incorporados, con tolerancia numérica de 0,000002 pt para el ajuste entre curvas. Se omiten curvas coincidentes, pares no aislables y geometría que agota el presupuesto; el ajuste parcial se informa. Las migraciones antiguas ambiguas siguen pendientes."
     },
     {
       "id": "layers",
@@ -251,7 +251,7 @@
         "Para reunir bloques separados, abre Seleccionar varios bloques, pulsa los textos en el orden deseado y elige Redistribuir selección; Cambiar selección permite corregirla."
       ],
       "expected": "El contenido nuevo se guarda con la fuente y geometría originales compatibles. En párrafos mixtos el texto sin cambios conserva sus estilos; las inserciones toman el estilo anterior (al inicio, el primero).",
-      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas. Type3: matrices diagonales positivas acotadas y desplazamientos compatibles; glifos vectoriales o imágenes/máscaras bitmap verificadas sin máscaras externas, con recursos y píxeles conservados. Otras matrices, recursos y filtros siguen protegidos. El ajuste se valida siempre al aplicar; si falla, el borrador permanece disponible. El control por fragmentos está en Ajustar texto por estilo (opcional). Reflujo mixto afín: estilos paralelos de objetos completos y continuos del mismo bloque visual y ruta, opacos y sin espaciado especial, dentro de la página y recortes originales; conserva la aparición de Form seleccionada. No une rutas Form diferentes ni bloques discontinuos; no cubre composición especial ni redistribución general entre páginas. La selección explícita exige objetos completos, paralelos y de la misma ruta/página; no añade fragmentos sin elegirlos."
+      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas. Type3: matrices diagonales positivas acotadas y desplazamientos compatibles; glifos vectoriales o imágenes/máscaras bitmap verificadas sin máscaras externas, con recursos y píxeles conservados. Otras matrices, recursos y filtros siguen protegidos. El ajuste se valida siempre al aplicar; si falla, el borrador permanece disponible. El control por fragmentos está en Ajustar texto por estilo (opcional). Reflujo mixto afín: estilos paralelos de objetos completos, opacos y sin espaciado especial, dentro de la página y recortes originales; conserva la aparición de Form seleccionada. La selección explícita permite bloques separados y rutas Form distintas, incluidos objetos compartidos y relaciones padre/hijo, dentro de una página; conserva los recortes de cada texto y las apariciones no seleccionadas. Exige objetos completos y paralelos; no añade fragmentos sin elegirlos. No cubre composición especial ni redistribución general entre páginas."
     },
     {
       "id": "paragraph",
@@ -1142,7 +1142,7 @@
         "Convierte y revisa páginas y diferencias antes de abrir el resultado"
       ],
       "expected": "Se obtiene un PDF del contenido y maquetación compatibles.",
-      "limits": "No se promete fidelidad universal de Office; las diferencias se informan."
+      "limits": "No se promete fidelidad universal de Office; las diferencias se informan. Las marcas personalizadas de notas pueden estar en el fragmento siguiente si es adyacente y contiene solo texto de 1–4 caracteres. No se buscan a través de campos, enlaces o límites estructurales; las notas al pie partidas y otras variantes generales siguen pendientes."
     },
     {
       "id": "general_tools",

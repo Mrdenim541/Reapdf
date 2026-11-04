@@ -113,7 +113,7 @@ def import_docx(data,paper='source'):
             result.append(f'<img src="{name}" style="width:{min(width,size[0]-margins[0]-margins[2],(size[1]-margins[1]-margins[3])*w/h):.2f}pt;max-width:100%"/>')
             if any(n.tag.endswith('}anchor') for n in node.iter()):warnings.add('Las imágenes flotantes se colocan en el flujo del texto.')
         return ''.join(result)
-    def run(node,inherited,field_token=None):
+    def run(node,inherited,field_token=None,note_marks=None):
         nonlocal manual_breaks
         style=[];props=styles.run(node,inherited)
         if props is not None:
@@ -141,8 +141,11 @@ def import_docx(data,paper='source'):
             elif child.tag in {tag('footnoteReference'),tag('endnoteReference')}:
                 custom=None
                 if child.attrib.get(tag('customMarkFollows'),'0') in ['1','true']:
-                    if index+1>=len(children) or children[index+1].tag!=tag('t'):raise DocumentError('La marca personalizada debe aparecer justo después de la referencia, dentro del mismo fragmento Word.')
-                    custom=children[index+1].text or '';consumed.add(index+1)
+                    if note_marks and child in note_marks:custom=note_marks[child]
+                    else:
+                        if index+1>=len(children) or children[index+1].tag!=tag('t'):raise DocumentError('La marca personalizada debe aparecer justo después de la referencia, en el mismo fragmento Word o en el siguiente fragmento de texto.')
+                        custom=children[index+1].text or '';consumed.add(index+1)
+                expected.append(' ')
                 parts.append(notes.reference(child,in_running,custom))
             elif child.tag in {tag('footnoteRef'),tag('endnoteRef')}:
                 if not notes.inside:raise DocumentError('Marcador de nota fuera de su definición.')
@@ -187,10 +190,12 @@ def import_docx(data,paper='source'):
                 if in_running:raise DocumentError('No se admiten saltos de página dentro de encabezados/pies Word.')
                 css.append('page-break-before:always');manual_breaks+=1
             if any(props.find(tag(k)) is not None for k in ['keepNext','keepLines','tabs']):warnings.add('Las tabulaciones y agrupación de párrafos pueden cambiar durante la conversión.')
+        from .docx_notes import following_marks
+        note_marks,consumed_note_runs=following_marks(node)
         def inline(child,allow_dynamic=True,depth=0):
             nonlocal dynamic_fields
             if depth>16:raise DocumentError('Demasiados campos o enlaces anidados en un párrafo Word.')
-            if child.tag==tag('r'):return run(child,inherited)
+            if child.tag==tag('r'):return '' if child in consumed_note_runs else run(child,inherited,note_marks=note_marks)
             if child.tag==tag('hyperlink'):
                 content=''.join(inline(r,allow_dynamic,depth+1) for r in child);rel=relationships.get(child.attrib.get('{'+R+'}id'),{})
                 if BREAK_TOKEN in content:raise DocumentError('Divide el enlace Word antes de un salto manual de página para importarlo.')

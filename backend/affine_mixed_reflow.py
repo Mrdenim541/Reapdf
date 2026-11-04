@@ -9,11 +9,23 @@ from .affine_text import polygon,rectangle,contains,overlap,bounds
 from .text_flow import next_line
 
 
-def compatible(rows,sort=True):
+def path_key(row):
+    return tuple((s['owner'],s['target'],s['start'],s['end']) for s in row['_native_path'])
+
+
+def object_key(row):return (path_key(row),row['_text_object'])
+
+
+def complete_objects(rows,all_rows):
+    objects={object_key(r) for r in rows}
+    return {r['id'] for r in all_rows if object_key(r) in objects}=={r['id'] for r in rows}
+
+
+def compatible(rows,sort=True,across_paths=False):
     if not rows or any(not r['editable'] or r['original_only'] for r in rows):raise DocumentError('El párrafo mixto necesita grupos visibles sin composición especial.')
     first=rows[0];frame=f.Matrix(*first['_geometry']['matrix']);inverse=~frame
     for r in rows:
-        if r['_native_path']!=first['_native_path'] or max(abs(a-b) for a,b in zip(r['_geometry']['matrix'][:4],first['_geometry']['matrix'][:4]))>1e-4:raise DocumentError('Los estilos deben compartir ruta y transformación paralela.')
+        if (not across_paths and r['_native_path']!=first['_native_path']) or max(abs(a-b) for a,b in zip(r['_geometry']['matrix'][:4],first['_geometry']['matrix'][:4]))>1e-4:raise DocumentError('Los estilos deben compartir transformación paralela; las rutas distintas necesitan selección explícita.')
         state=r['_spacing']['state']
         if state['char']!=0 or state['word']!=0:raise DocumentError('El párrafo usa espaciado especial que aún no puede redistribuirse conservando sus estilos.')
     ordered=sorted(rows,key=lambda r:(-round((f.Point(r['origin'])*inverse).y,2),(f.Point(r['origin'])*inverse).x))
@@ -21,7 +33,7 @@ def compatible(rows,sort=True):
 
 
 def inspect_rows(rows,continuous=True):
-    rows=compatible(rows,sort=continuous);first=rows[0];inverse=~f.Matrix(*first['_geometry']['matrix']);positions=[f.Point(r['origin'])*inverse for r in rows]
+    rows=compatible(rows,sort=continuous,across_paths=not continuous);first=rows[0];inverse=~f.Matrix(*first['_geometry']['matrix']);positions=[f.Point(r['origin'])*inverse for r in rows]
     if abs(positions[0].x)>.5:raise DocumentError('El párrafo no empieza en el marco seleccionado.')
     for i,(a,b) in enumerate(zip(positions,positions[1:])) if continuous else []:
         if abs(a.y-b.y)<.3:
@@ -90,11 +102,10 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         page=doc[number];rotation=page.rotation;page.set_rotation(0);region=f.Rect(box[0],box[1],box[0]+box[2],box[1]+box[3]);_,all_rows=native_model(doc,number,page.rect)
         chosen={r['id']:r for r in all_rows if r['id'] in identifiers}
         if len(chosen)!=len(identifiers):raise DocumentError('La selección de grupos está obsoleta.')
-        rows=compatible([chosen[i] for i in identifiers],sort=not explicit_order);first=rows[0]
+        rows=compatible([chosen[i] for i in identifiers],sort=not explicit_order,across_paths=explicit_order);first=rows[0]
         if [r['id'] for r in rows]!=identifiers or any(not (region+(-.1,-.1,.1,.1)).contains(f.Rect(r['bbox'])) for r in rows):raise DocumentError('La región corta el párrafo o cambia su orden.')
-        objects={r['_text_object'] for r in rows}
-        full=[r for r in all_rows if r['_text_object'] in objects and r['_native_path']==first['_native_path']]
-        if {r['id'] for r in full}!=set(identifiers):raise DocumentError('Selecciona completos los objetos de texto para conservar su estado.')
+        objects={object_key(r) for r in rows}
+        if not complete_objects(rows,all_rows):raise DocumentError('Selecciona completos los objetos de texto para conservar su estado.')
         if not isinstance(runs,list) or len(runs)!=len(rows) or any(not isinstance(r,dict) or set(r)!={'id','text'} or not isinstance(r['text'],str) for r in runs) or [r['id'] for r in runs]!=identifiers or ''.join(r['text'] for r in runs)!=text:raise DocumentError('Los estilos, identificadores y texto completo no coinciden.')
         styles=[];prefix=[0.]
         for run,row in zip(runs,rows):
@@ -118,7 +129,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
                 encoded=row['_font'].encode(fragment,row['size'])[0];command=(' '.join(f'{v:.8f}' for v in tm)+' Tm <'+encoded.hex()+'> Tj').encode();commands[row['id']].append(command)
                 prepared.append(({**row,'origin':list(origin),'_geometry':g,'_replacement_text':fragment,'_replacement_width':extent},b''));x+=extent;offset=end
             cursor=after;used+=max(size*1.35,ascent-descent);lines+=1
-        report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':width,'height':height,'preserves_affine':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects)}
+        report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':width,'height':height,'preserves_affine':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects),'source_paths':len({path_key(r) for r in rows})}
         if preview:return report
         patches=[]
         for row in rows:
@@ -145,8 +156,7 @@ def inspect_selection(base,ops,number,selection):
             matches=[r for r in all_rows if r['origin']==ref['origin'] and r['text']==ref['text']]
             if len(matches)!=1 or matches[0]['id'] in {r['id'] for r in chosen}:raise DocumentError('Selección repetida, ambigua u obsoleta.')
             chosen.append(matches[0])
-        rows=compatible(chosen,sort=False);objects={r['_text_object'] for r in rows};path=rows[0]['_native_path']
-        full=[r for r in all_rows if r['_text_object'] in objects and r['_native_path']==path]
-        if {r['id'] for r in full}!={r['id'] for r in rows}:raise DocumentError('Selecciona también los otros fragmentos de esos objetos. No se añade texto sin tu selección.')
-        result=inspect_rows(rows,continuous=False);result['explicit_selection']=True
+        rows=compatible(chosen,sort=False,across_paths=True)
+        if not complete_objects(rows,all_rows):raise DocumentError('Selecciona también los otros fragmentos de esos objetos. No se añade texto sin tu selección.')
+        result=inspect_rows(rows,continuous=False);result['explicit_selection']=True;result['source_paths']=len({path_key(r) for r in rows})
         return result
