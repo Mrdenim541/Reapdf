@@ -1,0 +1,68 @@
+
+> reapdf@0.43.0 build
+> vite build --config web/vite.config.js
+
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 108 modules transformed.
+rendering chunks...
+computing gzip size...
+web/dist/index.html                                0.36 kB │ gzip:   0.27 kB
+web/dist/assets/portfolio-C2fDs-mY.css             0.23 kB │ gzip:   0.17 kB
+web/dist/assets/table-regions-Dq6c0GfO.css         1.01 kB │ gzip:   0.44 kB
+web/dist/assets/word-import-BeLwxWcJ.css           1.06 kB │ gzip:   0.49 kB
+web/dist/assets/find-replace-CtLxuizE.css          1.42 kB │ gzip:   0.56 kB
+web/dist/assets/text-flow-C97hApAu.css             1.43 kB │ gzip:   0.65 kB
+web/dist/assets/automation-BSplge_a.css            2.13 kB │ gzip:   0.79 kB
+web/dist/assets/document-workspace-BrOPC6zW.css    4.08 kB │ gzip:   1.11 kB
+web/dist/assets/index-Dr1XxINw.css                59.35 kB │ gzip:  12.34 kB
+web/dist/assets/ranges-CM8Xrzej.js                 0.68 kB │ gzip:   0.42 kB
+web/dist/assets/variable-fonts-C8RRbOQT.js         2.58 kB │ gzip:   1.27 kB
+web/dist/assets/layers-7WCgqWnO.js                 3.68 kB │ gzip:   1.64 kB
+web/dist/assets/comparison-CkiE_6DY.js             4.12 kB │ gzip:   1.79 kB
+web/dist/assets/organizer-CgiqKDkN.js              4.29 kB │ gzip:   1.71 kB
+web/dist/assets/page-creation-DM9AziN1.js          4.50 kB │ gzip:   1.77 kB
+web/dist/assets/signature-Ch1lup2Q.js              5.57 kB │ gzip:   2.26 kB
+web/dist/assets/interchange-Btr-nXvM.js            6.07 kB │ gzip:   2.36 kB
+web/dist/assets/compression-BpGZKn49.js            6.24 kB │ gzip:   2.48 kB
+web/dist/assets/inserter-Dnpb-bwi.js               6.28 kB │ gzip:   2.61 kB
+web/dist/assets/bookmarks-BLb0tFdt.js              6.71 kB │ gzip:   2.60 kB
+web/dist/assets/form-calculations-CR-fdXv6.js      6.75 kB │ gzip:   2.59 kB
+web/dist/assets/form-rules-Csz-elE6.js             6.76 kB │ gzip:   2.58 kB
+web/dist/assets/batch-processor-Nm2O3YTw.js        6.85 kB │ gzip:   2.58 kB
+web/dist/assets/conversions-DRIvvnZ1.js            6.86 kB │ gzip:   2.43 kB
+web/dist/assets/docx-export-BjPXldCG.js            7.33 kB │ gzip:   2.81 kB
+web/dist/assets/headers-BfCaR9My.js                7.36 kB │ gzip:   2.79 kB
+web/dist/assets/comments-BGZDCeKF.js               7.39 kB │ gzip:   2.67 kB
+web/dist/assets/existing-images-DOyeuMb-.js        7.57 kB │ gzip:   3.02 kB
+web/dist/assets/link-editor-B5q4naqi.js            7.60 kB │ gzip:   2.84 kB
+web/dist/assets/find-replace-Drs5u39C.js           8.01 kB │ gzip:   2.98 kB
+web/dist/assets/native-continuation-DgZ2v4UP.js    8.54 kB │ gzip:   3.29 kB
+web/dist/assets/region-ocr-0NWNfnSs.js             9.09 kB │ gzip:   3.22 kB
+web/dist/assets/word-import-DrIYzjME.js            9.20 kB │ gzip:   3.48 kB
+web/dist/assets/portfolio-BmjbvNPk.js              9.86 kB │ gzip:   3.38 kB
+web/dist/assets/forms-BP5-9vbP.js                 10.12 kB │ gzip:   3.79 kB
+web/dist/assets/page-tools-CkzOpko-.js            10.86 kB │ gzip:   4.10 kB
+web/dist/assets/standards-D8m3w5h0.js             11.67 kB │ gzip:   4.04 kB
+web/dist/assets/redaction-yk2M1lZB.js             11.90 kB │ gzip:   4.30 kB
+web/dist/assets/field-properties-D35zBDxD.js      11.90 kB │ gzip:   3.74 kB
+web/dist/assets/field-designer-Dk9kI7CX.js        12.13 kB │ gzip:   3.85 kB
+web/dist/assets/pro-tools-CVAj9C7b.js             13.22 kB │ gzip:   4.45 kB
+web/dist/assets/advanced-tools-DAZN68_8.js        14.44 kB │ gzip:   4.76 kB
+web/dist/assets/table-regions-CY-78TVk.js         14.53 kB │ gzip:   5.30 kB
+web/dist/assets/paragraph-editor-CBCS6vL5.js      14.61 kB │ gzip:   4.98 kB
+web/dist/assets/measurements-Ck8zDye3.js          18.48 kB │ gzip:   6.46 kB
+web/dist/assets/text-flow-BxdiYuXb.js             19.33 kB │ gzip:   6.35 kB
+web/dist/assets/automation-WG8JDuQG.js            19.61 kB │ gzip:   6.40 kB
+web/dist/assets/digital-signatures-CUAt9vLu.js    20.13 kB │ gzip:   6.55 kB
+web/dist/assets/document-links-CyVSjD3E.js        20.91 kB │ gzip:   6.45 kB
+web/dist/assets/structure-preflight-DEwyQbar.js   21.35 kB │ gzip:   6.65 kB
+web/dist/assets/function-guide-C7xxGjF1.js        41.60 kB │ gzip:  11.96 kB
+web/dist/assets/index-DOBQGRRt.js                349.68 kB │ gzip: 107.72 kB
+
+✓ built in 328ms
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice

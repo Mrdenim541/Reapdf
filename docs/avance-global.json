@@ -68,7 +68,9 @@
         "docs/RECORRIDOS_EXTENDIDOS_20261031.md",
         "tests/test_extended_workflows.py",
         "scripts/smoke_extended_workflows.mjs",
-        "scripts/smoke_extended_workflows_qt.py"
+        "scripts/smoke_extended_workflows_qt.py",
+        "docs/CONTINUACION_NATIVA_20261104.md",
+        "docs/validation/native-continuation-20261104/results.json"
       ],
       "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados."
     },
@@ -159,9 +161,11 @@
         "scripts/smoke_explicit_selection_qt.py",
         "docs/SELECCION_EXPLICITA_20261104.md",
         "docs/OBJETOS_CURVAS_Y_NOTAS_20261104.md",
-        "docs/validation/paths-curves-notes-20261104/results.json"
+        "docs/validation/paths-curves-notes-20261104/results.json",
+        "docs/CONTINUACION_NATIVA_20261104.md",
+        "docs/validation/native-continuation-20261104/results.json"
       ],
-      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con recursos/matrices/filtros fuera del subconjunto vectorial y bitmap verificado, reflujo mixto con transformaciones no paralelas, bloques incompatibles, redistribución entre páginas, composición/espaciado especial, etiquetas y cambio de fuente generales; la selección explícita entre rutas de objetos completos paralelos/opacos ya está incorporada; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
+      "remaining": "Fuentes/ejes no predeterminados o con diferencias de renderizado, CFF2 crudo, Type3 con recursos/matrices/filtros fuera del subconjunto vectorial y bitmap verificado, reflujo mixto con transformaciones no paralelas, bloques incompatibles, redistribución/paginación automática general, composición/espaciado especial, etiquetas y cambio de fuente generales; la selección explícita entre rutas y continuación explícita entre páginas de objetos completos paralelos/opacos ya están incorporadas; máscaras con imágenes/texto/shadings/funciones/recursión, knockout y grupos/colores complejos. Máscaras vectoriales acotadas con Alpha/Luminosity ya incorporadas. Imágenes inline, etiquetadas, con OCR, capas incompatibles o recorte Form no verificable: no se consideran completadas por quedar protegidas."
     },
     {
       "id": "annotations",
@@ -524,27 +528,27 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "cc0c283b3b588e611184f339ebdf79115d651431",
+    "source_commit": "835ae5b92140fe1742ab0f1707e4919a5bbff273",
     "linux": {
-      "checks": 21,
-      "evidence": "docs/validation/paths-curves-notes-20261104/linux/desktop-report.json"
+      "checks": 22,
+      "evidence": "docs/validation/native-continuation-20261104/linux/desktop-report.json"
     },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 21,
-      "evidence": "docs/validation/paths-curves-notes-20261104/windows/assessment.json"
+      "checks": 22,
+      "evidence": "docs/validation/native-continuation-20261104/windows/assessment.json"
     },
     "packaged_executable_verified": true,
     "compiled_gui_independent_runs": 2,
-    "packaged_scope": "Ventana/edición/undo/redo/exportación/cierre; no cierre funcional general, estabilidad Windows cliente ni causa resuelta del fallo previo."
+    "packaged_scope": "Ventana/edición/undo/redo/exportación/cierre; no cierre general ni Windows cliente/impresión/carga sostenida ni causa de intermitencia previa confirmada."
   },
   "last_implementation": {
     "date": "2026-11-04",
-    "evidence": "docs/validation/paths-curves-notes-20261104/results.json",
+    "evidence": "docs/validation/native-continuation-20261104/results.json",
     "features": [
-      "Explicit ordered complete parallel opaque text objects across separate native Form paths on one page; individual clips and unselected appearances preserved.",
-      "Original cubic/cubic isolated numerical intersection snaps with tolerance, deduplication and shared work bounds; coincident or exhausted pairs disclosed.",
-      "Custom Word note mark in immediately following text-only run, 1–4 visible covered characters; preserve adjacent body and return links."
+      "Continuación nativa con fuentes y marco originales entre páginas, selección visual y aplicación directa",
+      "Caja única del flujo avanzado original con estilos opcionales",
+      "Guardas atómicas de alto inicial y texto visible con extracción vacía"
     ],
     "global_estimate_recalculated": false
   }
