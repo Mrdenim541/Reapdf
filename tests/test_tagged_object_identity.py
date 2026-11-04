@@ -32,3 +32,15 @@ def test_core_saves_preserve_distinct_empty_cells_and_valid_parents(action):
     else:out=export_pdf(base,[{'id':'new-note','type':'note','page':0,'point':[300,250],'content':'Review','color':[1,1,0]}])
     assert len(empty_cells(out,'read-2026'))==2
     if action!='protect':assert all(r['parent_valid'] for r in model(out,[])['nodes'])
+def test_edit_on_untagged_page_preserves_equal_tagged_cells_on_another_page():
+    from backend.tagged_text_integrity import snapshot
+    from backend.styled_text import inspect_styled,replace_styled
+    with f.open(stream=source()) as d:
+        d.new_page().insert_text((50,100),'OTHER TEXT',fontsize=12);base=d.tobytes(garbage=2)
+    with f.open(stream=base) as d:
+        expected=snapshot(d,1);r=next(s for b in d[1].get_text('dict')['blocks'] for l in b.get('lines',[]) for s in l['spans'] if s['text']=='OTHER TEXT');b=f.Rect(r['bbox']);box=[b.x0,b.y0,b.width,b.height]
+    row=inspect_styled(base,[],1,box)['runs'][0]
+    result=replace_styled(base,[],1,box,[{'id':row['id'],'text':'OTHER TEX'}])
+    with f.open(stream=result) as d,f.open(stream=base) as original:
+        assert snapshot(d,1)==expected and d[1].search_for('OTHER TEX')
+        assert original[0].get_pixmap().samples==d[0].get_pixmap().samples

@@ -4,7 +4,7 @@ import struct
 import zlib
 from collections import defaultdict
 import pymupdf as fitz
-from .engine import open_pdf,export_pdf,DocumentError
+from .engine import open_pdf,export_pdf,DocumentError,pdf_garbage
 from .document_tools import editable
 from .paragraphs import region_model,prepare_text_page
 from .text_style import FONT_OPTIONS
@@ -282,7 +282,7 @@ def styled_model(doc,number,box,font_cache=None):
         multiple=False;transformed=False;segmented=False
         try:objects=placements(content)['texts'];segmented=len(objects)>sum(op=='BT' for op,_,_ in content_operations(content));multiple=any(o['shows'][0].kind=='operator-array' for o in objects);transformed=any(tuple(o['matrix'])!=(1.,0.,0.,1.,0.,0.) for o in objects) or any(op=='Tm' and [t.value for t in args[:4]]!=[1,0,0,1] for op,args,_ in content_operations(content))
         except DocumentError:transformed=bool(re.search(rb'(?<![A-Za-z])(?:cm|Tm)(?![A-Za-z])',content))
-        cache['_route_native']=bool(transformed or segmented or multiple or kerned or page.get_xobjects() or any(i[1] in ['cff','otf','cid'] or i[2]=='Type3' for i in page.get_fonts()) or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz|gs)(?![A-Za-z])',content))
+        cache['_route_native']=bool(doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null' or transformed or segmented or multiple or kerned or page.get_xobjects() or any(i[1] in ['cff','otf','cid'] or i[2]=='Type3' for i in page.get_fonts()) or re.search(rb'(?<![A-Za-z])(?:BDC|BMC|W\*?|Tc|Tw|Tz|gs)(?![A-Za-z])',content))
     if cache['_route_native']:
         from .native_text import native_model
         return native_model(doc,number,rect,cache)
@@ -358,7 +358,7 @@ def replace_styled(base,operations,number,box,changes,expand=False):
         prepared=prepare_changes(doc,number,rect,rows,changes,expand)
         write_changes(doc,number,prepared)
         doc[number].set_rotation(rotation)
-        data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=2 if any('_semantic_snapshot' in row for row,_ in prepared) else 4,deflate=True)
+        data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     from .affine_text import verify
     verify(data,{number:prepared});return data
 
@@ -472,7 +472,7 @@ def replace_styled_regions(base,operations,regions):
             prepared[number].extend(items)
         for number,items in prepared.items():
             write_changes(doc,number,items);doc[number].set_rotation(rotations[number])
-        data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=2 if any('_semantic_snapshot' in row for items in prepared.values() for row,_ in items) else 4,deflate=True)
+        data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     from .affine_text import verify
     verify(data,prepared);return data
 
