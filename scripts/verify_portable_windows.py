@@ -124,7 +124,9 @@ def compiled_gui_check(folder):
     if not node or not (root/'node_modules/@playwright/test').is_dir():raise RuntimeError('La verificación gráfica interna requiere Node y npm ci en el checkout de pruebas.')
     with socket.socket() as reserved:reserved.bind(('127.0.0.1',0));port=reserved.getsockname()[1]
     sample=folder/'ejemplos/reapdf-demo.pdf';original=sample.read_bytes();output=folder/'comprobacion-ventana.pdf'
-    env={**os.environ,'REAPDF_DATA_DIR':str(folder/'.gui-verification-state'),'REAPDF_INSTANCE_NAMESPACE':str(folder/'.gui-verification-state'),'QTWEBENGINE_REMOTE_DEBUGGING':f'127.0.0.1:{port}'}
+    from uuid import uuid4
+    state=folder/('.gui-verification-state-'+uuid4().hex)
+    env={**os.environ,'REAPDF_DATA_DIR':str(state),'REAPDF_INSTANCE_NAMESPACE':str(state),'QTWEBENGINE_REMOTE_DEBUGGING':f'127.0.0.1:{port}'}
     process=subprocess.Popen([str(folder/'Reapdf.exe'),str(sample)],cwd=folder.parent,env=env)
     endpoint=f'http://127.0.0.1:{port}'
     try:
@@ -160,7 +162,7 @@ def main():
     if os.name!='nt':raise SystemExit('La ejecución nativa requiere Windows. Usa --static-only para comprobar integridad.')
     with TemporaryDirectory(prefix='Reapdf prueba con espacios ') as tmp:
         with ZipFile(args.archive) as z:z.extractall(tmp)
-        folder=Path(tmp)/'Reapdf-portable';result={**native_check(folder),**compiled_gui_check(folder),'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
+        folder=Path(tmp)/'Reapdf-portable';native=native_check(folder);compiled_gui_check(folder);gui=compiled_gui_check(folder);result={**native,**gui,'compiled_gui_independent_runs':2,'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
         from scripts.publish_windows_report import source_objects
         root=Path(__file__).resolve().parents[1]
         result.update(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),source_git_objects=source_objects(root),source_dirty=bool(subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True).strip()))
