@@ -1,11 +1,11 @@
 """Reflow parallel original mixed-style text through native operand patches."""
-import copy,unicodedata
-from collections import Counter
+import copy,math,unicodedata
+from collections import Counter,defaultdict
 import pymupdf as f
 from .engine import open_pdf,export_pdf,DocumentError,finite
 from .document_tools import editable
 from .native_text import native_model
-from .affine_text import polygon,rectangle,contains,overlap,verify
+from .affine_text import polygon,rectangle,contains,overlap,bounds
 from .text_flow import next_line
 
 
@@ -39,6 +39,39 @@ def inspect_rows(rows):
 
 def stable_key(row):
     return (row['text'],row['font'],round(row['size'],3),row['color'],row['alpha'],tuple(round(v,2) for v in row['origin']),tuple(round(v,2) for v in row['bbox']))
+
+
+def verify_fragments(data,prepared,number):
+    from .styled_text import normal_name
+    from .native_text import matching_traces
+    from .type3_text import merge_lines,trace as type3_trace
+    with open_pdf(data) as doc:
+        page=doc[number];page.set_rotation(0);traces=page.get_texttrace()
+        blocks=merge_lines(doc,page,page.get_text('rawdict',flags=f.TEXTFLAGS_TEXT)['blocks']);index=defaultdict(list)
+        for block in blocks:
+            for line in block.get('lines',[]):
+                for span in line['spans']:
+                    font=normal_name(span['font'])
+                    for i,char in enumerate(span['chars']):
+                        x,y=char['origin']
+                        if finite(x) and finite(y):index[(font,char['c'],math.floor(x*10),math.floor(y*10))].append((span,i))
+        for row,_ in prepared:
+            text=row['_replacement_text'];font=normal_name(row['font']);x,y=row['origin'];matches=[]
+            for dx in [-1,0,1]:
+                for dy in [-1,0,1]:
+                    for span,i in index.get((font,text[0],math.floor(x*10)+dx,math.floor(y*10)+dy),[]):
+                        chars=span['chars'][i:i+len(text)]
+                        if len(chars)!=len(text) or ''.join(c['c'] for c in chars)!=text or math.dist(chars[0]['origin'],row['origin'])>.02:continue
+                        rect=f.Rect(chars[0]['bbox'])
+                        for char in chars[1:]:rect|=f.Rect(char['bbox'])
+                        matches.append({**span,'origin':chars[0]['origin'],'chars':chars,'bbox':list(rect),'text':text})
+            if len(matches)!=1:raise DocumentError('La comprobación del texto mixto detectó diferencias. No se publicó el párrafo.')
+            span=matches[0];expected=bounds(polygon(row['_geometry'],row['_replacement_width']))
+            if max(abs(a-b) for a,b in zip(expected,span['bbox']))>.3 or abs(span['size']-row['display_size'])>.02 or span['color']!=row['color'] or span.get('alpha',255)!=row['alpha']:raise DocumentError('La geometría o el estilo del texto mixto cambió al guardar.')
+            appearances=matching_traces(traces,text,row['origin'])
+            if row['_font'].type=='Type3':
+                checked=type3_trace(row['_font'],span,traces);appearances=[checked] if checked else []
+            if len(appearances)!=1 or appearances[0]['type']!=0 or abs(appearances[0]['opacity']-row['opacity'])>1e-6:raise DocumentError('La apariencia del texto mixto no se pudo verificar.')
 
 
 def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,runs):
@@ -87,7 +120,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
             chunks=commands[row['id']];restore=(' '+' '.join(f'{v:.8f}' for v in row['_line_matrix'])+' Tm ').encode();kind=row['_native'][2];tail=restore+(b'[] TJ' if kind=='operator-array' else b'<>' if kind=='string' else b'[]');patches.append((row,b' ET BT '.join(chunks)+tail))
         from .form_text import write
         write(doc,page,patches);page.set_rotation(rotation);data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
-    verify(data,{number:prepared})
+    verify_fragments(data,prepared,number)
     with open_pdf(data) as check:
         check[number].set_rotation(0);_,remaining=native_model(check,number,check[number].rect)
         if original_untouched-Counter(stable_key(r) for r in remaining):raise DocumentError('La comprobación detectó cambios en otro texto. No se publicó el párrafo.')

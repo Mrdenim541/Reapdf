@@ -141,3 +141,13 @@ def test_uniform_horizontal_form_keeps_the_existing_paragraph_guard():
     with f.open(stream=base) as d:
         s=next(s for b in d[0].get_text('dict')['blocks'] for l in b.get('lines',[]) for s in l['spans'] if s['text']=='HELLO TEXT')
     with pytest.raises(DocumentError):inspect(base,[],0,list(s['origin']),s['text'])
+
+
+def test_deleting_an_intermediate_style_can_join_equal_outer_styles():
+    with f.open(stream=source()) as d:
+        m=f.Matrix(1,.25,.15,1,300,400);width=f.Font('hebo').text_length('HELLO ',fontsize=18)+f.Font('heit').text_length('TEXT',fontsize=14);point=f.Point(width,0)*m
+        extra=(' /hebo 18 Tf .8 0 0 rg '+' '.join(map(str,[*m[:4],point.x,point.y]))+' Tm (HELLO) Tj').encode();x=d[0].get_contents()[-1];d.update_stream(x,d.xref_stream(x).replace(b' ET Q',extra+b' ET Q'));base=d.tobytes()
+    m=model(base);assert len(m['runs'])==3
+    runs=[{'id':r['id'],'text':r['text'] if i!=1 else ''} for i,r in enumerate(m['runs'])];text=''.join(r['text'] for r in runs)
+    out,_=reflow(base,[],0,m['box'],m['ids'][0],text,200,150,False,m['ids'],runs)
+    with f.open(stream=out) as d:assert ''.join(d[0].get_text().split()).count('HELLOHELLO')==1
