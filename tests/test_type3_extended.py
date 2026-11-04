@@ -38,12 +38,14 @@ def image_source(mask=False,form=False,rotation=0):
     with f.open(stream=type3_pdf(form=form,rotation=rotation)) as d:
         for x in range(1,d.xref_length()):
             if d.xref_get_key(x,'Subtype')[1]!='/Type3':continue
-            image=d.get_new_xref();d.update_object(image,'<< /Type/XObject /Subtype/Image /Width 2 /Height 2 /BitsPerComponent '+('1 /ImageMask true' if mask else '8 /ColorSpace/DeviceRGB')+' /Filter/FlateDecode >>')
-            raw=b'\x80\x40' if mask else bytes([255,0,0,0,255,0,0,0,255,255,255,0]);d.update_stream(image,zlib.compress(raw),compress=False);d.xref_set_key(image,'Filter','/FlateDecode')
-            d.xref_set_key(x,'Resources',f'<</XObject<</Picture {image} 0 R>>>>')
-            for name in ['A','B','C']:
+            resources=[]
+            for index,name in enumerate(['A','B','C']):
+                image=d.get_new_xref();d.update_object(image,'<< /Type/XObject /Subtype/Image /Width 2 /Height 2 /BitsPerComponent '+('1 /ImageMask true' if mask else '8 /ColorSpace/DeviceRGB')+' /Filter/FlateDecode >>')
+                masks=[b'\x80\x40',b'\xc0\x80',b'\x40\xc0'];pixels=bytes([255,0,0,0,255,0,0,0,255,255,255,0]);raw=masks[index] if mask else pixels[index*3:]+pixels[:index*3]
+                d.update_stream(image,zlib.compress(raw),compress=False);d.xref_set_key(image,'Filter','/FlateDecode');resources.append(f'/Picture{name} {image} 0 R')
                 proc=int(d.xref_get_key(x,'CharProcs/'+name)[1].split()[0]);header=b'600 0 0 -200 600 800 d1 ' if mask else b'600 0 d0 '
-                d.update_stream(proc,header+b'q 500 0 0 700 50 0 cm /Picture Do Q')
+                d.update_stream(proc,header+b'q 500 0 0 700 50 0 cm /Picture'+name.encode()+b' Do Q')
+            d.xref_set_key(x,'Resources','<</XObject<<'+' '.join(resources)+'>>>>')
         return d.tobytes()
 
 

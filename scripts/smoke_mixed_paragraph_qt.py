@@ -52,6 +52,17 @@ try:
     for _ in range(6):QTest.keyClick(target,Qt.Key.Key_Right)
     QTest.keyClicks(target,'HELLO ')
     assert js(field('Párrafo sobre la página')+'.value')=='HELLO HELLO TEXT'
+    QTest.keyClick(target,Qt.Key.Key_A,Qt.KeyboardModifier.ControlModifier)
+    QTest.keyClick(target,Qt.Key.Key_Backspace)
+    assert js(field('Párrafo sobre la página')+'.value')==''
+    QTest.keyClick(target,Qt.Key.Key_Z,Qt.KeyboardModifier.ControlModifier)
+    wait(field('Párrafo sobre la página')+'.value==="HELLO HELLO TEXT"')
+    assert js(field('Fragmento original 2')+'.value')=='TEXT'
+    QTest.keyClick(target,Qt.Key.Key_Z,Qt.KeyboardModifier.ControlModifier|Qt.KeyboardModifier.ShiftModifier)
+    wait(field('Párrafo sobre la página')+'.value===""')
+    QTest.keyClick(target,Qt.Key.Key_Z,Qt.KeyboardModifier.ControlModifier)
+    wait(field('Párrafo sobre la página')+'.value==="HELLO HELLO TEXT"')
+    assert js(field('Fragmento original 2')+'.value')=='TEXT'
     # Apply directly: the backend still checks space, fonts and obstacles.
     QTest.keyClick(target,Qt.Key.Key_Return,Qt.KeyboardModifier.ControlModifier)
     wait('!'+field('Párrafo sobre la página'))
@@ -65,5 +76,5 @@ try:
     assert original.read_bytes()==base
     QFileDialog.getOpenFileName=lambda *a,**kw:(str(output),'');window.open_action.trigger()
     wait('document.querySelector(".document-bar")?.textContent.includes("Edited.pdf")')
-    print('PASS: own Qt mixed paragraph uses one on-page text field, actual caret insertion preserves original styles, Ctrl+Enter applies without a separate preview step, native atomic save/reopen and original intact.')
+    print('PASS: own Qt mixed paragraph uses one on-page text field, actual caret insertion and browser undo/redo preserve original styles, Ctrl+Enter applies without a separate preview step, native atomic save/reopen and original intact.')
 finally:window.allow_close=True;window.close();app.processEvents()
