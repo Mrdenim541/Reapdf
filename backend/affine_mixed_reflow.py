@@ -89,11 +89,12 @@ def verify_fragments(data,prepared,number):
             if len(appearances)!=1 or appearances[0]['type']!=0 or abs(appearances[0]['opacity']-row['opacity'])>1e-6:raise DocumentError('La apariencia del texto mixto no se pudo verificar.')
 
 
-def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,runs,explicit_order=False):
+def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,runs,explicit_order=False,continuations=None):
     if type(explicit_order) is not bool:raise DocumentError('El orden explícito debe ser verdadero o falso.')
     if not isinstance(text,str) or not text.strip() or len(text)>4000 or any((ord(c)<32 and c!='\n') or ord(c)==127 or unicodedata.bidirectional(c) in {'R','AL','AN'} for c in text):raise DocumentError('Usa hasta 4000 caracteres compatibles y sin controles o escritura RTL.')
     if type(number) is not int or not finite(width) or not finite(height) or not 10<=width<=2000 or not 10<=height<=2000:raise DocumentError('Página, ancho o alto del párrafo no válidos.')
     if not isinstance(identifiers,list) or not 1<=len(identifiers)<=100 or any(not isinstance(i,str) for i in identifiers) or len(set(identifiers))!=len(identifiers) or identifiers[0]!=identifier:raise DocumentError('Selecciona todos los grupos del párrafo en orden.')
+    requested_width,requested_height=width,height
     with open_pdf(base) as source:editable(source)
     with open_pdf(export_pdf(base,ops)) as doc:
         if not 0<=number<len(doc):raise DocumentError('Página no válida.')
@@ -114,32 +115,48 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         obstacles=[clip for r in rows for clip in r['_obstacles']]+[rectangle(l['from']) for l in page.get_links()]+[rectangle(f.Rect(d['rect'])+(-.5,-.5,.5,.5)) for d in page.get_drawings()]
         untouched=[r for r in all_rows if r['id'] not in identifiers];obstacles +=[r['quad'] or rectangle(f.Rect(r['bbox'])) for r in untouched]
         original_untouched=Counter(stable_key(r) for r in untouched)
-        frame=f.Matrix(*first['_geometry']['matrix']);inverse=~frame;top=max((f.Point(r['origin'])*inverse).y+r['_geometry']['ascent'] for r in rows);commands={r['id']:[] for r in rows};prepared=[];cursor=0;used=0.;lines=0
+        from .native_continuation import regions as continuation_regions,append as append_continuations
+        destinations,rotations=continuation_regions(doc,number,continuations,first['_geometry']['matrix']);rotations[number]=rotation
+        untouched_by_page={number:original_untouched}
+        for n in rotations:
+            if n!=number:
+                native=native_model(doc,n,doc[n].rect)[1] if doc[n].get_text().strip() else [];untouched_by_page[n]=Counter(stable_key(r) for r in native)
+        frame=f.Matrix(*first['_geometry']['matrix']);inverse=~frame;top=max((f.Point(r['origin'])*inverse).y+r['_geometry']['ascent'] for r in rows);commands={r['id']:[] for r in rows};prepared=[];cursor=0;used=0.;lines=0;destination=-1;current=number;draws=[];details=[{'page':number,'lines':0,'characters':0}]
         while cursor<len(text):
             line,after,_=next_line(text,cursor,width,prefix);group=styles[cursor:cursor+max(1,len(line))];ascent=max(r['_geometry']['ascent'] for r in group);descent=min(r['_geometry']['descent'] for r in group);size=max(r['size'] for r in group)
-            if used+ascent-descent>height+.01:raise DocumentError('El párrafo mixto no cabe completo. Amplía el alto; se conserva el borrador.')
+            if used+ascent-descent>height+.01:
+                if destination<0 and destinations and not lines:raise DocumentError('El alto inicial no permite una línea. Amplía el área inicial; se conserva el borrador.')
+                if destination+1>=len(destinations):raise DocumentError('El párrafo mixto no cabe completo. Amplía el alto o añade otra continuación; se conserva el borrador.')
+                destination+=1;target=destinations[destination];current=target['page'];frame=target['frame'];top=0.;used=0.;width=target['width'];height=target['height'];details.append({'page':current,'lines':0,'characters':0});continue
             baseline=top-used-ascent;offset=0;x=0.
             while offset<len(line):
                 row=styles[cursor+offset];end=offset+1
                 while end<len(line) and styles[cursor+end] is row:end+=1
                 fragment=line[offset:end];extent=prefix[cursor+end]-prefix[cursor+offset];g=copy.copy(row['_geometry']);origin=f.Point(x,baseline)*frame;g['matrix']=[*g['matrix'][:4],origin.x,origin.y];cell=polygon(g,extent)
-                if not contains(rectangle(page.rect),cell) or any(not contains(c,cell) for c in row['_clips']):raise DocumentError('El párrafo sale de la página o del recorte original.')
-                if any(overlap(cell,o)>.1 for o in obstacles):raise DocumentError('El párrafo cruza otro texto, imagen, borde, enlace o anotación.')
-                local=origin*~f.Matrix(*row['_geometry']['matrix']);tm=f.Matrix(*row['_line_matrix']);position=f.Point(local.x/(g['factor']*g['horizontal']),local.y/g['factor'])*tm;tm[4]=position.x;tm[5]=position.y
-                encoded=row['_font'].encode(fragment,row['size'])[0];command=(' '.join(f'{v:.8f}' for v in tm)+' Tm <'+encoded.hex()+'> Tj').encode();commands[row['id']].append(command)
-                prepared.append(({**row,'origin':list(origin),'_geometry':g,'_replacement_text':fragment,'_replacement_width':extent},b''));x+=extent;offset=end
-            cursor=after;used+=max(size*1.35,ascent-descent);lines+=1
-        report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':width,'height':height,'preserves_affine':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects),'source_paths':len({path_key(r) for r in rows})}
+                if not contains(rectangle(doc[current].rect),cell) or (destination<0 and any(not contains(c,cell) for c in row['_clips'])) or (destination>=0 and not contains(rectangle(destinations[destination]['rect']),cell)):raise DocumentError('El párrafo sale de la página o del recorte original.')
+                if destination<0 and any(overlap(cell,o)>.1 for o in obstacles):raise DocumentError('El párrafo cruza otro texto, imagen, borde, enlace o anotación.')
+                if destination<0:
+                    local=origin*~f.Matrix(*row['_geometry']['matrix']);tm=f.Matrix(*row['_line_matrix']);position=f.Point(local.x/(g['factor']*g['horizontal']),local.y/g['factor'])*tm;tm[4]=position.x;tm[5]=position.y
+                    encoded=row['_font'].encode(fragment,row['size'])[0];command=(' '.join(f'{v:.8f}' for v in tm)+' Tm <'+encoded.hex()+'> Tj').encode();commands[row['id']].append(command)
+                else:draws.append((current,row,g,fragment))
+                prepared.append((current,({**row,'origin':list(origin),'_geometry':g,'_replacement_text':fragment,'_replacement_width':extent},b'')));x+=extent;offset=end
+            details[-1]['characters']+=after-cursor;details[-1]['lines']+=1;cursor=after;used+=max(size*1.35,ascent-descent);lines+=1
+        report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':requested_width,'height':requested_height,'preserves_affine':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects),'source_paths':len({path_key(r) for r in rows}),'regions':details,'pages':sorted(rotations),'complete':True}
         if preview:return report
         patches=[]
         for row in rows:
             chunks=commands[row['id']];restore=(' '+' '.join(f'{v:.8f}' for v in row['_line_matrix'])+' Tm ').encode();kind=row['_native'][2];tail=restore+(b'[] TJ' if kind=='operator-array' else b'<>' if kind=='string' else b'[]');patches.append((row,b' ET BT '.join(chunks)+tail))
         from .form_text import write
-        write(doc,page,patches);page.set_rotation(rotation);data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
-    verify_fragments(data,prepared,number)
+        write(doc,page,patches);append_continuations(doc,draws)
+        for n,angle in rotations.items():doc[n].set_rotation(angle)
+        data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=4,deflate=True)
+    for n in rotations:verify_fragments(data,[value for page,value in prepared if page==n],n)
     with open_pdf(data) as check:
-        check[number].set_rotation(0);_,remaining=native_model(check,number,check[number].rect)
-        if original_untouched-Counter(stable_key(r) for r in remaining):raise DocumentError('La comprobación detectó cambios en otro texto. No se publicó el párrafo.')
+        for n in rotations:
+            check[n].set_rotation(0)
+            if not untouched_by_page[n]:continue
+            _,remaining=native_model(check,n,check[n].rect)
+            if untouched_by_page[n]-Counter(stable_key(r) for r in remaining):raise DocumentError('La comprobación detectó cambios en otro texto. No se publicó el párrafo.')
     return data,report
 
 

@@ -285,7 +285,7 @@ Type3 admite matrices diagonales positivas y desplazamientos acotados, y glifos 
 
 **Resultado esperado:** El texto se distribuye por el recorrido seleccionado sin publicar una distribución parcial.
 
-**Límites actuales:** Las regiones deben ser compatibles; no es reflujo general de cualquier PDF.
+**Límites actuales:** Las regiones deben ser compatibles; no es reflujo general de cualquier PDF. La continuación nativa desde el párrafo usa hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres, con fuentes y transformación originales compatibles. Las áreas se expresan en la vista enderezada y pueden elegirse con el ratón. No crea páginas ni mueve contenido ajeno. La comparación de distribución es opcional para este recorrido; al aplicar se comprueba el texto completo y un fallo conserva el borrador. El flujo avanzado anterior conserva su comparación por páginas y admite una sola caja para editar las fuentes originales.
 
 <a id="funcion-watermark"></a>
 
@@ -1123,3 +1123,12 @@ La entrega final incluirá ejecutable instalable o portable de Windows, esta gu�
 Desde Editar texto sobre la página, pulsa Seleccionar varios bloques. El primero queda seleccionado; pulsa otros textos para añadirlos o quitarlos. Redistribuir selección abre el párrafo siguiendo el orden de tus elecciones. Cambiar selección permite volver sin empezar desde cero; avisa si descarta un borrador. Cancelar selección conserva el documento.
 
 Admite objetos completos y paralelos de rutas distintas dentro de la misma página; conserva cada recorte y las apariciones compartidas no seleccionadas; referencias incompletas, repetidas, obsoletas o incompatibles se rechazan. Los fragmentos no elegidos no se añaden automáticamente.
+
+
+## Continuar un párrafo en otras páginas
+
+Desde Editar texto, selecciona el texto sobre la página y abre el párrafo (o selecciona varios bloques y redistribuye la selección). Escribe en la caja única, ajusta el área inicial y pulsa Continuar en otra página. El borrador conserva sus estilos. Dibuja un área vacía en una página existente, añade/ordena otras áreas si hacen falta y pulsa Aplicar continuación completa o Ctrl+Enter. Comprobar distribución es opcional; la aplicación comprueba todo el texto y no publica cambios parciales. Un fallo conserva el borrador para corregirlo.
+
+Conserva fuentes, tamaños, colores y giro/inclinación compatibles; mantiene las apariciones compartidas no elegidas. Hasta 7 áreas vacías de otras páginas y 4000 caracteres; no crea páginas, no mueve otros objetos y no cubre texto etiquetado, capas o composición/espaciado especial. Las vistas y coordenadas de los destinos usan páginas enderezadas.
+
+En Continuar texto entre regiones, el modo de fuentes originales ahora se escribe en Texto completo del flujo original. Ajustar estilos del flujo (opcional) conserva los controles por fragmento. Los modos mantienen sus borradores y la comparación del flujo avanzado continúa disponible.

@@ -248,10 +248,11 @@
         "pulsa el texto directamente en la página",
         "escribe y aplica o usa Ctrl+Enter.",
         "Para un párrafo compatible, pulsa Editar párrafo: escribe en la caja única y aplica o usa Ctrl+Enter; comprobar ajuste por separado es opcional.",
-        "Para reunir bloques separados, abre Seleccionar varios bloques, pulsa los textos en el orden deseado y elige Redistribuir selección; Cambiar selección permite corregirla."
+        "Para reunir bloques separados, abre Seleccionar varios bloques, pulsa los textos en el orden deseado y elige Redistribuir selección; Cambiar selección permite corregirla.",
+        "Para continuar un párrafo compatible, pulsa Continuar en otra página, dibuja las áreas vacías y aplica con Ctrl+Enter; el borrador conserva sus estilos."
       ],
       "expected": "El contenido nuevo se guarda con la fuente y geometría originales compatibles. En párrafos mixtos el texto sin cambios conserva sus estilos; las inserciones toman el estilo anterior (al inicio, el primero).",
-      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas. Type3: matrices diagonales positivas acotadas y desplazamientos compatibles; glifos vectoriales o imágenes/máscaras bitmap verificadas sin máscaras externas, con recursos y píxeles conservados. Otras matrices, recursos y filtros siguen protegidos. El ajuste se valida siempre al aplicar; si falla, el borrador permanece disponible. El control por fragmentos está en Ajustar texto por estilo (opcional). Reflujo mixto afín: estilos paralelos de objetos completos, opacos y sin espaciado especial, dentro de la página y recortes originales; conserva la aparición de Form seleccionada. La selección explícita permite bloques separados y rutas Form distintas, incluidos objetos compartidos y relaciones padre/hijo, dentro de una página; conserva los recortes de cada texto y las apariciones no seleccionadas. Exige objetos completos y paralelos; no añade fragmentos sin elegirlos. No cubre composición especial ni redistribución general entre páginas."
+      "limits": "No se exige localizar el texto en una lista lateral. Un escaneado necesita OCR; fuentes y composiciones no verificables permanecen protegidas. Type3: matrices diagonales positivas acotadas y desplazamientos compatibles; glifos vectoriales o imágenes/máscaras bitmap verificadas sin máscaras externas, con recursos y píxeles conservados. Otras matrices, recursos y filtros siguen protegidos. El ajuste se valida siempre al aplicar; si falla, el borrador permanece disponible. El control por fragmentos está en Ajustar texto por estilo (opcional). Reflujo mixto afín: estilos paralelos de objetos completos, opacos y sin espaciado especial, dentro de la página y recortes originales; conserva la aparición de Form seleccionada. La selección explícita permite bloques separados y rutas Form distintas, incluidos objetos compartidos y relaciones padre/hijo, dentro de una página; conserva los recortes de cada texto y las apariciones no seleccionadas. Exige objetos completos y paralelos; no añade fragmentos sin elegirlos. La continuación explícita admite hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres; conserva fuentes, tamaños, colores y transformación de textos completos paralelos y opacos, también de Forms compartidos. No desplaza otros objetos, no crea páginas y no cubre composición/espaciado especial, etiquetas ni redistribución automática general del documento."
     },
     {
       "id": "paragraph",
@@ -825,10 +826,11 @@
       "steps": [
         "Elige Continuar texto entre regiones",
         "marca y ordena las regiones",
-        "revisa estilo, distribución y aplica."
+        "revisa estilo, distribución y aplica.",
+        "Desde el párrafo sobre la página también puedes elegir Continuar en otra página: se conserva el borrador, marcas el destino y aplicas directamente. En el flujo avanzado con fuentes originales, escribe en Texto completo del flujo original; los estilos individuales son opcionales."
       ],
       "expected": "El texto se distribuye por el recorrido seleccionado sin publicar una distribución parcial.",
-      "limits": "Las regiones deben ser compatibles; no es reflujo general de cualquier PDF."
+      "limits": "Las regiones deben ser compatibles; no es reflujo general de cualquier PDF. La continuación nativa desde el párrafo usa hasta 7 áreas vacías de otras páginas existentes y 4000 caracteres, con fuentes y transformación originales compatibles. Las áreas se expresan en la vista enderezada y pueden elegirse con el ratón. No crea páginas ni mueve contenido ajeno. La comparación de distribución es opcional para este recorrido; al aplicar se comprueba el texto completo y un fallo conserva el borrador. El flujo avanzado anterior conserva su comparación por páginas y admite una sola caja para editar las fuentes originales."
     },
     {
       "id": "form_rules",
