@@ -102,14 +102,17 @@ def clone_dictionary(doc,owner,key):
 
 
 def write(doc,page,prepared):
-    root={'owner':page.xref,'edits':[],'children':{},'xobjects':{}}
+    root={'owner':page.xref,'edits':[],'children':{},'xobjects':{},'fonts':{}}
     for row,encoded in prepared:
         node=root
         for step in row.get('_native_path',[]):
             key=(step['start'],step['end'])
-            if key not in node['children']:node['children'][key]={'owner':step['target'],'edits':[],'children':{},'xobjects':{}}
+            if key not in node['children']:node['children'][key]={'owner':step['target'],'edits':[],'children':{},'xobjects':{},'fonts':{}}
             node=node['children'][key]
         start,end,_=row['_native'];node['edits'].append((start,end,encoded))
+        for alias,xref in row.get('_native_fonts',{}).items():
+            if not SAFE.fullmatch(alias) or type(xref) is not int or alias in node['fonts'] and node['fonts'][alias]!=xref:raise DocumentError('Recursos de fuente en conflicto.')
+            node['fonts'][alias]=xref
         for alias,xref in row.get('_native_xobjects',{}).items():
             if not SAFE.fullmatch(alias) or type(xref) is not int:raise DocumentError('Recurso de imagen no válido.')
             if alias in node['xobjects'] and node['xobjects'][alias]!=xref:raise DocumentError('Recursos de imagen en conflicto.')
@@ -128,6 +131,12 @@ def write(doc,page,prepared):
                 if not stream_editable(doc,page.number,original):raise DocumentError('El Form etiquetado no tiene una única aparición verificable.')
             else:owner=doc.get_new_xref();doc.update_object(owner,doc.xref_object(original))
         content=node['data'];edits=list(node['edits'])
+        if node['fonts']:
+            resources=clone_dictionary(doc,owner,'Resources');fonts=clone_dictionary(doc,resources,'Font')
+            for alias,xref in node['fonts'].items():
+                existing=doc.xref_get_key(fonts,alias)
+                if existing[0]!='null' and existing!=('xref',f'{xref} 0 R'):raise DocumentError('El nombre de fuente ya está ocupado.')
+                doc.xref_set_key(fonts,alias,f'{xref} 0 R')
         if node['children'] or node['xobjects']:
             resources=clone_dictionary(doc,owner,'Resources');objects=clone_dictionary(doc,resources,'XObject')
             for alias,xref in node['xobjects'].items():

@@ -232,7 +232,7 @@ class Index:
                     if stream or doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null':references.append((level,scope,stream))
         if references:
             if len(references)!=1:fail()
-            level,scope,stream=references[0];index=tree(doc);identity,ref=index.owner(self.number,stream,scope['code']);n=f.mupdf
+            level,scope,stream=references[0];index=tree(doc);identity,ref=index.owner(self.number,stream,scope['code']);row['_semantic_identity']=identity;n=f.mupdf
             for node_id in index.records[identity]['chain']+[identity]:
                 obj=index.records[node_id]['object'];actual=n.pdf_dict_gets(obj,'ActualText')
                 if not n.pdf_is_null(actual):

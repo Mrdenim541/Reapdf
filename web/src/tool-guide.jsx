@@ -6,7 +6,7 @@ export function ToolGuide({tool,selected,pending}) {
     link:['Enlaces','Define el área del enlace y elige una página o dirección web. En Lectura podrás activarlo.'],
     view:['Lectura','Selecciona texto para copiarlo. Usa el zoom o ajusta la página a la ventana.'],
     images:['Imágenes','Inserta un PNG o JPEG desde el panel derecho. Selecciona la imagen y arrastra su marco o su esquina.'],
-    text:['Editar texto','Pulsa el texto sobre la página y escribe ahí mismo. Ctrl+Enter aplica; Esc cancela. Clic derecho sobre un texto abre Editar y Eliminar; Editar usa un cuadro pequeño con el texto ya cargado.'],
+    text:['Editar texto','Pulsa el texto sobre la página y escribe ahí mismo. Ctrl+Enter aplica; Esc cancela. Clic derecho abre Editar y Eliminar. El cuadro carga el texto; Fuente y tamaño permite ajustar los fragmentos nativos compatibles.'],
     select:['Seleccionar marca','Haz clic sobre una marca o elígela en el panel derecho para ver qué puedes modificar.'],
     ink:['Lápiz','Mantén pulsado y arrastra para dibujar. Elige color y grosor en el panel derecho.'],
     line:['Línea','Arrastra desde el inicio hasta el final de la línea.'],

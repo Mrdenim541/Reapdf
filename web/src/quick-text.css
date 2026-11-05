@@ -11,3 +11,5 @@
 .quick-text-dialog [role=alert]{font-size:13px;color:#a33d27}
 .quick-text-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
 .text-target.quick-selected{fill:#287b6422;stroke:#287b64;stroke-width:1}
+
+.quick-format-controls{display:grid;grid-template-columns:minmax(0,1fr) 100px;gap:10px;margin-top:10px}.quick-format-controls select,.quick-format-controls input{width:100%;min-height:32px;border:1px solid var(--control-line,#c8cedd);border-radius:5px;padding:5px;font:inherit}

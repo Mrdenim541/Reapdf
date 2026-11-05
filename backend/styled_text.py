@@ -374,7 +374,7 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
     neighbor_cells=pointer_targets(doc[number],neighbor_spans)
     neighbor_quads={id(span):neighbor_cells[key]['quad'] for key,span,_ in neighbor_spans if key in neighbor_cells}
     for change in changes:
-        if not isinstance(change,dict) or not {'id','text'}<=set(change)<={'id','text','accessible_text'} or not isinstance(change.get('id'),str) or change['id'] not in model or change['id'] in seen:raise DocumentError('Fragmento inexistente, repetido o con propiedades no compatibles.')
+        if not isinstance(change,dict) or not {'id','text'}<=set(change)<={'id','text','accessible_text','format'} or not isinstance(change.get('id'),str) or change['id'] not in model or change['id'] in seen:raise DocumentError('Fragmento inexistente, repetido o con propiedades no compatibles.')
         seen.add(change['id']);row=model[change['id']];text=change['text']
         if not isinstance(text,str) or len(text)>4000 or any(ord(c)<32 or ord(c)==127 for c in text):raise DocumentError('Cada fragmento admite una línea, sin controles, dentro del límite de 4000 caracteres.')
         total+=len(text)
@@ -384,9 +384,12 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
             if 'accessible_text' not in change and not row['alternative_follows_text'] and text!=row['text']:raise DocumentError('Revisa el texto de lectura accesible antes de cambiar este fragmento.')
             accessible=value_text(change.get('accessible_text',text if row['alternative_follows_text'] else row['accessible_text']))
             row={**row,'_accessible_replacement':accessible}
-        if text==row['text'] and (not row.get('has_actual_text') or row['_accessible_replacement']==row['accessible_text']):continue
+        if 'format' not in change and text==row['text'] and (not row.get('has_actual_text') or row['_accessible_replacement']==row['accessible_text']):continue
         if not row['editable']:raise DocumentError(row['reason'])
-        if '_native' in row:
+        if 'format' in change:
+            from .native_format import prepare as format_native
+            row,encoded,width=format_native(doc,number,row,text,change['format'])
+        elif '_native' in row:
             from .text_spacing import replacement
             encoded,width=replacement(row,text)
         else:encoded,width=row['_font'].encode(text,row['size'])
@@ -394,15 +397,19 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
         if '_geometry' in row:
             from .affine_text import polygon,contains,rectangle,overlap
             g=row['_geometry'];target=polygon(g,width)
-            if not expand and width>g['width']+.1:raise DocumentError('El texto no cabe en el ancho disponible. Acórtalo o amplía su región; este modo no redistribuye las líneas.')
-            if width and (not contains(rectangle(rect),target) or not contains(rectangle(doc[number].rect),target)):raise DocumentError('El texto sale de la página o de la región disponible.')
+            if not row.get('_formatted') and not expand and width>g['width']+.1:raise DocumentError('El texto no cabe en el ancho disponible. Acórtalo o amplía su región; este modo no redistribuye las líneas.')
+            if width and ((not row.get('_formatted') and not contains(rectangle(rect),target)) or not contains(rectangle(doc[number].rect),target)):raise DocumentError('El texto sale de la página o de la región disponible.')
             if width and any(not contains(clip,target) for clip in row.get('_clips',[])):raise DocumentError('El texto nuevo sale del recorte del objeto Form.')
             if any(overlap(target,obstacle)>.1 for obstacle in row.get('_obstacles',[])):raise DocumentError('El texto nuevo cruza una imagen, campo o anotación.')
-            original=polygon(g)
+            original=polygon(row.get('_source_format_row',row)['_geometry'])
+            source_row=row.get('_source_format_row',row)
+            if row.get('_formatted'):
+                from .native_format import protect_edges
+                protect_edges(doc[number],original,target)
             for block in neighbor_blocks:
                 for line in block.get('lines',[]):
                     for span in line['spans']:
-                        if span['origin']==tuple(row['origin']) and span['font']==row['font'] and span['text']==row['text']:continue
+                        if span['origin']==tuple(source_row['origin']) and span['font']==source_row['font'] and span['text']==source_row['text']:continue
                         neighbor=neighbor_quads.get(id(span),rectangle(fitz.Rect(span['bbox'])))
                         if overlap(neighbor,target)>.1 or overlap(neighbor,original)>.1:
                             # Native operand edits do not remove neighboring
@@ -419,7 +426,7 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
         prepared.append(({**row,'_replacement_text':text,'_replacement_width':width,'_existing_overlap':existing_overlap},encoded))
     if total>4000:raise DocumentError('Hasta 4000 caracteres entre los fragmentos editados.')
     if not prepared:raise DocumentError('No hay cambios de texto para aplicar.')
-    if any(row.get('_existing_overlap') for row,_ in prepared):
+    if any(row.get('_existing_overlap') or row.get('_formatted') for row,_ in prepared):
         from .native_text import native_model
         from .affine_mixed_reflow import stable_key
         from collections import Counter
