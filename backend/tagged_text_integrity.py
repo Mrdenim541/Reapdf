@@ -16,7 +16,7 @@ def snapshot(doc,number,*,allow_actual_text=False):
     def fail():raise DocumentError('La estructura etiquetada contiene alternativas, referencias a streams o variantes fuera del límite verificable de esta edición.')
     def walk(obj,depth=0):
         budget[0]+=1
-        if budget[0]>(1_000_000 if allow_actual_text else 30000) or depth>64:fail()
+        if budget[0]>1_000_000 or depth>64:fail()
         identity=n.pdf_to_num(obj)
         if identity in pages:return ['page',pages[identity]]
         if identity:

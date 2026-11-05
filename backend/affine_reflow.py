@@ -104,6 +104,16 @@ def inspect(doc,number,origin,text):
         matches=[r for r in all_rows if r['origin']==origin and r['text']==text]
         if len(matches)!=1 or not matches[0]['editable']:raise DocumentError('El párrafo no se identifica de forma única con fuente original.')
         anchor=matches[0]
+        if semantic is not None:
+            from .tagged_paragraph import Paragraph
+            from .affine_mixed_reflow import inspect_rows,complete_objects
+            try:
+                tagged=Paragraph(doc,number,all_rows,anchor)
+                if complete_objects(tagged.rows,all_rows):
+                    value=inspect_rows(tagged.rows,continuous=False)
+                    value.update(tagged_native=True,tagged_paragraph=True,complete_object_selection=True)
+                    return value
+            except DocumentError:pass # Keep the established single-fragment editor.
         block=anchor['id'].split(':',1)[0]
         rows=[r for r in all_rows if r['_text_object']==anchor['_text_object'] and r['_native_path']==anchor['_native_path']]
         candidate=[r for r in all_rows if r['id'].split(':',1)[0]==block and r['_native_path']==anchor['_native_path']]

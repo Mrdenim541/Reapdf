@@ -60,7 +60,10 @@ def import_docx(data,paper='source'):
     if not any(n.attrib.get('ContentType')=='application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml' for n in types):raise DocumentError('Solo se admite DOCX estándar, sin macros.')
     root=parse_xml(package.get('word/document.xml',b''));body=root.find(tag('body'))
     if body is None:raise DocumentError('No hay un cuerpo de documento Word compatible.')
+    from .docx_bookmarks import Bookmarks
+    bookmarks=Bookmarks(body)
     warnings=set();fonts=set();expected=[];images=[];pixels=0;paragraphs=0;tables=0;cells=0;characters=0
+    if bookmarks.skipped:warnings.add('Se omiten marcadores Word sin cierre que no son destinos de enlaces; se conserva su texto.')
     styles=WordStyles(parse_xml(package["word/styles.xml"]) if "word/styles.xml" in package else None,parse_xml(package["word/numbering.xml"]) if "word/numbering.xml" in package else None,warnings)
     relationships={}
     if 'word/_rels/document.xml.rels' in package:
@@ -77,6 +80,11 @@ def import_docx(data,paper='source'):
     if any(n.tag in {tag('del'),tag('ins'),tag('moveFrom'),tag('moveTo')} for n in body.iter()):raise DocumentError('Resuelve el control de cambios en Word antes de importar; no se elige una revisión por ti.')
     if any(n.tag in {tag('object'),tag('altChunk')} for n in body.iter()):raise DocumentError('El documento contiene objetos o contenido alternativo no compatible.')
     segments=sections(body,paper)
+    if any(len(s['columns']['widths'])>1 for s in segments):
+        for segment in segments:
+            if len(segment['columns']['widths'])==1:continue
+            if any(n.tag==tag('br') and n.attrib.get(tag('type')) in ['page','column'] or n.tag==tag('pageBreakBefore') and n.attrib.get(tag('val'),'1') not in ['0','false','off'] for node in segment['nodes'] for n in node.iter()):raise DocumentError('Los saltos manuales dentro de secciones Word con columnas requieren otro tratamiento; no se convierten en saltos de columna incorrectos.')
+        warnings.add('Las columnas se llenan en orden de izquierda a derecha; la última página de cada sección no se equilibra automáticamente.')
     size=segments[0]['size'];margins=segments[0]['margins']
     archive=f.Archive()
     for name in ['DejaVuSans.ttf','DejaVuSans-Bold.ttf','DejaVuSans-Oblique.ttf','DejaVuSans-BoldOblique.ttf']:archive.add(((FONTS/name).read_bytes(),name))
@@ -200,8 +208,17 @@ def import_docx(data,paper='source'):
             if child.tag==tag('hyperlink'):
                 content=''.join(inline(r,allow_dynamic,depth+1) for r in child);rel=relationships.get(child.attrib.get('{'+R+'}id'),{})
                 if BREAK_TOKEN in content:raise DocumentError('Divide el enlace Word antes de un salto manual de página para importarlo.')
+                anchor=child.attrib.get(tag('anchor'))
+                if anchor and not child.attrib.get('{'+R+'}id'):
+                    target=bookmarks.target(anchor)
+                    if target:
+                        bookmarks.links+=1
+                        return '<a href="#'+target+'">'+content+'</a>'
+                    warnings.add('El destino del enlace interno Word no existe: se conserva solo su texto.');return content
                 try:return '<a href="'+html.escape(safe_web_url(rel.get('Target')),quote=True)+'">'+content+'</a>'
                 except DocumentError:warnings.add('Enlace no web o destino no compatible: se conserva solo su texto.');return content
+            if child.tag==tag('bookmarkStart'):return bookmarks.destination(child)
+            if child.tag==tag('bookmarkEnd'):return ''
             if child.tag==tag('fldSimple'):
                 token=page_fields.register(child.attrib.get(tag('instr'))) if in_running and allow_dynamic and child not in forced_cached else None
                 if token is not None:
@@ -303,7 +320,7 @@ def import_docx(data,paper='source'):
                 configured=E.Element(tag('sectPr'));configured.append(numbering);fields.configure(configured)
             previous_format=fields.format
             top,bottom=running.prepare(width,height,left,right,top,bottom,css,archive)
-            note_plan=notes.prepare(index,segment['content'],css,archive,width,height,left,top,right,bottom,50-total)
+            note_plan=notes.prepare(index,segment['content'],css,archive,width,height,left,top,right,bottom,50-total,segment['columns'])
             story=note_plan['story'];count=[note_plan['count']]
             segment.update(story=story,count=count[0],offset=total,note_plan=note_plan)
             # Store geometry rather than a closure over the loop's variables.
@@ -312,14 +329,17 @@ def import_docx(data,paper='source'):
             number_label(fields.start+count[0]-1,fields.format)
             page_labels.append({'startpage':total,'prefix':'','style':{'decimal':'D','upperRoman':'R','lowerRoman':'r','upperLetter':'A','lowerLetter':'a'}[fields.format],'firstpagenum':fields.start})
             section_report.append({'section':index+1,'first_page':total+1,'pages':count[0],'blank_pages':0,'break':segment['break'],'width':width,'height':height,'margins':list(segment['margins']),'number_start':fields.start,'number_format':fields.format,'header_footer_templates':len(running.templates)})
+            section_report[-1]['columns']=segment['columns']
             total+=count[0]
         with f.open() as doc:
             all_positions=[]
             for segment in segments:
                 width,height,left,top,right,bottom=segment['frame'];running=segment['running']
                 def rectangle(n,filled):
-                    if n>=segment['count']:raise DocumentError('La paginación Word cambió durante la conversión.')
-                    return f.Rect(0,0,width,height),f.Rect(left,top,width-right,height-bottom-segment['note_plan']['reserves'].get(n,0)),None
+                    page=n//len(segment['columns']['widths'])
+                    if page>=segment['count']:raise DocumentError('La paginación Word cambió durante la conversión.')
+                    from .docx_columns import frame
+                    return frame(segment['columns'],n,width,height,left,top,right,bottom,segment['note_plan']['reserves'].get(page,0))
                 actual_refs={}
                 def position(node):
                     if node.id in segment['note_plan']['ref_pages'] and node.open_close&1 and not f.Rect(node.rect).is_empty:actual_refs.setdefault(node.id,node.page_num-1)
@@ -336,6 +356,8 @@ def import_docx(data,paper='source'):
                 finally:writer.close()
                 with f.open(stream=stream.getvalue()) as part:
                     if len(part)!=segment['count'] or actual_refs!=segment['note_plan']['ref_pages']:raise DocumentError('La paginación de texto/notas Word cambió durante la conversión.')
+                    from .docx_columns import separators
+                    separators(part,{**segment['columns'],'left':left},top,bottom,segment['note_plan']['reserves'])
                     doc.insert_pdf(part)
                     if segment['trailing_blanks']:doc.new_page(width=width,height=height)
                 for node in running.positions:node.page_num+=segment['offset'];all_positions.append(node)
@@ -354,8 +376,10 @@ def import_docx(data,paper='source'):
         return Counter(re.findall(r'\w+',value,flags=re.UNICODE))
     missing=tokens(' '.join(expected+[value for segment in segments for value in segment['running'].expected]))-tokens(actual)
     if missing and notes.used:raise DocumentError('La comprobación detectó texto perdido en el documento con notas. No se entrega un PDF incompleto.')
+    if missing and any(len(s['columns']['widths'])>1 for s in segments):raise DocumentError('La comprobación detectó texto perdido en las columnas Word. No se entrega un PDF incompleto.')
     if missing and table_stats['merged_tables']:raise DocumentError('La comprobación detectó texto perdido en una tabla combinada. Simplifica la tabla antes de importar; no se entrega un PDF incompleto.')
     if missing:warnings.add('La comprobación de texto detectó diferencias; revisa los fragmentos indicados y el PDF completo.')
     warnings.add('Las fuentes originales se sustituyen por DejaVu Sans. La paginación y el diseño pueden cambiar.')
     report={'schema':'reapdf-docx-import-1','source_sha256':hashlib.sha256(data).hexdigest(),'pdf_sha256':hashlib.sha256(result).hexdigest(),'pages':pages,'paragraphs':paragraphs,'tables':tables,'cells':cells,'images':len(images),'characters':characters,'manual_page_breaks':manual_breaks,'sections':section_report,'section_count':len(segments),'header_footer_templates':sum(len(s['running'].templates) for s in segments),'header_footer_instances':sum(s['running'].drawn for s in segments),'page_fields':dynamic_fields,**notes.report(),**field_stats,**table_stats,'page_number_start':segments[0]['fields'].start,'page_number_format':segments[0]['fields'].format,'page_labels_preserved':page_labels_preserved,'styles_applied':len(styles.used),'list_items':styles.list_items,'fonts_replaced':sorted(fonts),'warnings':sorted(warnings),'missing_words':list(missing)[:30],'text_check_passed':not missing,'layout_preserved':False,'output_bytes':len(result)}
+    report.update(bookmarks=len(bookmarks.names),internal_hyperlinks=bookmarks.links)
     return result,report

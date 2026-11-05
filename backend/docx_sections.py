@@ -33,7 +33,8 @@ def sections(body,paper):
                 if mar is not None:margins=[int(mar.attrib[tag(k)])/20 for k in ['left','top','right','bottom']]
             except (ValueError,KeyError):raise DocumentError('Tamaño o márgenes de Word no válidos.')
         if min(size)<144 or max(size)>1584 or min(margins)<0 or size[0]-margins[0]-margins[2]<72 or size[1]-margins[1]-margins[3]<72:raise DocumentError('Tamaño de Word fuera de límites o sin espacio suficiente para contenido.')
-        result.append({'properties':section,'nodes':nodes,'size':size,'margins':margins,'break':kind,'trailing_blanks':0});nodes=[]
+        from .docx_columns import parse as columns
+        result.append({'properties':section,'nodes':nodes,'size':size,'margins':margins,'columns':columns(section,size[0]-margins[0]-margins[2]),'break':kind,'trailing_blanks':0});nodes=[]
     for node in body:
         if node.tag==tag('sectPr'):
             append(node)

@@ -48,6 +48,14 @@ def append(doc,draws):
         matrix=f.Matrix(*geometry['matrix'])*~page.transformation_matrix
         encoded=operand(font,text,row.get('_replacement_kern',[])).decode('ascii');state=row['_spacing']['state'];color=[((row['color']>>v)&255)/255 for v in [16,8,0]]
         command=f"q BT {state['char']:.8f} Tc {state['word']:.8f} Tw {state['scale']:.8f} Tz 0 Ts 0 Tr /{aliases[key]} {row['size']:.8f} Tf {' '.join(str(v) for v in color)} rg {' '.join(f'{v:.8f}' for v in matrix)} Tm {encoded} ET Q"
-        parts.setdefault(number,[]).append(command)
+        parts.setdefault(number,[]).append((row.get('_continuation_mcid'),command))
     for number,commands in parts.items():
-        page=doc[number];page.wrap_contents();xref=doc.get_new_xref();doc.update_object(xref,'<<>>');doc.update_stream(xref,'\n'.join(commands).encode());doc.xref_set_key(page.xref,'Contents','['+' '.join(f'{x} 0 R' for x in page.get_contents()+[xref])+']')
+        marked=[];active=None
+        for code,command in commands:
+            if code!=active:
+                if active is not None:marked.append('EMC')
+                if code is not None:marked.append(f'/Span <</MCID {code}>> BDC')
+                active=code
+            marked.append(command)
+        if active is not None:marked.append('EMC')
+        page=doc[number];page.wrap_contents();xref=doc.get_new_xref();doc.update_object(xref,'<<>>');doc.update_stream(xref,'\n'.join(marked).encode());doc.xref_set_key(page.xref,'Contents','['+' '.join(f'{x} 0 R' for x in page.get_contents()+[xref])+']')

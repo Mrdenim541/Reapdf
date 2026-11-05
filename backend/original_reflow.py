@@ -40,7 +40,7 @@ def inspect(base,ops,number,origin,text):
             from .affine_reflow import inspect as inspect_affine
             try:
                 candidate=inspect_affine(doc,number,origin,text)
-                if candidate.get('variable_shear'):return candidate
+                if candidate.get('variable_shear') or candidate.get('tagged_paragraph'):return candidate
             except DocumentError:pass
         try:
             compatible_page(doc,page);matches=[]

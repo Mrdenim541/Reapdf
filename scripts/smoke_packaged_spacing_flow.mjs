@@ -13,9 +13,10 @@ try{
   const response=page.waitForResponse(r=>r.url().endsWith('/reflow-affine')&&r.request().method()==='POST');await page.getByLabel('Texto del párrafo entre páginas',{exact:true}).press('Control+Enter');r=await response;
  }
  const d=await r.json();if(!r.ok()||!d.id)throw new Error('Packaged spacing flow failed: HTTP '+r.status()+' '+JSON.stringify({response:d,payload:r.request().postDataJSON()}));
- if(mode==='shear'&&!d.reflow_report.variable_shear)throw new Error('Distinct source shears were not retained');
+ if(['shear','tagged'].includes(mode)&&!d.reflow_report.variable_shear)throw new Error('Distinct source shears were not retained');
+ if(mode==='tagged'&&!d.reflow_report.tagged_native)throw new Error('Tag ownership was not retained');
  if(mode==='pagination'&&!(d.reflow_report.added_pages>0))throw new Error('Automatic pagination did not add a page');
  await expect(page.getByRole('dialog')).toHaveCount(0);await page.getByRole('button',{name:'Deshacer',exact:false}).click();await page.getByRole('button',{name:'Rehacer',exact:false}).click();
  const encoded=await page.evaluate(async id=>{const r=await fetch(`/api/documents/${id}/export`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operations:[]})});if(!r.ok)throw new Error(await r.text());const b=new Uint8Array(await r.arrayBuffer());let s='';for(const v of b)s+=String.fromCharCode(v);return btoa(s);},d.id);writeFileSync(output,Buffer.from(encoded,'base64'));
- if(errors.length)throw new Error(errors.join('\n'));await page.evaluate(dirty=>{window.__reapdfCloseState={dirty,busy:false};},mode==='shear');console.log('PASS: packaged Qt selects original mixed-spaced Form text on page, '+(mode==='pagination'?'automatically creates overflow pages':'continues on an existing page')+', undoes/redoes and exports with original fonts; no external browser or native save dialog used in this check.');
+ if(errors.length)throw new Error(errors.join('\n'));await page.evaluate(dirty=>{window.__reapdfCloseState={dirty,busy:false};},['shear','tagged'].includes(mode));console.log('PASS: packaged Qt selects original styled text on page, '+(mode==='pagination'?'automatically creates overflow pages':'continues on an existing page')+', undoes/redoes and exports with original fonts; no external browser or native save dialog used in this check.');
 }finally{await browser.close();}

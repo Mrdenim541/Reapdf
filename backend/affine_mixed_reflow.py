@@ -110,13 +110,17 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
     with open_pdf(base) as source:editable(source)
     with open_pdf(export_pdf(base,ops)) as doc:
         if not 0<=number<len(doc):raise DocumentError('Página no válida.')
-        if doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null':raise DocumentError('El reflujo mixto afín de texto etiquetado requiere revisión estructural.')
+        from .tagged_text_integrity import snapshot as semantic_snapshot
+        semantic=semantic_snapshot(doc,number);tagged=None
         if not isinstance(box,list) or len(box)!=4 or any(not finite(v) for v in box) or box[2]<=0 or box[3]<=0:raise DocumentError('Región no válida.')
         page=doc[number];rotation=page.rotation;page.set_rotation(0);page_size=(page.rect.width,page.rect.height);original_pages=len(doc);region=f.Rect(box[0],box[1],box[0]+box[2],box[1]+box[3]);_,all_rows=native_model(doc,number,page.rect,context=True)
         if paginate and (doc.get_ocgs() or min(page_size)<=92):raise DocumentError('La paginación automática necesita páginas sin capas y espacio para márgenes de 36 pt.')
         chosen={r['id']:r for r in all_rows if r['id'] in identifiers}
         if len(chosen)!=len(identifiers):raise DocumentError('La selección de grupos está obsoleta.')
-        rows=compatible([chosen[i] for i in identifiers],sort=not explicit_order,across_paths=explicit_order);first=rows[0]
+        if semantic is not None:
+            from .tagged_paragraph import Paragraph
+            tagged=Paragraph(doc,number,all_rows,chosen[identifier]);tagged.validate([chosen[i] for i in identifiers])
+        rows=compatible([chosen[i] for i in identifiers],sort=not (explicit_order or tagged),across_paths=explicit_order);first=rows[0]
         if [r['id'] for r in rows]!=identifiers or any(not (region+(-.1,-.1,.1,.1)).contains(f.Rect(r['bbox'])) for r in rows):raise DocumentError('La región corta el párrafo o cambia su orden.')
         objects={object_key(r) for r in rows}
         if not complete_objects(rows,all_rows):raise DocumentError('Selecciona completos los objetos de texto para conservar su estado.')
@@ -161,21 +165,38 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
                 prepared.append((current,({**row,'origin':list(origin),'_geometry':g,'_replacement_text':fragment,'_replacement_width':extent},b'')));x+=layout.prefix[cursor+end]-layout.prefix[cursor+offset];offset=end
             details[-1]['characters']+=after-cursor;details[-1]['lines']+=1;cursor=after;used+=max(size*1.35,ascent-descent);lines+=1
         report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':requested_width,'height':requested_height,'preserves_affine':True,'variable_shear':variable,'preserves_run_transforms':True,'preserves_spacing':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects),'source_paths':len({path_key(r) for r in rows}),'regions':details,'pages':sorted(rotations),'complete':True,'automatic_pagination':paginate,'added_pages':len(doc)-original_pages}
+        report['tagged_native']=tagged is not None
+        if tagged:tagged.extend(draws)
         if preview:return report
         patches=[]
         for row in rows:
             chunks=commands[row['id']];restore=(' '+' '.join(f'{v:.8f}' for v in row['_line_matrix'])+' Tm ').encode();kind=row['_native'][2];tail=restore+(b'[] TJ' if kind=='operator-array' else b'<>' if kind=='string' else b'[]');patches.append((row,b' ET BT '.join(chunks)+tail))
         from .form_text import write
+        # Record the intended graph before changing page contents, then verify
+        # its identity after serialization. Continuations add markers only on
+        # their destination pages; source markers must remain byte-identical.
+        expected_semantic=semantic_snapshot(doc,number) if tagged else None
         write(doc,page,patches);append_continuations(doc,draws)
+        destination_semantics={n:semantic_snapshot(doc,n) for n in rotations if n!=number} if tagged else {}
         for n,angle in rotations.items():doc[n].set_rotation(angle)
         data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     for n in rotations:verify_fragments(data,[value for page,value in prepared if page==n],n)
     with open_pdf(data) as check:
+        if tagged:
+            from .tagged_text_integrity import verify as verify_semantic
+            verify_semantic(check,number,expected_semantic)
+            for n,expected in destination_semantics.items():verify_semantic(check,n,expected)
         for n in rotations:
             check[n].set_rotation(0)
-            if not untouched_by_page[n]:continue
+            if not untouched_by_page[n] and not tagged:continue
             _,remaining=native_model(check,n,check[n].rect,context=True)
             if untouched_by_page[n]-Counter(stable_key(r) for r in remaining):raise DocumentError('La comprobación detectó cambios en otro texto. No se publicó el párrafo.')
+            if tagged:
+                changed=[r for r in remaining if stable_key(r) not in untouched_by_page[n]]
+                if changed:
+                    from .tagged_paragraph import Paragraph
+                    association=Paragraph(check,n,remaining,changed[0])
+                    if not {r['id'] for r in changed}<={r['id'] for r in association.rows}:raise DocumentError('El texto guardado perdió su asociación al párrafo etiquetado.')
     return data,report
 
 
@@ -185,7 +206,6 @@ def inspect_selection(base,ops,number,selection):
     with open_pdf(export_pdf(base,ops)) as doc:
         if not 0<=number<len(doc):raise DocumentError('Página no válida.')
         page=doc[number];page.set_rotation(0)
-        if doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null':raise DocumentError('La selección de párrafos etiquetados necesita revisión estructural.')
         _,all_rows=native_model(doc,number,page.rect,context=True);chosen=[]
         for ref in selection:
             if not isinstance(ref,dict) or set(ref)!={'origin','text'} or not isinstance(ref['origin'],list) or len(ref['origin'])!=2 or any(not finite(v) for v in ref['origin']) or not isinstance(ref['text'],str):raise DocumentError('Referencia de selección no válida.')
@@ -193,6 +213,11 @@ def inspect_selection(base,ops,number,selection):
             if len(matches)!=1 or matches[0]['id'] in {r['id'] for r in chosen}:raise DocumentError('Selección repetida, ambigua u obsoleta.')
             chosen.append(matches[0])
         rows=compatible(chosen,sort=False,across_paths=True)
+        tagged=doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null'
+        if tagged:
+            from .tagged_paragraph import Paragraph
+            Paragraph(doc,number,all_rows,rows[0]).validate(rows)
         if not complete_objects(rows,all_rows):raise DocumentError('Selecciona también los otros fragmentos de esos objetos. No se añade texto sin tu selección.')
         result=inspect_rows(rows,continuous=False);result['explicit_selection']=True;result['source_paths']=len({path_key(r) for r in rows})
+        if tagged:result.update(tagged_native=True,tagged_paragraph=True,complete_object_selection=True)
         return result

@@ -16,7 +16,7 @@ def payload(base):
 
 
 def test_single_tagged_fragment_reflows_with_same_tree_and_marked_content():
-    base=source();row,m=payload(base);assert m['affine'] and m['tagged_native'] and not m['complete_object_selection']
+    base=source();row,m=payload(base);assert m['affine'] and m['tagged_native'] and m['tagged_paragraph'] and m['complete_object_selection']
     text=row['text'][:-1];out,r=reflow(base,[],0,m['box'],m['ids'][0],text,m['local_width'],m['local_height'])
     with f.open(stream=base) as a,f.open(stream=out) as b:
         assert snapshot(a,0)==snapshot(b,0)

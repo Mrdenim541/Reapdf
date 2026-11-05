@@ -112,7 +112,7 @@ class Notes:
         return ('<div class="word-endnotes"><h3>Notas finales</h3>'+''.join(self.rendered[(v['kind'],v['id'])] for v in items)+'</div>') if items else ''
     def page_content(self,items):return '<div class="word-footnotes">'+''.join(self.rendered[(v['kind'],v['id'])] for v in items)+'</div>'
 
-    def prepare(self,index,content,css,archive,width,height,left,top,right,bottom,max_pages):
+    def prepare(self,index,content,css,archive,width,height,left,top,right,bottom,max_pages,columns=None):
         refs=self.foot(index);reserves={};previous=None;settings=self.foot_settings.get(index,{'restart':'continuous','start':1})
         first_counter=settings['start'] if self.resolved_foot_counter is None or settings['restart'] in ['eachSect','eachPage'] else self.resolved_foot_counter
         for attempt in range(12):
@@ -126,9 +126,13 @@ class Notes:
             def position(node):
                 if node.id in refs and node.open_close&1 and not f.Rect(node.rect).is_empty:positions.setdefault(node.id,node.page_num-1)
             def rect(n,filled):
-                if n>=max_pages:raise DocumentError('El Word necesita más de 50 páginas o tiene notas que no caben.')
-                count[0]=n+1;reserve=reserves.get(n,0)
+                page=n//len(columns['widths']) if columns else n
+                if page>=max_pages:raise DocumentError('El Word necesita más de 50 páginas o tiene notas que no caben.')
+                count[0]=page+1;reserve=reserves.get(page,0)
                 if height-bottom-reserve-top<72:raise DocumentError('Las notas no dejan espacio suficiente para el texto de su página.')
+                if columns:
+                    from .docx_columns import frame
+                    return frame(columns,n,width,height,left,top,right,bottom,reserve)
                 return f.Rect(0,0,width,height),f.Rect(left,top,width-right,height-bottom-reserve),None
             story.write(None,rect,positionfn=position);story.reset()
             if set(positions)!=set(refs):raise DocumentError('No se localizaron todas las referencias de notas al paginar.')
