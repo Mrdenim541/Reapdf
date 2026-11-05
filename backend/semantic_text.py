@@ -16,12 +16,13 @@ def fail(message='La asociación semántica del texto no es única o requiere ed
 
 
 def has_alternatives(doc,page):
-    if doc.xref_get_key(page.xref,'Resources/Properties')[0]!='null':return True
+    from .form_text import resource_owner
+    if doc.xref_get_key(resource_owner(doc,page.xref),'Resources/Properties')[0]!='null':return True
     objects=list(dict.fromkeys(item[0] for item in page.get_xobjects()))
     if len(objects)>200:return True
     total=0
     for identity in [None,*objects]:
-        if identity is not None and doc.xref_get_key(identity,'Resources/Properties')[0]!='null':return True
+        if identity is not None and doc.xref_get_key(resource_owner(doc,identity),'Resources/Properties')[0]!='null':return True
         data=page.read_contents() if identity is None else doc.xref_stream(identity);total+=len(data)
         if total>32*1024*1024:return True
         try:

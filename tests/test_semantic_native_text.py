@@ -168,3 +168,12 @@ def test_stream_mcr_with_node_alternative_is_updated_without_changing_ownership(
     out=replace_styled(base,[],0,box,[{'id':r['id'],'text':'HOLA','accessible_text':'Updated reading'}])
     with f.open(stream=out) as d:
         r=next(r for r in native_model(d,0,d[0].rect)[1] if r['text']=='HOLA');assert r['stream_tagged'] and r['accessible_text']=='Updated reading'
+
+
+def test_inherited_named_actualtext_is_protected_from_implicit_or_font_fallback_edits():
+    from backend.engine import spans
+    with f.open(stream=source('Meaning')) as d:
+        p=d[0];resources=int(d.xref_get_key(p.xref,'Resources')[1].split()[0]);d.xref_set_key(resources,'Properties','<</Pr0 <</ActualText (Meaning)>>>>');parent=int(d.xref_get_key(p.xref,'Parent')[1].split()[0]);d.xref_set_key(parent,'Resources',f'{resources} 0 R');d.xref_set_key(p.xref,'Resources','null');x=p.get_contents()[0];data=d.xref_stream(x);start=data.index(b'/P ');end=data.index(b' BDC',start);d.update_stream(x,data[:start]+b'/P /Pr0'+data[end:]);base=d.tobytes()
+    with f.open(stream=base) as d:
+        assert next(s for s in spans(d[0]) if s['text']=='HELLO')['semantic_protected']
+        with pytest.raises(DocumentError,match='propiedades de marcado'):native_model(d,0,d[0].rect)

@@ -6,6 +6,16 @@ from .pdf_content import placements,patch,set_content,tokens,numbers,names
 SAFE=re.compile(r'[A-Za-z0-9_.-]+\Z')
 
 
+def resource_owner(doc,owner):
+    seen=set()
+    while doc.xref_get_key(owner,'Resources')[0]=='null':
+        if owner in seen or len(seen)>=32:raise DocumentError('Recursos heredados no verificables.')
+        seen.add(owner);kind,value=doc.xref_get_key(owner,'Parent')
+        if kind!='xref':break
+        owner=int(value.split()[0])
+    return owner
+
+
 def array(doc,xref,key,count,default=None):
     kind,value=doc.xref_get_key(xref,key)
     if kind=='null' and default is not None:return default
@@ -20,7 +30,7 @@ def structure(doc,page):
     def walk(owner,data,parent,path,ancestors,clips,composition=False):
         budget['bytes']+=len(data);budget['nodes']+=1
         if budget['bytes']>32*1024*1024 or budget['nodes']>200 or len(path)>8:raise DocumentError('La página supera los límites de objetos Form para edición.')
-        if doc.xref_get_key(owner,'Resources/Properties')[0]!='null':
+        if doc.xref_get_key(resource_owner(doc,owner),'Resources/Properties')[0]!='null':
             if not path:raise DocumentError('Las propiedades de marcado necesitan revisión de alternativas antes de editar.')
             return
         from .text_compositing import graphics
