@@ -31,13 +31,14 @@ class Paragraph:
         self.doc=doc;self.number=number;self.n=n=f.mupdf
         try:self.ctx=ctx=context(doc,number)
         except DocumentError as exc:raise DocumentError('No se pudo asociar el párrafo etiquetado: '+str(exc)) from exc
-        if ctx['has_refs'] or any(r['_native_path'] for r in [anchor]):fail()
+        if ctx['has_refs']:fail()
         owners={};row_codes={}
         from .pdf_content import operations
         def visible(token):
             return bool(token.value) if token.kind=='string' else any(visible(v) for v in token.value) if token.kind=='array' else False
         nonempty={args[0].start for op,args,_ in operations(doc[number].read_contents()) if op in {'Tj','TJ',"'",'"'} and args and any(visible(a) for a in args)}
-        direct=sorted((r for r in all_rows if not r['_native_path'] and r.get('_native')),key=lambda r:r['_native'][0]);starts=[r['_native'][0] for r in direct]
+        def position(row):return (row['_native_path'][0]['start'],row['_native_path'][0]['end']) if row['_native_path'] else row['_native'][:2]
+        direct=sorted((r for r in all_rows if r.get('_native')),key=lambda r:position(r)[0]);starts=[position(r)[0] for r in direct]
         for code,scope in ctx['scopes'].items():
             if scope['unsafe']:continue
             arr=ctx['parent_row'][3]
@@ -46,7 +47,7 @@ class Paragraph:
             if not record or ctx['owners'].get((doc[number].xref,code))!=1:continue
             owners[code]=identity
             for row in direct[bisect_left(starts,scope['open_end']):bisect_left(starts,scope['close_start'])]:
-                native=row['_native']
+                native=position(row)
                 if scope['open_end']<=native[0]<native[1]<=scope['close_start']:
                     row_codes.setdefault(row['id'],[]).append(code)
         codes=row_codes.get(anchor['id'],[])
@@ -87,11 +88,22 @@ class Paragraph:
         self.rows=[];self.code_by_id={};self.owner_by_code=dict(refs)
         for code,identity in refs:
             scope=ctx['scopes'].get(code)
-            if owners.get(code)!=identity or not scope or scope['unsafe'] or any(op not in {'Tj','TJ',"'",'"'} for op,_,_ in scope['paint']):fail()
-            selected=sorted([r for r in all_rows if row_codes.get(r['id'])==[code]],key=lambda r:r['_native'][0])
+            if owners.get(code)!=identity or not scope or scope['unsafe'] or any(op not in {'Tj','TJ',"'",'"','Do'} for op,_,_ in scope['paint']):fail()
+            selected=sorted([r for r in all_rows if row_codes.get(r['id'])==[code]],key=lambda r:([s['start'] for s in r['_native_path']],r['_native'][0]))
             if any(not r['editable'] for r in selected):fail()
+            for op,start,end in scope['paint']:
+                if op!='Do':continue
+                grouped=[r for r in selected if r['_native_path'] and position(r)==(start,end)]
+                if not grouped:fail()
+                from .semantic_text import text_only_form
+                if not text_only_form(doc,grouped[0]['_native_path'][0]['target']):fail()
+                from .form_text import structure
+                source_objects=[obj for obj in structure(doc,doc[number]) if obj['path'] and (obj['path'][0]['start'],obj['path'][0]['end'])==(start,end) and obj['shows'][0].value]
+                expected={(tuple((s['owner'],s['target'],s['start'],s['end']) for s in obj['path']),obj['shows'][0].start,obj['shows'][0].end) for obj in source_objects}
+                actual={(tuple((s['owner'],s['target'],s['start'],s['end']) for s in r['_native_path']),*r['_native'][:2]) for r in grouped}
+                if actual!=expected:fail()
             # Every rendered show must belong to a selected, fully verified row.
-            if any(not any(r['_native'][0]<=start<end<=r['_native'][1]+4 for r in selected) for _,start,end in scope['paint'] if start in nonempty):fail()
+            if any(not any(position(r)[0]<=start<end<=position(r)[1]+4 for r in selected) for op,start,end in scope['paint'] if start in nonempty or op=='Do'):fail()
             self.rows.extend(selected)
             self.code_by_id.update({r['id']:code for r in selected})
         if not self.rows or anchor['id'] not in self.code_by_id:fail()

@@ -9,7 +9,7 @@ from .engine import DocumentError
 from .pdf_content import operations
 
 
-def snapshot(doc,number,*,allow_actual_text=False):
+def snapshot(doc,number,*,allow_actual_text=False,allow_streams=False):
     n=f.mupdf;pdf=f._as_pdf_document(doc);catalog=n.pdf_dict_gets(n.pdf_trailer(pdf),'Root');root=n.pdf_dict_gets(catalog,'StructTreeRoot')
     if n.pdf_is_null(root):return None
     pages={p.xref:p.number for p in doc};seen={};budget=[0];characters=[0]
@@ -42,8 +42,17 @@ def snapshot(doc,number,*,allow_actual_text=False):
         if n.pdf_is_dict(obj):
             if n.pdf_dict_len(obj)>10000:fail()
             pairs={n.pdf_to_name(n.pdf_dict_get_key(obj,i)):n.pdf_dict_get_val(obj,i) for i in range(n.pdf_dict_len(obj))}
-            if any(key in pairs and not n.pdf_is_null(pairs[key]) for key in (['Stm'] if allow_actual_text else ['ActualText','Stm'])):fail()
-            return ['dict',[[key,walk(pairs[key],depth+1)] for key in sorted(pairs)]]
+            if not allow_actual_text and 'ActualText' in pairs and not n.pdf_is_null(pairs['ActualText']):fail()
+            values=[]
+            for key in sorted(pairs):
+                if key=='Stm' and not n.pdf_is_null(pairs[key]):
+                    if not allow_streams:fail()
+                    stream=pairs[key];index=n.pdf_dict_gets(stream,'StructParents')
+                    if not n.pdf_is_stream(stream) or n.pdf_to_name(n.pdf_dict_gets(stream,'Subtype'))!='Form' or not n.pdf_is_int(index) or n.pdf_to_int(index)<0:fail()
+                    value=['form-parent-index',n.pdf_to_int(index)]
+                else:value=walk(pairs[key],depth+1)
+                values.append([key,value])
+            return ['dict',values]
         fail()
     graph=[walk(root),walk(n.pdf_dict_gets(catalog,'MarkInfo'))]
     markers=marker_signature(doc[number].read_contents())

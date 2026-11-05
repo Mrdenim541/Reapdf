@@ -62,6 +62,10 @@ def test_unsupported_native_edits_leave_original_unchanged(kind):
         assert kind in ['actual_text','tracking','two_shows','blend'];return
     if kind in ['missing','wide']:
         with pytest.raises(DocumentError):replace_styled(base,[],0,BOX,[{'id':row['id'],'text':'Z' if kind=='missing' else 'B'*100}])
+    elif kind=='actual_text':
+        assert row['editable'] and row['has_actual_text'] and row['alternative_follows_text']
+        out=replace_styled(base,[],0,BOX,[{'id':row['id'],'text':'BARAND'}])
+        with f.open(stream=out) as check:assert 'BARAND' in check[0].get_text() and 'BARANDA' not in check[0].get_text()
     else:assert not row['editable']
 
 

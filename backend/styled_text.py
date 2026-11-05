@@ -356,6 +356,8 @@ def replace_styled(base,operations,number,box,changes,expand=False):
         page,rotation=prepare_text_page(doc,number)
         rect,rows=styled_model(doc,number,box)
         prepared=prepare_changes(doc,number,rect,rows,changes,expand)
+        from .semantic_text import plan
+        plan(doc,{number:prepared})
         write_changes(doc,number,prepared)
         doc[number].set_rotation(rotation)
         data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
@@ -366,17 +368,23 @@ def replace_styled(base,operations,number,box,changes,expand=False):
 def prepare_changes(doc,number,rect,rows,changes,expand=False):
     model={r['id']:r for r in rows};seen=set();prepared=[];total=0
     from .type3_text import merge_lines
-    neighbor_blocks=merge_lines(doc,doc[number],doc[number].get_text('dict',flags=fitz.TEXTFLAGS_TEXT)['blocks'])
+    neighbor_blocks=merge_lines(doc,doc[number],doc[number].get_text('dict',flags=fitz.TEXTFLAGS_TEXT|fitz.TEXT_IGNORE_ACTUALTEXT)['blocks'])
     from .affine_text import pointer_targets
     neighbor_spans=[(f'{bi}:{li}:{si}',span,line['dir']) for bi,block in enumerate(neighbor_blocks) for li,line in enumerate(block.get('lines',[])) for si,span in enumerate(line['spans'])]
     neighbor_cells=pointer_targets(doc[number],neighbor_spans)
     neighbor_quads={id(span):neighbor_cells[key]['quad'] for key,span,_ in neighbor_spans if key in neighbor_cells}
     for change in changes:
-        if not isinstance(change,dict) or set(change)!={'id','text'} or not isinstance(change.get('id'),str) or change['id'] not in model or change['id'] in seen:raise DocumentError('Fragmento inexistente, repetido o con propiedades no compatibles.')
+        if not isinstance(change,dict) or not {'id','text'}<=set(change)<={'id','text','accessible_text'} or not isinstance(change.get('id'),str) or change['id'] not in model or change['id'] in seen:raise DocumentError('Fragmento inexistente, repetido o con propiedades no compatibles.')
         seen.add(change['id']);row=model[change['id']];text=change['text']
         if not isinstance(text,str) or len(text)>4000 or any(ord(c)<32 or ord(c)==127 for c in text):raise DocumentError('Cada fragmento admite una línea, sin controles, dentro del límite de 4000 caracteres.')
         total+=len(text)
-        if text==row['text']:continue
+        if 'accessible_text' in change and not row.get('has_actual_text'):raise DocumentError('El fragmento no tiene una alternativa ActualText que modificar.')
+        if row.get('has_actual_text'):
+            from .semantic_text import value_text
+            if 'accessible_text' not in change and not row['alternative_follows_text'] and text!=row['text']:raise DocumentError('Revisa el texto de lectura accesible antes de cambiar este fragmento.')
+            accessible=value_text(change.get('accessible_text',text if row['alternative_follows_text'] else row['accessible_text']))
+            row={**row,'_accessible_replacement':accessible}
+        if text==row['text'] and (not row.get('has_actual_text') or row['_accessible_replacement']==row['accessible_text']):continue
         if not row['editable']:raise DocumentError(row['reason'])
         if '_native' in row:
             from .text_spacing import replacement
@@ -419,7 +427,7 @@ def prepare_changes(doc,number,rect,rows,changes,expand=False):
         prepared[0][0]['_neighbor_snapshot']=Counter(stable_key(r) for r in context)
     if prepared and all('_native' in row for row,_ in prepared):
         from .tagged_text_integrity import snapshot
-        semantic=snapshot(doc,number)
+        semantic=snapshot(doc,number,allow_actual_text=True,allow_streams=True)
         if semantic is not None:prepared[0][0]['_semantic_snapshot']=semantic
     return prepared
 
@@ -428,7 +436,8 @@ def write_changes(doc,number,prepared):
     page=doc[number]
     if all('_native' in row for row,_ in prepared):
         from .form_text import write
-        write(doc,page,prepared);return
+        additional=[({'_native_path':path,'_native':[start,end,'alternative']},value) for row,_ in prepared for path,start,end,value in row.get('_alternative_patches',[])]
+        write(doc,page,prepared+additional);return
     clone_resources(doc,page)
     for row,_ in prepared:page.add_redact_annot(fitz.Rect(row['bbox']),fill=False,cross_out=False)
     page.apply_redactions(images=0,graphics=0,text=0)
@@ -470,6 +479,8 @@ def replace_styled_regions(base,operations,regions):
                 seen.add(key);characters+=len(row['text'])
             if len(seen)>100 or characters>20000:raise DocumentError('Hasta 100 fragmentos y 20000 caracteres originales por operación.')
             prepared[number].extend(items)
+        from .semantic_text import plan
+        plan(doc,prepared)
         for number,items in prepared.items():
             write_changes(doc,number,items);doc[number].set_rotation(rotations[number])
         data=doc.tobytes(encryption=fitz.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)

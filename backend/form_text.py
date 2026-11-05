@@ -23,7 +23,6 @@ def structure(doc,page):
         if doc.xref_get_key(owner,'Resources/Properties')[0]!='null':
             if not path:raise DocumentError('Las propiedades de marcado necesitan revisión de alternativas antes de editar.')
             return
-        if 'ActualText' in names(data):return
         from .text_compositing import graphics
         composition=graphics(doc,owner,data) or composition
         parsed=placements(data)
@@ -44,8 +43,17 @@ def structure(doc,page):
             if target in ancestors:continue
             from .text_compositing import group
             if not group(doc,target):continue
-            if any(doc.xref_get_key(target,k)[0]!='null' for k in ['OC','Ref','StructParent','StructParents']):continue
-            if doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null':continue
+            if any(doc.xref_get_key(target,k)[0]!='null' for k in ['OC','Ref','StructParent']):continue
+            stream_owned=doc.xref_get_key(target,'StructParents')[0]!='null'
+            if not stream_owned and doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null':
+                from .semantic_text import tree
+                try:tree(doc)
+                except DocumentError:continue
+            if stream_owned:
+                from .semantic_text import stream_editable
+                try:
+                    if not stream_editable(doc,page.number,target):continue
+                except DocumentError:continue
             if doc.xref_get_key(target,'Resources')[0] not in ['dict','xref']:continue
             try:
                 matrix=f.Matrix(*array(doc,target,'Matrix',6,[1,0,0,1,0,0]))*invocation['matrix']*parent
@@ -55,6 +63,7 @@ def structure(doc,page):
                 bounds=[list(f.Point(p)*matrix*page_matrix) for p in rectangle(box)]
                 from .styled_text import stream
                 child=stream(doc,target,16*1024*1024)
+                if not stream_owned and doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null' and 'MCID' in names(child):continue
                 entry={'owner':owner,'target':target,'start':invocation['start'],'end':invocation['end']}
                 walk(target,child,matrix,path+[entry],ancestors|{target},clips+[bounds],composition)
             except DocumentError as exc:
@@ -104,7 +113,10 @@ def write(doc,page,prepared):
     def apply(node,is_root=False):
         original=node['owner'];owner=original
         if not is_root:
-            owner=doc.get_new_xref();doc.update_object(owner,doc.xref_object(original))
+            if doc.xref_get_key(original,'StructParents')[0]!='null':
+                from .semantic_text import stream_editable
+                if not stream_editable(doc,page.number,original):raise DocumentError('El Form etiquetado no tiene una única aparición verificable.')
+            else:owner=doc.get_new_xref();doc.update_object(owner,doc.xref_object(original))
         content=node['data'];edits=list(node['edits'])
         if node['children'] or node['xobjects']:
             resources=clone_dictionary(doc,owner,'Resources');objects=clone_dictionary(doc,resources,'XObject')

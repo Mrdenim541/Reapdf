@@ -102,11 +102,15 @@ def verify(data,prepared):
         for number,rows in prepared.items():
             page=doc[number];page.set_rotation(0);traces=page.get_texttrace()
             semantic=next((r['_semantic_snapshot'] for r,_ in rows if '_semantic_snapshot' in r),None)
-            if semantic is not None:
+            extended=next((r['_extended_snapshot'] for r,_ in rows if '_extended_snapshot' in r),None)
+            if extended is not None:
+                from .semantic_text import verify as verify_extended
+                verify_extended(doc,number,extended)
+            elif semantic is not None:
                 from .tagged_text_integrity import verify as verify_semantic
                 verify_semantic(doc,number,semantic)
             from .type3_text import merge_lines,trace as type3_trace
-            blocks=merge_lines(doc,page,page.get_text('rawdict')['blocks']);spans=[{**s,'text':''.join(c['c'] for c in s['chars'])} for b in blocks for line in b.get('lines',[]) for s in line['spans']]
+            blocks=merge_lines(doc,page,page.get_text('rawdict',flags=f.TEXTFLAGS_TEXT|f.TEXT_IGNORE_ACTUALTEXT)['blocks']);spans=[{**s,'text':''.join(c['c'] for c in s['chars'])} for b in blocks for line in b.get('lines',[]) for s in line['spans']]
             for row,_ in rows:
                 if '_geometry' not in row:continue
                 matches=[s for s in spans if math.dist(s['origin'],row['origin'])<.02 and normal_name(s['font'])==normal_name(row['font'])]

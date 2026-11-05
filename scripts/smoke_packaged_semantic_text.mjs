@@ -1,0 +1,17 @@
+// Attach to the real compiled Qt window; export through its bundled server.
+import {chromium,expect} from '@playwright/test';
+import {writeFileSync} from 'node:fs';
+import {openTool} from './smoke-tool-navigation.mjs';
+const [endpoint,output,kind]=process.argv.slice(2),browser=await chromium.connectOverCDP(endpoint,{timeout:45000,noDefaults:true});
+try{
+ const page=browser.contexts()[0].pages().find(p=>p.url().startsWith('http://127.0.0.1:'));if(!page)throw new Error('Embedded Qt target missing');page.setDefaultTimeout(30000);
+ await expect(page.locator('.text-layer')).toContainText('HELLO',{timeout:40000});await openTool(page,'Editar texto');await page.getByRole('button',{name:'Editar en página: HELLO',exact:true}).first().click();await expect(page.getByLabel('Texto sobre la página',{exact:true})).toBeEnabled();let response;
+ if(kind==='stream'){
+  await expect(page.getByLabel('Texto para lectura accesible',{exact:true})).toHaveValue('Accessible original');await page.getByLabel('Texto sobre la página',{exact:true}).fill('HOLA');await page.getByLabel('Texto para lectura accesible',{exact:true}).fill('Updated accessible');const pending=page.waitForResponse(r=>r.url().endsWith('/replace-styled-text')&&r.request().method()==='POST');await page.getByLabel('Texto sobre la página',{exact:true}).press('Control+Enter');response=await pending;
+ }else{
+  await page.getByRole('button',{name:'Editar párrafo',exact:true}).click();const input=page.getByLabel('Párrafo sobre la página',{exact:true});await expect(input).toBeEnabled();await input.fill('HOLA '.repeat(20));await page.getByLabel('Ancho del párrafo en página',{exact:true}).fill('120');await page.getByLabel('Alto del párrafo en página',{exact:true}).fill('30');await page.getByRole('button',{name:'Continuar en otra página',exact:true}).click();const pending=page.waitForResponse(r=>r.url().endsWith('/reflow-affine')&&r.request().method()==='POST');await page.getByLabel('Texto del párrafo entre páginas',{exact:true}).press('Control+Enter');response=await pending;
+ }
+ const data=await response.json();if(!response.ok()||!data.id)throw new Error(JSON.stringify(data));await expect(page.locator('.inline-text-editor')).toHaveCount(0);await expect(page.getByRole('dialog')).toHaveCount(0);await page.getByRole('button',{name:'Deshacer',exact:false}).click();await page.getByRole('button',{name:'Rehacer',exact:false}).click();
+ const encoded=await page.evaluate(async id=>{const r=await fetch(`/api/documents/${id}/export`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operations:[]})});if(!r.ok)throw new Error(await r.text());let s='';for(const b of new Uint8Array(await r.arrayBuffer()))s+=String.fromCharCode(b);return btoa(s);},data.id);writeFileSync(output,Buffer.from(encoded,'base64'));
+ await page.evaluate(()=>{window.__reapdfCloseState={dirty:false,busy:false};});console.log('PASS: compiled Qt '+(kind==='stream'?'edits visible and accessible text in a unique Stm-owned Form':'continues a tagged paragraph from a page-owned shared Form without altering its other occurrence')+', undo/redo and bundled-server export; no external browser or native save dialog used in this check.');
+}finally{await browser.close();}

@@ -22,6 +22,7 @@ import { selectMarkupWords, selectMarkupCharacters, transformMark } from './geom
 import {InlineTextEditor,visibleTextBox,visibleTextQuad} from './inline-text.jsx';
 import {caretIndex} from './inline-caret.js';
 import {InlineParagraph} from './inline-paragraph.jsx';
+import {TextContextMenu,QuickTextDialog} from './quick-text.jsx';
 import { useRecovery, projectPayload } from './recovery.jsx';
 import { DocumentSidebar, TextLayer, SearchHighlights, useDocumentSearch } from './viewer.jsx';
 
@@ -94,13 +95,19 @@ function App() {
   const [searchFocusRequest,setSearchFocusRequest]=useState(0);
   const [tool, setTool] = useState('view'), [zoom, setZoom] = useState(1);
   const [inlineSpan,setInlineSpan]=useState(null);
+  const [textMenu,setTextMenu]=useState(null),[quickSpan,setQuickSpan]=useState(null);
   const [inlineBlock,setInlineBlock]=useState(null),[flowStart,setFlowStart]=useState(null);
   function chooseTextTarget(s,event){
-    setError('');
+    setTextMenu(null);setError('');
     if(inlineBlock?.selectionMode){setInlineBlock(prev=>({...prev,selected:prev.selected.some(r=>r.id===s.id)?prev.selected.filter(r=>r.id!==s.id):[...prev.selected,s]}));return;}
     if(event){const box=visibleTextBox(s,geometry);setInlineSpan({...s,caret:caretIndex(s.text,box,characters,point(event))});}else setInlineSpan(s);
   }
 
+  function openTextMenu(span,event){
+    event.preventDefault();event.stopPropagation();
+    if(busy||loading||!mayEdit||inlineBlock||inlineSpan||quickSpan)return;
+    const rect=event.currentTarget.getBoundingClientRect();setTextMenu({span,x:event.clientX||rect.left+10,y:event.clientY||rect.bottom});setError('');
+  }
   const [textBoxMode,setTextBoxMode]=useState(false);
   const [linkWorkspace,setLinkWorkspace]=useState(null);
   const [color, setColor] = useState('#e34b40'), [width, setWidth] = useState(2);
@@ -122,6 +129,7 @@ function App() {
   const paperScroll=useRef(null),paperElement=useRef(null),imageInput=useRef(null),projectInput=useRef(null),fileMenu=useRef(null);
   const fileInput = useRef(null), svg = useRef(null), strokeRef = useRef(null), saved = useRef('{"id":null,"operations":[]}'),projectSaved=useRef('');
   const {doc, operations} = history[cursor];
+  useEffect(()=>setTextMenu(null),[doc?.id,page,tool]);
   const navigationDoc=useMemo(()=>{const index=operations.find(op=>op.type==='bookmarks');return doc&&index?{...doc,bookmarks:index.items.map(item=>({level:item.level,title:item.title,page:item.page})),bookmarks_truncated:false}:doc;},[doc,operations]);
   const fingerprint = JSON.stringify({id:doc?.id ?? null, operations});
   const dirty = fingerprint !== saved.current;
@@ -150,7 +158,7 @@ function App() {
   const activeContent=contentDraft||(contentTools.has(tool)&&selectedOperation?.type===tool?selectedOperation:null);
   const sessionImages=operations.filter(op=>op.page===page&&op.type==='image');
   const noteEditDraft=tool==='select'&&selectedOperation?.type==='note'&&noteContent!==selectedOperation.content;
-  const draftMessage=flowStart&&pageTool==='flow'?'Termina o cancela el flujo iniciado desde el párrafo antes de continuar.':inlineBlock?'Termina o cancela el párrafo sobre la página antes de continuar.':inlineSpan?'Termina o cancela la edición sobre la página antes de continuar.':(contentDraft||contentChanged)?'Hay contenido nuevo sin aplicar. Usa Aplicar o Cancelar contenido antes de exportar.':textDraft?'Hay texto sin aplicar. Pulsa Aplicar cambio o Cancelar antes de exportar.':
+  const draftMessage=quickSpan?'Termina o cancela la edición rápida antes de continuar.':flowStart&&pageTool==='flow'?'Termina o cancela el flujo iniciado desde el párrafo antes de continuar.':inlineBlock?'Termina o cancela el párrafo sobre la página antes de continuar.':inlineSpan?'Termina o cancela la edición sobre la página antes de continuar.':(contentDraft||contentChanged)?'Hay contenido nuevo sin aplicar. Usa Aplicar o Cancelar contenido antes de exportar.':textDraft?'Hay texto sin aplicar. Pulsa Aplicar cambio o Cancelar antes de exportar.':
     (notePoint||noteEditDraft)?'Guarda la nota o cancela sus cambios antes de exportar.':
     multiDraft?'Aplica o cancela los cambios del grupo antes de continuar.':
     existingDraft?'Pulsa Aplicar propiedades existentes o cancela los cambios de la marca.':
@@ -228,7 +236,7 @@ function App() {
   });
 
   function adoptNewDocument(next,name) {
-    setInlineSpan(null);setInlineBlock(null);setFlowStart(null);
+    setInlineSpan(null);setInlineBlock(null);setFlowStart(null);setQuickSpan(null);setTextMenu(null);
     const previousIds=sessionIds.current;sessionIds.current=new Set([next.id]);
     saved.current=JSON.stringify({id:next.id,operations:[]});projectSaved.current='';
     setArea('read');setPropertiesFolded(false);setSearchFocusRequest(0);setHistory([{doc:{...next,name,nativeKey:next.id,baseChanges:0},operations:[]}]);setPage(0);setCursor(0);setTool('view');setPageTool(null);
@@ -414,7 +422,7 @@ function App() {
     setTimeout(()=>URL.revokeObjectURL(url),10000);
   }
   function adoptVersion(next, message, focus = 0) {
-    setFlowStart(null);
+    setFlowStart(null);setQuickSpan(null);setTextMenu(null);
     sessionIds.current.add(next.id);
     const {project_operations=[],...version}=next;
     setHistory(h=>[...h.slice(0,cursor+1),{doc:{...version,name:next.working_copy?doc.name.replace(/\.pdf$/i,'')+'-copia-trabajo.pdf':doc.name,nativeKey:next.working_copy?next.id:doc.nativeKey||doc.id,baseChanges:changeCount+1},operations:project_operations}]);
@@ -675,6 +683,8 @@ function App() {
           {preview && <img src={preview} data-render-scale={pagePreview.scale} alt={`Página ${page+1} del documento`} draggable="false"/>}
           {preview&&tool==='view'&&<LinkLayer links={links} zoom={zoom} onPage={target=>{setPage(target);paperScroll.current?.scrollTo(0,0);}}/>}
           {preview && <TextLayer items={textItems} zoom={zoom} enabled={tool==='view'}/>}
+          {textMenu&&<TextContextMenu target={textMenu} onClose={()=>setTextMenu(null)} onEdit={()=>{setQuickSpan(textMenu.span);setTextMenu(null);}} onDelete={()=>{setQuickSpan({...textMenu.span,remove:true});setTextMenu(null);}}/>}
+          {quickSpan&&<QuickTextDialog key={`${doc.id}:${page}:${quickSpan.id}`} doc={doc} page={page} operations={operations} span={quickSpan} remove={!!quickSpan.remove} busy={busy} error={error} onApply={async(action,params)=>{const ok=await runAdvanced(action,params);if(ok)setTool('text');return ok;}} onClose={()=>{setQuickSpan(null);setError('');}}/>}
           {inlineSpan&&<InlineTextEditor key={`${doc.id}:${page}:${inlineSpan.id}`} doc={doc} page={page} operations={operations} span={inlineSpan} zoom={zoom} busy={busy} error={error} onSelectParagraph={()=>{setInlineBlock({...inlineSpan,selectionMode:true,selected:[inlineSpan]});setInlineSpan(null);setError('');}} onParagraph={()=>{setInlineBlock(inlineSpan);setInlineSpan(null);setError('');}} onApply={async(action,params)=>{const ok=await runAdvanced(action,params);if(ok)setTool(inlineSpan.insert?'textbox':'text');return ok;}} onCancel={()=>{setInlineSpan(null);setError('');}}/>}
           {inlineBlock?.selectionMode&&<section className="inline-text-editor" aria-label="Selección de bloques para párrafo" style={{position:"fixed",left:"50%",bottom:24,top:"auto",transform:"translateX(-50%)",width:340,zIndex:50}} onPointerDown={e=>e.stopPropagation()}><strong>Selecciona textos sobre la página</strong><p>{inlineBlock.selected.length} seleccionados. Pulsa un texto para añadirlo o quitarlo. Solo se usarán los que elijas.</p><button onClick={()=>{setInlineBlock(null);setError('');}}>Cancelar selección</button><button disabled={!inlineBlock.selected.length||busy} onClick={()=>{const selected=inlineBlock.selected;setInlineBlock({...selected[0],selected,selection:selected.map(r=>({origin:r.origin,text:r.text}))});setError('');}}>Redistribuir selección</button></section>}
           {inlineBlock&&!inlineBlock.selectionMode&&<InlineParagraph onReselect={inlineBlock.selection?()=>setInlineBlock({...inlineBlock,selectionMode:true}):undefined} onContinue={payload=>{setFlowStart({document_id:doc.id,...payload});setInlineBlock(null);setError('');setPageTool('flow');}} doc={doc} page={page} operations={operations} span={inlineBlock} zoom={zoom} busy={busy} error={error} onApply={async(action,params)=>{const ok=await runAdvanced(action,params);if(ok)setTool('text');return ok;}} onCancel={()=>{setInlineBlock(null);setError('');}}/>}
@@ -682,7 +692,7 @@ function App() {
           {loading && <div className="loading" role="status">Preparando página…</div>}
           <svg ref={svg} aria-label="Lienzo de anotaciones" viewBox={`0 0 ${geometry.width} ${geometry.height}`} style={{cursor:(drawingTools.has(tool)||markupTools.has(tool)||contentTools.has(tool)||tool==='note')?'crosshair':'default',touchAction:(drawingTools.has(tool)||markupTools.has(tool)||tool==='select'||tool==='images'||contentTools.has(tool))?'none':'auto',pointerEvents:tool==='view'?'none':'auto'}} onPointerDown={start} onPointerMove={move} onPointerUp={end} onPointerCancel={()=>{strokeRef.current=null;activePointer.current=null;setStroke(null);}}>
             {inlineSpan?.quad&&<polygon className="text-edit-outline" points={visibleTextQuad(inlineSpan,geometry).map(p=>p.join(',')).join(' ')}/>}
-            {tool==='text'&&!loading&&!inlineSpan&&(!inlineBlock||inlineBlock.selectionMode)&&spans.map(s=>{const [x,y,w,h]=visibleTextBox(s,geometry);return <polygon key={s.id} role="button" tabIndex="0" aria-label={`Editar en página: ${s.text}`} points={visibleTextQuad(s,geometry).map(p=>p.join(',')).join(' ')} className="text-target" aria-pressed={inlineBlock?.selectionMode?inlineBlock.selected.some(r=>r.id===s.id):undefined} style={inlineBlock?.selectionMode&&inlineBlock.selected.some(r=>r.id===s.id)?{fill:"rgba(38,105,81,.2)",stroke:"#266951"}:undefined} onClick={e=>chooseTextTarget(s,e)} onKeyDown={e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();chooseTextTarget(s);}}}/>;})}
+            {tool==='text'&&!loading&&!inlineSpan&&(!inlineBlock||inlineBlock.selectionMode)&&spans.map(s=>{const [x,y,w,h]=visibleTextBox(s,geometry);return <polygon key={s.id} role="button" tabIndex="0" aria-label={`Editar en página: ${s.text}`} points={visibleTextQuad(s,geometry).map(p=>p.join(',')).join(' ')} className={(textMenu?.span.id===s.id||quickSpan?.id===s.id)?"text-target quick-selected":"text-target"} aria-pressed={inlineBlock?.selectionMode?inlineBlock.selected.some(r=>r.id===s.id):undefined} style={inlineBlock?.selectionMode&&inlineBlock.selected.some(r=>r.id===s.id)?{fill:"rgba(38,105,81,.2)",stroke:"#266951"}:undefined} onContextMenu={e=>openTextMenu(s,e)} onClick={e=>chooseTextTarget(s,e)} onKeyDown={e=>{if(e.key==='ContextMenu'||e.key==='F10'&&e.shiftKey){openTextMenu(s,e);return;}if(['Enter',' '].includes(e.key)){e.preventDefault();chooseTextTarget(s);}}}/>;})}
 
             <SearchHighlights search={search} page={page}/>
             <defs><marker id="arrow-tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill={color}/></marker></defs>

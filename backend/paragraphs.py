@@ -96,7 +96,7 @@ def region_model(doc,number,box,minimum=10,affine=False):
     if not affine and any((fitz.Rect(info['bbox'])&rect).get_area()>.1 for info in page.get_image_info()):raise DocumentError('El bloque cruza una imagen o escaneado. No se reemplazará su texto como párrafo digital.')
     if not affine and (any((a.rect&rect).get_area()>.1 for a in page.annots() or []) or any((w.rect&rect).get_area()>.1 for w in page.widgets() or [])):raise DocumentError('El bloque cruza campos o anotaciones. No se modificará.')
     lines=[];selected_frames=[]
-    for block in page.get_text('dict',flags=fitz.TEXTFLAGS_TEXT,sort=True)['blocks']:
+    for block in page.get_text('dict',flags=fitz.TEXTFLAGS_TEXT|(fitz.TEXT_IGNORE_ACTUALTEXT if affine else 0),sort=True)['blocks']:
         for line in block.get('lines',[]):
             selected=[]
             for span in line['spans']:

@@ -40,8 +40,10 @@ def open_pdf(data: bytes):
 def spans(page):
     from .text_style import SOURCE_FONTS
     result = [];targets=[]
+    from .semantic_text import has_alternatives
+    protected=has_alternatives(page.parent,page)
     from .type3_text import merge_lines
-    blocks=merge_lines(page.parent,page,page.get_text("dict")["blocks"])
+    blocks=merge_lines(page.parent,page,page.get_text("dict",flags=fitz.TEXTFLAGS_DICT|fitz.TEXT_IGNORE_ACTUALTEXT)["blocks"])
     for bi, block in enumerate(blocks):
         for li, line in enumerate(block.get("lines", [])):
             for si, span in enumerate(line["spans"]):
@@ -53,7 +55,7 @@ def spans(page):
                 result.append({"id": f"{bi}:{li}:{si}", "text": span["text"],
                                "bbox": list(span["bbox"]), "origin": list(span["origin"]),
                                "size": span["size"], "font": span["font"],
-                               "color": span["color"], "alpha":span.get("alpha",255), "font_key": SOURCE_FONTS.get(span["font"]), "editable": editable})
+                               "color": span["color"], "alpha":span.get("alpha",255), "font_key": SOURCE_FONTS.get(span["font"]), "editable": editable, **({"semantic_protected":True} if protected else {})})
                 targets.append((f"{bi}:{li}:{si}",span,line["dir"]))
     from .affine_text import pointer_targets
     cells=pointer_targets(page,targets)
