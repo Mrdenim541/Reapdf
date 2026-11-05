@@ -26,6 +26,9 @@ def click(selector):
 def dimensions():return json.loads(js('JSON.stringify((()=>{const rect=s=>{const r=document.querySelector(s).getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom}};return {tools:rect(".tools"),canvas:rect(".canvas-area"),nav:rect(".document-sidebar"),body:document.documentElement.scrollWidth,viewport:innerWidth};})())'))
 try:
  wait('document.querySelector(".document-bar")?.textContent.includes("Workspace.pdf")&&document.querySelector(".paper img")?.complete');wait('!document.querySelector(".loading")')
+ click('[aria-label="Vista de lectura ampliada"]');wait('document.querySelector(".app").classList.contains("reading-focus")')
+ assert js('getComputedStyle(document.querySelector(".tools")).display')=='none','The task ribbon overlaps focus reading mode'
+ click('[aria-label="Vista de lectura ampliada"]');wait('!document.querySelector(".app").classList.contains("reading-focus")')
  for width,height in [(1500,1000),(1280,760),(900,760)]:
   window.resize(width,height);QTest.qWait(300);d=dimensions()
   assert d['tools']['bottom']<=d['canvas']['y']+1,d
@@ -41,5 +44,5 @@ try:
  js('(()=>{const bytes=Uint8Array.from(atob('+json.dumps(encoded)+'),c=>c.charCodeAt(0)),dt=new DataTransfer();dt.items.add(new File([bytes],"Workspace.pdf",{type:"application/pdf"}));const input=document.querySelector('+json.dumps('[aria-label="Archivo PDF"]')+');input.files=dt.files;input.dispatchEvent(new Event("change",{bubbles:true}));})()')
  wait('document.querySelector(".ribbon-toggle")?.getAttribute("aria-expanded")==="false"');click('.ribbon-toggle');wait('!document.querySelector("#workspace-tools").hidden');wait('document.querySelector(".paper img")?.complete&&!document.querySelector(".loading")');click('#area-tab-edit');click('.catalog-action[aria-label="Editar texto"]');wait('!!document.querySelector(".text-target")')
  window.resize(1500,1000);QTest.qWait(400);image=root/'studio.png';window.grab().save(str(image));print('CAPTURE:',image)
- print('PASS: actual Qt mouse selects a task and original text, ribbon folds and persists across reload, navigation stays left, page gains space, and 1500/1280/900 layouts have usable document height without horizontal body overflow.')
+ print('PASS: actual Qt mouse selects a task and original text, ribbon folds and persists across reload, focus reading hides side panels and the ribbon, navigation stays left, page gains space, and 1500/1280/900 layouts have usable document height without horizontal body overflow.')
 finally:window.close()

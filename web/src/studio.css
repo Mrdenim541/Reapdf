@@ -115,3 +115,7 @@
 .studio-layout .text-target{fill:#5363bd12;stroke:#5363bd}.studio-layout .text-target:hover,.studio-layout .text-target.selected,.studio-layout .text-target.quick-selected{fill:#5363bd2b;stroke:#5363bd}
 
 button.primary:hover:not(:disabled),.primary:hover:not(:disabled){background:#4352a5;border-color:#4352a5;color:#fff}
+
+.studio-layout.reading-focus .workspace>.tools,.studio-layout.reading-focus .workspace>.document-sidebar,.studio-layout.reading-focus .workspace>.properties{display:none!important}
+
+.studio-layout .tool-section summary::after{content:"⌄";font-size:12px}.studio-layout .tool-section:not([open]) summary::after{content:"›"}
