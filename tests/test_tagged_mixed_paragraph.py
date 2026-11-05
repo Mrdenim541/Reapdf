@@ -174,3 +174,22 @@ def test_large_42_page_tag_graph_can_edit_a_verified_paragraph_without_losing_ot
     with f.open(stream=base) as a,f.open(stream=out) as b:
         assert len(a)==len(b)==42 and snapshot(a,0)==snapshot(b,0)
         assert snapshot(b,0)['nodes']>4200
+
+
+def test_existing_metric_overlap_allows_edit_within_original_footprint_only():
+    from collections import Counter
+    from backend.affine_mixed_reflow import stable_key
+    with f.open() as d:
+        p=d.new_page(width=400,height=400)
+        for i in range(5):p.insert_text((40,80+i*8),f'ITEM-{i:03d}',fontsize=7)
+        plain=d.tobytes()
+    entries=candidates(plain,[])['entries'];base=create(plain,[],[{'id':r['id'],'role':'P'} for r in entries],reviewed=True)[0]
+    with f.open(stream=base) as d:
+        _,before=native_model(d,0,d[0].rect,context=True);row=next(r for r in before if r['text']=='ITEM-002')
+    m=inspect(base,[],0,row['origin'],row['text']);assert m['tagged_paragraph']
+    out,_=reflow(base,[],0,m['box'],m['ids'][0],'ITEM-902',m['local_width'],m['local_height'],False,m['ids'],[{'id':m['ids'][0],'text':'ITEM-902'}])
+    with f.open(stream=base) as a,f.open(stream=out) as b:
+        assert snapshot(a,0)==snapshot(b,0)
+        after=native_model(b,0,b[0].rect,context=True)[1]
+        assert not (Counter(stable_key(r) for r in before if r['id']!=row['id'])-Counter(stable_key(r) for r in after))
+    with pytest.raises(DocumentError):reflow(base,[],0,m['box'],m['ids'][0],'ITEM-902\nITEM-903',100,100,False,m['ids'],[{'id':m['ids'][0],'text':'ITEM-902\nITEM-903'}])

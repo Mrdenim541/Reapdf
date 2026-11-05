@@ -157,7 +157,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
                 if variable:x=packed[offset]
                 fragment=line[offset:end];extent=layout.extent(cursor+offset,cursor+end);g=copy.copy(row['_geometry']);origin=f.Point(x,baseline)*frame;g['matrix']=[*g['matrix'][:4],origin.x,origin.y];cell=polygon(g,extent)
                 if not contains(rectangle(doc[current].rect),cell) or (destination<0 and any(not contains(c,cell) for c in row['_clips'])) or (destination>=0 and not contains(rectangle(destinations[destination]['rect']),cell)):raise DocumentError('El párrafo sale de la página o del recorte original.')
-                if destination<0 and any(overlap(cell,o)>.1 for o in obstacles):raise DocumentError('El párrafo cruza otro texto, imagen, borde, enlace o anotación.')
+                if destination<0 and any(overlap(cell,o)>.1 for o in obstacles) and not (tagged and contains(polygon(row['_geometry']),cell)):raise DocumentError('El párrafo cruza otro texto, imagen, borde, enlace o anotación.')
                 if destination<0:
                     local=origin*~f.Matrix(*row['_geometry']['matrix']);tm=f.Matrix(*row['_line_matrix']);position=f.Point(local.x/(g['factor']*g['horizontal']),local.y/g['factor'])*tm;tm[4]=position.x;tm[5]=position.y
                     command=(' '.join(f'{v:.8f}' for v in tm)+' Tm ').encode()+operand(row['_font'],fragment,layout.kern[cursor+offset:cursor+end]);commands[row['id']].append(command)
