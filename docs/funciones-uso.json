@@ -1185,14 +1185,15 @@
       "id": "general_tools",
       "label": "Buscar herramientas y favoritos",
       "area": "read",
-      "access": "Buscar herramienta / Ctrl+K / estrella",
+      "access": "Barra superior por tareas / Buscar herramienta / Ctrl+K / estrella",
       "availability": "implemented_with_limits",
       "steps": [
-        "Busca por tarea o elige un área",
-        "Abre la herramienta o márcala como favorita"
+        "Elige un área en la barra superior y una herramienta de su grupo",
+        "Busca por tarea o marca herramientas como favoritas",
+        "Pulsa Plegar herramientas para ampliar el documento; Mostrar herramientas restaura la barra"
       ],
-      "expected": "Se accede a la herramienta sin mostrar todas las funciones simultáneamente.",
-      "limits": "Aplica o cancela borradores antes de cambiar de tarea; la persistencia de preferencias depende del modo de ejecución."
+      "expected": "Herramientas agrupadas arriba, páginas y búsqueda a la izquierda y propiedades contextuales a la derecha; la preferencia de plegado se conserva localmente.",
+      "limits": "Aplica o cancela borradores antes de cambiar de tarea. La persistencia depende del almacenamiento local del modo de ejecución. En ventanas estrechas la barra se desplaza y las propiedades pasan debajo del documento."
     },
     {
       "id": "general_instance",

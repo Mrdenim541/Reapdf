@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './style.css';
 import './workspace.css';
 import './professional.css';
+import './studio.css';
 import {Icon} from './ui-icons.jsx';
 import {AreaNavigation,ToolCatalog,CommandPalette,PageJump,WorkspaceHelp} from './workspace-tools.jsx';
 import {areas,unavailableReason,areaChangeReason,tools as catalogTools} from './tool-catalog.js';
@@ -92,6 +93,8 @@ function App() {
   const [commandsOpen,setCommandsOpen]=useState(false),[helpOpen,setHelpOpen]=useState(false),[focusMode,setFocusMode]=useState(false);
   const pageJumpInput=useRef(null);
   const [area,setArea]=useState('read'),[navigationOpen,setNavigationOpen]=useState(true),[propertiesFolded,setPropertiesFolded]=useState(false);
+  const [ribbonOpen,setRibbonOpen]=useState(()=>{try{return localStorage.getItem('reapdf.ribbon-open')!=='false';}catch{return true;}});
+  function toggleRibbon(){setRibbonOpen(open=>{const next=!open;try{localStorage.setItem('reapdf.ribbon-open',String(next));}catch{/* Keep the current preference for this session. */}return next;});}
   const [searchFocusRequest,setSearchFocusRequest]=useState(0);
   const [tool, setTool] = useState('view'), [zoom, setZoom] = useState(1);
   const [inlineSpan,setInlineSpan]=useState(null);
@@ -631,8 +634,8 @@ function App() {
     else if(enoughSize)commit([...operations,{id:crypto.randomUUID(),type:tool,page,points:pts,width,color:[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)/255)}]);
     if(e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
   }
-  return <div className={`app${focusMode?' reading-focus':''}`}>
-    <header><div className="brand"><span className="brand-icon">R</span> reapdf <span className="badge">0.41 · DESARROLLO</span></div>
+  return <div className={`app studio-layout${focusMode?' reading-focus':''}`}>
+    <header><div className="brand"><span className="brand-icon">R</span> reapdf <span className="badge">PERSONAL · EN DESARROLLO</span></div>
       <div className="header-actions"><button className="help-button" onClick={()=>setHelpOpen(true)} disabled={busy||transforming}>Guía y atajos</button><span className="local-status"><span className="local-dot">●</span>Procesamiento local</span><details ref={fileMenu} className="file-menu"><summary>Archivo</summary><div>
         <button disabled={busy||transforming} onClick={()=>{closeFileMenu();projectInput.current.click();}}>Abrir proyecto…</button>
         <button disabled={!doc||busy||transforming||!!draftMessage||loading} onClick={saveProject}>Guardar proyecto</button>
@@ -659,9 +662,9 @@ function App() {
       <div className="limits">Hasta 30 MB · 500 páginas · Sin envío a servicios externos</div>
       <div className="cards"><article><b>01 / Leer</b><h3>Encuentra tu página</h3><p>Miniaturas, índice, búsqueda y revisión de la estructura del documento.</p></article><article><b>02 / Marcar</b><h3>Deja tu trazo</h3><p>Anotaciones, notas, trazos, formularios y firma visual, con cambios reversibles.</p></article><article><b>03 / Editar</b><h3>Cambia el contenido</h3><p>Texto e imágenes compatibles, OCR local, organización y exportación de copias.</p></article></div>
       <div className="prototype">Versión en desarrollo. La edición depende de la estructura y fuentes del PDF. Incluye OCR local en español e inglés; las firmas visuales y las firmas con certificado tienen asistentes separados. Consulta la guía para conocer los flujos y límites.</div>
-    </main> : <><div className="workspace-bar"><AreaNavigation area={area} blocked={areaBlocked} onChange={changeArea}/><div className="panel-controls"><button aria-expanded={navigationOpen&&!focusMode} aria-controls="document-navigation" disabled={busy||transforming||!!stroke} onClick={()=>{setFocusMode(false);setNavigationOpen(focusMode?true:!navigationOpen);}}>{navigationOpen&&!focusMode?'Ocultar navegación':'Mostrar navegación'}</button>{tool!=='view'&&tool!=='text'&&tool!=='textbox'&&<button aria-expanded={propertiesVisible&&!focusMode} aria-controls="tool-properties" disabled={!!areaBlocked} title={areaBlocked||'Mostrar u ocultar las propiedades de la herramienta'} onClick={()=>{setFocusMode(false);setPropertiesFolded(focusMode?false:!propertiesFolded);}}>{propertiesVisible&&!focusMode?'Ocultar propiedades':'Mostrar propiedades'}</button>}</div></div><div className={`workspace${!navigationOpen?' navigation-closed':''}${!propertiesVisible?' properties-closed':''}`}>
+    </main> : <><div className="workspace-bar"><AreaNavigation area={area} blocked={areaBlocked} onChange={changeArea}/><div className="panel-controls"><button className="ribbon-toggle" aria-expanded={ribbonOpen&&!focusMode} aria-controls="workspace-tools" disabled={!!areaBlocked} title={areaBlocked||(ribbonOpen?"Plegar la barra para ampliar el documento":"Restaurar las herramientas de esta tarea")} onClick={()=>{setFocusMode(false);toggleRibbon();}}>{ribbonOpen&&!focusMode?"Plegar herramientas":"Mostrar herramientas"}</button><button aria-expanded={navigationOpen&&!focusMode} aria-controls="document-navigation" disabled={busy||transforming||!!stroke} onClick={()=>{setFocusMode(false);setNavigationOpen(focusMode?true:!navigationOpen);}}>{navigationOpen&&!focusMode?'Ocultar navegación':'Mostrar navegación'}</button>{tool!=='view'&&tool!=='text'&&tool!=='textbox'&&<button aria-expanded={propertiesVisible&&!focusMode} aria-controls="tool-properties" disabled={!!areaBlocked} title={areaBlocked||'Mostrar u ocultar las propiedades de la herramienta'} onClick={()=>{setFocusMode(false);setPropertiesFolded(focusMode?false:!propertiesFolded);}}>{propertiesVisible&&!focusMode?'Ocultar propiedades':'Mostrar propiedades'}</button>}</div></div><div className={`workspace${!ribbonOpen?' ribbon-closed':''}${!navigationOpen?' navigation-closed':''}${!propertiesVisible?' properties-closed':''}`}>
 
-      <aside className="tools" aria-label="Herramientas PDF">
+      <aside id="workspace-tools" className="tools" aria-label="Herramientas PDF" hidden={!ribbonOpen}>
         <ToolCatalog area={area} active={tool} reason={toolReason} onRun={runCatalogTool} onCommands={()=>setCommandsOpen(true)}/>
         <div className="history-actions"><button disabled={cursor===0||busy||transforming||!!stroke||!!draftMessage} onClick={()=>restoreHistory(cursor-1)}>↶ Deshacer</button><button disabled={cursor===history.length-1||busy||transforming||!!stroke||!!draftMessage} onClick={()=>restoreHistory(cursor+1)}>↷ Rehacer</button></div>
       </aside>
