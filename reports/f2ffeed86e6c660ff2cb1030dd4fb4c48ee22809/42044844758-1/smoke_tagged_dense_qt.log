@@ -1,0 +1,8 @@
+[7552:3172:1105/142834.805:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[7552:3172:1105/142834.805:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+
+Traceback (most recent call last):
+  File "D:\a\Reapdf\Reapdf\scripts\smoke_tagged_dense_qt.py", line 43, in <module>
+    click('Editar en página: ITEM-900');wait(field('Texto sobre la página')+'?.disabled===false');assert js('[...document.querySelectorAll("button")].find(e=>e.textContent==="Seleccionar varios bloques").disabled');click('Editar párrafo');wait(field('Párrafo sobre la página')+'?.disabled===false');assert js(field('Añadir páginas automáticamente')+'.disabled')
+                                                                                                                                                                                                                                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
