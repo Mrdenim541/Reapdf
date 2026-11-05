@@ -86,9 +86,13 @@
         "docs/validation/semantic-text-20261105/results.json",
         "backend/semantic_text.py",
         "web/src/quick-text.jsx",
-        "scripts/smoke_quick_text_qt.py"
+        "scripts/smoke_quick_text_qt.py",
+        "web/src/studio.css",
+        "scripts/smoke_studio_layout_qt.py",
+        "docs/INTERFAZ_PERSONAL_20261105.md",
+        "docs/validation/studio-ui-20261105/results.json"
       ],
-      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. ActualText de un grupo verificable y líneas de Form con Stm propio de aparición única ya se editan coordinando lectura y glifos; Forms con etiqueta de página ya admiten aislamiento de aparición y párrafos completos compatibles. Permanecen protegidos los Stm compartidos, ActualText multigrupo/contradictorio, propiedades nombradas (también heredadas), reflujo Stm/ActualText general y asociaciones mixtas no verificables. Menú contextual y cuadro compacto de edición, eliminación/deshacer y atajo Shift+F10 incorporados; no repetirlos como ausentes."
+      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. ActualText de un grupo verificable y líneas de Form con Stm propio de aparición única ya se editan coordinando lectura y glifos; Forms con etiqueta de página ya admiten aislamiento de aparición y párrafos completos compatibles. Permanecen protegidos los Stm compartidos, ActualText multigrupo/contradictorio, propiedades nombradas (también heredadas), reflujo Stm/ActualText general y asociaciones mixtas no verificables. Menú contextual y cuadro compacto de edición, eliminación/deshacer y atajo Shift+F10 incorporados; no repetirlos como ausentes. Barra superior por tareas plegable, navegación izquierda y propiedades contextuales incorporadas; lectura ampliada comprobada. El rediseño visual no añade puntos nuevos por sí solo."
     },
     {
       "id": "text_images",
@@ -613,7 +617,7 @@
       "technical_complete": false,
       "changes_global_estimate": false,
       "contains_latest_corrections": false,
-      "newer_unreleased_source_commit": "7d37c20eb2b77de518e8253f8d3b4aba52ed5183"
+      "newer_unreleased_source_commit": "723b281b6b7b7dd37b436cada9b3aebbd633c187"
     }
   },
   "technical_completion_gates": [
@@ -626,31 +630,32 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "7d37c20eb2b77de518e8253f8d3b4aba52ed5183",
+    "source_commit": "723b281b6b7b7dd37b436cada9b3aebbd633c187",
     "linux": {
-      "checks": 37,
-      "evidence": "docs/validation/semantic-text-20261105/linux/desktop-report.json"
+      "checks": 38,
+      "evidence": "docs/validation/studio-ui-20261105/linux/desktop-report.json"
     },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 37,
-      "evidence": "docs/validation/semantic-text-20261105/windows/assessment.json"
+      "checks": 38,
+      "evidence": "docs/validation/studio-ui-20261105/windows/assessment.json"
     },
     "packaged_executable_verified": true,
     "compiled_gui_independent_runs": 10,
-    "packaged_scope": "Diez recorridos independientes: los siete anteriores y edición Stm/ActualText, continuación de Form con etiqueta de página y edición rápida/eliminación. Exportación mediante servidor incluido, reapertura por intérprete incluido. Guardado nativo en fuente Qt. No acredita todo el alcance, Windows cliente/DPI, impresión física ni carga sostenida."
+    "packaged_scope": "Los diez recorridos de edición/exportación ya enumerados, ahora con barra superior por tareas. Plegado/persistencia y lectura ampliada en fuente Qt, guardado nativo también en fuente. No acredita todo el alcance, Windows cliente/DPI, impresión física ni carga sostenida."
   },
   "last_implementation": {
     "date": "2026-11-05",
-    "source_commit": "7d37c20eb2b77de518e8253f8d3b4aba52ed5183",
-    "evidence": "docs/validation/semantic-text-20261105/results.json",
+    "source_commit": "723b281b6b7b7dd37b436cada9b3aebbd633c187",
+    "evidence": "docs/validation/studio-ui-20261105/results.json",
     "features": [
       "ActualText de un grupo con lectura y glifos coordinados",
       "Form con etiqueta de página: aislamiento, párrafo y continuación compatibles",
       "Línea de stream Stm con asociación propia y aparición única",
-      "Menú contextual y cuadro compacto para editar/eliminar texto"
+      "Menú contextual y cuadro compacto para editar/eliminar texto",
+      "Interfaz personal con barra superior por tareas, plegado persistente y propiedades contextuales"
     ],
-    "global_estimate_recalculated": true,
+    "global_estimate_recalculated": false,
     "global_blocks_closed": []
   },
   "last_observations": {
@@ -714,6 +719,14 @@
     "source_commit": "7d37c20eb2b77de518e8253f8d3b4aba52ed5183",
     "report": "docs/EDICION_ACCESIBLE_Y_RAPIDA_20261105.md",
     "evidence": "docs/validation/semantic-text-20261105/results.json",
+    "technical_complete": false,
+    "accepted_complete": false
+  },
+  "last_studio_ui": {
+    "source_commit": "723b281b6b7b7dd37b436cada9b3aebbd633c187",
+    "report": "docs/INTERFAZ_PERSONAL_20261105.md",
+    "evidence": "docs/validation/studio-ui-20261105/results.json",
+    "global_estimate_unchanged": 87.38,
     "technical_complete": false,
     "accepted_complete": false
   }

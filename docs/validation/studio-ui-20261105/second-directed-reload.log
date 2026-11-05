@@ -1,0 +1,15 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+Fontconfig error: No writable cache directories
+[361545:361565:1105/163315.335149:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 361566: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_studio_layout_qt.py", line 39, in <module>
+    click('.ribbon-toggle');js('window.__studioBeforeReload=true;location.reload()');wait('window.__studioBeforeReload!==true&&document.querySelector(".ribbon-toggle")?.getAttribute("aria-expanded")==="false"');click('.ribbon-toggle');wait('!document.querySelector("#workspace-tools").hidden')
+                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_studio_layout_qt.py", line 21, in wait
+    raise AssertionError(script)
+AssertionError: window.__studioBeforeReload!==true&&document.querySelector(".ribbon-toggle")?.getAttribute("aria-expanded")==="false"

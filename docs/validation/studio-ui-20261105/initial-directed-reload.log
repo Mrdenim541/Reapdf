@@ -1,0 +1,25 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+Fontconfig error: No writable cache directories
+[361372:361391:1105/163251.544937:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 361392: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+js: Uncaught TypeError: Cannot read properties of null (reading 'getBoundingClientRect')
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_studio_layout_qt.py", line 39, in <module>
+    click('.ribbon-toggle');js('location.reload()');wait('document.querySelector(".ribbon-toggle")?.getAttribute("aria-expanded")==="false"');click('.ribbon-toggle');wait('!document.querySelector("#workspace-tools").hidden')
+                                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_studio_layout_qt.py", line 24, in click
+    p=json.loads(js('JSON.stringify((()=>{const r=document.querySelector('+json.dumps(selector)+').getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2];})())'))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
