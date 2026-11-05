@@ -1,0 +1,3 @@
+[3848:2716:1105/164617.078:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[3848:2716:1105/164617.079:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: native Qt split with automatic preflight, invalid-name recovery, 42 numbered files with native text/pixels/tags, grouped and bookmark plans; original unchanged.
