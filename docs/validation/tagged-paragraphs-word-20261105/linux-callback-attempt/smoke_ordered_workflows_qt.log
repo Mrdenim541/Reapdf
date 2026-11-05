@@ -1,0 +1,21 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[342106:342125:1105/143623.548724:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 342126: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_ordered_workflows_qt.py", line 45, in <module>
+    native_open(portfolio);tool('Portfolio PDF');wait('!!document.querySelector(".portfolio-columns")');js('document.querySelector(".portfolio-columns").open=true');wait(field('Columna File del archivo 1')+'?.value==="original.txt"');assert js(field('Columna File del archivo 1')+'.disabled') and js(field('Columna Bytes del archivo 1')+'.value')==str(len(b'ATTACHMENT BYTES'))
+    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_ordered_workflows_qt.py", line 37, in native_open
+    QFileDialog.getOpenFileName=lambda *a,**kw:(str(path),'');window.open_action.trigger();wait('document.querySelector(".document-bar")?.textContent.includes('+json.dumps(path.name)+')')
+                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_ordered_workflows_qt.py", line 25, in wait
+    if js(script):return
+       ^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_ordered_workflows_qt.py", line 19, in js
+    if not values:raise AssertionError('Qt did not respond')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Qt did not respond

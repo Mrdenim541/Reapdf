@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "review_date": "2026-11-04",
-  "status": "provisional_with_common_baseline_variable_shear_profile",
+  "review_date": "2026-11-05",
+  "status": "provisional_with_tagged_paragraph_and_word_columns_profiles",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 87.14,
+  "weighted_percent": 87.29,
   "reported_percent": 87,
   "subjective_range_percent": [
     62,
@@ -185,9 +185,12 @@
         "docs/validation/tagged-images-20261104/results.json",
         "backend/sheared_paragraph.py",
         "docs/PARRAFOS_CON_INCLINACIONES_20261104.md",
-        "docs/validation/sheared-paragraphs-20261104/results.json"
+        "docs/validation/sheared-paragraphs-20261104/results.json",
+        "backend/tagged_paragraph.py",
+        "docs/PARRAFOS_ETIQUETADOS_Y_WORD_20261105.md",
+        "docs/validation/tagged-paragraphs-word-20261105/results.json"
       ],
-      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo con direcciones de lectura incompatibles/composición y espaciados restantes, cambio general de fuente, etiquetas/ActualText/Stm o mezcla etiquetada general, imágenes inline, figuras y Forms fuera del perfil verificado, OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada. Copia explícita sin etiquetas para imágenes/texto compatibles ya incorporada; permanece pendiente la edición semántica nativa general de estructuras fuera del perfil compatible. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. Inclinaciones verticales independientes con dirección común ya admitidas en página, continuación y paginación; no repetir ese subconjunto como pendiente."
+      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo con direcciones de lectura incompatibles/composición y espaciados restantes, cambio general de fuente, ActualText/Stm y semántica etiquetada fuera de párrafos directos compatibles, imágenes inline, figuras y Forms fuera del perfil verificado, OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada. Copia explícita sin etiquetas para imágenes/texto compatibles ya incorporada; permanece pendiente la edición semántica nativa general de estructuras fuera del perfil compatible. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. Inclinaciones verticales independientes con dirección común ya admitidas en página, continuación y paginación; no repetir ese subconjunto como pendiente. Párrafos etiquetados P/encabezados/celdas con Span compatibles ya admiten varios estilos, selección semántica y continuación/paginación coordinadas; no repetir ese subconjunto como ausente."
     },
     {
       "id": "annotations",
@@ -239,7 +242,7 @@
     {
       "id": "ocr_conversion",
       "weight": 9,
-      "maturity": 97,
+      "maturity": 98,
       "evidence": [
         "backend/ocr.py",
         "backend/docx_import.py",
@@ -275,9 +278,14 @@
         "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
         "docs/validation/functional-closing-20261104/results.json",
         "docs/CORRECCIONES_OBSERVADAS_20261104.md",
-        "docs/validation/observations-20261104/results.json"
+        "docs/validation/observations-20261104/results.json",
+        "backend/docx_columns.py",
+        "backend/docx_bookmarks.py",
+        "scripts/smoke_word_columns_qt.py",
+        "docs/PARRAFOS_ETIQUETADOS_Y_WORD_20261105.md",
+        "docs/validation/tagged-paragraphs-word-20261105/results.json"
       ],
-      "remaining": "Importación Word por lotes y saltos de sección par/impar con numeración ya incorporados. Quedan secciones continuas/columnas, campos y fidelidad Office general, OCR con esquinas/bajo contraste/idiomas y tablas irregulares/curvas/multilínea generales, notas Word partidas o con marcas fuera de fragmentos consecutivos compatibles y corpus externo. OCR comprueba ahora aspecto y límites antes de publicar; no incrementa su exactitud de reconocimiento ni garantiza otros visores."
+      "remaining": "Importación Word por lotes y saltos de sección par/impar con numeración ya incorporados. Columnas de 1–4 con anchos/espacios/separadores, notas al pie y enlaces internos a marcadores ya incorporados. Quedan secciones continuas, equilibrio y saltos manuales dentro de varias columnas, campos y fidelidad Office general, OCR con esquinas/bajo contraste/idiomas y tablas irregulares/curvas/multilínea generales, notas Word partidas o con marcas fuera de fragmentos consecutivos compatibles y corpus externo. OCR comprueba ahora aspecto y límites antes de publicar; no incrementa su exactitud de reconocimiento ni garantiza otros visores."
     },
     {
       "id": "security_signatures",
@@ -319,7 +327,7 @@
     {
       "id": "accessibility",
       "weight": 3,
-      "maturity": 95,
+      "maturity": 97,
       "evidence": [
         "backend/accessibility.py",
         "backend/structure_editing.py",
@@ -346,9 +354,13 @@
         "docs/validation/functional-closing-20261104/results.json",
         "backend/tagged_image_integrity.py",
         "docs/EDICION_NATIVA_FIGURAS_20261104.md",
-        "docs/validation/tagged-images-20261104/results.json"
+        "docs/validation/tagged-images-20261104/results.json",
+        "backend/tagged_paragraph.py",
+        "scripts/smoke_tagged_paragraph_qt.py",
+        "docs/PARRAFOS_ETIQUETADOS_Y_WORD_20261105.md",
+        "docs/validation/tagged-paragraphs-word-20261105/results.json"
       ],
-      "remaining": "Reparación compatible de rol/RowSpan/ColSpan/Scope de tablas existentes, conservación de identidad de nodos iguales al guardar y edición de un fragmento nativo etiquetado incorporadas. Quedan semántica general/mixta interna de Forms, imágenes inline y recomposición general de recortes, enlaces ambiguos/listas/celdas complejas, ActualText/Stm y reparación general/PDF/UA. El texto nuevo no se etiqueta automáticamente. Lector de pantalla e interoperabilidad externos pendientes. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras."
+      "remaining": "Reparación compatible de rol/RowSpan/ColSpan/Scope de tablas existentes, conservación de identidad de nodos iguales al guardar y edición de un fragmento nativo etiquetado incorporadas. Quedan semántica general/mixta interna de Forms, imágenes inline y recomposición general de recortes, enlaces ambiguos/listas/celdas complejas, ActualText/Stm y reparación general/PDF/UA. El texto nuevo no se etiqueta automáticamente. Lector de pantalla e interoperabilidad externos pendientes. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. Párrafos directos compatibles con varios estilos y Span ya conservan sus etiquetas en página y amplían ParentTree/hojas por página al continuar; quedan las variantes semánticas generales y la aceptación externa."
     },
     {
       "id": "automation_linking",
@@ -543,20 +555,27 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261104-before-tagged-images.json",
-    "before_weighted": 87.08,
-    "before_unrounded": "87.0825",
-    "after_weighted": 87.14,
-    "unrounded_after_weighted": "87.1425",
-    "new_points": 0.06,
-    "unrounded_delta": "0.0600",
+    "baseline": "docs/progress/20261105-before-tagged-paragraphs-word.json",
+    "before_weighted": 87.14,
+    "before_unrounded": "87.1425",
+    "after_weighted": 87.29,
+    "unrounded_after_weighted": "87.2925",
+    "new_points": 0.15,
+    "unrounded_delta": "0.1500",
     "changes": [
       {
         "id": "accessibility",
-        "before": 93,
-        "after": 95,
+        "before": 95,
+        "after": 97,
         "points": 0.06,
-        "reason": "Edición coordinada de figuras existentes: BBox/Width/Height locales al mover, Alt al reemplazar y retirada de Figure/ParentTree/MCID al eliminar. Clases, Forms, ActualText/Stm generales y PDF/UA siguen abiertos. Sin puntos por documentación, repetir pruebas, nombres ya existentes o todo el bloque de edición."
+        "reason": "Párrafos de varios estilos, Span/MCID/ParentTree y continuación semántica coordinada; no PDF/UA general."
+      },
+      {
+        "id": "ocr_conversion",
+        "before": 97,
+        "after": 98,
+        "points": 0.09,
+        "reason": "Columnas Word con notas/geometría y enlaces internos a marcadores verificados tras guardar; no fidelidad Office general."
       }
     ]
   },
@@ -596,31 +615,31 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "909959d0baa04448afc3cb74ca3da038156f376f",
+    "source_commit": "001183628c71da181b8a1ef74ae3144a0abc5417",
     "linux": {
-      "checks": 29,
-      "evidence": "docs/validation/observations-20261104/linux/desktop-report.json"
+      "checks": 35,
+      "evidence": "docs/validation/tagged-paragraphs-word-20261105/linux/desktop-report.json"
     },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 29,
-      "evidence": "docs/validation/observations-20261104/windows/assessment.json"
+      "checks": 35,
+      "evidence": "docs/validation/tagged-paragraphs-word-20261105/windows/assessment.json"
     },
     "packaged_executable_verified": true,
-    "compiled_gui_independent_runs": 3,
-    "packaged_scope": "Edición básica, espaciado/continuación, paginación automática y tarea programada empaquetada. Los recorridos nuevos de copias/división/OCR son Qt desde fuente Windows/Linux; no se acredita todo el alcance en Windows cliente, DPI ni impresión física."
+    "compiled_gui_independent_runs": 7,
+    "packaged_scope": "Edición básica, espaciado/continuación, paginación, figuras etiquetadas, inclinaciones por estilo, párrafos etiquetados y Word con columnas/marcadores; también tarea programada y división de 42 páginas en motor incluido. No acredita todo el alcance, Windows cliente/DPI, impresión física ni carga sostenida."
   },
   "last_implementation": {
-    "date": "2026-11-04",
-    "source_commit": "2bf53913f27eaebf0d8d4b395a9e0ede33f5b501",
-    "evidence": "docs/validation/sheared-paragraphs-20261104/results.json",
+    "date": "2026-11-05",
+    "source_commit": "001183628c71da181b8a1ef74ae3144a0abc5417",
+    "evidence": "docs/validation/tagged-paragraphs-word-20261105/results.json",
     "features": [
-      "Reflujo con inclinación vertical propia por estilo y dirección de lectura común",
-      "Reserva de espacio por envolventes para evitar superposiciones",
-      "Continuación y paginación conservando matrices individuales",
-      "Descubrimiento desde ancla recta, guardado/reapertura/reedición y selección explícita entre Forms"
+      "Edición y continuación/paginación semántica de párrafos etiquetados compatibles",
+      "Edición dentro de huellas originales en páginas densas",
+      "Columnas Word iguales/desiguales con separadores y notas al pie",
+      "Enlaces Word a marcadores como navegación PDF nativa"
     ],
-    "global_estimate_recalculated": false,
+    "global_estimate_recalculated": true,
     "global_blocks_closed": []
   },
   "last_observations": {

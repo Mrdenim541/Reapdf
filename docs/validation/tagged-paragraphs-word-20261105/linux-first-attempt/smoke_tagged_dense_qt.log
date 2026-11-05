@@ -1,0 +1,13 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[339663:339683:1105/142806.236277:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 339684: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_tagged_dense_qt.py", line 43, in <module>
+    click('Editar en página: ITEM-900');wait(field('Texto sobre la página')+'?.disabled===false');assert js('[...document.querySelectorAll("button")].find(e=>e.textContent==="Seleccionar varios bloques").disabled');click('Editar párrafo');wait(field('Párrafo sobre la página')+'?.disabled===false');assert js(field('Añadir páginas automáticamente')+'.disabled')
+                                                                                                                                                                                                                                                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

@@ -1,0 +1,10 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[344988:345009:1105/144816.960281:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 345010: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+This plugin does not support propagateSizeHints()
+This plugin does not support raise()
+PASS: slow frontend (>10s) opens its initial file; timed-out startup warning is asynchronous, readiness lock clears and queued retry works.
