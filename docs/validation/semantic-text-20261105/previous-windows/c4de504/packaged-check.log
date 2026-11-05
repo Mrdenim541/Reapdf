@@ -1,0 +1,20 @@
+CLOSE: basic native discard confirmation: False
+PASS: attached embedded Qt window loads PDF, edits text on page, undoes/redoes and exports through its server. Executable identity is checked by the Windows verifier.
+CLOSE: spacing_flow native discard confirmation: False
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 278, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 271, in main
+    folder=Path(tmp)/'Reapdf-portable';native=native_check(folder);compiled_gui_check(folder);spacing=compiled_gui_check(folder,'spacing_flow');gui=compiled_gui_check(folder,'pagination');images=compiled_gui_check(folder,'tagged_images');shear=compiled_gui_check(folder,'variable_shear');tagged=compiled_gui_check(folder,'tagged_paragraph');word_columns=compiled_gui_check(folder,'word_columns');semantic_stream=compiled_gui_check(folder,'semantic_stream');semantic_outer=compiled_gui_check(folder,'semantic_outer');quick_text=compiled_gui_check(folder,'quick_text');result={**native,**spacing,**gui,**images,**shear,**tagged,**word_columns,**semantic_stream,**semantic_outer,**quick_text,'compiled_gui_independent_runs':10,'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
+                                                                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 254, in compiled_gui_check
+    discarded=wait_closed(process,pid,windows,key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\compiled_close.py", line 14, in wait_closed
+    if clock()>=deadline:raise RuntimeError('El candidato no cerr�; ventanas propias observadas: '+repr([(w['title'],w['class']) for w in observed]))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: El candidato no cerr�; ventanas propias observadas: []
+PASS: packaged Qt selects original styled text on page, continues on an existing page, undoes/redoes and exports with original fonts; no external browser or native save dialog used in this check.
