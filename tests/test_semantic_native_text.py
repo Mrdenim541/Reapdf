@@ -100,7 +100,7 @@ def test_page_owned_form_paragraph_can_reflow_continue_and_reopen(nested,continu
     blocks=reading_preview(out,[],1 if continuation else 0)['blocks'];assert all(b['tagged'] for b in blocks if 'HOLA' in b['text'])
 
 
-@pytest.mark.parametrize('kind',['parenttree','duplicate_index','missing_stream','shared_other_page','bad_parent'])
+@pytest.mark.parametrize('kind',['parenttree','duplicate_index','missing_stream','shared_other_page','bad_parent','overflow_mcid'])
 def test_stream_associations_cannot_be_guessed_or_edited_in_place_when_ambiguous(kind):
     base=form_source()
     with f.open(stream=base) as d:
@@ -109,6 +109,7 @@ def test_stream_associations_cannot_be_guessed_or_edited_in_place_when_ambiguous
         elif kind=='duplicate_index':d.xref_set_key(d[0].xref,'StructParents','10')
         elif kind=='missing_stream':d.xref_set_key(leaf,'K',f'<</Type/MCR /Pg {d[0].xref} 0 R /MCID 0>>')
         elif kind=='bad_parent':d.xref_set_key(leaf,'P',f'{d.pdf_catalog()} 0 R')
+        elif kind=='overflow_mcid':d.xref_set_key(leaf,'K',d.xref_get_key(leaf,'K')[1].replace('/MCID 0','/MCID 4294967296'))
         else:
             from backend.form_text import clone_dictionary
             r=clone_dictionary(d,d[1].xref,'Resources');d.xref_set_key(r,'XObject',f'<</F {target} 0 R>>');x=d.get_new_xref();d.update_object(x,'<<>>');d.update_stream(x,b'q 1 0 0 1 50 300 cm /F Do Q');d.xref_set_key(d[1].xref,'Contents','['+' '.join(f'{v} 0 R' for v in d[1].get_contents()+[x])+']')

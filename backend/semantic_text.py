@@ -122,7 +122,7 @@ class Tree:
                 for i in range(0,n.pdf_array_len(nums),2):
                     key=n.pdf_array_get(nums,i)
                     if not n.pdf_is_int(key):fail()
-                    key=n.pdf_to_int(key)
+                    key=n.pdf_to_int64(key)
                     if key<0 or key in self.parents:fail()
                     self.parents[key]=n.pdf_array_get(nums,i+1)
             for i in range(n.pdf_array_len(kids)):numbers(n.pdf_array_get(kids,i),depth+1,seen)
@@ -131,7 +131,7 @@ class Tree:
             if depth>64 or len(self.records)>100000:fail()
             if n.pdf_is_array(value):
                 for i in range(n.pdf_array_len(value)):walk(n.pdf_array_get(value,i),parent,pg,chain,depth+1)
-            elif n.pdf_is_int(value):self.add(pg,0,n.pdf_to_int(value),parent,chain)
+            elif n.pdf_is_int(value):self.add(pg,0,n.pdf_to_int64(value),parent,chain)
             elif n.pdf_is_dict(value):
                 role=n.pdf_to_name(n.pdf_dict_gets(value,'S'));kind=n.pdf_to_name(n.pdf_dict_gets(value,'Type'))
                 if role:
@@ -142,7 +142,7 @@ class Tree:
                 elif kind=='MCR':
                     keys={n.pdf_to_name(n.pdf_dict_get_key(value,i)) for i in range(n.pdf_dict_len(value))};code=n.pdf_dict_gets(value,'MCID')
                     if not keys<={'Type','Pg','Stm','MCID'} or not n.pdf_is_int(code):fail()
-                    self.add(n.pdf_to_num(n.pdf_dict_gets(value,'Pg')) or pg,n.pdf_to_num(n.pdf_dict_gets(value,'Stm')),n.pdf_to_int(code),parent,chain)
+                    self.add(n.pdf_to_num(n.pdf_dict_gets(value,'Pg')) or pg,n.pdf_to_num(n.pdf_dict_gets(value,'Stm')),n.pdf_to_int64(code),parent,chain)
                 elif kind!='OBJR':fail()
             elif not n.pdf_is_null(value):fail()
         walk(n.pdf_dict_gets(self.root,'K'),n.pdf_to_num(self.root),None,[])

@@ -48,8 +48,8 @@ def snapshot(doc,number,*,allow_actual_text=False,allow_streams=False):
                 if key=='Stm' and not n.pdf_is_null(pairs[key]):
                     if not allow_streams:fail()
                     stream=pairs[key];index=n.pdf_dict_gets(stream,'StructParents')
-                    if not n.pdf_is_stream(stream) or n.pdf_to_name(n.pdf_dict_gets(stream,'Subtype'))!='Form' or not n.pdf_is_int(index) or n.pdf_to_int(index)<0:fail()
-                    value=['form-parent-index',n.pdf_to_int(index)]
+                    if not n.pdf_is_stream(stream) or n.pdf_to_name(n.pdf_dict_gets(stream,'Subtype'))!='Form' or not n.pdf_is_int(index) or n.pdf_to_int64(index)<0:fail()
+                    value=['form-parent-index',n.pdf_to_int64(index)]
                 else:value=walk(pairs[key],depth+1)
                 values.append([key,value])
             return ['dict',values]
