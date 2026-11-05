@@ -39,7 +39,10 @@ try:
     edit('Imagen existente','1',True);wait('!Array.from(document.querySelector(\'[aria-label="Acción de imagen existente"]\').options).some(o=>o.value===\'move\')');assert js('document.querySelector(\'[aria-label="Acción de imagen existente"]\').value===\'replace\'');edit('Imagen existente','0',True)
     target_expr='document.querySelector('+json.dumps('[aria-label="Mover imagen existente en muestra"] rect[data-image-index="0"]')+')'
     wait('!!'+target_expr)
-    bounds=json.loads(js('JSON.stringify((()=>{const e='+target_expr+';e.scrollIntoView({block:"center"});const b=e.getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2];})())'))
+    wait('document.querySelector(".field-placement img")?.complete&&document.querySelector(".field-placement img").naturalWidth>0')
+    js(target_expr+'.scrollIntoView({block:"center"})');QTest.qWait(150)
+    bounds=json.loads(js('JSON.stringify((()=>{const b='+target_expr+'.getBoundingClientRect();return [b.x+b.width/2,b.y+b.height/2];})())'))
+    assert js('document.elementFromPoint('+str(bounds[0])+','+str(bounds[1])+')?.closest("[data-image-index]")?.getAttribute("data-image-index")==="0"'),'The actual image drag target must be under the pointer after layout and scrolling'
     target=window.view.focusProxy() or window.view;origin=target.mapFrom(window.view,QPoint(round(bounds[0]),round(bounds[1])));dest=origin+QPoint(20,12)
     QTest.mousePress(target,Qt.MouseButton.LeftButton,Qt.KeyboardModifier.NoModifier,origin);QTest.mouseMove(target,dest,150);QTest.mouseRelease(target,Qt.MouseButton.LeftButton,Qt.KeyboardModifier.NoModifier,dest)
     wait('Number('+field('X de imagen existente')+'.value)>40')
