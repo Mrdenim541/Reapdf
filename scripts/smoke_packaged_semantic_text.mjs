@@ -5,7 +5,7 @@ import {openTool} from './smoke-tool-navigation.mjs';
 const [endpoint,output,kind]=process.argv.slice(2),browser=await chromium.connectOverCDP(endpoint,{timeout:45000,noDefaults:true});
 try{
  const page=browser.contexts()[0].pages().find(p=>p.url().startsWith('http://127.0.0.1:'));if(!page)throw new Error('Embedded Qt target missing');page.setDefaultTimeout(30000);
- await expect(page.locator('.text-layer')).toContainText('HELLO',{timeout:40000});await openTool(page,'Editar texto');await page.getByRole('button',{name:'Editar en página: HELLO',exact:true}).first().click();await expect(page.getByLabel('Texto sobre la página',{exact:true})).toBeEnabled();let response;
+ await expect(page.locator('.text-layer')).toContainText('UNCHANGED',{timeout:40000});await openTool(page,'Editar texto');await page.getByRole('button',{name:'Editar en página: HELLO',exact:true}).first().click();await expect(page.getByLabel('Texto sobre la página',{exact:true})).toBeEnabled();let response;
  if(kind==='stream'){
   await expect(page.getByLabel('Texto para lectura accesible',{exact:true})).toHaveValue('Accessible original');await page.getByLabel('Texto sobre la página',{exact:true}).fill('HOLA');await page.getByLabel('Texto para lectura accesible',{exact:true}).fill('Updated accessible');const pending=page.waitForResponse(r=>r.url().endsWith('/replace-styled-text')&&r.request().method()==='POST');await page.getByLabel('Texto sobre la página',{exact:true}).press('Control+Enter');response=await pending;
  }else{
