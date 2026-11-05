@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "review_date": "2026-11-04",
-  "status": "provisional_with_native_tagged_figure_editing",
+  "status": "provisional_with_common_baseline_variable_shear_profile",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
   "weighted_percent": 87.14,
@@ -182,9 +182,12 @@
         "docs/validation/observations-20261104/results.json",
         "backend/tagged_image_integrity.py",
         "docs/EDICION_NATIVA_FIGURAS_20261104.md",
-        "docs/validation/tagged-images-20261104/results.json"
+        "docs/validation/tagged-images-20261104/results.json",
+        "backend/sheared_paragraph.py",
+        "docs/PARRAFOS_CON_INCLINACIONES_20261104.md",
+        "docs/validation/sheared-paragraphs-20261104/results.json"
       ],
-      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo no paralelo/composición y espaciados restantes, cambio general de fuente, etiquetas/ActualText/Stm o mezcla etiquetada general, imágenes inline, figuras y Forms fuera del perfil verificado, OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada. Copia explícita sin etiquetas para imágenes/texto compatibles ya incorporada; permanece pendiente la edición semántica nativa general de estructuras fuera del perfil compatible. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras."
+      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo con direcciones de lectura incompatibles/composición y espaciados restantes, cambio general de fuente, etiquetas/ActualText/Stm o mezcla etiquetada general, imágenes inline, figuras y Forms fuera del perfil verificado, OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada. Copia explícita sin etiquetas para imágenes/texto compatibles ya incorporada; permanece pendiente la edición semántica nativa general de estructuras fuera del perfil compatible. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. Inclinaciones verticales independientes con dirección común ya admitidas en página, continuación y paginación; no repetir ese subconjunto como pendiente."
     },
     {
       "id": "annotations",
@@ -609,17 +612,16 @@
   },
   "last_implementation": {
     "date": "2026-11-04",
-    "source_commit": "cd35dabb458f23a20eae44c4876a22e7e5403d46",
-    "evidence": "docs/validation/tagged-images-20261104/results.json",
+    "source_commit": "2bf53913f27eaebf0d8d4b395a9e0ede33f5b501",
+    "evidence": "docs/validation/sheared-paragraphs-20261104/results.json",
     "features": [
-      "Edición nativa de figuras etiquetadas con grafo y marcadores comprobados",
-      "Reemplazo con descripción accesible y conservación del marco",
-      "Eliminación coordinada de Figure y ParentTree sin renumerar otros MCID",
-      "Acciones por aparición y comprobación de recortes rectangulares",
-      "Vista previa automática con edición responsive y rechazo de respuestas obsoletas"
+      "Reflujo con inclinación vertical propia por estilo y dirección de lectura común",
+      "Reserva de espacio por envolventes para evitar superposiciones",
+      "Continuación y paginación conservando matrices individuales",
+      "Descubrimiento desde ancla recta, guardado/reapertura/reedición y selección explícita entre Forms"
     ],
-    "global_blocks_closed": [],
-    "global_estimate_recalculated": true
+    "global_estimate_recalculated": false,
+    "global_blocks_closed": []
   },
   "last_observations": {
     "source_commit": "909959d0baa04448afc3cb74ca3da038156f376f",
@@ -670,5 +672,12 @@
     "evidence": "docs/validation/tagged-images-20261104/results.json",
     "technical_complete": false,
     "accepted_complete": false
+  },
+  "last_shear_profile": {
+    "report": "docs/PARRAFOS_CON_INCLINACIONES_20261104.md",
+    "source_commit": "2bf53913f27eaebf0d8d4b395a9e0ede33f5b501",
+    "evidence": "docs/validation/sheared-paragraphs-20261104/results.json",
+    "weighted_percent_reference": 87.14,
+    "technical_complete": false
   }
 }

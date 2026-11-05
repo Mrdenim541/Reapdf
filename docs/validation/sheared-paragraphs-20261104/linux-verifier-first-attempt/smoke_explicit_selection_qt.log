@@ -1,0 +1,15 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[264123:264143:1105/011139.983788:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 264144: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_explicit_selection_qt.py", line 45, in <module>
+    wait('!!'+expr);js(expr+'.scrollIntoView({block:"center",inline:"center"})');QTest.qWait(200)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_explicit_selection_qt.py", line 20, in js
+    if not values:raise AssertionError('Qt did not respond')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Qt did not respond

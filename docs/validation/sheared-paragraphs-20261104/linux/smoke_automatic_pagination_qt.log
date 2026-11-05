@@ -3,6 +3,6 @@ QRhiGles2: Failed to create context
 This plugin does not support createPlatformVulkanInstance
 QVulkanInstance: Failed to initialize Vulkan
 Unable to detect GPU vendor.
-[260509:260529:1105/005612.099354:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 260530: Read-only file system (30)
+[265475:265495:1105/011528.619245:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 265496: Read-only file system (30)
 This plugin does not support propagateSizeHints()
 PASS: actual Qt mouse-selected mixed paragraph with original spacing; automatic new-page overflow through Ctrl+Enter; document undo/redo; native atomic save and reopen with original fonts and all text verified, original pages and source untouched.

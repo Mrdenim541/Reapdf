@@ -3,7 +3,7 @@ QRhiGles2: Failed to create context
 This plugin does not support createPlatformVulkanInstance
 QVulkanInstance: Failed to initialize Vulkan
 Unable to detect GPU vendor.
-[259638:259658:1105/005438.236358:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 259659: Read-only file system (30)
+[264501:264521:1105/011337.569108:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 264522: Read-only file system (30)
 This plugin does not support propagateSizeHints()
 STAGE: application loaded
 STAGE: PDF loaded

@@ -1,5 +1,3 @@
-**Comprobación en curso: pendientes regresión Python completa y Windows de la fuente exacta.**
-
 # Párrafos con inclinaciones distintas · 4 de noviembre de 2026
 
 Nuevo perfil de edición nativa: fragmentos de un párrafo que comparten dirección de lectura y orientación vertical, pero usan inclinaciones verticales o escalas distintas. Antes se exigía una matriz lineal idéntica y se rechazaba este caso aunque cada fragmento fuese editable por separado. No cierra el reflujo general ni ninguno de los ocho bloques globales.
@@ -27,8 +25,23 @@ Continuación conserva sus áreas vacías verificadas; la paginación mantiene e
 
 No se publicó otro portable. El preview anterior no incorpora estas mejoras. Windows Server y las pruebas automatizadas no sustituyen Windows cliente limpio, DPI, impresión física, carga sostenida ni aceptación personal final.
 
-## Incidencia de comprobación del paquete (pendiente)
+## Incidencias del procedimiento de comprobación
 
-La fuente 917ecec aprobó 4.540 pruebas Python y 33 recorridos de fuente en Linux/Windows. El candidato se generó, pero el verificador agotó 25 s esperando el cierre del recorrido de paginación, antes de ejecutar el perfil nuevo. El primer log no registra los diálogos y no permite confirmar la causa. Se conserva el intento fallido.
+La primera fuente, 917ecec, aprobó 4.540 pruebas Python y 33 recorridos fuente Linux/Windows. El paquete se construyó, pero el verificador agotó 25 s esperando el cierre del recorrido de paginación, anterior al perfil nuevo. Se conserva el informe y el log; no recogía diálogos y no permite demostrar qué causó ese bloqueo.
 
-Se amplió únicamente el verificador para detectar la confirmación nativa conocida «Cambios pendientes» del proceso de prueba y elegir Descartar; registra otras ventanas propias si persiste un bloqueo. El quinto recorrido exige pasar por esa confirmación. No se cambia closeEvent del producto ni se declara resuelta toda intermitencia histórica. La nueva ejecución está pendiente.
+Se cambió solo el verificador: identifica por PID el diálogo propio conocido «Cambios pendientes», elige Descartar para el documento sintético ya exportado y diagnostica otras ventanas si no cierra. El quinto recorrido fuerza ese estado para exigir una comprobación real de la confirmación y salida normal. Cinco pruebas unitarias comprueban que no interactúa con otros procesos o diálogos desconocidos ni repite indiscriminadamente la acción. El código de aplicación backend/portable/web y el manual son idénticos a 917ecec; no se modificó closeEvent ni se declara corregida la causa de toda intermitencia histórica.
+
+La primera repetición Linux de la revisión del verificador no recibió un callback de Qt durante el scroll al texto, antes de editar; se conserva el fallo y se repite sin alterar el producto. La repetición final se registra abajo por separado. Ningún intento fallido se cuenta como aprobado.
+
+## Verificación final
+
+Fuente `2bf53913f27eaebf0d8d4b395a9e0ede33f5b501`, respaldada en recovery/editing-20261029.
+
+- **4.545 pruebas Python aprobadas (62 funcionales nuevas + 5 del verificador)**, 3 advertencias conocidas; 151 pruebas JavaScript, build y manual 75 herramientas + 15 operaciones generales aprobados.
+- **33 recorridos Qt Linux y 33 Windows Server 2025**, fuente limpia antes/después; comprobante `41946587633-1` contrastado con objetos Git y hashes de los logs.
+- **Cinco aperturas independientes de Reapdf.exe**. La quinta selecciona estilos con inclinaciones distintas, edita en la caja única, continúa en una página vacía y deshace/rehace. Exporta mediante el servidor real del paquete; su intérprete compara las fuentes, tamaños, colores y matrices con el original y verifica todo el texto y la página ajena. Identidad de ventana Qt y cierre normal comprobados, sin navegador externo.
+- Guardado nativo, reapertura y otra edición, además de paginación automática, comprobados en el recorrido fuente Qt. No se atribuye ese diálogo nativo a la exportación del recorrido compilado.
+
+**Estimación global de referencia: 87,14 % provisional, sin recalcular en esta pasada.** Se registran las capacidades nuevas y sus límites sin cambiar pesos, alcance o madurez de las áreas ni presentar el perfil como un bloque general terminado. La cifra anterior no es una medición de paridad con Acrobat ni de horas restantes. Los ocho bloques generales siguen abiertos.
+
+[Evidencia](validation/sheared-paragraphs-20261104/results.json) · [Manual](funciones-uso.json) · [Pendientes generales](PLAN_ACTUAL.md).

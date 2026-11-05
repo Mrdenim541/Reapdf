@@ -3,6 +3,6 @@ QRhiGles2: Failed to create context
 This plugin does not support createPlatformVulkanInstance
 QVulkanInstance: Failed to initialize Vulkan
 Unable to detect GPU vendor.
-[260386:260406:1105/005555.980545:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 260407: Read-only file system (30)
+[265355:265375:1105/011511.436404:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 265376: Read-only file system (30)
 This plugin does not support propagateSizeHints()
 PASS: actual Qt caret and mixed-style undo, occupied-area failure retains draft, mouse-drawn destination on rotated page, direct Ctrl+Enter cross-page original-font continuation, document undo/redo, native atomic save/reopen; other appearances/pages and source intact.
