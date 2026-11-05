@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 242, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 235, in main
+    folder=Path(tmp)/'Reapdf-portable';native=native_check(folder);compiled_gui_check(folder);spacing=compiled_gui_check(folder,'spacing_flow');gui=compiled_gui_check(folder,'pagination');images=compiled_gui_check(folder,'tagged_images');shear=compiled_gui_check(folder,'variable_shear');result={**native,**spacing,**gui,**images,**shear,'compiled_gui_independent_runs':5,'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
+                                                                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 220, in compiled_gui_check
+    if process.wait(timeout=25)!=0:raise RuntimeError('Reapdf.exe no cerr� normalmente.')
+       ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\subprocess.py", line 1264, in wait
+PASS: attached embedded Qt window loads PDF, edits text on page, undoes/redoes and exports through its server. Executable identity is checked by the Windows verifier.
+PASS: packaged Qt selects original mixed-spaced Form text on page, continues on an existing page, undoes/redoes and exports with original fonts; no external browser or native save dialog used in this check.
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\subprocess.py", line 1593, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\Reapdf prueba con espacios rxasyahx\\Reapdf-portable\\Reapdf.exe', 'C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\Reapdf prueba con espacios rxasyahx\\Reapdf-portable\\pagination-fixture.pdf']' timed out after 25 seconds

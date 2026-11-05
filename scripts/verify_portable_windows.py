@@ -217,9 +217,23 @@ for index,path in enumerate(sys.argv[2:]):
         import ctypes
         from ctypes import wintypes as w
         user=ctypes.WinDLL('user32');user.PostMessageW.argtypes=[w.HWND,w.UINT,w.WPARAM,w.LPARAM];user.PostMessageW(hwnd,0x0010,0,0)
-        if process.wait(timeout=25)!=0:raise RuntimeError('Reapdf.exe no cerró normalmente.')
+        def windows():
+            result=[];callback=ctypes.WINFUNCTYPE(w.BOOL,w.HWND,w.LPARAM)
+            user.EnumWindows.argtypes=[callback,w.LPARAM];user.GetWindowTextW.argtypes=[w.HWND,w.LPWSTR,ctypes.c_int];user.GetClassNameW.argtypes=[w.HWND,w.LPWSTR,ctypes.c_int];user.GetWindowThreadProcessId.argtypes=[w.HWND,ctypes.POINTER(w.DWORD)]
+            def visit(handle,unused):
+                owner=w.DWORD();user.GetWindowThreadProcessId(handle,ctypes.byref(owner))
+                if owner.value==pid:
+                    title=ctypes.create_unicode_buffer(512);kind=ctypes.create_unicode_buffer(256);user.GetWindowTextW(handle,title,512);user.GetClassNameW(handle,kind,256);result.append({'hwnd':handle,'pid':owner.value,'title':title.value,'class':kind.value})
+                return True
+            user.EnumWindows(callback(visit),0);return result
+        def key(handle,value):
+            user.PostMessageW(handle,0x0100,value,0);user.PostMessageW(handle,0x0101,value,0)
+        from scripts.compiled_close import wait_closed
+        discarded=wait_closed(process,pid,windows,key)
+        print('CLOSE:',journey,'native discard confirmation:',discarded,flush=True)
+        if journey=='variable_shear' and not discarded:raise RuntimeError('El recorrido nuevo no comprobó la confirmación nativa de descartar el borrador de prueba.')
         print(run.stdout.strip())
-        return {'compiled_exe_window_and_edit':'ok','compiled_exe_normal_close':'ok',**({'compiled_exe_affine_spacing_flow':'ok'} if journey=='spacing_flow' else {'compiled_exe_automatic_pagination':'ok'} if journey=='pagination' else {'compiled_exe_tagged_images':'ok'} if journey=='tagged_images' else {'compiled_exe_variable_shear':'ok'} if journey=='variable_shear' else {}),'qt_process_pid':pid,'external_browser_used':False,'native_save_in_this_check':False,'windows_execution_verified':True}
+        return {'compiled_exe_window_and_edit':'ok','compiled_exe_normal_close':'ok',**({'compiled_exe_affine_spacing_flow':'ok'} if journey=='spacing_flow' else {'compiled_exe_automatic_pagination':'ok'} if journey=='pagination' else {'compiled_exe_tagged_images':'ok'} if journey=='tagged_images' else {'compiled_exe_variable_shear':'ok'} if journey=='variable_shear' else {}),'qt_process_pid':pid,'external_browser_used':False,'native_save_in_this_check':False,'native_discard_confirmation':discarded,'windows_execution_verified':True}
     finally:
         if process.poll() is None:process.terminate();process.wait(timeout=10)
 
