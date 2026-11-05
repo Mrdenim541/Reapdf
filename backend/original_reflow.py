@@ -36,6 +36,12 @@ def inspect(base,ops,number,origin,text):
             from .affine_reflow import inspect as inspect_affine
             value=inspect_affine(doc,number,origin,text)
             if transformed or value['mixed']:return value
+        if not transformed and not page.get_xobjects():
+            from .affine_reflow import inspect as inspect_affine
+            try:
+                candidate=inspect_affine(doc,number,origin,text)
+                if candidate.get('variable_shear'):return candidate
+            except DocumentError:pass
         try:
             compatible_page(doc,page);matches=[]
             for block in page.get_text('dict',sort=True,flags=f.TEXTFLAGS_TEXT)['blocks']:
@@ -53,7 +59,13 @@ def inspect(base,ops,number,origin,text):
             from .original_mixed_reflow import source_runs,public_runs
             _,rows=source_runs(doc,number,box);runs=public_runs(rows);font=' · '.join(sorted({r['font'] for r in rows}));first=rows[0]
             mixed=any((r['_font'].xref,r['size'],r['color'])!=(first['_font'].xref,first['size'],first['color']) for r in rows)
-        except DocumentError as exc:reason=str(exc);font=''
+        except DocumentError as exc:
+            from .affine_reflow import inspect as inspect_affine
+            try:
+                candidate=inspect_affine(doc,number,origin,text)
+                if candidate.get('variable_shear'):return candidate
+            except DocumentError:pass
+            reason=str(exc);font=''
         return {'box':box,'text':value,'original_available':not reason,'reason':reason,'font':font,'mixed':mixed,'runs':runs}
 
 

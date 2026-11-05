@@ -118,7 +118,7 @@ def inspect(doc,number,origin,text):
         if semantic is not None or not rows or len(rows)>100 or any(not r['editable'] for r in rows):rows=[anchor]
         frame=f.Matrix(*rows[0]['_geometry']['matrix']);inverse=~frame
         rows.sort(key=lambda r:(-round((f.Point(r['origin'])*inverse).y,2),(f.Point(r['origin'])*inverse).x))
-        if any((r['_font'].xref,r['size'],r['color'])!=(rows[0]['_font'].xref,rows[0]['size'],rows[0]['color']) for r in rows):
+        if any((r['_font'].xref,r['size'],r['color'])!=(rows[0]['_font'].xref,rows[0]['size'],rows[0]['color']) or max(abs(a-b) for a,b in zip(r['_geometry']['matrix'][:4],rows[0]['_geometry']['matrix'][:4]))>1e-4 for r in rows):
             from .affine_mixed_reflow import inspect_rows
             if complete_objects(rows,all_rows):
                 try:return inspect_rows(rows)

@@ -1,4 +1,4 @@
-"""Reflow parallel original mixed-style text through native operand patches."""
+"""Reflow common-baseline mixed styles, retaining each original affine transform."""
 from .engine import pdf_garbage
 import copy,math,unicodedata
 from collections import Counter,defaultdict
@@ -25,8 +25,9 @@ def complete_objects(rows,all_rows):
 def compatible(rows,sort=True,across_paths=False):
     if not rows or any(not r['editable'] or r['original_only'] for r in rows):raise DocumentError('El párrafo mixto necesita grupos visibles sin composición especial.')
     first=rows[0];frame=f.Matrix(*first['_geometry']['matrix']);inverse=~frame
+    from .sheared_paragraph import compatible as compatible_shear
     for r in rows:
-        if (not across_paths and r['_native_path']!=first['_native_path']) or max(abs(a-b) for a,b in zip(r['_geometry']['matrix'][:4],first['_geometry']['matrix'][:4]))>1e-4:raise DocumentError('Los estilos deben compartir transformación paralela; las rutas distintas necesitan selección explícita.')
+        if (not across_paths and r['_native_path']!=first['_native_path']) or not compatible_shear(first,r):raise DocumentError('Los estilos deben compartir dirección de lectura y orientación vertical; las rutas distintas necesitan selección explícita.')
     ordered=sorted(rows,key=lambda r:(-round((f.Point(r['origin'])*inverse).y,2),(f.Point(r['origin'])*inverse).x))
     return ordered if sort else rows
 
@@ -34,10 +35,12 @@ def compatible(rows,sort=True,across_paths=False):
 def inspect_rows(rows,continuous=True):
     rows=compatible(rows,sort=continuous,across_paths=not continuous);first=rows[0];inverse=~f.Matrix(*first['_geometry']['matrix']);positions=[f.Point(r['origin'])*inverse for r in rows]
     if abs(positions[0].x)>.5:raise DocumentError('El párrafo no empieza en el marco seleccionado.')
+    from .sheared_paragraph import distinct,ShearedLayout,join_gap,overhang
+    variable=distinct(rows)
     for i,(a,b) in enumerate(zip(positions,positions[1:])) if continuous else []:
         if abs(a.y-b.y)<.3:
-            if abs(b.x-a.x-rows[i]['_geometry']['width'])>.5:raise DocumentError('Los estilos no forman una línea continua.')
-        elif abs(b.x)>.5 or not .5*max(rows[i]['size'],rows[i+1]['size'])<=a.y-b.y<=3*max(rows[i]['size'],rows[i+1]['size']):raise DocumentError('Los estilos no forman líneas continuas.')
+            if min(abs(b.x-a.x-rows[i]['_geometry']['width']),abs(b.x-a.x-rows[i]['_geometry']['width']-(join_gap(first,rows[i],rows[i+1]) if variable else 0)))>.5:raise DocumentError('Los estilos no forman una línea continua.')
+        elif min(abs(b.x),abs(b.x+overhang(first,rows[i+1])[0]) if variable else abs(b.x))>.5 or not .5*max(rows[i]['size'],rows[i+1]['size'])<=a.y-b.y<=3*max(rows[i]['size'],rows[i+1]['size']):raise DocumentError('Los estilos no forman líneas continuas.')
     rect=f.Rect(rows[0]['bbox'])
     for r in rows[1:]:rect|=f.Rect(r['bbox'])
     runs=[]
@@ -47,8 +50,16 @@ def inspect_rows(rows,continuous=True):
             separated=i+1<len(rows) and (abs(positions[i+1].y-positions[i].y)>.3 or abs(positions[i+1].x-positions[i].x-r['_geometry']['width'])>.5)
             separator=' ' if separated and not r['text'].endswith((' ','\n')) and not rows[i+1]['text'].startswith((' ','\n')) else ''
         runs.append({'id':r['id'],'text':r['text']+separator,'font':r['font'],'size':r['size'],'color':r['color']})
+    packed_width=0.
+    if variable:
+        layout=ShearedLayout(rows,runs)
+        start=0;line_start=0
+        for i,run in enumerate(runs):
+            start+=len(run['text'])
+            if i==len(runs)-1 or abs(positions[i+1].y-positions[i].y)>.3:
+                packed_width=max(packed_width,layout.pack(line_start,start)[0]);line_start=start
     top=max(p.y+r['_geometry']['ascent'] for p,r in zip(positions,rows));bottom=min(p.y+r['_geometry']['descent'] for p,r in zip(positions,rows))
-    return {'affine':True,'mixed':True,'ids':[r['id'] for r in rows],'runs':runs,'text':''.join(r['text'] for r in runs),'font':' · '.join(sorted({r['font'] for r in rows})),'box':[rect.x0,rect.y0,rect.width,rect.height],'original_available':True,'reason':'','local_width':max(10,max(p.x+r['_geometry']['width'] for p,r in zip(positions,rows))+.5),'local_height':max(10,top-bottom+.5)}
+    return {'affine':True,'mixed':True,'variable_shear':variable,'ids':[r['id'] for r in rows],'runs':runs,'text':''.join(r['text'] for r in runs),'font':' · '.join(sorted({r['font'] for r in rows})),'box':[rect.x0,rect.y0,rect.width,rect.height],'original_available':True,'reason':'','local_width':max(10,packed_width+.5,max(p.x+r['_geometry']['width'] for p,r in zip(positions,rows))+.5),'local_height':max(10,top-bottom+.5)}
 
 
 def stable_key(row):
@@ -110,7 +121,8 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         objects={object_key(r) for r in rows}
         if not complete_objects(rows,all_rows):raise DocumentError('Selecciona completos los objetos de texto para conservar su estado.')
         if not isinstance(runs,list) or len(runs)!=len(rows) or any(not isinstance(r,dict) or set(r)!={'id','text'} or not isinstance(r['text'],str) for r in runs) or [r['id'] for r in runs]!=identifiers or ''.join(r['text'] for r in runs)!=text:raise DocumentError('Los estilos, identificadores y texto completo no coinciden.')
-        layout=Layout(rows,runs);styles=layout.styles
+        from .sheared_paragraph import distinct,ShearedLayout
+        variable=distinct(rows);layout=ShearedLayout(rows,runs) if variable else Layout(rows,runs);styles=layout.styles
         obstacles=[clip for r in rows for clip in r['_obstacles']]+[rectangle(l['from']) for l in page.get_links()]+[rectangle(f.Rect(d['rect'])+(-.5,-.5,.5,.5)) for d in page.get_drawings()]
         untouched=[r for r in all_rows if r['id'] not in identifiers];obstacles +=[r['quad'] or rectangle(f.Rect(r['bbox'])) for r in untouched]
         original_untouched=Counter(stable_key(r) for r in untouched)
@@ -134,10 +146,11 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
                     page=doc[number]
                 if destination+1>=len(destinations):raise DocumentError('El párrafo mixto no cabe completo. Amplía el alto o añade otra continuación; se conserva el borrador.')
                 destination+=1;target=destinations[destination];current=target['page'];frame=target['frame'];top=0.;used=0.;width=target['width'];height=target['height'];details.append({'page':current,'lines':0,'characters':0});continue
-            baseline=top-used-ascent;offset=0;x=0.
+            baseline=top-used-ascent;offset=0;x=0.;packed=layout.pack(cursor,cursor+len(line))[1] if variable else {}
             while offset<len(line):
                 row=styles[cursor+offset];end=offset+1
                 while end<len(line) and styles[cursor+end] is row:end+=1
+                if variable:x=packed[offset]
                 fragment=line[offset:end];extent=layout.extent(cursor+offset,cursor+end);g=copy.copy(row['_geometry']);origin=f.Point(x,baseline)*frame;g['matrix']=[*g['matrix'][:4],origin.x,origin.y];cell=polygon(g,extent)
                 if not contains(rectangle(doc[current].rect),cell) or (destination<0 and any(not contains(c,cell) for c in row['_clips'])) or (destination>=0 and not contains(rectangle(destinations[destination]['rect']),cell)):raise DocumentError('El párrafo sale de la página o del recorte original.')
                 if destination<0 and any(overlap(cell,o)>.1 for o in obstacles):raise DocumentError('El párrafo cruza otro texto, imagen, borde, enlace o anotación.')
@@ -147,7 +160,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
                 else:draws.append((current,{**row,'_replacement_kern':layout.kern[cursor+offset:cursor+end]},g,fragment))
                 prepared.append((current,({**row,'origin':list(origin),'_geometry':g,'_replacement_text':fragment,'_replacement_width':extent},b'')));x+=layout.prefix[cursor+end]-layout.prefix[cursor+offset];offset=end
             details[-1]['characters']+=after-cursor;details[-1]['lines']+=1;cursor=after;used+=max(size*1.35,ascent-descent);lines+=1
-        report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':requested_width,'height':requested_height,'preserves_affine':True,'preserves_spacing':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects),'source_paths':len({path_key(r) for r in rows}),'regions':details,'pages':sorted(rotations),'complete':True,'automatic_pagination':paginate,'added_pages':len(doc)-original_pages}
+        report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':requested_width,'height':requested_height,'preserves_affine':True,'variable_shear':variable,'preserves_run_transforms':True,'preserves_spacing':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects),'source_paths':len({path_key(r) for r in rows}),'regions':details,'pages':sorted(rotations),'complete':True,'automatic_pagination':paginate,'added_pages':len(doc)-original_pages}
         if preview:return report
         patches=[]
         for row in rows:

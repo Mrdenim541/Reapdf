@@ -131,7 +131,7 @@ def test_special_spacing_and_nonparallel_styles_remain_protected(kind):
         if kind=='spacing':content=content.replace(b'BT ',b'BT 2 Tc ',1)
         else:
             from backend.pdf_content import operations,patch
-            transforms=[args for op,args,_ in operations(content) if op=='Tm'];arg=transforms[1][2];content=patch(content,[(arg.start,arg.end,b'.35')])
+            transforms=[args for op,args,_ in operations(content) if op=='Tm'];arg=transforms[1][1];content=patch(content,[(arg.start,arg.end,b'.55')])
         d.update_stream(x,content);base=d.tobytes()
     with pytest.raises(DocumentError):apply(base)
 
