@@ -1,0 +1,8 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[377519:377539:1105/174519.200321:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 377540: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: own Qt cross-path explicit selection of separated text blocks across separate nested Forms uses one on-page text field, actual caret insertion and browser undo/redo preserve original styles, Ctrl+Enter applies without a separate preview step, native atomic save/reopen and original intact.

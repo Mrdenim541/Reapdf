@@ -1,0 +1,156 @@
+............FFFFFFFF..........................                           [100%]
+=================================== FAILURES ===================================
+_ test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-False-0] _
+
+rotation = 0, nested = False, stream_owned = False
+
+    @pytest.mark.parametrize('rotation',[0,90,180,270])
+    @pytest.mark.parametrize('nested',[False,True])
+    @pytest.mark.parametrize('stream_owned',[False,True])
+    def test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence(rotation,nested,stream_owned):
+        from backend.semantic_text import capture
+        base=form_source(stream_owned=stream_owned,actual='Reading',rotation=rotation,nested=nested,shared=not stream_owned)
+        out=change(base,accessible='Reading')
+        with f.open(stream=base) as a,f.open(stream=out) as d:
+            assert d[0].rotation==rotation and a[1].get_pixmap().samples==d[1].get_pixmap().samples
+            d[0].set_rotation(0);a[0].set_rotation(0)
+>           r=next(r for r in native_model(d,0,d[0].rect)[1] if r['text']=='HOLA Ω');assert r['editable'] and r['has_actual_text']
+E           KeyError: 'has_actual_text'
+
+tests/test_native_format.py:45: KeyError
+_ test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-False-90] _
+
+rotation = 90, nested = False, stream_owned = False
+
+    @pytest.mark.parametrize('rotation',[0,90,180,270])
+    @pytest.mark.parametrize('nested',[False,True])
+    @pytest.mark.parametrize('stream_owned',[False,True])
+    def test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence(rotation,nested,stream_owned):
+        from backend.semantic_text import capture
+        base=form_source(stream_owned=stream_owned,actual='Reading',rotation=rotation,nested=nested,shared=not stream_owned)
+        out=change(base,accessible='Reading')
+        with f.open(stream=base) as a,f.open(stream=out) as d:
+            assert d[0].rotation==rotation and a[1].get_pixmap().samples==d[1].get_pixmap().samples
+            d[0].set_rotation(0);a[0].set_rotation(0)
+>           r=next(r for r in native_model(d,0,d[0].rect)[1] if r['text']=='HOLA Ω');assert r['editable'] and r['has_actual_text']
+E           KeyError: 'has_actual_text'
+
+tests/test_native_format.py:45: KeyError
+_ test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-False-180] _
+
+rotation = 180, nested = False, stream_owned = False
+
+    @pytest.mark.parametrize('rotation',[0,90,180,270])
+    @pytest.mark.parametrize('nested',[False,True])
+    @pytest.mark.parametrize('stream_owned',[False,True])
+    def test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence(rotation,nested,stream_owned):
+        from backend.semantic_text import capture
+        base=form_source(stream_owned=stream_owned,actual='Reading',rotation=rotation,nested=nested,shared=not stream_owned)
+        out=change(base,accessible='Reading')
+        with f.open(stream=base) as a,f.open(stream=out) as d:
+            assert d[0].rotation==rotation and a[1].get_pixmap().samples==d[1].get_pixmap().samples
+            d[0].set_rotation(0);a[0].set_rotation(0)
+>           r=next(r for r in native_model(d,0,d[0].rect)[1] if r['text']=='HOLA Ω');assert r['editable'] and r['has_actual_text']
+E           KeyError: 'has_actual_text'
+
+tests/test_native_format.py:45: KeyError
+_ test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-False-270] _
+
+rotation = 270, nested = False, stream_owned = False
+
+    @pytest.mark.parametrize('rotation',[0,90,180,270])
+    @pytest.mark.parametrize('nested',[False,True])
+    @pytest.mark.parametrize('stream_owned',[False,True])
+    def test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence(rotation,nested,stream_owned):
+        from backend.semantic_text import capture
+        base=form_source(stream_owned=stream_owned,actual='Reading',rotation=rotation,nested=nested,shared=not stream_owned)
+        out=change(base,accessible='Reading')
+        with f.open(stream=base) as a,f.open(stream=out) as d:
+            assert d[0].rotation==rotation and a[1].get_pixmap().samples==d[1].get_pixmap().samples
+            d[0].set_rotation(0);a[0].set_rotation(0)
+>           r=next(r for r in native_model(d,0,d[0].rect)[1] if r['text']=='HOLA Ω');assert r['editable'] and r['has_actual_text']
+E           KeyError: 'has_actual_text'
+
+tests/test_native_format.py:45: KeyError
+_ test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-True-0] _
+
+rotation = 0, nested = True, stream_owned = False
+
+    @pytest.mark.parametrize('rotation',[0,90,180,270])
+    @pytest.mark.parametrize('nested',[False,True])
+    @pytest.mark.parametrize('stream_owned',[False,True])
+    def test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence(rotation,nested,stream_owned):
+        from backend.semantic_text import capture
+        base=form_source(stream_owned=stream_owned,actual='Reading',rotation=rotation,nested=nested,shared=not stream_owned)
+        out=change(base,accessible='Reading')
+        with f.open(stream=base) as a,f.open(stream=out) as d:
+            assert d[0].rotation==rotation and a[1].get_pixmap().samples==d[1].get_pixmap().samples
+            d[0].set_rotation(0);a[0].set_rotation(0)
+>           r=next(r for r in native_model(d,0,d[0].rect)[1] if r['text']=='HOLA Ω');assert r['editable'] and r['has_actual_text']
+E           KeyError: 'has_actual_text'
+
+tests/test_native_format.py:45: KeyError
+_ test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-True-90] _
+
+rotation = 90, nested = True, stream_owned = False
+
+    @pytest.mark.parametrize('rotation',[0,90,180,270])
+    @pytest.mark.parametrize('nested',[False,True])
+    @pytest.mark.parametrize('stream_owned',[False,True])
+    def test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence(rotation,nested,stream_owned):
+        from backend.semantic_text import capture
+        base=form_source(stream_owned=stream_owned,actual='Reading',rotation=rotation,nested=nested,shared=not stream_owned)
+        out=change(base,accessible='Reading')
+        with f.open(stream=base) as a,f.open(stream=out) as d:
+            assert d[0].rotation==rotation and a[1].get_pixmap().samples==d[1].get_pixmap().samples
+            d[0].set_rotation(0);a[0].set_rotation(0)
+>           r=next(r for r in native_model(d,0,d[0].rect)[1] if r['text']=='HOLA Ω');assert r['editable'] and r['has_actual_text']
+E           KeyError: 'has_actual_text'
+
+tests/test_native_format.py:45: KeyError
+_ test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-True-180] _
+
+rotation = 180, nested = True, stream_owned = False
+
+    @pytest.mark.parametrize('rotation',[0,90,180,270])
+    @pytest.mark.parametrize('nested',[False,True])
+    @pytest.mark.parametrize('stream_owned',[False,True])
+    def test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence(rotation,nested,stream_owned):
+        from backend.semantic_text import capture
+        base=form_source(stream_owned=stream_owned,actual='Reading',rotation=rotation,nested=nested,shared=not stream_owned)
+        out=change(base,accessible='Reading')
+        with f.open(stream=base) as a,f.open(stream=out) as d:
+            assert d[0].rotation==rotation and a[1].get_pixmap().samples==d[1].get_pixmap().samples
+            d[0].set_rotation(0);a[0].set_rotation(0)
+>           r=next(r for r in native_model(d,0,d[0].rect)[1] if r['text']=='HOLA Ω');assert r['editable'] and r['has_actual_text']
+E           KeyError: 'has_actual_text'
+
+tests/test_native_format.py:45: KeyError
+_ test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-True-270] _
+
+rotation = 270, nested = True, stream_owned = False
+
+    @pytest.mark.parametrize('rotation',[0,90,180,270])
+    @pytest.mark.parametrize('nested',[False,True])
+    @pytest.mark.parametrize('stream_owned',[False,True])
+    def test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence(rotation,nested,stream_owned):
+        from backend.semantic_text import capture
+        base=form_source(stream_owned=stream_owned,actual='Reading',rotation=rotation,nested=nested,shared=not stream_owned)
+        out=change(base,accessible='Reading')
+        with f.open(stream=base) as a,f.open(stream=out) as d:
+            assert d[0].rotation==rotation and a[1].get_pixmap().samples==d[1].get_pixmap().samples
+            d[0].set_rotation(0);a[0].set_rotation(0)
+>           r=next(r for r in native_model(d,0,d[0].rect)[1] if r['text']=='HOLA Ω');assert r['editable'] and r['has_actual_text']
+E           KeyError: 'has_actual_text'
+
+tests/test_native_format.py:45: KeyError
+=========================== short test summary info ============================
+FAILED tests/test_native_format.py::test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-False-0]
+FAILED tests/test_native_format.py::test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-False-90]
+FAILED tests/test_native_format.py::test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-False-180]
+FAILED tests/test_native_format.py::test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-False-270]
+FAILED tests/test_native_format.py::test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-True-0]
+FAILED tests/test_native_format.py::test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-True-90]
+FAILED tests/test_native_format.py::test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-True-180]
+FAILED tests/test_native_format.py::test_form_format_preserves_owner_rotation_other_pages_and_other_occurrence[False-True-270]
+8 failed, 38 passed in 10.24s

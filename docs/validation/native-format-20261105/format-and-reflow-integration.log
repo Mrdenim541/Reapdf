@@ -1,0 +1,1 @@
+PASS: formatting followed by existing tagged Form paragraph reflow produces 4 editable lines when the source clip allows them; the original narrow clip correctly rejects overflow. Synthetic sources only.

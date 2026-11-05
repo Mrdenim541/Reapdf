@@ -1,0 +1,100 @@
+.......................................................................F [ 43%]
+........................................................................ [ 86%]
+.......................                                                  [100%]
+=================================== FAILURES ===================================
+______ test_multi_page_font_change_is_atomic_and_uses_each_page_resources ______
+
+base = b'%PDF-1.7\n%\xc2\xb5\xc2\xb6\n% Written by MuPDF 1.28.2\n\n1 0 obj\n<</Type/Catalog/Pages 2 0 R/Info<</Producer(MuPDF...ize 15/Root 1 0 R/ID[<C3BD25C39BC295C2B3C3883AC29DC381><09D3DA6D140E25886F9DD321F2DD4872>]>>\nstartxref\n1408\n%%EOF\n'
+operations = []
+regions = [{'box': [50.0, 82.80000305175781, 52.46400451660156, 21.983993530273438], 'changes': [{'accessible_text': 'Reading 0'...'Reading 1', 'format': {'family': 'serif', 'size': 12, 'style': 'bold'}, 'id': '0:0:0', 'text': 'HOLA Ω'}], 'page': 1}]
+
+    def replace_styled_regions(base,operations,regions):
+        """Validate every region first, then redact once per page and serialize once.
+    
+        Each region carries stable row IDs from the same exported snapshot. No
+        intermediate PDF is published if a later region fails validation.
+        """
+        if not isinstance(regions,list) or not 1<=len(regions)<=100:raise DocumentError('Selecciona de 1 a 100 regiones.')
+        with open_pdf(base) as source:editable(source)
+        with open_pdf(export_pdf(base,operations)) as doc:
+            prepared=defaultdict(list);rotations={};caches=defaultdict(dict);seen=set();characters=0
+            for region in regions:
+                number=region['page'];changes=region['changes']
+                if not isinstance(changes,list) or not 1<=len(changes)<=100:raise DocumentError('Indica de 1 a 100 fragmentos editados.')
+                if number not in rotations:_,rotations[number]=prepare_text_page(doc,number)
+                rect,rows=styled_model(doc,number,region['box'],caches[number])
+>               try:items=prepare_changes(doc,number,rect,rows,changes)
+
+backend/styled_text.py:481: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+doc = closed Document('None', <memory, doc# 908>), number = 1
+rect = Rect(50.0, 82.80000305175781, 102.46400451660156, 104.78399658203125)
+rows = [{'_clips': [], '_font': <backend.styled_text.OriginalFont object at 0x7f100f933ec0>, '_font_resource': 'helv', '_format_page': 1, ...}]
+changes = [{'accessible_text': 'Reading 1', 'format': {'family': 'serif', 'size': 12, 'style': 'bold'}, 'id': '0:0:0', 'text': 'HOLA Ω'}]
+expand = False
+
+    def prepare_changes(doc,number,rect,rows,changes,expand=False):
+        model={r['id']:r for r in rows};seen=set();prepared=[];total=0
+        from .type3_text import merge_lines
+        neighbor_blocks=merge_lines(doc,doc[number],doc[number].get_text('dict',flags=fitz.TEXTFLAGS_TEXT|fitz.TEXT_IGNORE_ACTUALTEXT)['blocks'])
+        from .affine_text import pointer_targets
+        neighbor_spans=[(f'{bi}:{li}:{si}',span,line['dir']) for bi,block in enumerate(neighbor_blocks) for li,line in enumerate(block.get('lines',[])) for si,span in enumerate(line['spans'])]
+        neighbor_cells=pointer_targets(doc[number],neighbor_spans)
+        neighbor_quads={id(span):neighbor_cells[key]['quad'] for key,span,_ in neighbor_spans if key in neighbor_cells}
+        for change in changes:
+            if not isinstance(change,dict) or not {'id','text'}<=set(change)<={'id','text','accessible_text','format'} or not isinstance(change.get('id'),str) or change['id'] not in model or change['id'] in seen:raise DocumentError('Fragmento inexistente, repetido o con propiedades no compatibles.')
+            seen.add(change['id']);row=model[change['id']];text=change['text']
+            if not isinstance(text,str) or len(text)>4000 or any(ord(c)<32 or ord(c)==127 for c in text):raise DocumentError('Cada fragmento admite una línea, sin controles, dentro del límite de 4000 caracteres.')
+            total+=len(text)
+>           if 'accessible_text' in change and not row.get('has_actual_text'):raise DocumentError('El fragmento no tiene una alternativa ActualText que modificar.')
+E           backend.engine.DocumentError: El fragmento no tiene una alternativa ActualText que modificar.
+
+backend/styled_text.py:381: DocumentError
+
+The above exception was the direct cause of the following exception:
+
+    def test_multi_page_font_change_is_atomic_and_uses_each_page_resources():
+        with f.open(stream=source('First',tagged=True,node=True)) as d,f.open(stream=source('Second')) as other:
+            d.insert_pdf(other);base=d.tobytes()
+        regions=[]
+        for page in [0,1]:
+            r,box=selected(base,page=page);regions.append({'page':page,'box':box,'changes':[{'id':r['id'],'text':'HOLA Ω','accessible_text':'Reading '+str(page),'format':{'family':'serif' if page else 'sans','style':'bold','size':12}}]})
+>       out=replace_styled_regions(base,[],regions)
+
+tests/test_native_format.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+base = b'%PDF-1.7\n%\xc2\xb5\xc2\xb6\n% Written by MuPDF 1.28.2\n\n1 0 obj\n<</Type/Catalog/Pages 2 0 R/Info<</Producer(MuPDF...ize 15/Root 1 0 R/ID[<C3BD25C39BC295C2B3C3883AC29DC381><09D3DA6D140E25886F9DD321F2DD4872>]>>\nstartxref\n1408\n%%EOF\n'
+operations = []
+regions = [{'box': [50.0, 82.80000305175781, 52.46400451660156, 21.983993530273438], 'changes': [{'accessible_text': 'Reading 0'...'Reading 1', 'format': {'family': 'serif', 'size': 12, 'style': 'bold'}, 'id': '0:0:0', 'text': 'HOLA Ω'}], 'page': 1}]
+
+    def replace_styled_regions(base,operations,regions):
+        """Validate every region first, then redact once per page and serialize once.
+    
+        Each region carries stable row IDs from the same exported snapshot. No
+        intermediate PDF is published if a later region fails validation.
+        """
+        if not isinstance(regions,list) or not 1<=len(regions)<=100:raise DocumentError('Selecciona de 1 a 100 regiones.')
+        with open_pdf(base) as source:editable(source)
+        with open_pdf(export_pdf(base,operations)) as doc:
+            prepared=defaultdict(list);rotations={};caches=defaultdict(dict);seen=set();characters=0
+            for region in regions:
+                number=region['page'];changes=region['changes']
+                if not isinstance(changes,list) or not 1<=len(changes)<=100:raise DocumentError('Indica de 1 a 100 fragmentos editados.')
+                if number not in rotations:_,rotations[number]=prepare_text_page(doc,number)
+                rect,rows=styled_model(doc,number,region['box'],caches[number])
+                try:items=prepare_changes(doc,number,rect,rows,changes)
+>               except DocumentError as exc:raise DocumentError(f'Página {number+1}: {exc} No se aplicó ningún cambio.') from exc
+E               backend.engine.DocumentError: Página 2: El fragmento no tiene una alternativa ActualText que modificar. No se aplicó ningún cambio.
+
+backend/styled_text.py:482: DocumentError
+=============================== warnings summary ===============================
+tests/test_native_format.py::test_font_change_retains_affine_frame_and_unselected_occurrences[linear0-tm]
+  /workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_native_format.py::test_multi_page_font_change_is_atomic_and_uses_each_page_resources
+1 failed, 166 passed, 1 warning in 21.02s

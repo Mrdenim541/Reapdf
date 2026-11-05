@@ -1,0 +1,15 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+Fontconfig error: No writable cache directories
+[371877:371898:1105/171714.417342:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 371899: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_native_format_qt.py", line 51, in <module>
+    click('↶ Deshacer');wait('!![...document.querySelectorAll(".text-target")].find(e=>e.getAttribute("aria-label")==="Editar en página: HELLO")');click('↷ Rehacer');wait('!![...document.querySelectorAll(".text-target")].find(e=>e.getAttribute("aria-label")==="Editar en página: HOLA Ω")')
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_native_format_qt.py", line 24, in wait
+    raise AssertionError(script)
+AssertionError: !![...document.querySelectorAll(".text-target")].find(e=>e.getAttribute("aria-label")==="Editar en página: HELLO")

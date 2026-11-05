@@ -1,0 +1,9 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[378541:378561:1105/174809.700447:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 378562: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+CAPTURE: /tmp/reapdf-studio-qt-986jak0y/studio.png
+PASS: actual Qt mouse selects a task and original text, ribbon folds and persists across reload, focus reading hides side panels and the ribbon, navigation stays left, page gains space, and 1500/1280/900 layouts have usable document height without horizontal body overflow.

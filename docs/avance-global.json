@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "review_date": "2026-11-05",
-  "status": "provisional_with_semantic_text_and_quick_editing_profiles",
+  "status": "provisional_with_native_font_formatting_profiles",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 87.38,
+  "weighted_percent": 87.43,
   "reported_percent": 87,
   "subjective_range_percent": [
     62,
@@ -90,14 +90,18 @@
         "web/src/studio.css",
         "scripts/smoke_studio_layout_qt.py",
         "docs/INTERFAZ_PERSONAL_20261105.md",
-        "docs/validation/studio-ui-20261105/results.json"
+        "docs/validation/studio-ui-20261105/results.json",
+        "backend/native_format.py",
+        "tests/test_native_format.py",
+        "docs/FORMATO_NATIVO_ETIQUETADO_20261105.md",
+        "docs/validation/native-format-20261105/results.json"
       ],
-      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. ActualText de un grupo verificable y líneas de Form con Stm propio de aparición única ya se editan coordinando lectura y glifos; Forms con etiqueta de página ya admiten aislamiento de aparición y párrafos completos compatibles. Permanecen protegidos los Stm compartidos, ActualText multigrupo/contradictorio, propiedades nombradas (también heredadas), reflujo Stm/ActualText general y asociaciones mixtas no verificables. Menú contextual y cuadro compacto de edición, eliminación/deshacer y atajo Shift+F10 incorporados; no repetirlos como ausentes. Barra superior por tareas plegable, navegación izquierda y propiedades contextuales incorporadas; lectura ampliada comprobada. El rediseño visual no añade puntos nuevos por sí solo."
+      "remaining": "Aceptación personal, pantallas pequeñas/DPI, selección continua entre objetos y recorrido gráfico histórico extendido. Campos seleccionables sobre página, vista previa automática y revisión de tablas regionales incorporados. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. ActualText de un grupo verificable y líneas de Form con Stm propio de aparición única ya se editan coordinando lectura y glifos; Forms con etiqueta de página ya admiten aislamiento de aparición y párrafos completos compatibles. Permanecen protegidos los Stm compartidos, ActualText multigrupo/contradictorio, propiedades nombradas (también heredadas), reflujo Stm/ActualText general y asociaciones mixtas no verificables. Menú contextual y cuadro compacto de edición, eliminación/deshacer y atajo Shift+F10 incorporados; no repetirlos como ausentes. Barra superior por tareas plegable, navegación izquierda y propiedades contextuales incorporadas; lectura ampliada comprobada. El rediseño visual no añade puntos nuevos por sí solo. Formato nativo de una línea ya permite doce variantes DejaVu o cambiar solo el tamaño original (6–144 pt), conservando posición/color/matriz, etiquetas y ActualText compatibles. Forms con etiqueta de página y Stm de aparición única incluidos; Layout/BBox y atributos Table/List compatibles se conservan. Quedan tipografía declarada/clases, formato conjunto de párrafos de varios estilos, composición compleja y perfiles protegidos generales; no repetir la sustitución de una línea compatible como ausente."
     },
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 99,
+      "maturity": 99.25,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -200,9 +204,13 @@
         "docs/validation/tagged-paragraphs-word-20261105/results.json",
         "docs/EDICION_ACCESIBLE_Y_RAPIDA_20261105.md",
         "docs/validation/semantic-text-20261105/results.json",
-        "backend/semantic_text.py"
+        "backend/semantic_text.py",
+        "backend/native_format.py",
+        "tests/test_native_format.py",
+        "docs/FORMATO_NATIVO_ETIQUETADO_20261105.md",
+        "docs/validation/native-format-20261105/results.json"
       ],
-      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo con direcciones de lectura incompatibles/composición y espaciados restantes, cambio general de fuente, variantes generales de ActualText/Stm y semántica etiquetada fuera de los perfiles compatibles, imágenes inline, figuras y Forms fuera del perfil verificado, OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada. Copia explícita sin etiquetas para imágenes/texto compatibles ya incorporada; permanece pendiente la edición semántica nativa general de estructuras fuera del perfil compatible. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. Inclinaciones verticales independientes con dirección común ya admitidas en página, continuación y paginación; no repetir ese subconjunto como pendiente. Párrafos etiquetados P/encabezados/celdas con Span compatibles ya admiten varios estilos, selección semántica y continuación/paginación coordinadas; no repetir ese subconjunto como ausente. ActualText de un grupo verificable y líneas de Form con Stm propio de aparición única ya se editan coordinando lectura y glifos; Forms con etiqueta de página ya admiten aislamiento de aparición y párrafos completos compatibles. Permanecen protegidos los Stm compartidos, ActualText multigrupo/contradictorio, propiedades nombradas (también heredadas), reflujo Stm/ActualText general y asociaciones mixtas no verificables."
+      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo con direcciones de lectura incompatibles/composición y espaciados restantes, cambio de fuente en tipografía declarada/clases y párrafos fuera del perfil nativo, variantes generales de ActualText/Stm y semántica etiquetada fuera de los perfiles compatibles, imágenes inline, figuras y Forms fuera del perfil verificado, OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada. Copia explícita sin etiquetas para imágenes/texto compatibles ya incorporada; permanece pendiente la edición semántica nativa general de estructuras fuera del perfil compatible. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. Inclinaciones verticales independientes con dirección común ya admitidas en página, continuación y paginación; no repetir ese subconjunto como pendiente. Párrafos etiquetados P/encabezados/celdas con Span compatibles ya admiten varios estilos, selección semántica y continuación/paginación coordinadas; no repetir ese subconjunto como ausente. ActualText de un grupo verificable y líneas de Form con Stm propio de aparición única ya se editan coordinando lectura y glifos; Forms con etiqueta de página ya admiten aislamiento de aparición y párrafos completos compatibles. Permanecen protegidos los Stm compartidos, ActualText multigrupo/contradictorio, propiedades nombradas (también heredadas), reflujo Stm/ActualText general y asociaciones mixtas no verificables. Formato nativo de una línea ya permite doce variantes DejaVu o cambiar solo el tamaño original (6–144 pt), conservando posición/color/matriz, etiquetas y ActualText compatibles. Forms con etiqueta de página y Stm de aparición única incluidos; Layout/BBox y atributos Table/List compatibles se conservan. Quedan tipografía declarada/clases, formato conjunto de párrafos de varios estilos, composición compleja y perfiles protegidos generales; no repetir la sustitución de una línea compatible como ausente."
     },
     {
       "id": "annotations",
@@ -339,7 +347,7 @@
     {
       "id": "accessibility",
       "weight": 3,
-      "maturity": 98,
+      "maturity": 98.5,
       "evidence": [
         "backend/accessibility.py",
         "backend/structure_editing.py",
@@ -373,9 +381,13 @@
         "docs/validation/tagged-paragraphs-word-20261105/results.json",
         "docs/EDICION_ACCESIBLE_Y_RAPIDA_20261105.md",
         "docs/validation/semantic-text-20261105/results.json",
-        "backend/semantic_text.py"
+        "backend/semantic_text.py",
+        "backend/native_format.py",
+        "tests/test_native_format.py",
+        "docs/FORMATO_NATIVO_ETIQUETADO_20261105.md",
+        "docs/validation/native-format-20261105/results.json"
       ],
-      "remaining": "Reparación compatible de rol/RowSpan/ColSpan/Scope de tablas existentes, conservación de identidad de nodos iguales al guardar y edición de un fragmento nativo etiquetado incorporadas. Quedan semántica general/mixta interna de Forms, imágenes inline y recomposición general de recortes, enlaces ambiguos/listas/celdas complejas, variantes generales de ActualText/Stm y reparación general/PDF/UA. El texto nuevo no se etiqueta automáticamente. Lector de pantalla e interoperabilidad externos pendientes. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. Párrafos directos compatibles con varios estilos y Span ya conservan sus etiquetas en página y amplían ParentTree/hojas por página al continuar; quedan las variantes semánticas generales y la aceptación externa. ActualText de un grupo verificable y líneas de Form con Stm propio de aparición única ya se editan coordinando lectura y glifos; Forms con etiqueta de página ya admiten aislamiento de aparición y párrafos completos compatibles. Permanecen protegidos los Stm compartidos, ActualText multigrupo/contradictorio, propiedades nombradas (también heredadas), reflujo Stm/ActualText general y asociaciones mixtas no verificables."
+      "remaining": "Reparación compatible de rol/RowSpan/ColSpan/Scope de tablas existentes, conservación de identidad de nodos iguales al guardar y edición de un fragmento nativo etiquetado incorporadas. Quedan semántica general/mixta interna de Forms, imágenes inline y recomposición general de recortes, enlaces ambiguos/listas/celdas complejas, variantes generales de ActualText/Stm y reparación general/PDF/UA. El texto nuevo no se etiqueta automáticamente. Lector de pantalla e interoperabilidad externos pendientes. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. Párrafos directos compatibles con varios estilos y Span ya conservan sus etiquetas en página y amplían ParentTree/hojas por página al continuar; quedan las variantes semánticas generales y la aceptación externa. ActualText de un grupo verificable y líneas de Form con Stm propio de aparición única ya se editan coordinando lectura y glifos; Forms con etiqueta de página ya admiten aislamiento de aparición y párrafos completos compatibles. Permanecen protegidos los Stm compartidos, ActualText multigrupo/contradictorio, propiedades nombradas (también heredadas), reflujo Stm/ActualText general y asociaciones mixtas no verificables. Formato nativo de una línea ya permite doce variantes DejaVu o cambiar solo el tamaño original (6–144 pt), conservando posición/color/matriz, etiquetas y ActualText compatibles. Forms con etiqueta de página y Stm de aparición única incluidos; Layout/BBox y atributos Table/List compatibles se conservan. Quedan tipografía declarada/clases, formato conjunto de párrafos de varios estilos, composición compleja y perfiles protegidos generales; no repetir la sustitución de una línea compatible como ausente."
     },
     {
       "id": "automation_linking",
@@ -570,27 +582,27 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261105-before-semantic-text.json",
-    "before_weighted": 87.29,
-    "before_unrounded": "87.2925",
-    "after_weighted": 87.38,
-    "unrounded_after_weighted": "87.375",
-    "new_points": 0.09,
-    "unrounded_delta": "0.0825",
+    "baseline": "docs/progress/20261105-before-native-format.json",
+    "before_weighted": 87.38,
+    "before_unrounded": "87.375",
+    "after_weighted": 87.43,
+    "unrounded_after_weighted": "87.43",
+    "new_points": 0.05,
+    "unrounded_delta": "0.055",
     "changes": [
       {
-        "id": "interface",
-        "before": 97.25,
-        "after": 98,
-        "points": 0.0525,
-        "reason": "Clic derecho/Shift+F10, cuadro compacto, cancelación, borrador tras error y eliminar/deshacer comprobados en fuente y ejecutable; no simplificación universal de todas las herramientas."
+        "id": "text_images",
+        "before": 99,
+        "after": 99.25,
+        "points": 0.04,
+        "reason": "Sustitución nativa de fuente/estilo y tamaño original, Unicode compatible, marcos afines y aislamiento Form; no formato de párrafos generales."
       },
       {
         "id": "accessibility",
-        "before": 97,
-        "after": 98,
-        "points": 0.03,
-        "reason": "ActualText visible/lectura coordinados, aislamiento de Form con etiqueta de página y líneas Stm de aparición única; no ActualText multigrupo, Stm compartido ni PDF/UA general."
+        "before": 98,
+        "after": 98.5,
+        "points": 0.015,
+        "reason": "Formato de una línea conservando ActualText/MCR/Stm y cajas/atributos compatibles, sin quitar etiquetas; no tipografía declarada/clases ni PDF/UA general."
       }
     ]
   },
@@ -617,7 +629,7 @@
       "technical_complete": false,
       "changes_global_estimate": false,
       "contains_latest_corrections": false,
-      "newer_unreleased_source_commit": "723b281b6b7b7dd37b436cada9b3aebbd633c187"
+      "newer_unreleased_source_commit": "05f6a5c8efd4efa31d55e0a9f49157652682bb9d"
     }
   },
   "technical_completion_gates": [
@@ -630,32 +642,31 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "723b281b6b7b7dd37b436cada9b3aebbd633c187",
+    "source_commit": "05f6a5c8efd4efa31d55e0a9f49157652682bb9d",
     "linux": {
-      "checks": 38,
-      "evidence": "docs/validation/studio-ui-20261105/linux/desktop-report.json"
+      "checks": 39,
+      "evidence": "docs/validation/native-format-20261105/linux/desktop-report.json"
     },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 38,
-      "evidence": "docs/validation/studio-ui-20261105/windows/assessment.json"
+      "checks": 39,
+      "evidence": "docs/validation/native-format-20261105/windows/assessment.json"
     },
     "packaged_executable_verified": true,
-    "compiled_gui_independent_runs": 10,
-    "packaged_scope": "Los diez recorridos de edición/exportación ya enumerados, ahora con barra superior por tareas. Plegado/persistencia y lectura ampliada en fuente Qt, guardado nativo también en fuente. No acredita todo el alcance, Windows cliente/DPI, impresión física ni carga sostenida."
+    "compiled_gui_independent_runs": 11,
+    "packaged_scope": "Once recorridos independientes; nuevo cambio de fuente/estilo/tamaño y Unicode de texto Stm/ActualText desde Reapdf.exe. Exportación por servidor incluido y reapertura por intérprete incluido. Guardado nativo/reedición desde fuente Qt. No acredita Windows cliente limpio, DPI, impresión física ni todo el alcance."
   },
   "last_implementation": {
     "date": "2026-11-05",
-    "source_commit": "723b281b6b7b7dd37b436cada9b3aebbd633c187",
-    "evidence": "docs/validation/studio-ui-20261105/results.json",
+    "source_commit": "05f6a5c8efd4efa31d55e0a9f49157652682bb9d",
+    "evidence": "docs/validation/native-format-20261105/results.json",
     "features": [
-      "ActualText de un grupo con lectura y glifos coordinados",
-      "Form con etiqueta de página: aislamiento, párrafo y continuación compatibles",
-      "Línea de stream Stm con asociación propia y aparición única",
-      "Menú contextual y cuadro compacto para editar/eliminar texto",
-      "Interfaz personal con barra superior por tareas, plegado persistente y propiedades contextuales"
+      "Doce variantes DejaVu dentro de texto nativo etiquetado/Form compatible",
+      "Tamaño 6–144 pt con fuente original o incluida",
+      "Controles en edición directa y cuadro rápido, lectura accesible coordinada",
+      "Conservación de BBox/Layout/Table/List compatibles y protección de bordes/otros contenidos"
     ],
-    "global_estimate_recalculated": false,
+    "global_estimate_recalculated": true,
     "global_blocks_closed": []
   },
   "last_observations": {
@@ -727,6 +738,13 @@
     "report": "docs/INTERFAZ_PERSONAL_20261105.md",
     "evidence": "docs/validation/studio-ui-20261105/results.json",
     "global_estimate_unchanged": 87.38,
+    "technical_complete": false,
+    "accepted_complete": false
+  },
+  "last_native_format": {
+    "source_commit": "05f6a5c8efd4efa31d55e0a9f49157652682bb9d",
+    "report": "docs/FORMATO_NATIVO_ETIQUETADO_20261105.md",
+    "evidence": "docs/validation/native-format-20261105/results.json",
     "technical_complete": false,
     "accepted_complete": false
   }
