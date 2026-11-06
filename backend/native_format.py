@@ -45,7 +45,7 @@ def availability(doc,row):
 
 
 
-def prepare(doc,number,row,text,options):
+def prepare(doc,number,row,text,options,*,coordinated_geometry=False):
     from .paragraphs import paragraph_font,FAMILIES
     from .styled_text import OriginalFont,clone_resources
     from .text_spacing import layout,retained_kern
@@ -95,7 +95,7 @@ def prepare(doc,number,row,text,options):
     command=(f'{pdfname(alias)} {size/g["factor"]:.8f} Tf ['.encode()+b' '.join(chunks)+f'] TJ {tm} Tm {pdfname(row.get("_font_resource",row["_font"].resource))} {row["size"]/g["factor"]:.8f} Tf'.encode())
     g['width']=width
     from .affine_text import contains,polygon
-    if any(not contains(cell,polygon(g)) for cell in row.get('_format_tag_boxes',[])):raise DocumentError('El formato nuevo sale de la caja declarada en sus etiquetas; reduce tamaño o contenido.')
+    if not coordinated_geometry and any(not contains(cell,polygon(g)) for cell in row.get('_format_tag_boxes',[])):raise DocumentError('El formato nuevo sale de la caja declarada en sus etiquetas; reduce tamaño o contenido.')
     return {**row,'font':name,'size':size,'display_size':size*math.sqrt(state['scale']/100),'_font':face,'_geometry':g,'_native':[start,stops[0],'operator-array'],'_native_fonts':{} if original else {alias:xref},'_format_origins':[[row['origin'][j]+g['direction'][j]*v for j in [0,1]] for v in origins],'_format_options':dict(options),'_formatted':True,'_source_format_row':row,'_spacing':{'state':state,'kern':kern}},command,width
 
 

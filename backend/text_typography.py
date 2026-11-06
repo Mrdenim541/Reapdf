@@ -135,6 +135,12 @@ def apply(doc,prepared):
                 updates[key]=change;origins[key]=attr
                 if len(updates)>1024:raise DocumentError('La actualización tipográfica supera 1024 declaraciones; divide la selección.')
     for owner in {key[0] for key in updates}:prove_complete(doc,owner,rows)
+    apply_changes(doc,index,updates)
+
+
+def apply_changes(doc,index,updates):
+    """Isolate A dictionaries and C classes without changing other users."""
+    n=f.mupdf
     def clone(attr,change):
         x=doc.get_new_xref();doc.update_object(x,syntax(n.pdf_resolve_indirect(attr)))
         for key,value in change.items():doc.xref_set_key(x,key,value)

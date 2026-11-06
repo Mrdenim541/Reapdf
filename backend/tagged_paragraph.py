@@ -119,7 +119,10 @@ class Paragraph:
             owner=n.pdf_to_name(n.pdf_dict_gets(attrs,'O'))
             keys={n.pdf_to_name(n.pdf_dict_get_key(attrs,i)) for i in range(n.pdf_dict_len(attrs))}
             if owner=='Table' and keys<={'O','Scope','RowSpan','ColSpan','Headers'}:continue
-            if owner=='Layout' and keys<={'O','Color'}|TYPO:continue
+            if owner=='Layout' and keys<={'O','Color','BBox','Width','Height'}|TYPO:
+                from .text_geometry import validate
+                validate(attrs)
+                continue
             fail()
 
     def validate(self,rows):

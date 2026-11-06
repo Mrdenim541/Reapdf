@@ -133,7 +133,7 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
             for row in rows:
                 flags=row.get('font_flags',0);style=('bold-italic' if flags&16 and flags&2 else 'bold' if flags&16 else 'italic' if flags&2 else 'regular') if formatting['style']=='keep' else formatting['style']
                 options={'family':formatting['family'],'style':'original' if formatting['family']=='original' else style,'size':row['size'] if formatting['size'] is None else formatting['size']}
-                new,_,_=format_row(doc,number,row,row['text'],options);formatted.append(new)
+                new,_,_=format_row(doc,number,row,row['text'],options,coordinated_geometry=tagged is not None);formatted.append(new)
             rows=formatted;first=rows[0]
         from .sheared_paragraph import distinct,ShearedLayout
         variable=distinct(rows);layout=ShearedLayout(rows,runs) if variable else Layout(rows,runs);styles=layout.styles
@@ -180,9 +180,12 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
             details[-1]['characters']+=after-cursor;details[-1]['lines']+=1;cursor=after;used+=max(size*1.35,ascent-descent);lines+=1
         report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':requested_width,'height':requested_height,'preserves_affine':True,'variable_shear':variable,'preserves_run_transforms':True,'preserves_spacing':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects),'source_paths':len({path_key(r) for r in rows}),'regions':details,'pages':sorted(rotations),'complete':True,'automatic_pagination':paginate,'added_pages':len(doc)-original_pages}
         report['tagged_native']=tagged is not None
-        if tagged:tagged.extend(draws)
+        if tagged:
+            from .text_geometry import apply as geometry_attributes
+            geometry_attributes(doc,number,rows,prepared)
         from .text_typography import apply as typography
         typography(doc,{number:[(r,b'') for r in rows]})
+        if tagged:tagged.extend(draws)
         report['formatted']=formatting is not None
         if preview:return report
         patches=[]
