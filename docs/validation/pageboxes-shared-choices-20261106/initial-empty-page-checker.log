@@ -1,0 +1,79 @@
+F
+=================================== FAILURES ===================================
+_ test_continuation_keeps_exact_local_geometry_styles_and_unrelated_pages[False-0-False-False] _
+
+classes = False, container = False, rotation = 0, automatic = False
+
+    @pytest.mark.parametrize('classes',[False,True])
+    @pytest.mark.parametrize('container',[False,True])
+    @pytest.mark.parametrize('rotation',[0,90,180,270])
+    @pytest.mark.parametrize('automatic',[False,True])
+    def test_continuation_keeps_exact_local_geometry_styles_and_unrelated_pages(classes,container,rotation,automatic):
+        base=sample(classes,container,rotation)
+        kwargs={'paginate':True} if automatic else {'continuations':[{'page':1,'box':[30,100,300,400]}]}
+>       out,report=change(base,words=15,width=130,height=30,**kwargs);assert report['page_local_geometry']>=2;check(out)
+
+tests/test_multipage_geometry.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_multipage_geometry.py:16: in check
+    t=tree(d);n=f.mupdf;all_rows=[(p.number,row) for p in d for row in native_model(d,p.number,p.rect)[1]];found=0
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+doc = closed Document('None', <memory, doc# 13>), number = 2
+rect = Rect(0.0, 0.0, 650.0, 800.0), font_cache = None
+
+    def native_model(doc,number,rect,font_cache=None,*,context=False):
+        from .styled_text import OriginalFont,normal_name
+        page=doc[number]
+        if doc.get_ocgs():raise DocumentError('El texto asociado a capas todavía requiere otra edición.')
+        content=page.read_contents();cache={} if font_cache is None else font_cache
+        from .pdf_content import names
+        if '_structure' not in cache:
+            from .form_text import structure
+            cache['_structure']=(structure(doc,page),page.get_fonts(full=True),page.get_texttrace())
+        objects,fonts,traces=cache['_structure']
+        if '_semantic_text' not in cache:
+            from .semantic_text import Index
+            cache['_semantic_text']=Index(doc,number,objects)
+        if type(context) is not bool:raise DocumentError('Modo de inspección de texto no válido.')
+        if '_obstacles' not in cache:
+            from .affine_text import obstacles
+            cache['_obstacles']=obstacles(page)
+        if len(fonts)>20 or sum(len(t['chars']) for t in traces)>100000:raise DocumentError('La página supera los límites de fuentes o texto del editor.')
+        # Only direct, unambiguous page text with verified font maps is editable.
+        # Marked content and clipping remain byte-for-byte intact.
+        compatible={};metadata={item[0]:item for item in fonts}
+        for scope,resource in {(obj['scope'],obj['font']) for obj in objects}:
+            from .form_text import SAFE
+            if not SAFE.fullmatch(resource):continue
+            owner=scope or page.xref
+            for _ in range(20):
+                kind,value=doc.xref_get_key(owner,'Resources/Font/'+resource)
+                if kind=='xref':break
+                if scope or doc.xref_get_key(owner,'Resources')[0]!='null':break
+                kind,value=doc.xref_get_key(owner,'Parent')
+                if kind!='xref':break
+                owner=int(value.split()[0])
+            else:continue
+            if kind!='xref':continue
+            xref=int(value.split()[0]);item=metadata.get(xref)
+            if item is None:
+                try:name,ext,kind,_=doc.extract_font(xref)
+                except (ValueError,RuntimeError):continue
+                item=(xref,ext,kind,name,resource,'',scope)
+            if xref not in cache:
+                try:cache[xref]=OriginalFont(doc,item)
+                except (DocumentError,ValueError,UnicodeError) as exc:cache[xref]=str(exc)
+            if isinstance(cache[xref],OriginalFont):compatible[(scope,resource)]=cache[xref]
+        if len(compatible)>100 or sum(font.program_bytes for font in {v.xref:v for v in compatible.values()}.values())>64*1024*1024:raise DocumentError('Los recursos de fuente superan el presupuesto de edición.')
+        if not compatible:
+            reasons=list(dict.fromkeys(cache[xref] for xref in metadata if isinstance(cache.get(xref),str)))
+            detail=' '+reasons[0] if len(reasons)==1 else ''
+>           raise DocumentError('No se encontró una fuente original compatible en el contenido seleccionado.'+detail)
+E           backend.engine.DocumentError: No se encontró una fuente original compatible en el contenido seleccionado.
+
+backend/native_text.py:88: DocumentError
+=========================== short test summary info ============================
+FAILED tests/test_multipage_geometry.py::test_continuation_keeps_exact_local_geometry_styles_and_unrelated_pages[False-0-False-False]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed in 0.58s

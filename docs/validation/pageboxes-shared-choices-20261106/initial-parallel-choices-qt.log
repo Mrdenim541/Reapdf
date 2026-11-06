@@ -1,0 +1,19 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+Fontconfig error: No writable cache directories
+[543574:543645:1106/192852.042143:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 543647: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_shared_choices_qt.py", line 60, in <module>
+    wait('document.querySelector(".document-bar")?.textContent.includes("SharedChoice.pdf")');click('Formularios y firmas');tool('Rellenar formulario')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_shared_choices_qt.py", line 28, in wait
+    if js(script):return
+       ^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_shared_choices_qt.py", line 21, in js
+    if not values:raise AssertionError('Qt did not respond')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Qt did not respond

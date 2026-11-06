@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "review_date": "2026-11-06",
-  "status": "provisional_with_native_close_form_datetime_and_word_column_breaks",
+  "status": "provisional_with_page_local_continuation_geometry_and_shared_choices",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 87.73,
+  "weighted_percent": 87.83,
   "reported_percent": 88,
   "subjective_range_percent": [
     62,
@@ -113,7 +113,7 @@
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 99.75,
+      "maturity": 99.9,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -230,9 +230,11 @@
         "docs/validation/continuation-geometry-size-20261106/results.json",
         "backend/text_geometry.py",
         "tests/test_paragraph_geometry.py",
-        "web/src/paragraph-format.jsx"
+        "web/src/paragraph-format.jsx",
+        "docs/CAJAS_POR_PAGINA_Y_LISTAS_COMPARTIDAS_20261106.md",
+        "docs/validation/pageboxes-shared-choices-20261106/results.json"
       ],
-      "remaining": "Paginación automática compatible ya incorporada (hasta 16 páginas nuevas); contexto denso indexado y edición nativa de un fragmento etiquetado compatible también. Quedan fuentes/ejes no predeterminados, CFF2 crudo y variantes Type3 fuera del subconjunto verificado; reflujo con direcciones de lectura incompatibles/composición y espaciados restantes, cambio de fuente en CSS/atributos y párrafos fuera del perfil nativo, variantes generales de ActualText/Stm y semántica etiquetada fuera de los perfiles compatibles, imágenes inline, figuras y Forms fuera del perfil verificado, OCR/capas/recortes Form no verificables y máscaras/knockout/grupos complejos. Las protecciones no equivalen a implementación completada. Copia explícita sin etiquetas para imágenes/texto compatibles ya incorporada; permanece pendiente la edición semántica nativa general de estructuras fuera del perfil compatible. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. Inclinaciones verticales independientes con dirección común ya admitidas en página, continuación y paginación; no repetir ese subconjunto como pendiente. Párrafos etiquetados P/encabezados/celdas con Span compatibles ya admiten varios estilos, selección semántica y continuación/paginación coordinadas; no repetir ese subconjunto como ausente. ActualText de un grupo verificable y líneas de Form con Stm propio de aparición única ya se editan coordinando lectura y glifos; Forms con etiqueta de página ya admiten aislamiento de aparición y párrafos completos compatibles. Permanecen protegidos los Stm compartidos, ActualText multigrupo/contradictorio, propiedades nombradas (también heredadas), reflujo Stm/ActualText general y asociaciones mixtas no verificables. Formato nativo de una línea ya permite doce variantes DejaVu o cambiar solo el tamaño original (6–144 pt), conservando posición/color/matriz, etiquetas y ActualText compatibles. Forms con etiqueta de página y Stm de aparición única incluidos; Layout/BBox y atributos Table/List compatibles se conservan. Quedan CSS/clases y reflujo con atributos geométricos fuera del perfil compatible, composición compleja y perfiles protegidos generales; no repetir la sustitución de una línea compatible como ausente. Formato conjunto de párrafos compatibles incorporado: familia/tamaño comunes, énfasis conservados o estilo uniforme, ajuste y paginación automática en una operación. FontFamily/FontSize/FontWeight/FontStyle de Layout y ClassMap compatibles se actualizan con aislamiento y cobertura completa; fragmentos que el extractor une se separan por operandos/glifos únicos. Quedan CSS/atributos geométricos fuera del perfil de una página, estilos comunes contradictorios y variantes semánticas fuera del perfil; no repetir este formato compatible como ausente. Incorporado 20261106: BBox/Width/Height Layout de una página recalculadas y aisladas; continuación manual con formato recibido y modificable; panel del párrafo ajustado a la altura real del visor. Siguen cajas por página en elementos que abarcan varias, atributos geométricos/CSS y semántica generales. No repetir los recorridos compatibles como ausentes."
+      "remaining": "Ya incorporados: edición sobre página y formato nativo de línea/párrafo, continuación y paginación compatibles, varios estilos e inclinaciones con dirección común, clases Layout aisladas, cajas por fragmento de página y retiro de cajas de estilos vacíos; figuras de página y ActualText/Stm de perfiles únicos verificables. Pendientes: ejes no predeterminados, CFF2 crudo/Type3 fuera del subconjunto, composición/direcciones/espaciados especiales, CSS y geometría inicial multipágina sin asociación completa, estilos comunes contradictorios, ActualText multigrupo/contradictorio y reflujo Stm/ActualText general, Stm compartido, propiedades nombradas/heredadas y semántica mixta/no verificable, imágenes inline/Forms/capas/recortes y máscaras/knockout/grupos complejos fuera del perfil. La copia explícita sin etiquetas no equivale a edición semántica universal; las protecciones no cierran estas implementaciones."
     },
     {
       "id": "annotations",
@@ -257,7 +259,7 @@
     {
       "id": "forms",
       "weight": 6,
-      "maturity": 94,
+      "maturity": 95,
       "evidence": [
         "backend/form_import.py",
         "backend/form_calculations.py",
@@ -279,9 +281,11 @@
         "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
         "docs/validation/functional-closing-20261104/results.json",
         "docs/CIERRE_NATIVO_FORMULARIOS_Y_COLUMNAS_20261106.md",
-        "docs/validation/native-forms-columns-20261106/results.json"
+        "docs/validation/native-forms-columns-20261106/results.json",
+        "docs/CAJAS_POR_PAGINA_Y_LISTAS_COMPARTIDAS_20261106.md",
+        "docs/validation/pageboxes-shared-choices-20261106/results.json"
       ],
-      "remaining": "Fecha/hora combinadas y acciones estándar en streams incorporadas, sin ejecutar JavaScript. Condicionales numéricos, comparaciones y lógica acotada, aritmética y Math compatibles ya incorporados como analizador restringido. Quedan XFA, JavaScript/acciones/validadores generales, fórmulas fuera de su gramática, fuentes no compatibles, grafos mixtos con reglas de proyecto e interoperabilidad externa."
+      "remaining": "Ya incorporados: ayudantes estándar de fecha/hora y streams acotados, cálculos numéricos/condicionales y lógica restringida, campos de texto/casillas/radios compartidos y listas/desplegables de selección simple compartidos coherentes. Pendientes: XFA, JavaScript/acciones/validadores generales, fórmulas fuera de la gramática, fuentes incompatibles, selección múltiple y listas de escritura libre, grafos mixtos con reglas de proyecto e interoperabilidad externa. No se ejecutan scripts arbitrarios ni se acepta un grupo con valores/opciones/índices contradictorios."
     },
     {
       "id": "ocr_conversion",
@@ -373,7 +377,7 @@
     {
       "id": "accessibility",
       "weight": 3,
-      "maturity": 99,
+      "maturity": 99.5,
       "evidence": [
         "backend/accessibility.py",
         "backend/structure_editing.py",
@@ -418,9 +422,11 @@
         "docs/PARRAFOS_Y_CLASES_TIPOGRAFICAS_20261106.md",
         "docs/validation/paragraph-typography-20261106/results.json",
         "docs/CONTINUACION_GEOMETRIA_Y_DIVISION_20261106.md",
-        "docs/validation/continuation-geometry-size-20261106/results.json"
+        "docs/validation/continuation-geometry-size-20261106/results.json",
+        "docs/CAJAS_POR_PAGINA_Y_LISTAS_COMPARTIDAS_20261106.md",
+        "docs/validation/pageboxes-shared-choices-20261106/results.json"
       ],
-      "remaining": "Reparación compatible de rol/RowSpan/ColSpan/Scope de tablas existentes, conservación de identidad de nodos iguales al guardar y edición de un fragmento nativo etiquetado incorporadas. Quedan semántica general/mixta interna de Forms, imágenes inline y recomposición general de recortes, enlaces ambiguos/listas/celdas complejas, variantes generales de ActualText/Stm y reparación general/PDF/UA. El texto nuevo no se etiqueta automáticamente. Lector de pantalla e interoperabilidad externos pendientes. Figuras nativas de página ya admiten coordinación de BBox/Alt/ParentTree y MCID, con acciones según recorte; no repetir ese subconjunto como ausente. Se mantienen los límites de Forms, asociaciones mixtas, ActualText/Stm general, clases/namespaces y recomposición de recortes/máscaras. Párrafos directos compatibles con varios estilos y Span ya conservan sus etiquetas en página y amplían ParentTree/hojas por página al continuar; quedan las variantes semánticas generales y la aceptación externa. ActualText de un grupo verificable y líneas de Form con Stm propio de aparición única ya se editan coordinando lectura y glifos; Forms con etiqueta de página ya admiten aislamiento de aparición y párrafos completos compatibles. Permanecen protegidos los Stm compartidos, ActualText multigrupo/contradictorio, propiedades nombradas (también heredadas), reflujo Stm/ActualText general y asociaciones mixtas no verificables. Formato nativo de una línea ya permite doce variantes DejaVu o cambiar solo el tamaño original (6–144 pt), conservando posición/color/matriz, etiquetas y ActualText compatibles. Forms con etiqueta de página y Stm de aparición única incluidos; Layout/BBox y atributos Table/List compatibles se conservan. Quedan CSS/clases y reflujo con atributos geométricos fuera del perfil compatible, composición compleja y perfiles protegidos generales; no repetir la sustitución de una línea compatible como ausente. Formato conjunto de párrafos compatibles incorporado: familia/tamaño comunes, énfasis conservados o estilo uniforme, ajuste y paginación automática en una operación. FontFamily/FontSize/FontWeight/FontStyle de Layout y ClassMap compatibles se actualizan con aislamiento y cobertura completa; fragmentos que el extractor une se separan por operandos/glifos únicos. Quedan CSS/atributos geométricos fuera del perfil de una página, estilos comunes contradictorios y variantes semánticas fuera del perfil; no repetir este formato compatible como ausente. Incorporado 20261106: BBox/Width/Height Layout de una página recalculadas y aisladas; continuación manual con formato recibido y modificable; panel del párrafo ajustado a la altura real del visor. Siguen cajas por página en elementos que abarcan varias, atributos geométricos/CSS y semántica generales. No repetir los recorridos compatibles como ausentes."
+      "remaining": "Ya incorporados: estructura/orden/ParentTree de párrafos compatibles, figuras independientes, ActualText/Stm únicos verificables, tipografía Layout y clases compatibles, cajas por fragmento de página reeditables y eliminación de cajas de estilos vacíos. Pendientes: semántica general/mixta interna de Forms, imágenes inline/recortes, enlaces ambiguos/listas/celdas complejas, ActualText multigrupo/contradictorio, Stm compartido y reflujo general de alternativas, CSS/geometría inicial ambigua y namespaces, reparación general/PDF/UA y etiquetado automático de texto nuevo. Lectores de pantalla e interoperabilidad externos pendientes."
     },
     {
       "id": "automation_linking",
@@ -476,7 +482,7 @@
         "docs/CIERRE_NATIVO_FORMULARIOS_Y_COLUMNAS_20261106.md",
         "docs/validation/native-forms-columns-20261106/results.json"
       ],
-      "remaining": "45 recorridos desde fuente en Linux/Windows Server y 18 ejecuciones independientes de Reapdf.exe comprobadas en esta fuente; tres son repeticiones básicas. Cierre explícito y cancelación antes de disponibilidad incorporados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga y recuperación sostenidas, migración del recorrido histórico extendido y aceptación personal al final. Intermitencias históricas de arranque/ajuste y causa del cierre Windows anterior no declaradas resueltas."
+      "remaining": "46 recorridos desde fuente en Linux/Windows Server y 19 ejecuciones independientes de Reapdf.exe comprobadas en esta fuente; tres son repeticiones básicas. Cierre explícito y cancelación antes de disponibilidad incorporados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga y recuperación sostenidas, migración del recorrido histórico extendido y aceptación personal al final. Intermitencias históricas de arranque/ajuste y causa del cierre Windows anterior no declaradas resueltas."
     },
     {
       "id": "migration_interoperability",
@@ -617,34 +623,34 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261106-before-native-forms-columns.json",
-    "before_weighted": 87.6,
-    "before_unrounded": "87.595",
-    "after_weighted": 87.73,
-    "unrounded_after_weighted": "87.730",
-    "new_points": 0.14,
-    "unrounded_delta": "0.135",
+    "baseline": "docs/progress/20261106-before-pageboxes-shared-choices.json",
+    "before_weighted": 87.73,
+    "before_unrounded": "87.730",
+    "after_weighted": 87.83,
+    "unrounded_after_weighted": "87.829",
+    "new_points": 0.1,
+    "unrounded_delta": "0.099",
     "changes": [
       {
+        "id": "text_images",
+        "before": 99.75,
+        "after": 99.9,
+        "points": 0.024,
+        "reason": "Continuación manual/automática con cajas Layout por fragmento y eliminación de cajas de estilos vacíos."
+      },
+      {
+        "id": "accessibility",
+        "before": 99,
+        "after": 99.5,
+        "points": 0.015,
+        "reason": "Geometría espacial migrada a hojas Span de cada página, contenedor y ParentTree conservados y guardado comprobado."
+      },
+      {
         "id": "forms",
-        "before": 93,
-        "after": 94,
+        "before": 94,
+        "after": 95,
         "points": 0.06,
-        "reason": "Fecha y hora combinadas y ayudantes estándar en streams locales verificables."
-      },
-      {
-        "id": "ocr_conversion",
-        "before": 98,
-        "after": 98.5,
-        "points": 0.045,
-        "reason": "Saltos explícitos de columna Word, continuación de párrafo y enlaces con destino conservado."
-      },
-      {
-        "id": "desktop_distribution",
-        "before": 85,
-        "after": 85.5,
-        "points": 0.03,
-        "reason": "Cierre explícito del bucle principal y cancelación normal antes de disponibilidad sin servidor residual ni error de arranque."
+        "reason": "Listas y desplegables compartidos de selección simple sincronizan valor, índice y apariencias; borrado/reapertura/datos/aplanado completos."
       }
     ]
   },
@@ -684,29 +690,29 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "ad8d6fbb1086ef8670db28a4859de723013d510a",
+    "source_commit": "c41be59da7ddd6c597795fd5dd9788416676b599",
     "linux": {
-      "checks": 45,
-      "evidence": "docs/validation/native-forms-columns-20261106/linux/desktop-report.json"
+      "checks": 46,
+      "evidence": "docs/validation/pageboxes-shared-choices-20261106/linux/desktop-report.json"
     },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 45,
-      "evidence": "docs/validation/native-forms-columns-20261106/windows/assessment.json"
+      "checks": 46,
+      "evidence": "docs/validation/pageboxes-shared-choices-20261106/windows/assessment.json"
     },
     "packaged_executable_verified": true,
-    "compiled_gui_independent_runs": 18,
+    "compiled_gui_independent_runs": 19,
     "compiled_basic_repetitions": 3,
-    "packaged_scope": "18 ejecuciones independientes: 16 recorridos distintos y dos repeticiones básicas adicionales. Nuevos: Word con saltos explícitos de columna y enlaces; formularios de fecha/hora con acciones en streams. Exportación por servidor incluido y verificación por intérprete incluido; no acredita diálogo nativo de guardar del exe, Windows cliente/DPI/impresión ni causa resuelta de todas las intermitencias históricas. Arranque portable Windows con WebEngine por software por defecto."
+    "packaged_scope": "19 ejecuciones independientes, tres básicas; geometría continuada desde origen con cajas y nuevo relleno de listas compartidas. Exportaciones por servidor/intérprete incluidos; no acredita diálogo nativo de guardar del exe, cliente Windows/DPI/impresión física ni causa resuelta de todas las intermitencias históricas."
   },
   "last_implementation": {
     "date": "2026-11-06",
-    "source_commit": "ad8d6fbb1086ef8670db28a4859de723013d510a",
-    "evidence": "docs/validation/native-forms-columns-20261106/results.json",
+    "source_commit": "c41be59da7ddd6c597795fd5dd9788416676b599",
+    "evidence": "docs/validation/pageboxes-shared-choices-20261106/results.json",
     "features": [
-      "Fecha y hora combinadas y ayudantes estándar en streams locales verificables.",
-      "Saltos explícitos de columna Word, continuación de párrafo y enlaces con destino conservado.",
-      "Cierre explícito del bucle principal y cancelación normal antes de disponibilidad sin servidor residual ni error de arranque."
+      "Continuación manual/automática con cajas Layout por fragmento y eliminación de cajas de estilos vacíos.",
+      "Geometría espacial migrada a hojas Span de cada página, contenedor y ParentTree conservados y guardado comprobado.",
+      "Listas y desplegables compartidos de selección simple sincronizan valor, índice y apariencias; borrado/reapertura/datos/aplanado completos."
     ],
     "global_estimate_recalculated": true,
     "global_blocks_closed": []
@@ -808,6 +814,13 @@
     "source_commit": "ad8d6fbb1086ef8670db28a4859de723013d510a",
     "report": "docs/CIERRE_NATIVO_FORMULARIOS_Y_COLUMNAS_20261106.md",
     "evidence": "docs/validation/native-forms-columns-20261106/results.json",
+    "technical_complete": false,
+    "accepted_complete": false
+  },
+  "last_pageboxes_shared_choices": {
+    "source_commit": "c41be59da7ddd6c597795fd5dd9788416676b599",
+    "report": "docs/CAJAS_POR_PAGINA_Y_LISTAS_COMPARTIDAS_20261106.md",
+    "evidence": "docs/validation/pageboxes-shared-choices-20261106/results.json",
     "technical_complete": false,
     "accepted_complete": false
   }

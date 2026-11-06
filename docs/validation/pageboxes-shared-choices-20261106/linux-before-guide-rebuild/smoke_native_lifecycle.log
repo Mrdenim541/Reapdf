@@ -1,0 +1,94 @@
+
+REAPDF_LIFECYCLE {"pid": 546797, "at": 285283.43054, "stage": "native.start"}
+REAPDF_LIFECYCLE {"pid": 546797, "at": 285283.446596, "stage": "native.application.created"}
+REAPDF_LIFECYCLE {"pid": 546797, "at": 285283.455378, "stage": "native.instance.acquired"}
+REAPDF_LIFECYCLE {"pid": 546797, "at": 285283.484876, "stage": "native.view.created"}
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+REAPDF_LIFECYCLE {"pid": 546797, "at": 285283.560374, "stage": "native.page.created"}
+REAPDF_LIFECYCLE {"pid": 546797, "at": 285283.569024, "stage": "native.navigation.start"}
+[546797:546817:1106/193821.570162:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 546818: Read-only file system (30)
+REAPDF_LIFECYCLE {"pid": 546797, "at": 285283.575134, "stage": "native.navigation.scheduled"}
+This plugin does not support propagateSizeHints()
+REAPDF_LIFECYCLE {"pid": 546797, "at": 285283.58447, "stage": "native.window.created"}
+REAPDF_LIFECYCLE {"pid": 546797, "at": 285283.589687, "stage": "native.close.check"}
+REAPDF_LIFECYCLE {"pid": 546797, "at": 285283.611247, "stage": "native.close.accepted"}
+REAPDF_LIFECYCLE {"pid": 546797, "at": 285283.611931, "stage": "native.loop.finished:0"}
+REAPDF_LIFECYCLE {"pid": 546797, "at": 285283.612089, "stage": "native.instance.closed"}
+
+
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285283.774839, "stage": "native.start"}
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285283.789236, "stage": "native.application.created"}
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285283.79705, "stage": "native.instance.acquired"}
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285283.826966, "stage": "native.view.created"}
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285283.888919, "stage": "native.page.created"}
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285283.897675, "stage": "native.navigation.start"}
+[546829:546849:1106/193821.898908:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 546850: Read-only file system (30)
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285283.904599, "stage": "native.navigation.scheduled"}
+This plugin does not support propagateSizeHints()
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285283.914705, "stage": "native.window.created"}
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285284.128102, "stage": "native.ready.ready"}
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285284.182762, "stage": "native.close.check"}
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285284.190897, "stage": "native.close.accepted"}
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285284.19169, "stage": "native.loop.finished:0"}
+REAPDF_LIFECYCLE {"pid": 546829, "at": 285284.191833, "stage": "native.instance.closed"}
+
+GUARD_PRESERVED=busy
+
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.384689, "stage": "native.start"}
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.398423, "stage": "native.application.created"}
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.406674, "stage": "native.instance.acquired"}
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.434403, "stage": "native.view.created"}
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.499642, "stage": "native.page.created"}
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.508399, "stage": "native.navigation.start"}
+[546864:546887:1106/193822.509342:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 546888: Read-only file system (30)
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.514277, "stage": "native.navigation.scheduled"}
+This plugin does not support propagateSizeHints()
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.521691, "stage": "native.window.created"}
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.714916, "stage": "native.ready.ready"}
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.719179, "stage": "native.close.check"}
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.725198, "stage": "native.close.busy"}
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.820379, "stage": "native.close.check"}
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.820858, "stage": "native.close.accepted"}
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.821519, "stage": "native.loop.finished:0"}
+REAPDF_LIFECYCLE {"pid": 546864, "at": 285284.82164, "stage": "native.instance.closed"}
+
+GUARD_PRESERVED=cancel
+
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.008187, "stage": "native.start"}
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.022489, "stage": "native.application.created"}
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.031108, "stage": "native.instance.acquired"}
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.063727, "stage": "native.view.created"}
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.128749, "stage": "native.page.created"}
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.136185, "stage": "native.navigation.start"}
+[546900:546920:1106/193823.137035:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 546921: Read-only file system (30)
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.142506, "stage": "native.navigation.scheduled"}
+This plugin does not support propagateSizeHints()
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.149721, "stage": "native.window.created"}
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.349771, "stage": "native.ready.ready"}
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.356624, "stage": "native.close.check"}
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.358372, "stage": "native.close.cancelled"}
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.462875, "stage": "native.close.check"}
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.463994, "stage": "native.close.accepted"}
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.465255, "stage": "native.loop.finished:0"}
+REAPDF_LIFECYCLE {"pid": 546900, "at": 285285.46558, "stage": "native.instance.closed"}
+
+PASS: real native main quits after confirmed close with implicit Qt quit disabled; busy and Cancel keep the window alive first; normal zero exit and ordered loop/instance cleanup are verified for all four owned subprocesses, including cancellation before readiness without publishing a ready signal.

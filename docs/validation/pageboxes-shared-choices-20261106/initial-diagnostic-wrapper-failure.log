@@ -1,0 +1,16 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[544169:544189:1106/193211.436141:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 544190: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+UI_FAILURE {"alerts":["r.ok is not a function"]}
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_paragraph_geometry_qt.py", line 48, in <module>
+    click('Comprobar ajuste');wait('document.querySelector(".inline-text-status").textContent.includes("líneas completas")');apply('Párrafo sobre la página');wait('!document.querySelector(".inline-paragraph-editor")');click('↶ Deshacer');click('↷ Rehacer');output=root/'Geometry formatted.pdf';save(output)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_paragraph_geometry_qt.py", line 24, in wait
+    print('UI_FAILURE',js('JSON.stringify({error:window.__reflowFailure,alerts:[...document.querySelectorAll(\"[role=alert]\")].map(e=>e.textContent)})'),flush=True);raise AssertionError(script)
+                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: document.querySelector(".inline-text-status").textContent.includes("líneas completas")

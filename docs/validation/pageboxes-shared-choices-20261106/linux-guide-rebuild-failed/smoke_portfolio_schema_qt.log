@@ -1,0 +1,18 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[547563:547583:1106/193913.492683:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 547584: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_portfolio_schema_qt.py", line 66, in <module>
+    wait('document.querySelector(".document-bar")?.textContent.includes("Portfolio.pdf")');click('Guía y atajos');click('Consultar manual por función');edit('Buscar en el manual','Editar texto');wait('document.body.innerText.includes("pulsa el texto directamente")');assert js('document.querySelector(".workspace-help table").textContent.includes("Guardar PDF como")');click('Entendido');portfolio(True);edit('Nombre de columna 1','Identificador');click('Añadir columna');edit('Nombre de columna 5','Revisión');edit('Tipo de columna 5','number',True);click('Subir columna 5');js(field('Revisé el diseño de columnas')+'.click()');click('Guardar diseño de columnas');wait('!document.querySelector("dialog[open]")');native_save(root/'Designed.pdf')
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_portfolio_schema_qt.py", line 34, in click
+    wait('!!'+expr+' && !'+expr+'.disabled');js(expr+'.dispatchEvent(new MouseEvent("click",{bubbles:true}))')
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_portfolio_schema_qt.py", line 16, in js
+    if not values:raise AssertionError('Qt did not respond')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Qt did not respond

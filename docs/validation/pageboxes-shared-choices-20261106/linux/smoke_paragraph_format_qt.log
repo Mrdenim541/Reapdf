@@ -1,0 +1,8 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[551352:551372:1106/194709.205518:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 551373: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: Qt mouse opens a tagged mixed paragraph, previews and applies common font/size while retaining emphasis and colors, isolates shared typography class, undo/redo, native save and reopen remain editable; original and unrelated class stay intact.

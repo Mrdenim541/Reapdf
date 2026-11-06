@@ -1,0 +1,14 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[544100:544120:1106/193110.359950:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 544121: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_paragraph_geometry_qt.py", line 64, in <module>
+    js('document.querySelector(".paragraph-format").open=true');edit('Tamaño del párrafo nativo',13);edit('Y de continuación',150);click('Comprobar distribución');wait('document.querySelector(".flow-dialog [role=status]")?.parentElement.innerText.includes("Ajuste completo:")');click('Aplicar continuación completa');wait('!document.querySelector(".flow-dialog")');click('↶ Deshacer');click('↷ Rehacer');continued=root/'Continuation formatted.pdf';save(continued)
+                                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_paragraph_geometry_qt.py", line 24, in wait
+    raise AssertionError(script+' :: '+str(js('[...document.querySelectorAll(\"[role=alert]\")].map(e=>e.textContent).join(\" | \")')))
+AssertionError: document.querySelector(".flow-dialog [role=status]")?.parentElement.innerText.includes("Ajuste completo:") :: La caja geométrica declarada necesita una asociación completa y verificable en una página.

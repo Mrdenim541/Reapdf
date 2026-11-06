@@ -1,0 +1,19 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+Fontconfig error: No writable cache directories
+[543561:543644:1106/192852.044564:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 543646: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_paragraph_geometry_qt.py", line 44, in <module>
+    wait('document.querySelector(".document-bar")?.textContent.includes("Paragraph.pdf")');select('HELLO');click('Editar párrafo')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_paragraph_geometry_qt.py", line 22, in wait
+    if js(script):return
+       ^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_paragraph_geometry_qt.py", line 17, in js
+    if not values:raise AssertionError('Qt did not respond')
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Qt did not respond

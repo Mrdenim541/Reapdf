@@ -637,6 +637,8 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 
 **Límites actuales:** XFA y acciones no soportadas no se presentan como formularios completamente editables. Los cálculos aritméticos nativos admiten resto (%) y Math.abs, round, floor, ceil, min y max con argumentos limitados. Se interpretan como datos; no se ejecuta JavaScript arbitrario y las demás llamadas permanecen protegidas. Admite cálculos numéricos nativos con Number, comparaciones y condicional ?: (incluidas condiciones &&/||), con evaluación por rama y límites numéricos. No ejecuta JavaScript general, acciones externas ni XFA.
 
+Las listas y desplegables compartidos compatibles se sincronizan desde cualquiera de sus posiciones, incluida la selección vacía. Valor e índice se guardan en el campo lógico y cada posición mantiene su apariencia. Opciones, etiquetas o índices contradictorios bloquean todo el grupo.
+
 <a id="funcion-field_properties"></a>
 
 ### Propiedades de campos existentes
@@ -1132,3 +1134,5 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 **Resultado esperado:** Se muestran citas del texto extraíble con referencias de página, sin modelo generativo ni envío a servicios externos. No cambia el PDF.
 
 **Límites actuales:** Procesa como máximo 200 páginas, 400000 caracteres y 8000 fragmentos por consulta; informa si el resultado es parcial. Respeta el permiso de copia. No interpreta imágenes sin OCR, no redacta conclusiones ni ejecuta instrucciones del documento. El cálculo ocurre en el equipo que ejecuta Reapdf. La generación requiere Ollama iniciado en el mismo equipo (127.0.0.1:11434) y un modelo ya instalado. No descarga modelos ni utiliza proveedores externos; no incluye un motor/modelo en el ejecutable. Solo envía pasajes extraídos al motor local, sin herramientas ni acciones. Rechaza respuestas sin referencias válidas, pero no certifica su exactitud factual. La consulta extractiva funciona sin Ollama. La precisión, memoria y velocidad del modelo requieren evaluación en el equipo de destino. Se excluyen modelos Cloud y se consultan metadatos locales antes de inferir; se rechazan alias que remitan a un servicio remoto.
+
+La [continuación con cajas por página](CAJAS_POR_PAGINA_Y_LISTAS_COMPARTIDAS_20261106.md) actualiza automáticamente la geometría de los fragmentos compatibles y permite reeditarlos sin cambiar el otro fragmento. No requiere un paso adicional en la interfaz.

@@ -1,0 +1,26 @@
+.......................FF......                                          [100%]
+=================================== FAILURES ===================================
+____ test_geometric_continuation_is_rejected_without_partial_output[False] _____
+
+preview = False
+
+    @pytest.mark.parametrize('preview',[False,True])
+    def test_geometric_continuation_is_rejected_without_partial_output(preview):
+>       with pytest.raises(DocumentError,match='cajas por página'):change(sample(),words=15,width=130,height=30,continuations=[{'page':1,'box':[30,100,300,400]}],preview=preview)
+E       Failed: DID NOT RAISE <class 'backend.engine.DocumentError'>
+
+tests/test_paragraph_geometry.py:87: Failed
+_____ test_geometric_continuation_is_rejected_without_partial_output[True] _____
+
+preview = True
+
+    @pytest.mark.parametrize('preview',[False,True])
+    def test_geometric_continuation_is_rejected_without_partial_output(preview):
+>       with pytest.raises(DocumentError,match='cajas por página'):change(sample(),words=15,width=130,height=30,continuations=[{'page':1,'box':[30,100,300,400]}],preview=preview)
+E       Failed: DID NOT RAISE <class 'backend.engine.DocumentError'>
+
+tests/test_paragraph_geometry.py:87: Failed
+=========================== short test summary info ============================
+FAILED tests/test_paragraph_geometry.py::test_geometric_continuation_is_rejected_without_partial_output[False]
+FAILED tests/test_paragraph_geometry.py::test_geometric_continuation_is_rejected_without_partial_output[True]
+2 failed, 29 passed in 6.16s
