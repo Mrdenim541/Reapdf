@@ -106,3 +106,17 @@ def pdf_string(value):
 def raw_key(doc,xref,key):
     kind,value=doc.xref_get_key(xref,key)
     return pdf_string(value) if kind=='string' else value
+
+
+def choice_selection_consistent(doc,chain,choices,value):
+    """An optional inherited /I must select exactly the shared /V export code."""
+    n=fitz.mupdf;pdf=fitz._as_pdf_document(doc)
+    for owner in reversed(chain):
+        raw=n.pdf_dict_gets(n.pdf_load_object(pdf,owner),'I')
+        if n.pdf_is_null(raw):continue
+        if not n.pdf_is_array(raw):return False
+        if not value:return n.pdf_array_len(raw)==0
+        if n.pdf_array_len(raw)!=1:return False
+        index=n.pdf_array_get(raw,0)
+        return bool(n.pdf_is_int(index) and 0<=n.pdf_to_int64(index)<len(choices) and choices[n.pdf_to_int64(index)]['value']==value)
+    return True

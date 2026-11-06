@@ -1,0 +1,10 @@
+// Actual compiled Qt UI; observed apply request is replayed through its bundled server for PDF verification.
+import {chromium,expect} from '@playwright/test';
+import {writeFileSync} from 'node:fs';
+import {openTool} from './smoke-tool-navigation.mjs';
+const [endpoint,output]=process.argv.slice(2),browser=await chromium.connectOverCDP(endpoint,{timeout:45000,noDefaults:true});
+try{
+ const page=browser.contexts()[0].pages().find(p=>p.url().startsWith('http://127.0.0.1:'));page.setDefaultTimeout(30000);await expect(page.locator('.text-layer')).toContainText('SHARED CHOICE FORM',{timeout:40000});await openTool(page,'Rellenar formulario');await page.getByLabel('Valor del formulario',{exact:true}).selectOption('LIM');
+ const pending=page.waitForResponse(r=>r.url().endsWith('/export')&&r.request().postDataJSON().operations?.some(op=>op.type==='form_fill'));await page.getByRole('button',{name:'Aplicar formulario',exact:true}).click();const response=await pending;if(!response.ok())throw new Error('Form apply failed: '+response.status());const payload=response.request().postDataJSON(),url=response.url();const encoded=await page.evaluate(async({url,payload})=>{const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(!r.ok)throw new Error(await r.text());let s='';for(const b of new Uint8Array(await r.arrayBuffer()))s+=String.fromCharCode(b);return btoa(s);},{url,payload});writeFileSync(output,Buffer.from(encoded,'base64'));await expect(page.locator('.form-dialog[open]')).toHaveCount(0);await page.getByRole('button',{name:'Deshacer',exact:false}).click();await expect(page.locator('.document-bar')).toContainText('0 cambios');
+ console.log('PASS: compiled Qt synchronizes an inherited shared choice on both pages through real form UI; its observed apply request is replayed through the bundled server for native PDF verification; undo restores clean original before closing. No external browser or native save dialog used in this journey.');
+}finally{await browser.close();}

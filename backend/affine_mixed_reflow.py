@@ -180,12 +180,17 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
             details[-1]['characters']+=after-cursor;details[-1]['lines']+=1;cursor=after;used+=max(size*1.35,ascent-descent);lines+=1
         report={'lines':lines,'font':' · '.join(sorted({r['font'] for r in rows})),'width':requested_width,'height':requested_height,'preserves_affine':True,'variable_shear':variable,'preserves_run_transforms':True,'preserves_spacing':True,'mixed':True,'source_groups':len(rows),'source_objects':len(objects),'source_paths':len({path_key(r) for r in rows}),'regions':details,'pages':sorted(rotations),'complete':True,'automatic_pagination':paginate,'added_pages':len(doc)-original_pages}
         report['tagged_native']=tagged is not None
+        geometry_plan=[];geometry_expected=[]
         if tagged:
             from .text_geometry import apply as geometry_attributes
-            geometry_attributes(doc,number,rows,prepared)
+            geometry_plan=geometry_attributes(doc,number,rows,prepared)
         from .text_typography import apply as typography
         typography(doc,{number:[(r,b'') for r in rows]})
-        if tagged:tagged.extend(draws)
+        if tagged:
+            tagged.extend(draws)
+            from .text_geometry import materialize
+            geometry_expected=materialize(doc,number,tagged,prepared,draws,geometry_plan)
+        report['page_local_geometry']=len(geometry_expected)
         report['formatted']=formatting is not None
         if preview:return report
         patches=[]
@@ -206,6 +211,8 @@ def reflow(base,ops,number,box,identifier,text,width,height,preview,identifiers,
         data=doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)
     for n in rotations:verify_fragments(data,[value for page,value in prepared if page==n],n)
     with open_pdf(data) as check:
+        from .text_geometry import verify as verify_geometry
+        verify_geometry(check,geometry_expected)
         if tagged:
             from .tagged_text_integrity import verify as verify_semantic
             verify_semantic(check,number,expected_semantic)

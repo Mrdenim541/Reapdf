@@ -82,9 +82,11 @@ def test_saved_geometry_can_reflow_again():
     out,_=change(sample(),words=1,width=200);again,_=change(out,words=4,width=140);check_boxes(again)
 
 
-@pytest.mark.parametrize('preview',[False,True])
-def test_geometric_continuation_is_rejected_without_partial_output(preview):
-    with pytest.raises(DocumentError,match='cajas por página'):change(sample(),words=15,width=130,height=30,continuations=[{'page':1,'box':[30,100,300,400]}],preview=preview)
+def test_geometric_continuation_preview_matches_saved_distribution():
+    base=sample();args={'words':15,'width':130,'height':30,'continuations':[{'page':1,'box':[30,100,300,400]}]}
+    preview=change(base,preview=True,**args);out,report=change(base,**args)
+    assert preview==report and report['page_local_geometry']>0
+    with f.open(stream=out) as d:assert sum(p.get_text().count('HELLO') for p in d)==15
 
 
 @pytest.mark.parametrize('bad',['[0 0 1]','[0 0 1 (bad)]','[50 0 10 100]','[0 0 1e30 100]'])

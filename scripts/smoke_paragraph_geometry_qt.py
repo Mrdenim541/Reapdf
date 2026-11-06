@@ -21,7 +21,7 @@ def wait(script):
     while time.monotonic()<deadline:
         if js(script):return
         QTest.qWait(100)
-    raise AssertionError(script)
+    print('UI_FAILURE',js('JSON.stringify({error:window.__reflowFailure,alerts:[...document.querySelectorAll(\"[role=alert]\")].map(e=>e.textContent)})'),flush=True);raise AssertionError(script)
 def field(label):return 'document.querySelector('+json.dumps('[aria-label="'+label+'"]')+')'
 def click(label):
     expr='[...document.querySelectorAll("button,[role=button]")].find(e=>(e.getAttribute("aria-label")||e.textContent.trim())==='+json.dumps(label)+')'
@@ -41,7 +41,7 @@ def save(path):
 def open_file(path):
     QFileDialog.getOpenFileName=lambda *a,**kw:(str(path),'');window.open_action.trigger();wait('document.querySelector(".document-bar")?.textContent.includes('+json.dumps(path.name)+')')
 try:
-    wait('document.querySelector(".document-bar")?.textContent.includes("Paragraph.pdf")');select('HELLO');click('Editar párrafo')
+    wait('document.querySelector(".document-bar")?.textContent.includes("Paragraph.pdf")');js("(()=>{const old=window.fetch;window.fetch=async(...args)=>{const r=await old(...args);if(String(args[0]).includes('/reflow-affine')&&!r.ok)window.__reflowFailure={request:JSON.parse(args[1].body),response:await r.clone().json()};return r;};})()");select('HELLO');click('Editar párrafo')
     wait(field('Cambiar formato del párrafo')+'?.disabled===false');js('document.querySelector(".paragraph-format").open=true');js(field('Cambiar formato del párrafo')+'.click()');wait(field('Fuente del párrafo nativo')+'?.disabled===false')
     js('(()=>{const e='+field('Fuente del párrafo nativo')+';e.value="serif";e.dispatchEvent(new Event("change",{bubbles:true}));})()');edit('Tamaño del párrafo nativo',22);edit('Ancho del párrafo en página',200);edit('Alto del párrafo en página',180);edit('Párrafo sobre la página','HELLO HELLO TEXT TEXT',True)
     QTest.qWait(300);assert js('(()=>{const r=document.querySelector(".inline-paragraph-editor").getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;})()')
@@ -57,8 +57,8 @@ try:
                 boxes+=1;assert n.pdf_to_real(n.pdf_dict_gets(attr,'Height'))>20
         assert boxes==2 and all(r['editable'] for r in native_model(d,0,d[0].rect)[1])
     open_file(output);select('HELLO');click('Cancelar')
-    # A second original has no page-local geometry, so it can continue across pages.
-    original2=root/'Continuation.pdf';original2.write_bytes(create());open_file(original2);select('HELLO');click('Editar párrafo');wait(field('Cambiar formato del párrafo')+'?.disabled===false');js('document.querySelector(".paragraph-format").open=true');js(field('Cambiar formato del párrafo')+'.click()');wait(field('Fuente del párrafo nativo')+'?.disabled===false');js('(()=>{const e='+field('Fuente del párrafo nativo')+';e.value="serif";e.dispatchEvent(new Event("change",{bubbles:true}));})()');edit('Tamaño del párrafo nativo',12);edit('Ancho del párrafo en página',130);edit('Alto del párrafo en página',30);edit('Párrafo sobre la página','HELLO '*15+'TEXT '*15,True)
+    # Continue a second paragraph whose geometry must migrate to page-local leaves.
+    original2=root/'Continuation.pdf';original2.write_bytes(create(geometry=True));open_file(original2);select('HELLO');click('Editar párrafo');wait(field('Cambiar formato del párrafo')+'?.disabled===false');js('document.querySelector(".paragraph-format").open=true');js(field('Cambiar formato del párrafo')+'.click()');wait(field('Fuente del párrafo nativo')+'?.disabled===false');js('(()=>{const e='+field('Fuente del párrafo nativo')+';e.value="serif";e.dispatchEvent(new Event("change",{bubbles:true}));})()');edit('Tamaño del párrafo nativo',12);edit('Ancho del párrafo en página',130);edit('Alto del párrafo en página',30);edit('Párrafo sobre la página','HELLO '*15+'TEXT '*15,True)
     click('Continuar en otra página');wait(field('Texto del párrafo entre páginas')+'?.disabled===false');assert js(field('Cambiar formato del párrafo')+'.checked');assert js(field('Fuente del párrafo nativo')+'.value')=='serif'
     # Changing a carried format and checking again must invalidate its preview.
     js('document.querySelector(".paragraph-format").open=true');edit('Tamaño del párrafo nativo',13);edit('Y de continuación',150);click('Comprobar distribución');wait('document.querySelector(".flow-dialog [role=status]")?.parentElement.innerText.includes("Ajuste completo:")');click('Aplicar continuación completa');wait('!document.querySelector(".flow-dialog")');click('↶ Deshacer');click('↷ Rehacer');continued=root/'Continuation formatted.pdf';save(continued)
@@ -66,6 +66,15 @@ try:
         assert sum(p.get_text().count('HELLO') for p in d)==15
         for number in [0,1]:
             rows=[r for r in native_model(d,number,d[number].rect)[1] if 'HELLO' in r['text'] or 'TEXT' in r['text']];assert rows and all(r['editable'] and abs(r['size']-13)<.01 and r['font'].startswith('DejaVuSerif') for r in rows)
+    from backend.text_geometry import validate
+    with f.open(continued) as d:
+        t=tree(d);boxes=0
+        for owner,rec in t.records.items():
+            for _,_,_,attr in declarations(d,rec['object']):
+                box=validate(attr)
+                if box is not None:
+                    assert len({pg for pg,_,_ in t.refs[owner]})==1;boxes+=1
+        assert boxes>=2
     open_file(continued);select('HELLO');assert original.read_bytes()==base
-    print('PASS: Qt mouse edits geometric mixed paragraph, reachable expanded controls at 1366x900, checks updated bounds, undo/redo, native save/reopen; carries font into manual continuation, changes it in that dialog, previews and saves complete editable text on both pages.')
-finally:window.close()
+    print('PASS: page-local continued geometry and Qt mouse edits geometric mixed paragraph, reachable expanded controls at 1366x900, checks updated bounds, undo/redo, native save/reopen; carries font into manual continuation, changes it in that dialog, previews and saves complete editable text on both pages.')
+finally:window.allow_close=True;window.close();app.processEvents()

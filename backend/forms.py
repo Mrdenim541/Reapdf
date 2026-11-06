@@ -79,7 +79,6 @@ def _form_model(doc,allow_reorder=False):
         elif kind=='checkbox' and (not isinstance(w.on_state(),str) or w.on_state()=='Off'):reason='La casilla no tiene un estado de activación compatible.'
         if not reason and owner!=w.xref and doc.xref_get_key(w.xref,'V')[0]!='null':reason='Un Widget compartido contiene un valor local que oculta al campo lógico.'
         if not reason and kind=='radio' and (owner==w.xref or flags & 33554432):reason='El radio necesita un grupo estándar de opciones exclusivas.'
-        if not reason and len(members)>1 and kind=='choice':reason='Las listas con varios Widgets todavía son de solo lectura.'
         value=(w.field_value==w.on_state()) if kind=='checkbox' else (w.field_value or '')
         if kind=='radio':
             stored=doc.xref_get_key(owner,'V')
@@ -105,6 +104,12 @@ def _form_model(doc,allow_reorder=False):
         kinds={r['kind'] for r in items}
         if len(kinds)!=1:reason='Los Widgets del grupo tienen tipos distintos.'
         if len({(type(r['value']),r['value']) for r in items if isinstance(r['value'],(str,bool))})>1:reason='El grupo contiene valores heredados o locales contradictorios.'
+        if not reason and items and items[0]['kind']=='choice' and len(items)>1:
+            if any(r['choices']!=items[0]['choices'] for r in items):reason='Las listas compartidas tienen opciones o etiquetas contradictorias.'
+            elif len({doc[r['page']].load_widget(r['xref']).field_type for r in items})!=1:reason='Las listas compartidas mezclan controles de distinto tipo.'
+            else:
+                from .form_structure import choice_selection_consistent
+                if any(not choice_selection_consistent(doc,structure[r['xref']]['chain'],r['choices'],r['value']) for r in items):reason='La selección de una lista compartida no coincide con su valor.'
         if not reason and items and items[0]['kind'] in {'radio','checkbox'}:
             states=[button_states(doc,r['xref']) for r in items]
             if any(s is None for s in states):reason='Las apariencias de botón no son compatibles.'
