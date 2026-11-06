@@ -1,0 +1,14 @@
+// Connect only to the actual compiled embedded window.
+import {chromium,expect} from '@playwright/test';
+import {writeFileSync} from 'node:fs';
+import {openTool} from './smoke-tool-navigation.mjs';
+const [endpoint,output]=process.argv.slice(2),browser=await chromium.connectOverCDP(endpoint,{timeout:45000,noDefaults:true});
+try{
+ const page=browser.contexts()[0].pages().find(p=>p.url().startsWith('http://127.0.0.1:'));page.setDefaultTimeout(30000);
+ await expect(page.locator('.text-layer')).toContainText('NEIGHBOR UNCHANGED',{timeout:40000});await openTool(page,'Editar texto');await page.getByRole('button',{name:/^Editar en página: HELLO/}).first().click();await page.getByRole('button',{name:'Editar párrafo',exact:true}).click();
+ await page.locator('.paragraph-format summary').click();await page.getByLabel('Cambiar formato del párrafo',{exact:true}).check();await page.getByLabel('Fuente del párrafo nativo',{exact:true}).selectOption('serif');await page.getByLabel('Tamaño del párrafo nativo',{exact:true}).fill('12');const input=page.getByLabel('Párrafo sobre la página',{exact:true});await input.fill('HELLO Ω HELLO TEXT TEXT');await page.getByLabel('Ancho del párrafo en página',{exact:true}).fill('180');await page.getByLabel('Alto del párrafo en página',{exact:true}).fill('100');
+ const preview=page.waitForResponse(r=>r.url().endsWith('/reflow-affine')&&r.request().postDataJSON().preview===true);await page.getByRole('button',{name:'Comprobar ajuste',exact:true}).click();if(!(await preview).ok())throw new Error('Preview failed');
+ const pending=page.waitForResponse(r=>r.url().endsWith('/reflow-affine')&&r.request().postDataJSON().preview!==true);await input.press('Control+Enter');const response=await pending,data=await response.json();if(!response.ok()||!data.reflow_report.formatted)throw new Error(JSON.stringify(data));await expect(page.locator('.inline-paragraph-editor')).toHaveCount(0);await page.getByRole('button',{name:'Deshacer',exact:false}).click();await page.getByRole('button',{name:'Rehacer',exact:false}).click();
+ const encoded=await page.evaluate(async id=>{const r=await fetch(`/api/documents/${id}/export`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operations:[]})});if(!r.ok)throw new Error(await r.text());let s='';for(const b of new Uint8Array(await r.arrayBuffer()))s+=String.fromCharCode(b);return btoa(s);},data.id);writeFileSync(output,Buffer.from(encoded,'base64'));await page.evaluate(()=>{window.__reapdfCloseState={dirty:false,busy:false};});
+ console.log('PASS: compiled Qt previews and formats a mixed tagged paragraph, preserves emphasis, isolates shared typography classes, undo/redo and bundled-server export; no external browser or native save dialog in this journey.');
+}finally{await browser.close();}

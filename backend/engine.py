@@ -43,7 +43,12 @@ def spans(page):
     from .semantic_text import has_alternatives
     protected=has_alternatives(page.parent,page)
     from .type3_text import merge_lines
-    blocks=merge_lines(page.parent,page,page.get_text("dict",flags=fitz.TEXTFLAGS_DICT|fitz.TEXT_IGNORE_ACTUALTEXT)["blocks"])
+    blocks=merge_lines(page.parent,page,page.get_text("rawdict",flags=fitz.TEXTFLAGS_DICT|fitz.TEXT_IGNORE_ACTUALTEXT)["blocks"])
+    from .text_groups import split as split_groups
+    blocks=split_groups(page.parent,page,blocks)
+    for block in blocks:
+        for line in block.get('lines',[]):
+            for span in line['spans']:span['text']=''.join(c['c'] for c in span['chars'])
     for bi, block in enumerate(blocks):
         for li, line in enumerate(block.get("lines", [])):
             for si, span in enumerate(line["spans"]):

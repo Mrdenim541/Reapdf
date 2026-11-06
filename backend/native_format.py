@@ -11,16 +11,16 @@ def availability(doc,row):
     if row.get('_semantic_identity') is not None:
         from .semantic_text import tree
         from .affine_text import rectangle,contains,polygon
-        n=f.mupdf;index=tree(doc);identity=row['_semantic_identity'];allowed={'O','BBox','Width','Height','Placement','WritingMode','TextAlign','SpaceBefore','SpaceAfter','StartIndent','EndIndent','TextIndent','BlockAlign','InlineAlign','BorderStyle','BorderColor','BorderThickness','Padding','ColumnCount','ColumnGap','ColumnWidths'}
+        n=f.mupdf;index=tree(doc);identity=row['_semantic_identity'];allowed={'Color','O','BBox','Width','Height','Placement','WritingMode','TextAlign','SpaceBefore','SpaceAfter','StartIndent','EndIndent','TextIndent','BlockAlign','InlineAlign','BorderStyle','BorderColor','BorderThickness','Padding','ColumnCount','ColumnGap','ColumnWidths'}
         for key in index.records[identity]['chain']+[identity]:
             obj=index.records[key]['object']
-            if not n.pdf_is_null(n.pdf_dict_gets(obj,'C')):return 'Los atributos de clase de este texto requieren un cambio de formato coordinado.'
-            attrs=n.pdf_dict_gets(obj,'A')
-            if n.pdf_is_array(attrs) and n.pdf_array_len(attrs)>128:return 'Los atributos superan el límite de formato verificable.'
-            items=[n.pdf_array_get(attrs,i) for i in range(n.pdf_array_len(attrs))] if n.pdf_is_array(attrs) else [attrs]
-            for attr in items:
-                if n.pdf_is_null(attr) or n.pdf_is_int(attr):continue
-                if not n.pdf_is_dict(attr):return 'Los atributos de presentación no son verificables.'
+
+            from .text_typography import declarations,validate,TYPO
+            try:attrs=[a for _,_,_,a in declarations(doc,obj)]
+            except DocumentError as exc:return str(exc)
+            for attr in attrs:
+                try:validate(attr)
+                except DocumentError as exc:return str(exc)
                 owner=n.pdf_to_name(n.pdf_dict_gets(attr,'O'))
                 if n.pdf_dict_len(attr)>64:return 'Demasiados atributos para cambiar formato con seguridad.'
                 keys={n.pdf_to_name(n.pdf_dict_get_key(attr,i)) for i in range(n.pdf_dict_len(attr))}
@@ -28,7 +28,7 @@ def availability(doc,row):
                     permitted={'O','RowSpan','ColSpan','Headers','Scope','Summary'} if owner=='Table' else {'O','ListNumbering'}
                     if keys-permitted:return 'Los atributos de tabla o lista no son compatibles con el cambio de formato.'
                     continue
-                if owner!='Layout' or keys-allowed:return 'Los atributos de tipografía necesitan una actualización coordinada antes de cambiar la fuente.'
+                if owner!='Layout' or keys-allowed-TYPO:return 'Los atributos de tipografía necesitan una actualización coordinada antes de cambiar la fuente.'
                 bbox=n.pdf_dict_gets(attr,'BBox')
                 if n.pdf_is_null(bbox) and keys&{'Width','Height'}:return 'Los atributos de dimensiones necesitan una caja verificable.'
                 if not n.pdf_is_null(bbox):
@@ -96,7 +96,7 @@ def prepare(doc,number,row,text,options):
     g['width']=width
     from .affine_text import contains,polygon
     if any(not contains(cell,polygon(g)) for cell in row.get('_format_tag_boxes',[])):raise DocumentError('El formato nuevo sale de la caja declarada en sus etiquetas; reduce tamaño o contenido.')
-    return {**row,'font':name,'size':size,'_font':face,'_geometry':g,'_native':[start,stops[0],'operator-array'],'_native_fonts':{} if original else {alias:xref},'_format_origins':[[row['origin'][j]+g['direction'][j]*v for j in [0,1]] for v in origins],'_formatted':True,'_source_format_row':row,'_spacing':{'state':state,'kern':kern}},command,width
+    return {**row,'font':name,'size':size,'display_size':size*math.sqrt(state['scale']/100),'_font':face,'_geometry':g,'_native':[start,stops[0],'operator-array'],'_native_fonts':{} if original else {alias:xref},'_format_origins':[[row['origin'][j]+g['direction'][j]*v for j in [0,1]] for v in origins],'_format_options':dict(options),'_formatted':True,'_source_format_row':row,'_spacing':{'state':state,'kern':kern}},command,width
 
 
 def protect_edges(page,source,target):

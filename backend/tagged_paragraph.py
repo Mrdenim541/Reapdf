@@ -110,14 +110,16 @@ class Paragraph:
 
     def _attributes(self,obj):
         n=self.n
-        if any(not n.pdf_is_null(n.pdf_dict_gets(obj,k)) for k in ['ActualText','Alt','C','NS','AF','Ref']):fail()
+        if any(not n.pdf_is_null(n.pdf_dict_gets(obj,k)) for k in ['ActualText','Alt','NS','AF','Ref']):fail()
         # Geometric/placement attributes would become stale on reflow. Table
         # semantics such as Scope/RowSpan/ColSpan are preserved unchanged.
-        for attrs in attribute_items(n.pdf_dict_gets(obj,'A')):
+        from .text_typography import declarations,validate,TYPO
+        for _,_,_,attrs in declarations(self.doc,obj):
+            validate(attrs)
             owner=n.pdf_to_name(n.pdf_dict_gets(attrs,'O'))
             keys={n.pdf_to_name(n.pdf_dict_get_key(attrs,i)) for i in range(n.pdf_dict_len(attrs))}
             if owner=='Table' and keys<={'O','Scope','RowSpan','ColSpan','Headers'}:continue
-            if owner=='Layout' and keys<={'O','Color'}:continue
+            if owner=='Layout' and keys<={'O','Color'}|TYPO:continue
             fail()
 
     def validate(self,rows):

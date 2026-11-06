@@ -153,8 +153,10 @@ def test_declared_font_family_does_not_silently_contradict_new_font():
     base=source(tagged=True)
     with f.open(stream=base) as d:
         leaf=next(iter(tree(d).records));d.xref_set_key(leaf,'A','<</O/Layout /FontFamily (Helvetica)>>');base=d.tobytes()
-    r,_=selected(base);assert r['editable'] and not r['format_editable']
-    with pytest.raises(DocumentError,match='tipograf'):change(base)
+    r,_=selected(base);assert r['editable'] and r['format_editable']
+    out=change(base)
+    with f.open(stream=out) as d:
+        leaf=next(iter(tree(d).records));assert d.xref_get_key(leaf,'A/FontFamily')==('string','DejaVu Sans')
 
 
 def test_multi_page_font_change_is_atomic_and_uses_each_page_resources():

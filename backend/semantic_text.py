@@ -284,6 +284,8 @@ def capture(doc,number,overrides=None):
 
 def plan(doc,prepared):
     """Declare all alternative updates before writes, for atomic multi-page edits."""
+    from .text_typography import apply as update_typography
+    update_typography(doc,prepared)
     for number,items in prepared.items():
         for row,_ in items:
             for alt in row.get('_alternatives',[]):

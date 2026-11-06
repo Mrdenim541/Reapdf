@@ -101,6 +101,8 @@ def native_model(doc,number,rect,font_cache=None,*,context=False):
     rows=[]
     from .type3_text import merge_lines,trace as type3_trace
     blocks=merge_lines(doc,page,page.get_text('rawdict',sort=True,flags=f.TEXTFLAGS_TEXT|f.TEXT_IGNORE_ACTUALTEXT)['blocks'],objects,list(compatible.values()))
+    from .text_groups import split as split_groups
+    blocks=split_groups(doc,page,blocks,objects,compatible)
     for bi,block in enumerate(blocks):
         for li,line in enumerate(block.get('lines',[])):
             for si,span in enumerate(line['spans']):
@@ -146,7 +148,7 @@ def native_model(doc,number,rect,font_cache=None,*,context=False):
                     show=obj['shows'][0];native=[show.start,show.end,show.kind]
                 except DocumentError as exc:reason=str(exc)
                 from .text_compositing import original_only
-                row={'original_only':bool(native and (trace[0]['opacity']<1 or original_only(doc,obj))),'id':f'{bi}:{li}:{si}','text':text,'font':span['font'],'size':actual_size,'display_size':span['size'],'color':span['color'],'alpha':span.get('alpha',255),'opacity':trace[0]['opacity'] if native else None,'origin':list(span['origin']),'bbox':list(bounds),'editable':not reason,'reason':reason,'subset':bool(font and font.restricted),'method':'form-occurrence' if native and obj['path'] else 'direct-content','_font':font,'_font_resource':obj['font'] if native else None,'_native':native,'_spacing':spacing,'_native_path':obj['path'] if native else [],'_clips':obj['clips'] if native else [],'_obstacles':cache['_obstacles'],'_text_object':obj['object'] if native else None,'_line_matrix':list(obj['line_matrix']) if native else None,'_geometry':g if native else None,'quad':polygon(g) if g else None,'transformed':g['transformed'] if g else tuple(line['dir'])!=(1.,0.)}
+                row={'original_only':bool(native and (trace[0]['opacity']<1 or original_only(doc,obj))),'id':f'{bi}:{li}:{si}','text':text,'font':span['font'],'size':actual_size,'display_size':span['size'],'color':span['color'],'font_flags':span.get('flags',0),'alpha':span.get('alpha',255),'opacity':trace[0]['opacity'] if native else None,'origin':list(span['origin']),'bbox':list(bounds),'editable':not reason,'reason':reason,'subset':bool(font and font.restricted),'method':'form-occurrence' if native and obj['path'] else 'direct-content','_font':font,'_font_resource':obj['font'] if native else None,'_native':native,'_spacing':spacing,'_native_path':obj['path'] if native else [],'_clips':obj['clips'] if native else [],'_obstacles':cache['_obstacles'],'_text_object':obj['object'] if native else None,'_line_matrix':list(obj['line_matrix']) if native else None,'_geometry':g if native else None,'quad':polygon(g) if g else None,'transformed':g['transformed'] if g else tuple(line['dir'])!=(1.,0.)}
                 if native is not None and row['editable']:
                     try:cache['_semantic_text'].probe(row)
                     except DocumentError as exc:row.update(editable=False,reason=str(exc))

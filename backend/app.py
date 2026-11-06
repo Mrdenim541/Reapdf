@@ -208,7 +208,7 @@ async def reflow_original(doc_id:str,request:Request):
 async def reflow_affine(doc_id:str,request:Request):
     from .affine_reflow import reflow
     p=await read_payload(request)
-    result=await run_in_threadpool(reflow,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('id'),p.get('text'),p.get('width'),p.get('height'),p.get('preview') is True,p.get('ids'),p.get('runs'),p.get('explicit_order',False),p.get('continuations'),p.get('paginate',False))
+    result=await run_in_threadpool(reflow,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('page'),p.get('box'),p.get('id'),p.get('text'),p.get('width'),p.get('height'),p.get('preview') is True,p.get('ids'),p.get('runs'),p.get('explicit_order',False),p.get('continuations'),p.get('paginate',False),p.get('format'))
     if p.get('preview') is True:return result
     data,report=result
     return {**store_document(data),'reflow_report':report}
