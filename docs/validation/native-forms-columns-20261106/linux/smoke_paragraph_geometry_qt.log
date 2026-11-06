@@ -3,6 +3,6 @@ QRhiGles2: Failed to create context
 This plugin does not support createPlatformVulkanInstance
 QVulkanInstance: Failed to initialize Vulkan
 Unable to detect GPU vendor.
-[531584:531605:1106/175939.722296:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 531606: Read-only file system (30)
+[535989:536009:1106/181445.175172:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 536010: Read-only file system (30)
 This plugin does not support propagateSizeHints()
 PASS: Qt mouse edits geometric mixed paragraph, reachable expanded controls at 1366x900, checks updated bounds, undo/redo, native save/reopen; carries font into manual continuation, changes it in that dialog, previews and saves complete editable text on both pages.

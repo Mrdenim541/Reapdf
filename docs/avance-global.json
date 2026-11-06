@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "review_date": "2026-11-06",
-  "status": "provisional_with_continuation_geometry_and_measured_size_split",
+  "status": "provisional_with_native_close_form_datetime_and_word_column_breaks",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 87.6,
+  "weighted_percent": 87.73,
   "reported_percent": 88,
   "subjective_range_percent": [
     62,
@@ -257,7 +257,7 @@
     {
       "id": "forms",
       "weight": 6,
-      "maturity": 93,
+      "maturity": 94,
       "evidence": [
         "backend/form_import.py",
         "backend/form_calculations.py",
@@ -277,14 +277,16 @@
         "tests/test_four_blocks.py",
         "docs/AVANCE_LOCAL_INTEGRAL_20261104.md",
         "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
-        "docs/validation/functional-closing-20261104/results.json"
+        "docs/validation/functional-closing-20261104/results.json",
+        "docs/CIERRE_NATIVO_FORMULARIOS_Y_COLUMNAS_20261106.md",
+        "docs/validation/native-forms-columns-20261106/results.json"
       ],
-      "remaining": "Condicionales numéricos, comparaciones y lógica acotada, aritmética y Math compatibles ya incorporados como analizador restringido. Quedan XFA, JavaScript/acciones/validadores generales, fórmulas fuera de su gramática, fuentes no compatibles, grafos mixtos con reglas de proyecto e interoperabilidad externa."
+      "remaining": "Fecha/hora combinadas y acciones estándar en streams incorporadas, sin ejecutar JavaScript. Condicionales numéricos, comparaciones y lógica acotada, aritmética y Math compatibles ya incorporados como analizador restringido. Quedan XFA, JavaScript/acciones/validadores generales, fórmulas fuera de su gramática, fuentes no compatibles, grafos mixtos con reglas de proyecto e interoperabilidad externa."
     },
     {
       "id": "ocr_conversion",
       "weight": 9,
-      "maturity": 98,
+      "maturity": 98.5,
       "evidence": [
         "backend/ocr.py",
         "backend/docx_import.py",
@@ -325,9 +327,11 @@
         "backend/docx_bookmarks.py",
         "scripts/smoke_word_columns_qt.py",
         "docs/PARRAFOS_ETIQUETADOS_Y_WORD_20261105.md",
-        "docs/validation/tagged-paragraphs-word-20261105/results.json"
+        "docs/validation/tagged-paragraphs-word-20261105/results.json",
+        "docs/CIERRE_NATIVO_FORMULARIOS_Y_COLUMNAS_20261106.md",
+        "docs/validation/native-forms-columns-20261106/results.json"
       ],
-      "remaining": "Importación Word por lotes y saltos de sección par/impar con numeración ya incorporados. Columnas de 1–4 con anchos/espacios/separadores, notas al pie y enlaces internos a marcadores ya incorporados. Quedan secciones continuas, equilibrio y saltos manuales dentro de varias columnas, campos y fidelidad Office general, OCR con esquinas/bajo contraste/idiomas y tablas irregulares/curvas/multilínea generales, notas Word partidas o con marcas fuera de fragmentos consecutivos compatibles y corpus externo. OCR comprueba ahora aspecto y límites antes de publicar; no incrementa su exactitud de reconocimiento ni garantiza otros visores."
+      "remaining": "Saltos explícitos de columna y enlaces que los cruzan ya incorporados; tablas/notas/encabezados con esos saltos siguen protegidos. Importación Word por lotes y saltos de sección par/impar con numeración ya incorporados. Columnas de 1–4 con anchos/espacios/separadores, notas al pie y enlaces internos a marcadores ya incorporados. Quedan secciones continuas, equilibrio y saltos manuales de página dentro de varias columnas, campos y fidelidad Office general, OCR con esquinas/bajo contraste/idiomas y tablas irregulares/curvas/multilínea generales, notas Word partidas o con marcas fuera de fragmentos consecutivos compatibles y corpus externo. OCR comprueba ahora aspecto y límites antes de publicar; no incrementa su exactitud de reconocimiento ni garantiza otros visores."
     },
     {
       "id": "security_signatures",
@@ -442,7 +446,7 @@
     {
       "id": "desktop_distribution",
       "weight": 6,
-      "maturity": 85,
+      "maturity": 85.5,
       "evidence": [
         "portable/native_window.py",
         "portable/native_print.py",
@@ -468,9 +472,11 @@
         "docs/IMAGENES_Y_EJECUTABLE_20261031.md",
         "docs/validation/images-executable-20261031/results.json",
         "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
-        "docs/validation/functional-closing-20261104/results.json"
+        "docs/validation/functional-closing-20261104/results.json",
+        "docs/CIERRE_NATIVO_FORMULARIOS_Y_COLUMNAS_20261106.md",
+        "docs/validation/native-forms-columns-20261106/results.json"
       ],
-      "remaining": "28 recorridos desde fuente en Linux/Windows Server 2025 y tres aperturas independientes de Reapdf.exe (básica, espaciado/continuación y paginación automática), además de tarea programada real dentro del paquete, comprobados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga y recuperación sostenidas, migración del recorrido histórico extendido y aceptación personal al final. Intermitencias históricas sin causa demostrada."
+      "remaining": "45 recorridos desde fuente en Linux/Windows Server y 18 ejecuciones independientes de Reapdf.exe comprobadas en esta fuente; tres son repeticiones básicas. Cierre explícito y cancelación antes de disponibilidad incorporados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga y recuperación sostenidas, migración del recorrido histórico extendido y aceptación personal al final. Intermitencias históricas de arranque/ajuste y causa del cierre Windows anterior no declaradas resueltas."
     },
     {
       "id": "migration_interoperability",
@@ -611,34 +617,34 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261106-before-continuation-geometry-size.json",
-    "before_weighted": 87.48,
-    "before_unrounded": "87.4775",
-    "after_weighted": 87.6,
-    "unrounded_after_weighted": "87.595",
-    "new_points": 0.12,
-    "unrounded_delta": "0.1175",
+    "baseline": "docs/progress/20261106-before-native-forms-columns.json",
+    "before_weighted": 87.6,
+    "before_unrounded": "87.595",
+    "after_weighted": 87.73,
+    "unrounded_after_weighted": "87.730",
+    "new_points": 0.14,
+    "unrounded_delta": "0.135",
     "changes": [
       {
-        "id": "text_images",
-        "before": 99.5,
-        "after": 99.75,
-        "points": 0.04,
-        "reason": "Formato integrado y modificable en continuación manual; reflujo completo con cajas compatibles actualizadas."
+        "id": "forms",
+        "before": 93,
+        "after": 94,
+        "points": 0.06,
+        "reason": "Fecha y hora combinadas y ayudantes estándar en streams locales verificables."
       },
       {
-        "id": "accessibility",
-        "before": 98.75,
-        "after": 99,
-        "points": 0.0075,
-        "reason": "BBox/Width/Height Layout de una página coordinadas, con cobertura de propietarios y A/C compartidas aisladas."
+        "id": "ocr_conversion",
+        "before": 98,
+        "after": 98.5,
+        "points": 0.045,
+        "reason": "Saltos explícitos de columna Word, continuación de párrafo y enlaces con destino conservado."
       },
       {
-        "id": "reader_pages",
-        "before": 96,
-        "after": 97,
-        "points": 0.07,
-        "reason": "División por tamaño real con conservación de orden/calidad, nombres personalizados y verificación final por archivo."
+        "id": "desktop_distribution",
+        "before": 85,
+        "after": 85.5,
+        "points": 0.03,
+        "reason": "Cierre explícito del bucle principal y cancelación normal antes de disponibilidad sin servidor residual ni error de arranque."
       }
     ]
   },
@@ -678,29 +684,29 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "d231c24200df59781d6aff3c2f990b892719e9f2",
+    "source_commit": "ad8d6fbb1086ef8670db28a4859de723013d510a",
     "linux": {
-      "checks": 42,
-      "evidence": "docs/validation/continuation-geometry-size-20261106/linux/desktop-report.json"
+      "checks": 45,
+      "evidence": "docs/validation/native-forms-columns-20261106/linux/desktop-report.json"
     },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 42,
-      "evidence": "docs/validation/continuation-geometry-size-20261106/windows/assessment.json"
+      "checks": 45,
+      "evidence": "docs/validation/native-forms-columns-20261106/windows/assessment.json"
     },
     "packaged_executable_verified": true,
-    "compiled_gui_independent_runs": 14,
-    "packaged_scope": "Catorce ejecuciones independientes. Nuevas: geometría con formato de párrafo y continuación con formato recibido/modificado; división por bytes desde la configuración revisada. Exportaciones por servidor incluido y verificación por intérprete incluido. Guardado nativo PDF/ZIP desde fuente Qt. No acredita diálogos de guardar del exe, Windows cliente/DPI/impresión/carga sostenida ni causa resuelta de fallos intermedios."
+    "compiled_gui_independent_runs": 18,
+    "compiled_basic_repetitions": 3,
+    "packaged_scope": "18 ejecuciones independientes: 16 recorridos distintos y dos repeticiones básicas adicionales. Nuevos: Word con saltos explícitos de columna y enlaces; formularios de fecha/hora con acciones en streams. Exportación por servidor incluido y verificación por intérprete incluido; no acredita diálogo nativo de guardar del exe, Windows cliente/DPI/impresión ni causa resuelta de todas las intermitencias históricas. Arranque portable Windows con WebEngine por software por defecto."
   },
   "last_implementation": {
     "date": "2026-11-06",
-    "source_commit": "d231c24200df59781d6aff3c2f990b892719e9f2",
-    "evidence": "docs/validation/continuation-geometry-size-20261106/results.json",
+    "source_commit": "ad8d6fbb1086ef8670db28a4859de723013d510a",
+    "evidence": "docs/validation/native-forms-columns-20261106/results.json",
     "features": [
-      "Continuación manual con formato integrado y modificable",
-      "Reflujo de BBox/Width/Height Layout de una página con A/C aisladas",
-      "Panel del párrafo ajustado al visor",
-      "División nativa por tamaño máximo real con nombres personalizados y límite verificado"
+      "Fecha y hora combinadas y ayudantes estándar en streams locales verificables.",
+      "Saltos explícitos de columna Word, continuación de párrafo y enlaces con destino conservado.",
+      "Cierre explícito del bucle principal y cancelación normal antes de disponibilidad sin servidor residual ni error de arranque."
     ],
     "global_estimate_recalculated": true,
     "global_blocks_closed": []
@@ -795,6 +801,13 @@
     "source_commit": "d231c24200df59781d6aff3c2f990b892719e9f2",
     "report": "docs/CONTINUACION_GEOMETRIA_Y_DIVISION_20261106.md",
     "evidence": "docs/validation/continuation-geometry-size-20261106/results.json",
+    "technical_complete": false,
+    "accepted_complete": false
+  },
+  "last_native_forms_columns": {
+    "source_commit": "ad8d6fbb1086ef8670db28a4859de723013d510a",
+    "report": "docs/CIERRE_NATIVO_FORMULARIOS_Y_COLUMNAS_20261106.md",
+    "evidence": "docs/validation/native-forms-columns-20261106/results.json",
     "technical_complete": false,
     "accepted_complete": false
   }

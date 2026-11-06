@@ -2,7 +2,7 @@
   "platform": "Linux",
   "platform_release": "6.18.57",
   "python": "3.12.14",
-  "source_commit": "14783b7f909adefcddde1cfa3843806401b52d0e",
+  "source_commit": "ad8d6fbb1086ef8670db28a4859de723013d510a",
   "source_dirty": false,
   "checks": [
     {
@@ -10,28 +10,28 @@
       "passed": true,
       "returncode": 0,
       "log": "smoke_native_save.log",
-      "sha256": "a5aaea5e5f2ba7afcff73f0b207dcc707a98161124775799ec3ad8396989ffe5"
+      "sha256": "2bbca9af53da6a0b5f470009c15d1a93137ca80940964fde898e852f94294c3e"
     },
     {
       "name": "smoke_native_document_set.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_native_document_set.log",
-      "sha256": "11c67706dc1652f846c0c69a05d4eafcf04a7ae419d988355703f4dabe2bcf15"
+      "sha256": "977ff47d503b9552fb30c0b99bcf0e53aa69818764a72055a4fe59319ce07c61"
     },
     {
       "name": "smoke_single_instance.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_single_instance.log",
-      "sha256": "62e67170e876701194fe893fb3bc324368d1ff6755722b154261366100e01936"
+      "sha256": "19450391133764f62a985e18ea8ab4c1f0596e75f1a08c5733c6a544f164b058"
     },
     {
       "name": "smoke_native_window.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_native_window.log",
-      "sha256": "204bb870594f4539050cd37973fe28ba5c654498f9fd8ce88a9dffa2a690d448"
+      "sha256": "46e6c97de0fad76333ced6f0010f2f0ee0391525e29cc775fe77105802804cea"
     },
     {
       "name": "smoke_vector_print.py",
@@ -45,7 +45,7 @@
       "passed": true,
       "returncode": 0,
       "log": "smoke_native_readiness.log",
-      "sha256": "b08821470adb8b36657eeb2a12730d236fad769c511f72f67458138e73ab2dce"
+      "sha256": "802cce09f24f27fb5e2058fe6a4e8aa94de96a31aaf07397c5a92802dca9f929"
     },
     {
       "name": "smoke_native_launcher.py",
@@ -59,133 +59,133 @@
       "passed": true,
       "returncode": 0,
       "log": "smoke_parent_exit.log",
-      "sha256": "2bf14d95c1099028b9d2ebb9a3fd54ff855e1bb2d775505cf39c8a5ae0f61295"
+      "sha256": "0142f2e928b19a5dd8afc595a1453caeb0eb462ce5315013a796db0f7a053f3f"
     },
     {
       "name": "smoke_text_states_native.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_text_states_native.log",
-      "sha256": "8d27942caefefea3f4c99d3503bfcf4f7a14e393b30fe3ce572bbac92468f4e9"
+      "sha256": "5b361e7b85ed40087ad725d2f6820b1f4122cfa9e376c11062a83b0c08f10011"
     },
     {
       "name": "smoke_extended_workflows_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_extended_workflows_qt.log",
-      "sha256": "ff8b1cabcfcc8d65a9130ccafe4c75abde78f4f76746900ea9b46e6692fa8544"
+      "sha256": "5d68344c788de61dcdbd990b65b81b4b56c2fb0ee8a98a49742e86996a9d007d"
     },
     {
       "name": "smoke_portfolio_schema_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_portfolio_schema_qt.log",
-      "sha256": "2c3df9885155cb98faa25b27acc3a2333bea22f3c8ff19de9c8368996f8bd4c4"
+      "sha256": "dfd2f488edbc51f440fa3817e81d1095e4b2fafbcd3751ade732f5a507f61f9d"
     },
     {
       "name": "smoke_search_curves_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_search_curves_qt.log",
-      "sha256": "e82a7d76d5e322d32f3aeccd1182a7cc6c8dbe53898a79f49b8ffb9ec59dc822"
+      "sha256": "9ab3bb199318d6e030b60ef693faa3274f2aad3e195e9c581f842e0ba1a57d1d"
     },
     {
       "name": "smoke_timestamp_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_timestamp_qt.log",
-      "sha256": "f066f47639582cbcbec8b3cc95cd3e44e29b0a25acf58742c4059bdf976a0a7f"
+      "sha256": "04daf654a996ece193f7768a2c936b48fa9ab53a24139d43cdc738195a0efc0b"
     },
     {
       "name": "smoke_type3_extended_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_type3_extended_qt.log",
-      "sha256": "ef17643e3dbc1a4b7639410a134dbe1b6c06dd10fb9d8cda4556e9880642a578"
+      "sha256": "2f446cc4892ade12f058e9cec71e027c1455d647f8c0c068cc4277eba61f8beb"
     },
     {
       "name": "smoke_mixed_paragraph_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_mixed_paragraph_qt.log",
-      "sha256": "f634151e2ed34860bbe733761399be116144bdb35f465732c36ca86048e749e8"
+      "sha256": "462b3c65faf26bca70fd3e95f9cdbf2002a52901c0bf3797459a3ece8d7237ad"
     },
     {
       "name": "smoke_affine_mixed_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_affine_mixed_qt.log",
-      "sha256": "6d216d94ac81ecd8fd0e1ccc69f0d3a624529a4861fe9fb2934cd12e09e4334c"
+      "sha256": "564e2552bed1f04f1595ac4ca845c43e232dc6e68c28babfe8208f6ae7916633"
     },
     {
       "name": "smoke_multi_object_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_multi_object_qt.log",
-      "sha256": "898d5d481492a29c271f55a284050b9798bd5595ccdc4a763c41f7c309b8464e"
+      "sha256": "a4006265f610aa7e5566d5bf42642763018835d8da7dec4eb019f83895d36100"
     },
     {
       "name": "smoke_explicit_selection_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_explicit_selection_qt.log",
-      "sha256": "1c1f38966844cb8ebe13e26dc66f442250c6740acaa934952e75f6d3c5632cf4"
+      "sha256": "f200f22aa75835071f188428212523a3fe1ce4559f5a537213aeed32b0efc271"
     },
     {
       "name": "smoke_cross_path_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_cross_path_qt.log",
-      "sha256": "99ac385b568c371aa8231a408b4b80fc60b38bcca1404456ce85b8c2301ada29"
+      "sha256": "8e54b3969dda05182ce6f2ee7eab6f03aa88025f7072722d4f0af0b94f67e5c7"
     },
     {
       "name": "smoke_cubic_measurement_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_cubic_measurement_qt.log",
-      "sha256": "b642aaf56debd943ea2121355f0f876afc4bfeda76a9d7e29bbc22d1096a5ab8"
+      "sha256": "bdd772d1779b71b6c8c705398876447840e382126f9710c2999b6fc232473135"
     },
     {
       "name": "smoke_native_calcs_notes_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_native_calcs_notes_qt.log",
-      "sha256": "de3d568d9c0a6f4dff33207ce75ba0003b3c112ea0a76487e38dcb227d294f47"
+      "sha256": "ea8fb7e7dc5f7eeabacc25b5842df85c7c5665b90bebd3391fb8d1f392c189d7"
     },
     {
       "name": "smoke_native_continuation_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_native_continuation_qt.log",
-      "sha256": "24c050bb47c588222195dff90517fe1b07dc52f273ce5729afd2ee1080a215e9"
+      "sha256": "9ae7e5232a71482482924630733de0dd9a38645d7a521fc0e1c1ac6aa846af71"
     },
     {
       "name": "smoke_spacing_continuation_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_spacing_continuation_qt.log",
-      "sha256": "48093fb4fccdd7ac0d69ed1ccd22f19cb483551658e2a1466f18e930ae160111"
+      "sha256": "143f8afe047be4b62df4ccc67882fdaafa8b1f7551fbd6635907e5170a20e829"
     },
     {
       "name": "smoke_ordered_workflows_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_ordered_workflows_qt.log",
-      "sha256": "e88897cb0383bb009868049053eb378426d29317f881101349ebcb8617a36827"
+      "sha256": "ae69d3cea4ef7d232fd16a3eb901f3941a998dc14449416aa147536561fb5735"
     },
     {
       "name": "smoke_automatic_pagination_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_automatic_pagination_qt.log",
-      "sha256": "74b7195bf876cc5569643392e41749c33c6dc5c6641f60a9917589db1dce8d54"
+      "sha256": "7b1a6247244b6fd518fab79aecacaa190e41acb214c4d8faa35e90bbf7dbdf27"
     },
     {
       "name": "smoke_closure_workflows_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_closure_workflows_qt.log",
-      "sha256": "f58e9a42a0625b7d8c0a92b6d38ec7d99ff7a13fc884ab16ebb6a46671dd089b"
+      "sha256": "37b7b9c61a158f17f9572c15fc9368700afe6675be7d9e56b12e42c06f2505f8"
     },
     {
       "name": "smoke_scheduled_worker.py",
@@ -199,126 +199,126 @@
       "passed": true,
       "returncode": 0,
       "log": "smoke_tagged_dense_qt.log",
-      "sha256": "1d34962857e1907c13ab2d1e9cc18d52eb6a775c5b1c051bec1b19be2368e150"
+      "sha256": "9176b05568081ec8277cf1a1486c749cb4840fa057351667ef25c30cdaa9735e"
     },
     {
       "name": "smoke_observed_workflows_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_observed_workflows_qt.log",
-      "sha256": "0d12afe758fe7651745059cb726561dc4ec50156295d2726b3f103fa24912169"
+      "sha256": "cd7dd6a4891629e45173e6c22ac1948981c15b21b8ed1028eba0892e031018e3"
     },
     {
       "name": "smoke_split_closure_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_split_closure_qt.log",
-      "sha256": "d3ec1f150f766dddf791a9b2e4afd457e8fda8c3b8248bdabe0c8a4d2adff4e7"
+      "sha256": "04a5ca67a5327972a9a5dd0c4eea2883c10347a0ad2631731d1d199327b14f8f"
     },
     {
       "name": "smoke_initial_file_wait.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_initial_file_wait.log",
-      "sha256": "8ab613ad34417f68fc77d312bb62e2ce5568d84f140a11e60bed1d929757b5d5"
+      "sha256": "ebfd36553fbc9ae17ba1648ce01520db27b744ccd7a8b23b313596c2e5acefd2"
     },
     {
       "name": "smoke_tagged_images_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_tagged_images_qt.log",
-      "sha256": "ba6fb8c71d2a26bf103021dc1c3c312d74b1850689212386c57f6b0da7eb4a27"
+      "sha256": "263e78c48c9f528614dd7571fb942967a6e82a78b9fcb9d18feac595d29bed28"
     },
     {
       "name": "smoke_sheared_paragraph_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_sheared_paragraph_qt.log",
-      "sha256": "00d26aac03711c78a89e27669d58d1457e87e2e3b3a528e709d7d6f1ace67fa6"
+      "sha256": "b40268cbd2dae406dca693eaf6a2d5392f177f18b56ff42b0079ae1349184c41"
     },
     {
       "name": "smoke_tagged_paragraph_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_tagged_paragraph_qt.log",
-      "sha256": "2724d089d98111a68b412d4a91e800e543bf26ca8e193feb32adeffad7b97d0c"
+      "sha256": "1306bf25cb818186e1c03ae36078fcf2d671eb32a5dfa3003a5a8826c754e078"
     },
     {
       "name": "smoke_word_columns_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_word_columns_qt.log",
-      "sha256": "b414fe3c0664cf97c43c702b359222bfeb41e7afebb38912851d7c53919a071d"
+      "sha256": "5b9710d84f14ac3ece3c4c9c4525573adb57e69ba81c1efe50c74505bfaba5a4"
     },
     {
       "name": "smoke_semantic_text_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_semantic_text_qt.log",
-      "sha256": "e6e794fae957bf251b467f15999c44977099a7eb4cef4810a0bd594dd1683b86"
+      "sha256": "578b8dc6ee89870bdae589ee9993c7ce9880681d8d7b863ab78fb8a35203e59e"
     },
     {
       "name": "smoke_quick_text_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_quick_text_qt.log",
-      "sha256": "51ab0ee264c47ffe80ecb4f37709a6462baab773540362d775f7abef6bf52f21"
+      "sha256": "aef8f70d8bae534e3b167c364c1419fc0a5577d62f7c14c2136e45fc6c4ad798"
     },
     {
       "name": "smoke_studio_layout_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_studio_layout_qt.log",
-      "sha256": "a3345d65769033b2acff249d53563d04bb4fafd29e214b0e499c1577f55f1023"
+      "sha256": "dea651a06e3a0f89e38d16e6a02fe1d6e6d8ae1a3f13c2849c7f9ece1eb11ba5"
     },
     {
       "name": "smoke_native_format_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_native_format_qt.log",
-      "sha256": "963fc66cae35fe5ab7ffba379e3f4f085e6d3409e69a2202afdc83fc1e4b6da1"
+      "sha256": "aac7a2db11411c1487cec751cac8220c69337175402314cdcb2a42292cf3b713"
     },
     {
       "name": "smoke_paragraph_format_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_paragraph_format_qt.log",
-      "sha256": "1c8dffd25e92a6324c2cd48261e627dc6e1c1ce281a78b51eb9320bbceef6cc9"
+      "sha256": "3c61264bc772023adb667fec9dba76c05e1c7d533c347ac9eb442bdf9324ba4a"
     },
     {
       "name": "smoke_paragraph_geometry_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_paragraph_geometry_qt.log",
-      "sha256": "5721c44f5c763bd642ca01408c22874339ed4fc8cfa1f3e1f250e8f5ba64efbf"
+      "sha256": "9a6160abce2c6f0531d11c2fc587d65dded28f3072aa6194c4a8740676c9d16f"
     },
     {
       "name": "smoke_byte_split_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_byte_split_qt.log",
-      "sha256": "43cdaa491652ac910efb4b29408504c86eb67cfd883f78a8465eef8cd87cd2ba"
+      "sha256": "dd652e2dea9b2b7be85f75f338a499bd8760e7bdc68b8d4d7df46f408d042913"
     },
     {
       "name": "smoke_native_lifecycle.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_native_lifecycle.log",
-      "sha256": "875d6d6d9d606322c88982b85799e115f5e18dca33b75dd900d3b360912bf25e"
+      "sha256": "22b621846c8e7a26275771fdaab08647b68f807320545f50ce76694540368ca3"
     },
     {
       "name": "smoke_word_manual_columns_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_word_manual_columns_qt.log",
-      "sha256": "666b08566ba6e51571910c440d1517df9bb156d1ed3a38172417d7e8bae343cb"
+      "sha256": "98e0183d8b010dede0948de305d7d9bf72924b110b5049a45ce4a3fb837e22d2"
     },
     {
       "name": "smoke_form_datetime_qt.py",
       "passed": true,
       "returncode": 0,
       "log": "smoke_form_datetime_qt.log",
-      "sha256": "7b1507657ec90e742ed4ec0a1df44d97fb2da7984f28a494290f0b62c5b5b15e"
+      "sha256": "460c99a98bcb75571f0d6f69de14212520984548e5370f919f35fbf1172c7efe"
     }
   ],
   "human_acceptance": false,
@@ -478,11 +478,11 @@
     "portable/dependencies-windows.json": "0841fc87353047d4b3632eea9e7713199192ae40",
     "portable/desktop.py": "bc44978037c22975d0b5654eda765c667d038056",
     "portable/launcher.py": "c4fcb97cf176e367ed7cb7520ecc16744f20f506",
-    "portable/lifecycle.py": "28120e25a7637aeaf20428082d4f6610e0f78e53",
+    "portable/lifecycle.py": "6760ee5dae2fe66d7b81dcac953ef143a3c6fa5b",
     "portable/native/launcher.c": "cf84f2342f60382f20d53966f16158d12531137a",
     "portable/native_print.py": "130c9d22954836e0beaf7c9861b810b786dfa636",
     "portable/native_save.py": "a4feb1b1ee9671aabf01a87fcf14b5f50c8532b6",
-    "portable/native_window.py": "830ee4ccc752fd9da8745f3ee15fdcddbc120bb7",
+    "portable/native_window.py": "4b94bf7c76343cbd072b714a7035c08acd50aad1",
     "portable/parent_pipe.py": "e159e8d13526957bffc30a93861b3f44cf90e18c",
     "portable/requirements-windows.lock": "71f0977668cc95243b142908518fcf582bd635d0",
     "portable/single_instance.py": "a23c35e2557cd3fbca3e643781c49caff8a437cd",
@@ -632,7 +632,7 @@
     "scripts/smoke_native_document_set.py": "cf32dd7835143fef41c06873cb13cbd5ce4300d0",
     "scripts/smoke_native_format_qt.py": "ad5321a56999ac671c767266084cdea36f69fa41",
     "scripts/smoke_native_launcher.py": "ecdda9a54d0b0f3794e8e5275736b1beaee18375",
-    "scripts/smoke_native_lifecycle.py": "3f926b3c0dde889d50fc1326f388025dc2ceaff4",
+    "scripts/smoke_native_lifecycle.py": "4bf343c0f275d279a5e010ab32b95d7fceb5e631",
     "scripts/smoke_native_readiness.py": "52ad69b5d75e88996a55e48fa792e48a757b7fd4",
     "scripts/smoke_native_save.py": "189c39995829dc2cb93c257a84bc0ba183826ee6",
     "scripts/smoke_native_window.py": "dbecb7729a3aed4d02e343df1d363a81187ef66f",
@@ -1118,10 +1118,10 @@
     "backend/xfdf_threads.py": "5bc967a85ffcaba96c77d331594e1410c91052937895bc702fcb2c80566aaed7",
     "portable/desktop.py": "05df3a02932bc491b39a11590e7e327ab2e48ed6beef79300be79ca810851ac5",
     "portable/launcher.py": "6ab97adbde31e22c11aa39f4b466d1418e11e25ac435afa40dda831f2a230f83",
-    "portable/lifecycle.py": "2ccecc94b7a0a4aaaaa2460aaafbf996927a0cb230f3d296a2b231494e987eab",
+    "portable/lifecycle.py": "1b9df60af12b9427f04ba042bdb2924ebb388bb3662a938e800e058cc7038ffc",
     "portable/native_print.py": "d44517a58e4e147c68fcc4dfa7df04a79cc86cdafe9d8608950e4009f6db3ad8",
     "portable/native_save.py": "bed226af341eb53eb722551f6c2b4b020efe626c164bc3546b55928019d650bf",
-    "portable/native_window.py": "b41fb004c6af5a479c2f5e34dee6958240d4d75dc740b9f4a201263a39169f79",
+    "portable/native_window.py": "ce432d557add8444c88f88adf9955384179cde064f5decdae79d07f994e0374c",
     "portable/parent_pipe.py": "b91812bcfb0f12cda7b1336336104104c4404bf0ac52ce1122539841f1ccffab",
     "portable/single_instance.py": "972cb34169cbca83ec2f49bc024a2e0ee3832bd946c5e2c3f52e0a243fa2a099",
     "portable/windows_association.py": "9aa822accf13290a7feb634b9880f80baee6005742effaf0b38079ea2ef7d4b6",
@@ -1338,7 +1338,7 @@
     "scripts/smoke_native_document_set.py": "1c3b8c281a9bbc4e34d85fa368f389c590b54ca828485535ff4a0045db335dc2",
     "scripts/smoke_native_format_qt.py": "60db3500d48fcc3978e6d88a08e4018f792e1e41b49b5ba3fb970587d2f8520c",
     "scripts/smoke_native_launcher.py": "4775668218d9e196cc1fc38e7787452808ef3d0fc8a26a8c03bde1f1e56fbfb3",
-    "scripts/smoke_native_lifecycle.py": "2b2c695532b58461e17afacce6717e7e3f90909349703fa7983edd2ca122333e",
+    "scripts/smoke_native_lifecycle.py": "0e17c8e8fa1268b39970a2ce2a1789bc2ca3e2f85f6dd6088e615774257d556e",
     "scripts/smoke_native_readiness.py": "aaae7d99c70773d5a1451c65b1e55d722016a1757503990025bfec445f37c76f",
     "scripts/smoke_native_save.py": "c41510cf640a52f86ab5f7c917a38aa374d042d29dfd33303a7035ea361801ae",
     "scripts/smoke_native_window.py": "4b33863b18e22a445512e45af95b8849861df5c211068b43542f7837fe494ded",

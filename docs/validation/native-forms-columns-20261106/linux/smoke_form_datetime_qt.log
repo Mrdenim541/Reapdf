@@ -3,6 +3,6 @@ QRhiGles2: Failed to create context
 This plugin does not support createPlatformVulkanInstance
 QVulkanInstance: Failed to initialize Vulkan
 Unable to detect GPU vendor.
-[531828:531848:1106/175957.108798:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 531849: Read-only file system (30)
+[536222:536242:1106/181501.707829:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 536243: Read-only file system (30)
 This plugin does not support propagateSizeHints()
 PASS: actual Qt fills combined date/time from compressed standard helper streams, retains invalid draft, saves and reopens with native appearance and unchanged actions/other page; original PDF unchanged.

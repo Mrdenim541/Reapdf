@@ -3,6 +3,6 @@ QRhiGles2: Failed to create context
 This plugin does not support createPlatformVulkanInstance
 QVulkanInstance: Failed to initialize Vulkan
 Unable to detect GPU vendor.
-[530140:530160:1106/175645.233595:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 530161: Read-only file system (30)
+[534817:534837:1106/181218.088323:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 534838: Read-only file system (30)
 This plugin does not support propagateSizeHints()
 PASS: own Qt mixed paragraph uses one on-page text field, actual caret insertion and browser undo/redo preserve original styles, Ctrl+Enter applies without a separate preview step, native atomic save/reopen and original intact.

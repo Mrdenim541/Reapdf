@@ -1,0 +1,3 @@
+[5404:8996:1106/181432.007:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[5404:8996:1106/181432.008:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: actual Qt mouse-selected mixed paragraph with original spacing; automatic new-page overflow through Ctrl+Enter; document undo/redo; native atomic save and reopen with original fonts and all text verified, original pages and source untouched.

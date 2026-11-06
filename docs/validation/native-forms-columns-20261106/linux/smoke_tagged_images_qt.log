@@ -5,6 +5,6 @@ QRhiGles2: Failed to create context
 This plugin does not support createPlatformVulkanInstance
 QVulkanInstance: Failed to initialize Vulkan
 Unable to detect GPU vendor.
-[531162:531182:1106/175856.029161:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 531183: Read-only file system (30)
+[535672:535692:1106/181408.229197:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 535693: Read-only file system (30)
 This plugin does not support propagateSizeHints()
 PASS: real Qt pointer drag of a tagged image, automatic preview/application, undo/redo, accessible replacement and semantic deletion; all three native saves reopened with retained text/other image/other page and original unchanged.

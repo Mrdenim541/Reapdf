@@ -3,6 +3,6 @@ QRhiGles2: Failed to create context
 This plugin does not support createPlatformVulkanInstance
 QVulkanInstance: Failed to initialize Vulkan
 Unable to detect GPU vendor.
-[529729:529749:1106/175603.362697:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 529750: Read-only file system (30)
+[534589:534609:1106/181142.556543:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 534610: Read-only file system (30)
 This plugin does not support propagateSizeHints()
 PASS: actual Qt window opened an isolated shared transparency group with intermediate CFF text states, edited original text on page and saved atomically; original file/glyph programs/rotation/crop/other occurrence and page preserved.

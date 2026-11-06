@@ -3,6 +3,6 @@ QRhiGles2: Failed to create context
 This plugin does not support createPlatformVulkanInstance
 QVulkanInstance: Failed to initialize Vulkan
 Unable to detect GPU vendor.
-[531373:531393:1106/175916.185343:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 531394: Read-only file system (30)
+[535818:535838:1106/181425.630848:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 535839: Read-only file system (30)
 This plugin does not support propagateSizeHints()
 PASS: actual Qt mouse/caret edits visible glyphs and accessible reading in a Stm Form, undo/redo, native save/reopen/reedit; accessible-only edit preserves pixels; matching ActualText updates automatically; shared page-owned Form paragraph continues with tags and other occurrence intact.

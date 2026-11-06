@@ -633,7 +633,7 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 2. selecciona un campo en la página
 3. introduce y revisa sus valores antes de aplicar.
 
-**Resultado esperado:** Valores y apariencias compatibles persisten al guardar.
+**Resultado esperado:** Valores y apariencias compatibles persisten al guardar. Los patrones compatibles de fecha pueden incluir hora de 24 horas con minutos o segundos; respeta el formato indicado en el campo. La vista previa rechaza valores inválidos y conserva el borrador para corregirlo. Los ayudantes estándar también se admiten en streams locales acotados sin ejecutar scripts.
 
 **Límites actuales:** XFA y acciones no soportadas no se presentan como formularios completamente editables. Los cálculos aritméticos nativos admiten resto (%) y Math.abs, round, floor, ceil, min y max con argumentos limitados. Se interpretan como datos; no se ejecuta JavaScript arbitrario y las demás llamadas permanecen protegidas. Admite cálculos numéricos nativos con Number, comparaciones y condicional ?: (incluidas condiciones &&/||), con evaluación por rama y límites numéricos. No ejecuta JavaScript general, acciones externas ni XFA.
 

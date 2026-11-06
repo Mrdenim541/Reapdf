@@ -3,6 +3,6 @@ QRhiGles2: Failed to create context
 This plugin does not support createPlatformVulkanInstance
 QVulkanInstance: Failed to initialize Vulkan
 Unable to detect GPU vendor.
-[531484:531506:1106/175931.388961:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 531507: Read-only file system (30)
+[535918:535938:1106/181438.559457:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 535939: Read-only file system (30)
 This plugin does not support propagateSizeHints()
 PASS: Qt mouse selects original Stm text; included font/style/size and Unicode save natively with accessible reading, undo/redo, reopen and compact-dialog original-font resize; both PDFs reopen editable and the original stays unchanged.

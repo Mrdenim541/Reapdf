@@ -3,6 +3,6 @@ QRhiGles2: Failed to create context
 This plugin does not support createPlatformVulkanInstance
 QVulkanInstance: Failed to initialize Vulkan
 Unable to detect GPU vendor.
-[529372:529392:1106/175538.106976:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 529393: Read-only file system (30)
+[534222:534242:1106/181117.599925:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 534243: Read-only file system (30)
 This plugin does not support propagateSizeHints()
 PASS: initial PDF, real edit, cancelled save keeps dirty, atomic save acknowledgement, repeat destination and external-change protection.
