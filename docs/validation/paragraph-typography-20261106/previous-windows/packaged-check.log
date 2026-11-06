@@ -1,0 +1,40 @@
+CLOSE: basic native discard confirmation: False
+PASS: attached embedded Qt window loads PDF, edits text on page, undoes/redoes and exports through its server. Executable identity is checked by the Windows verifier.
+CLOSE: spacing_flow native discard confirmation: False
+PASS: packaged Qt selects original styled text on page, continues on an existing page, undoes/redoes and exports with original fonts; no external browser or native save dialog used in this check.
+CLOSE: pagination native discard confirmation: False
+PASS: packaged Qt selects original styled text on page, automatically creates overflow pages, undoes/redoes and exports with original fonts; no external browser or native save dialog used in this check.
+CLOSE: tagged_images native discard confirmation: False
+PASS: actual packaged Qt window drags a tagged image, previews automatically, applies, undoes/redoes, replaces with an accessible description and deletes it; three native PDFs exported for independent semantic/content checks. No external browser or native save dialog in this check.
+CLOSE: variable_shear native discard confirmation: True
+PASS: packaged Qt selects original styled text on page, continues on an existing page, undoes/redoes and exports with original fonts; no external browser or native save dialog used in this check.
+CLOSE: tagged_paragraph native discard confirmation: True
+PASS: packaged Qt selects original styled text on page, continues on an existing page, undoes/redoes and exports with original fonts; no external browser or native save dialog used in this check.
+CLOSE: word_columns native discard confirmation: False
+PASS: compiled Qt imports DOCX with columns and bookmark link, reviews every page, opens and exports through bundled server; no external browser or native save dialog used in this check.
+CLOSE: semantic_stream native discard confirmation: False
+PASS: compiled Qt edits visible and accessible text in a unique Stm-owned Form, undo/redo and bundled-server export; no external browser or native save dialog used in this check.
+CLOSE: semantic_outer native discard confirmation: False
+PASS: compiled Qt continues a tagged paragraph from a page-owned shared Form without altering its other occurrence, undo/redo and bundled-server export; no external browser or native save dialog used in this check.
+CLOSE: quick_text native discard confirmation: False
+PASS: compiled Qt right-click opens compact text editor, preloads and edits selected code, deletes through context menu and undoes deletion; edited/deleted PDFs exported through bundled server, no external browser or native save dialog used.
+CLOSE: native_format native discard confirmation: False
+Traceback (most recent call last):
+  File "D:\a\Reapdf\Reapdf\scripts\create_paragraph_format_sample.py", line 3, in <module>
+    from scripts.create_tagged_paragraph_sample import create as source
+ModuleNotFoundError: No module named 'scripts'
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 285, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 278, in main
+    folder=Path(tmp)/'Reapdf-portable';native=native_check(folder);compiled_gui_check(folder);spacing=compiled_gui_check(folder,'spacing_flow');gui=compiled_gui_check(folder,'pagination');images=compiled_gui_check(folder,'tagged_images');shear=compiled_gui_check(folder,'variable_shear');tagged=compiled_gui_check(folder,'tagged_paragraph');word_columns=compiled_gui_check(folder,'word_columns');semantic_stream=compiled_gui_check(folder,'semantic_stream');semantic_outer=compiled_gui_check(folder,'semantic_outer');quick_text=compiled_gui_check(folder,'quick_text');native_format=compiled_gui_check(folder,'native_format');paragraph_format=compiled_gui_check(folder,'paragraph_format');result={**native,**spacing,**gui,**images,**shear,**tagged,**word_columns,**semantic_stream,**semantic_outer,**quick_text,**native_format,**paragraph_format,'compiled_gui_independent_runs':12,'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 165, in compiled_gui_check
+    subprocess.run([str(folder/'runtime/python.exe'),'-I',str(root/'scripts/create_paragraph_format_sample.py'),str(sample)],check=True,timeout=30)
+  File "C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\Reapdf prueba con espacios 1kuy6le6\\Reapdf-portable\\runtime\\python.exe', '-I', 'D:\\a\\Reapdf\\Reapdf\\scripts\\create_paragraph_format_sample.py', 'C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\Reapdf prueba con espacios 1kuy6le6\\Reapdf-portable\\paragraph-format-fixture.pdf']' returned non-zero exit status 1.
+PASS: compiled Qt changes the embedded font, style, size and Unicode in a unique Stm-owned Form, undo/redo and bundled-server export; no external browser or native save dialog used in this check.

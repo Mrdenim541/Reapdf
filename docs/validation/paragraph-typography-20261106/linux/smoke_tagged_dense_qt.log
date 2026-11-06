@@ -1,0 +1,8 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[486556:486576:1106/125812.307851:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 486577: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: actual Qt selects/caret-edits a dense 240-fragment tagged page with existing metric-box overlap; edits its single native paragraph; allows verified tagged paragraph selection/pagination; native save preserves every other text placement/style and the complete tag graph/marked-content scopes, with source bytes untouched.
