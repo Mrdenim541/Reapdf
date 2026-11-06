@@ -1,0 +1,3 @@
+[8792:7920:1106/135719.791:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[8792:7920:1106/135719.792:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: initial PDF, real edit, cancelled save keeps dirty, atomic save acknowledgement, repeat destination and external-change protection.
