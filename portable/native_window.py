@@ -5,6 +5,8 @@ import sys
 import os
 import time
 from urllib.parse import urlsplit
+try:from .lifecycle import trace
+except ImportError:from lifecycle import trace
 
 
 def local_origin(url):
@@ -15,7 +17,7 @@ def local_origin(url):
 
 
 def create_window(url,initial_file=None):
-    from PySide6.QtCore import QUrl,QObject,Slot,QFile,QIODevice,QTimer
+    from PySide6.QtCore import QUrl,QObject,Slot,QFile,QIODevice,QTimer,Signal
     from PySide6.QtGui import QAction,QKeySequence
     from PySide6.QtWebChannel import QWebChannel
     from PySide6.QtWidgets import QMainWindow,QFileDialog,QMessageBox
@@ -65,8 +67,9 @@ def create_window(url,initial_file=None):
             return value==origin or value.startswith(origin+'/') or value.startswith('blob:'+origin+'/') or value=='about:blank'
 
     class Window(QMainWindow):
+        closed=Signal()
         def __init__(self):
-            super().__init__();self.allow_close=False;self.checking_close=False;self.unfinished_save=False;self.save_targets={}
+            super().__init__();self.allow_close=False;self.close_emitted=False;self.checking_close=False;self.unfinished_save=False;self.save_targets={}
             self.setWindowTitle('Reapdf');self.resize(1320,900)
             self.view=QWebEngineView(self)
             self.profile=QWebEngineProfile(self) # Off-the-record profile, owned by this window.
@@ -104,6 +107,7 @@ def create_window(url,initial_file=None):
             deadline=time.monotonic()+timeout;probing=False
             def probe():
                 nonlocal probing
+                if self.allow_close:self.ready_probe.stop();return
                 if self.startup_load_failed or time.monotonic()>=deadline:
                     self.ready_probe.stop();on_failure('La interfaz de Reapdf no pudo cargar.');return
                 if probing:return
@@ -181,10 +185,16 @@ def create_window(url,initial_file=None):
             target=Path(path);request.setDownloadDirectory(str(target.parent));request.setDownloadFileName(target.name);request.accept()
 
         def closeEvent(self,event):
-            if self.allow_close:event.accept();return
+            if self.allow_close:
+                event.accept()
+                if not self.close_emitted:
+                    self.close_emitted=True
+                    if hasattr(self,'ready_probe'):self.ready_probe.stop()
+                    trace('native.close.accepted');self.closed.emit()
+                return
             event.ignore()
             if self.checking_close:return
-            self.checking_close=True
+            self.checking_close=True;trace('native.close.check')
             def checked(state):
                 self.checking_close=False
                 try:
@@ -192,10 +202,10 @@ def create_window(url,initial_file=None):
                     if not isinstance(state,dict) or type(state.get('dirty')) is not bool or type(state.get('busy')) is not bool:raise ValueError()
                 except (ValueError,TypeError):state={'dirty':True,'busy':False}
                 if state and state.get('busy'):
-                    QMessageBox.information(self,'Reapdf','Espera a que termine la operación antes de cerrar.');return
+                    trace('native.close.busy');QMessageBox.information(self,'Reapdf','Espera a que termine la operación antes de cerrar.');return
                 if state and (state.get('dirty') or self.unfinished_save):
                     choice=QMessageBox.question(self,'Cambios pendientes','Hay cambios sin guardar o contenido sin aplicar. ¿Cerrar y descartarlos?',QMessageBox.StandardButton.Discard|QMessageBox.StandardButton.Cancel,QMessageBox.StandardButton.Cancel)
-                    if choice!=QMessageBox.StandardButton.Discard:return
+                    if choice!=QMessageBox.StandardButton.Discard:trace('native.close.cancelled');return
                 self.allow_close=True;self.close()
             self.page.runJavaScript('JSON.stringify({dirty:!!(window.__reapdfCloseState?.dirty || document.querySelector("dialog[open]")),busy:!!window.__reapdfCloseState?.busy})',checked)
 
@@ -211,6 +221,7 @@ def main():
     except ImportError:from single_instance import SingleInstance
     instance=SingleInstance(sys.argv[2] if len(sys.argv)>2 else None,namespace=os.environ.get('REAPDF_INSTANCE_NAMESPACE'))
     def confirm(state):
+        trace('native.ready.'+state)
         path=os.environ.get('REAPDF_NATIVE_READY_FILE')
         if path:
             target=Path(path);temporary=target.with_suffix('.tmp')
@@ -218,7 +229,8 @@ def main():
             temporary.replace(target)
     if not instance.owner:confirm('forwarded');return 0
     try:
-        window=create_window(sys.argv[1],sys.argv[2] if len(sys.argv)>2 else None);window.show()
+        window=create_window(sys.argv[1],sys.argv[2] if len(sys.argv)>2 else None)
+        window.closed.connect(app.quit,Qt.ConnectionType.QueuedConnection);window.show();trace('native.window.created')
         instance.set_handler(window.enqueue_file)
         if os.environ.get('REAPDF_PARENT_PIPE')=='1':
             # Poll the inherited pipe on the Qt loop. A buffered daemon reader
@@ -228,14 +240,14 @@ def main():
             parent_fd=sys.stdin.fileno();parent_timer=QTimer(window)
             def watch_parent():
                 if not parent_alive(parent_fd):
-                    parent_timer.stop();window.allow_close=True;window.close();app.quit()
+                    trace('native.parent.lost');parent_timer.stop();window.allow_close=True;window.close();app.quit()
             parent_timer.timeout.connect(watch_parent);parent_timer.start(200)
 
         def failed(message):
-            print(message,file=sys.stderr,flush=True);window.allow_close=True;window.close();app.exit(1)
+            trace('native.startup.failed');print(message,file=sys.stderr,flush=True);window.allow_close=True;window.close();app.exit(1)
         window.watch_ready(lambda:confirm('ready'),failed)
-        return app.exec()
-    finally:instance.close()
+        code=app.exec();trace('native.loop.finished:'+str(code));return code
+    finally:instance.close();trace('native.instance.closed')
 
 
 if __name__=='__main__':sys.exit(main())

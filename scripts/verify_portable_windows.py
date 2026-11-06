@@ -196,6 +196,9 @@ def compiled_gui_check(folder,journey='basic'):
     if journey in ['spacing_flow','pagination']:
         from tests.test_mixed_paragraph_spacing import source
         sample=folder/(journey+'-fixture.pdf');sample.write_bytes(source(nested=True))
+    if journey=='form_datetime':
+        sample=folder/'form-datetime-fixture.pdf'
+        subprocess.run([str(folder/'runtime/python.exe'),'-I',str(root/'scripts/create_datetime_form_sample.py'),str(sample)],check=True,timeout=30)
     if journey=='byte_split':
         sample=folder/'byte-split-fixture.pdf'
         subprocess.run([str(folder/'runtime/python.exe'),'-I',str(root/'scripts/create_byte_split_sample.py'),str(sample)],check=True,timeout=30)
@@ -221,13 +224,16 @@ def compiled_gui_check(folder,journey='basic'):
     if journey=='tagged_images':
         sample=folder/'tagged-images-fixture.pdf'
         subprocess.run([str(folder/'runtime/python.exe'),'-I',str(root/'scripts/create_tagged_image_sample.py'),str(sample)],check=True,timeout=30)
+    if journey=='word_manual_columns':
+        word=folder/'word-manual-columns-fixture.docx'
+        subprocess.run([str(folder/'runtime/python.exe'),'-I',str(root/'scripts/create_word_manual_columns_sample.py'),str(word)],check=True,timeout=30)
     if journey=='word_columns':
         word=folder/'word-columns-fixture.docx'
         subprocess.run([str(folder/'runtime/python.exe'),'-I',str(root/'scripts/create_word_columns_sample.py'),str(word)],check=True,timeout=30)
     original=sample.read_bytes();output=folder/('comprobacion-'+journey+('.zip' if journey=='byte_split' else '.pdf'))
     from uuid import uuid4
     state=folder/('.gui-verification-state-'+uuid4().hex)
-    env={**os.environ,'REAPDF_DATA_DIR':str(state),'REAPDF_INSTANCE_NAMESPACE':str(state),'QTWEBENGINE_REMOTE_DEBUGGING':f'127.0.0.1:{port}'}
+    env={**os.environ,'REAPDF_DATA_DIR':str(state),'REAPDF_INSTANCE_NAMESPACE':str(state),'QTWEBENGINE_REMOTE_DEBUGGING':f'127.0.0.1:{port}','REAPDF_TRACE_LIFECYCLE':'1'}
     process=subprocess.Popen([str(folder/'Reapdf.exe'),str(sample)],cwd=folder.parent,env=env)
     endpoint=f'http://127.0.0.1:{port}'
     try:
@@ -241,8 +247,8 @@ def compiled_gui_check(folder,journey='basic'):
             if time.monotonic()>deadline:raise RuntimeError('La ventana incluida no quedó disponible para su verificación.')
             time.sleep(.1)
         hwnd,pid=_compiled_window(folder)
-        driver='smoke_packaged_byte_split.mjs' if journey=='byte_split' else 'smoke_packaged_paragraph_geometry.mjs' if journey=='paragraph_geometry' else 'smoke_packaged_paragraph_format.mjs' if journey=='paragraph_format' else 'smoke_packaged_quick_text.mjs' if journey=='quick_text' else 'smoke_packaged_semantic_text.mjs' if journey in ['semantic_stream','semantic_outer','native_format'] else 'smoke_packaged_word_columns.mjs' if journey=='word_columns' else 'smoke_packaged_tagged_images.mjs' if journey=='tagged_images' else 'smoke_packaged_spacing_flow.mjs' if journey in ['spacing_flow','pagination','variable_shear','tagged_paragraph'] else 'smoke_packaged_window.mjs'
-        run=subprocess.run([node,str(root/'scripts'/driver),endpoint,str(output)]+([str(sample)] if journey=='paragraph_geometry' else ['pagination'] if journey=='pagination' else ['shear'] if journey=='variable_shear' else ['tagged'] if journey=='tagged_paragraph' else [str(word)] if journey=='word_columns' else ['format' if journey=='native_format' else 'stream' if journey=='semantic_stream' else 'outer'] if journey in ['semantic_stream','semantic_outer','native_format'] else []),cwd=root,capture_output=True,text=True,timeout=100)
+        driver='smoke_packaged_form_datetime.mjs' if journey=='form_datetime' else 'smoke_packaged_byte_split.mjs' if journey=='byte_split' else 'smoke_packaged_paragraph_geometry.mjs' if journey=='paragraph_geometry' else 'smoke_packaged_paragraph_format.mjs' if journey=='paragraph_format' else 'smoke_packaged_quick_text.mjs' if journey=='quick_text' else 'smoke_packaged_semantic_text.mjs' if journey in ['semantic_stream','semantic_outer','native_format'] else 'smoke_packaged_word_columns.mjs' if journey in ['word_columns','word_manual_columns'] else 'smoke_packaged_tagged_images.mjs' if journey=='tagged_images' else 'smoke_packaged_spacing_flow.mjs' if journey in ['spacing_flow','pagination','variable_shear','tagged_paragraph'] else 'smoke_packaged_window.mjs'
+        run=subprocess.run([node,str(root/'scripts'/driver),endpoint,str(output)]+([str(sample)] if journey=='paragraph_geometry' else ['pagination'] if journey=='pagination' else ['shear'] if journey=='variable_shear' else ['tagged'] if journey=='tagged_paragraph' else [str(word),'manual'] if journey=='word_manual_columns' else [str(word)] if journey=='word_columns' else ['format' if journey=='native_format' else 'stream' if journey=='semantic_stream' else 'outer'] if journey in ['semantic_stream','semantic_outer','native_format'] else []),cwd=root,capture_output=True,text=True,timeout=100)
         if run.returncode or 'PASS:' not in run.stdout:raise RuntimeError('Falló el recorrido del ejecutable: '+run.stdout+run.stderr)
         verification="import pymupdf as f,sys;d=f.open(sys.argv[1]);assert len(d)==2;assert 'Ejecutable' in d[0].get_text();assert 'Texto original' not in d[0].get_text();assert 'Segunda pagina' in d[1].get_text()"
         if journey=='spacing_flow':verification="import pymupdf as f,sys;d=f.open(sys.argv[1]);a=f.open(sys.argv[2]);assert len(d)==3;v=''.join((d[0].get_text()+d[2].get_text()).split());assert v.count('HELLO')==13 and v.count('TEXT')==9;assert 'HELLO' in d[2].get_text() and 'TEXT' in d[2].get_text();assert a[1].get_pixmap().samples==d[1].get_pixmap().samples"
@@ -251,6 +257,27 @@ def compiled_gui_check(folder,journey='basic'):
             verification="import pymupdf as f,sys;from backend.structure_editing import reading_preview;from backend.native_text import native_model;d=f.open(sys.argv[1]);a=f.open(sys.argv[2]);assert len(d)==3;v=''.join((d[0].get_text()+d[2].get_text()).split());assert v.count('HELLO')==12 and v.count('TEXT')==6;assert a[1].get_pixmap().samples==d[1].get_pixmap().samples;assert all(reading_preview(open(sys.argv[1],'rb').read(),[],i)['untagged_blocks']==0 for i in range(len(d)));before=[r for r in native_model(a,0,a[0].rect)[1] if r['text'] in ['HELLO ','TEXT']];after=[r for i in [0,2] for r in native_model(d,i,d[i].rect)[1] if 'HELLO' in r['text'] or 'TEXT' in r['text']];key=lambda r:(r['font'],r['color'],round(r['display_size'],3),tuple(round(v,4) for v in r['_geometry']['matrix'][:4]));assert all(r['editable'] for r in after);assert {key(r) for r in before}=={key(r) for r in after}"
         if journey=='word_columns':
             verification="import pymupdf as f,sys;d=f.open(sys.argv[1]);text=''.join(p.get_text() for p in d);assert len(d)>=2;assert all(text.count(f'ITEM{i:03d}')==1 for i in range(45));target=next(p.number for p in d if p.search_for('DESTINATIONWORD'));links=[l for p in d for l in p.get_links() if l['kind']==f.LINK_GOTO];assert len(links)==1 and links[0]['page']==target;assert len({round(r.x0) for r in d[0].search_for('ITEM')})==2;assert all(len([g for g in p.get_drawings() if g['rect'].height>100 and g['rect'].width<1])==1 for p in d)"
+        if journey=='form_datetime':
+            verification="""import pymupdf as f,sys
+from backend.forms import form_model
+from backend.form_actions import actions
+from backend.form_structure import field_structure
+a=f.open(sys.argv[2]);d=f.open(sys.argv[1]);old=form_model(a)['fields'][0];row=form_model(d)['fields'][0];assert row['editable'] and row['value']=='06/11/2026 10:30:45' and row['display_value']==row['value'] and row['value'] in d[0].get_text();assert a[1].get_pixmap().samples==d[1].get_pixmap().samples
+_,own_a,_,_=field_structure(a);_,own_b,_,_=field_structure(d);assert actions(a,own_a[old['xref']]['chain'])==actions(d,own_b[row['xref']]['chain'])
+for event in ['F','K']:
+ kind,ref=d.xref_get_key(row['xref'],'AA/'+event+'/JS');assert kind=='xref' and d.xref_is_stream(int(ref.split()[0]))
+"""
+        if journey=='word_manual_columns':
+            verification="""import pymupdf as f,sys
+d=f.open(sys.argv[1]);assert len(d)==2
+labels=['FIRSTCOLLINK','SECONDCOLLINK','NEXTPAGELEFT','NEXTPAGERIGHT','DESTINATIONWORD'];locations={word:[(p.number,r) for p in d for r in p.search_for(word)] for word in labels}
+assert all(len(v)==1 for v in locations.values())
+assert [locations[word][0][0] for word in labels]==[0,0,1,1,1]
+assert locations['FIRSTCOLLINK'][0][1].x0<locations['SECONDCOLLINK'][0][1].x0 and locations['NEXTPAGELEFT'][0][1].x0<locations['NEXTPAGERIGHT'][0][1].x0
+assert abs(locations['FIRSTCOLLINK'][0][1].x0-locations['NEXTPAGELEFT'][0][1].x0-18)<1
+links=[l for p in d for l in p.get_links() if l['kind']==f.LINK_GOTO];assert len(links)==2 and all(l['page']==1 for l in links)
+spans=[s for p in d for b in p.get_text('dict')['blocks'] for line in b.get('lines',[]) for s in line['spans'] if 'COLLINK' in s['text']];assert len(spans)==2 and all('Bold' in s['font'] and s['color']==0x214eaa for s in spans)
+"""
         if journey=='byte_split':
             verification="""import pymupdf as f,sys,json
 from zipfile import ZipFile
@@ -340,7 +367,7 @@ for index,path in enumerate(sys.argv[2:]):
         print('CLOSE:',journey,'native discard confirmation:',discarded,flush=True)
         if journey in ['variable_shear','tagged_paragraph'] and not discarded:raise RuntimeError('El recorrido nuevo no comprobó la confirmación nativa de descartar el borrador de prueba.')
         print(run.stdout.strip())
-        return {'compiled_exe_window_and_edit':'ok','compiled_exe_normal_close':'ok',**({'compiled_exe_affine_spacing_flow':'ok'} if journey=='spacing_flow' else {'compiled_exe_automatic_pagination':'ok'} if journey=='pagination' else {'compiled_exe_tagged_images':'ok'} if journey=='tagged_images' else {'compiled_exe_variable_shear':'ok'} if journey=='variable_shear' else {'compiled_exe_tagged_paragraph':'ok'} if journey=='tagged_paragraph' else {'compiled_exe_word_columns':'ok'} if journey=='word_columns' else {'compiled_exe_semantic_stream':'ok'} if journey=='semantic_stream' else {'compiled_exe_semantic_outer':'ok'} if journey=='semantic_outer' else {'compiled_exe_byte_split':'ok'} if journey=='byte_split' else {'compiled_exe_paragraph_geometry':'ok'} if journey=='paragraph_geometry' else {'compiled_exe_paragraph_format':'ok'} if journey=='paragraph_format' else {'compiled_exe_native_format':'ok'} if journey=='native_format' else {'compiled_exe_quick_text':'ok'} if journey=='quick_text' else {}),'qt_process_pid':pid,'external_browser_used':False,'native_save_in_this_check':False,'native_discard_confirmation':discarded,'windows_execution_verified':True}
+        return {'compiled_exe_window_and_edit':'ok','compiled_exe_normal_close':'ok',**({'compiled_exe_affine_spacing_flow':'ok'} if journey=='spacing_flow' else {'compiled_exe_automatic_pagination':'ok'} if journey=='pagination' else {'compiled_exe_tagged_images':'ok'} if journey=='tagged_images' else {'compiled_exe_variable_shear':'ok'} if journey=='variable_shear' else {'compiled_exe_tagged_paragraph':'ok'} if journey=='tagged_paragraph' else {'compiled_exe_word_manual_columns':'ok'} if journey=='word_manual_columns' else {'compiled_exe_word_columns':'ok'} if journey=='word_columns' else {'compiled_exe_semantic_stream':'ok'} if journey=='semantic_stream' else {'compiled_exe_semantic_outer':'ok'} if journey=='semantic_outer' else {'compiled_exe_form_datetime':'ok'} if journey=='form_datetime' else {'compiled_exe_byte_split':'ok'} if journey=='byte_split' else {'compiled_exe_paragraph_geometry':'ok'} if journey=='paragraph_geometry' else {'compiled_exe_paragraph_format':'ok'} if journey=='paragraph_format' else {'compiled_exe_native_format':'ok'} if journey=='native_format' else {'compiled_exe_quick_text':'ok'} if journey=='quick_text' else {}),'qt_process_pid':pid,'external_browser_used':False,'native_save_in_this_check':False,'native_discard_confirmation':discarded,'windows_execution_verified':True}
     except Exception:
         close_diagnostics(process.pid,locals().get('pid',process.pid))
         raise
@@ -356,7 +383,7 @@ def main():
     if os.name!='nt':raise SystemExit('La ejecución nativa requiere Windows. Usa --static-only para comprobar integridad.')
     with TemporaryDirectory(prefix='Reapdf prueba con espacios ') as tmp:
         with ZipFile(args.archive) as z:z.extractall(tmp)
-        folder=Path(tmp)/'Reapdf-portable';native=native_check(folder);compiled_gui_check(folder);spacing=compiled_gui_check(folder,'spacing_flow');gui=compiled_gui_check(folder,'pagination');images=compiled_gui_check(folder,'tagged_images');shear=compiled_gui_check(folder,'variable_shear');tagged=compiled_gui_check(folder,'tagged_paragraph');word_columns=compiled_gui_check(folder,'word_columns');semantic_stream=compiled_gui_check(folder,'semantic_stream');semantic_outer=compiled_gui_check(folder,'semantic_outer');quick_text=compiled_gui_check(folder,'quick_text');native_format=compiled_gui_check(folder,'native_format');paragraph_format=compiled_gui_check(folder,'paragraph_format');paragraph_geometry=compiled_gui_check(folder,'paragraph_geometry');byte_split=compiled_gui_check(folder,'byte_split');result={**native,**spacing,**gui,**images,**shear,**tagged,**word_columns,**semantic_stream,**semantic_outer,**quick_text,**native_format,**paragraph_format,**paragraph_geometry,**byte_split,'compiled_gui_independent_runs':14,'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
+        folder=Path(tmp)/'Reapdf-portable';native=native_check(folder);basic=compiled_gui_check(folder);spacing=compiled_gui_check(folder,'spacing_flow');gui=compiled_gui_check(folder,'pagination');images=compiled_gui_check(folder,'tagged_images');shear=compiled_gui_check(folder,'variable_shear');tagged=compiled_gui_check(folder,'tagged_paragraph');word_columns=compiled_gui_check(folder,'word_columns');semantic_stream=compiled_gui_check(folder,'semantic_stream');semantic_outer=compiled_gui_check(folder,'semantic_outer');quick_text=compiled_gui_check(folder,'quick_text');native_format=compiled_gui_check(folder,'native_format');paragraph_format=compiled_gui_check(folder,'paragraph_format');paragraph_geometry=compiled_gui_check(folder,'paragraph_geometry');byte_split=compiled_gui_check(folder,'byte_split');manual_columns=compiled_gui_check(folder,'word_manual_columns');form_datetime=compiled_gui_check(folder,'form_datetime');basic_repetitions=[basic,compiled_gui_check(folder),compiled_gui_check(folder)];result={**native,**spacing,**gui,**images,**shear,**tagged,**word_columns,**semantic_stream,**semantic_outer,**quick_text,**native_format,**paragraph_format,**paragraph_geometry,**byte_split,**manual_columns,**form_datetime,'compiled_gui_independent_runs':18,'compiled_basic_repetitions':len(basic_repetitions),'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
         from scripts.publish_windows_report import source_objects
         root=Path(__file__).resolve().parents[1]
         result.update(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),source_git_objects=source_objects(root),source_dirty=bool(subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True).strip()))

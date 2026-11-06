@@ -7,6 +7,8 @@ import sys
 import tempfile
 import json
 import time
+try:from .lifecycle import trace
+except ImportError:from lifecycle import trace
 
 
 def find_browser():
@@ -66,11 +68,14 @@ class NativeDesktopWindow:
                 except (OSError,ValueError) as exc:raise RuntimeError('La ventana devolvió una confirmación de inicio no válida.') from exc
                 if state!={'version':1,'pid':self.process.pid,'state':'ready'} and state!={'version':1,'pid':self.process.pid,'state':'forwarded'}:raise RuntimeError('La confirmación no corresponde a esta ventana.')
                 return state['state']
-            if self.process.poll() is not None:raise RuntimeError('La ventana terminó antes de cargar la interfaz.')
+            code=self.process.poll()
+            if code==0:trace('controller.closed.before.ready');return 'closed'
+            if code is not None:raise RuntimeError('La ventana terminó antes de cargar la interfaz.')
             time.sleep(.05)
         raise RuntimeError('La interfaz de Reapdf no terminó de cargar a tiempo.')
 
-    def wait(self):return self.process.wait()
+    def wait(self):
+        trace('controller.waiting');code=self.process.wait();trace('controller.exited:'+str(code));return code
 
     def close(self):
         if self.process.stdin is not None and not self.process.stdin.closed:self.process.stdin.close()
@@ -79,4 +84,4 @@ class NativeDesktopWindow:
             except subprocess.TimeoutExpired:self.process.terminate()
             try:self.process.wait(timeout=5)
             except subprocess.TimeoutExpired:self.process.kill();self.process.wait(timeout=5)
-        self.state.cleanup()
+        self.state.cleanup();trace('controller.released')

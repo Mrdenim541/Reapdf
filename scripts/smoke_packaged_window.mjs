@@ -12,11 +12,15 @@ try{
  await expect(page.locator('.text-layer')).toContainText('Texto original',{timeout:40000});
  if(!await page.evaluate(async()=>typeof(await window.reapdfDesktop)?.saveFile==='function'))throw new Error('Native QWebChannel save bridge missing');
  await openTool(page,'Editar texto');
+ const inspect=page.waitForResponse(r=>r.url().endsWith('/inspect-styled-text'));
  await page.getByRole('button',{name:'Editar en página: Texto original',exact:true}).click();
+ const inspection=await (await inspect).json();
  await page.getByLabel('Texto sobre la página',{exact:true}).fill('Ejecutable');
+ await expect(page.getByLabel('Texto sobre la página',{exact:true})).toHaveValue('Ejecutable');
+ await expect(page.getByRole('button',{name:'Aplicar',exact:true})).toBeEnabled();
  const edited=page.waitForResponse(r=>/\/(replace-styled-text|replace-paragraph)$/.test(r.url())&&r.request().method()==='POST');
  await page.getByLabel('Texto sobre la página',{exact:true}).press('Control+Enter');
- const response=await edited,adopted=await response.json();if(!adopted.id)throw new Error('Edited version was not adopted: HTTP '+response.status()+' '+JSON.stringify(adopted));
+ const response=await edited,adopted=await response.json();if(!adopted.id)throw new Error('Edited version was not adopted: HTTP '+response.status()+' '+JSON.stringify({result:adopted,request:response.request().postDataJSON(),inspection}));
  await expect(page.locator('.text-layer')).toContainText('Ejecutable');
  await page.getByRole('button',{name:'Deshacer',exact:false}).click();await expect(page.locator('.text-layer')).toContainText('Texto original');
  await page.getByRole('button',{name:'Rehacer',exact:false}).click();await expect(page.locator('.text-layer')).toContainText('Ejecutable');

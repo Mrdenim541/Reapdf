@@ -12,6 +12,7 @@ import webbrowser
 APP_ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(APP_ROOT))
 if (APP_ROOT.parent/'backend').is_dir():sys.path.insert(0,str(APP_ROOT.parent))
+from lifecycle import trace
 _DLL_HANDLES=[]
 if sys.platform=='win32':
     for directory in [APP_ROOT.parent/'runtime',APP_ROOT.parent/'runtime'/'DLLs',APP_ROOT.parent/'runtime'/'Lib'/'site-packages'/'pymupdf']:
@@ -148,18 +149,21 @@ def serve(open_browser=True,port=0,desktop=False,require_desktop=False,ready_fil
             deadline=time.monotonic()+30
             while not server.started and not server.should_exit and time.monotonic()<deadline:time.sleep(.1)
             if server.started and not server.should_exit:
-                print('REAPDF_URL='+url,flush=True)
+                print('REAPDF_URL='+url,flush=True);trace('backend.started')
                 if desktop:
                     executable=find_browser()
                     if executable:
                         try:
                             window=DesktopWindow(executable,url);windows.append(window)
-                            if native_desktop:window.wait_ready()
+                            if native_desktop:
+                                state=window.wait_ready()
+                                if state=='closed':trace('backend.startup.cancelled');server.should_exit=True;return
+                                trace('backend.native.ready')
                             print('REAPDF_PRESENTATION=desktop',flush=True)
                             if ready_file:Path(ready_file).write_text(url,encoding='utf-8')
                             code=window.wait()
                             if code==0:
-                                server.should_exit=True
+                                trace('backend.shutdown.requested');server.should_exit=True
                             elif require_desktop:
                                 startup_errors.append('La ventana de Reapdf termino con un error.');server.should_exit=True
                             elif not server.should_exit:
@@ -177,13 +181,14 @@ def serve(open_browser=True,port=0,desktop=False,require_desktop=False,ready_fil
                 elif open_browser:webbrowser.open(url)
         worker=threading.Thread(target=ready,daemon=True);worker.start()
         print('Reapdf portable. Deja esta ventana abierta. Ctrl+C para cerrar.',flush=True)
-        server.run(sockets=[sock])
+        server.run(sockets=[sock]);trace('backend.loop.finished')
     finally:
         sock.close()
         if server:server.should_exit=True
         # Evitar que el hilo abra una ventana después de detener el motor.
         if worker and threading.current_thread() is not worker:worker.join(timeout=1)
         for window in windows:window.close()
+        trace('backend.cleanup.finished')
     if startup_errors:raise RuntimeError(" ".join(startup_errors))
 
 

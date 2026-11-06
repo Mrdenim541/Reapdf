@@ -9,6 +9,8 @@ import pymupdf as f
 from .engine import DocumentError
 
 DATES={'dd/mm/yyyy':'%d/%m/%Y','mm/dd/yyyy':'%m/%d/%Y','yyyy-mm-dd':'%Y-%m-%d','dd.mm.yyyy':'%d.%m.%Y'}
+# Combined formats use the same strict, locale-independent date validation.
+DATES.update({date+' '+clock:fmt+' '+timefmt for date,fmt in list(DATES.items()) for clock,timefmt in [('HH:MM','%H:%M'),('HH:MM:ss','%H:%M:%S')]})
 TIMES={'HH:MM':'%H:%M','HH:MM:ss':'%H:%M:%S','h:MM tt':'%I:%M %p','h:MM:ss tt':'%I:%M:%S %p'}
 TOKEN=re.compile(r'\s*("(?:[^"\\\x00-\x1f]|\\["\\/bfnrt]|\\u[0-9a-fA-F]{4})*"|\'(?:[^\'\\\x00-\x1f]|\\[\'\\])*\'|true\b|false\b|[+-]?(?:\d+(?:\.\d*)?|\.\d+))\s*')
 
@@ -42,6 +44,20 @@ def integer(value,low,high):
     return int(value)
 
 
+def action_text(doc,obj):
+    n=f.mupdf
+    if n.pdf_is_string(obj):return n.pdf_to_text_string(obj)
+    if not n.pdf_is_stream(obj) or n.pdf_to_num(obj)<=0:raise DocumentError('La acción necesita texto o un stream local verificable.')
+    from .styled_text import stream
+    raw=stream(doc,n.pdf_to_num(obj),2000)
+    try:
+        if raw.startswith(b'\xfe\xff'):return raw[2:].decode('utf-16-be')
+        if raw.startswith(b'\xff\xfe'):return raw[2:].decode('utf-16-le')
+        if raw.startswith(b'\xef\xbb\xbf'):return raw[3:].decode('utf-8')
+        return raw.decode('ascii')
+    except UnicodeError as exc:raise DocumentError('La codificación de la acción de formulario no es verificable.') from exc
+
+
 def actions(doc,chain):
     n=f.mupdf;events={}
     for xref in chain:
@@ -53,8 +69,8 @@ def actions(doc,chain):
             if event not in ['F','K','V','C'] or event in events or not n.pdf_is_dict(action):raise DocumentError('El campo tiene acciones adicionales o ambiguas.')
             keys={n.pdf_to_name(n.pdf_dict_get_key(action,j)) for j in range(n.pdf_dict_len(action))}
             code=n.pdf_dict_gets(action,'JS')
-            if keys!={'S','JS'} or n.pdf_to_name(n.pdf_dict_gets(action,'S'))!='JavaScript' or not n.pdf_is_string(code):raise DocumentError('Solo se interpretan ayudantes estándar explícitos; no se ejecutan scripts.')
-            events[event]=n.pdf_to_text_string(code)
+            if keys!={'S','JS'} or n.pdf_to_name(n.pdf_dict_gets(action,'S'))!='JavaScript' :raise DocumentError('Solo se interpretan ayudantes estándar explícitos; no se ejecutan scripts.')
+            events[event]=action_text(doc,code)
     return events
 
 

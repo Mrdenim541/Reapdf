@@ -118,16 +118,17 @@ def test_executable_window_launch_failure_stops_server_without_readiness(tmp_pat
     assert not ready.exists()
 
 
-@pytest.mark.parametrize('state',['ready','forwarded','invalid','early','timeout'])
+@pytest.mark.parametrize('state',['ready','forwarded','invalid','early','closed','timeout'])
 def test_native_readiness_uses_own_child_confirmation_and_cleans_state(tmp_path,monkeypatch,state):
     real=desktop.subprocess.Popen
-    code='''import json,os,time
+    code='''import json,os,time,sys
 from pathlib import Path
 state=os.environ['REAPDF_TEST_READY_STATE']
 if state in ('ready','forwarded','invalid'):
     value={'version':1,'pid':os.getpid(),'state':state}
     Path(os.environ['REAPDF_NATIVE_READY_FILE']).write_text(json.dumps(value),encoding='utf-8')
-if state!='early':time.sleep(30)
+if state=='early':sys.exit(3)
+if state!='closed':time.sleep(30)
 '''
     def process(*args,**kwargs):
         kwargs['env']['REAPDF_TEST_READY_STATE']=state
@@ -136,7 +137,7 @@ if state!='early':time.sleep(30)
     window=desktop.NativeDesktopWindow(None,'http://127.0.0.1:1234')
     folder=window.ready_path.parent
     try:
-        if state in ['ready','forwarded']:assert window.wait_ready(2)==state
+        if state in ['ready','forwarded','closed']:assert window.wait_ready(2)==state
         else:
             with pytest.raises(RuntimeError):window.wait_ready(.3 if state=='timeout' else 2)
     finally:window.close()
@@ -156,4 +157,19 @@ def test_native_loading_failure_stops_owned_backend_without_ready_signal(tmp_pat
     monkeypatch.setattr(launcher.webbrowser,'open',lambda url:pytest.fail('No abrir navegador al fallar Qt'))
     with pytest.raises(RuntimeError,match='No cargó la interfaz'):
         launcher.serve(native_desktop=True,ready_file=ready)
+    assert closed==[True] and not ready.exists()
+
+
+def test_native_early_normal_close_stops_backend_without_error_or_ready_file(tmp_path,monkeypatch):
+    import desktop as runtime_desktop
+    closed=[];ready=tmp_path/'cancelled.ready'
+    class Window:
+        def __init__(self,*args):pass
+        def wait_ready(self):return 'closed'
+        def wait(self):pytest.fail('Already closed child must not be waited as an active presentation')
+        def close(self):closed.append(True)
+    monkeypatch.setenv('REAPDF_DATA_DIR',str(tmp_path/'state'))
+    monkeypatch.setattr(runtime_desktop,'NativeDesktopWindow',Window)
+    monkeypatch.setattr(launcher.webbrowser,'open',lambda url:pytest.fail('Never launch a browser after cancellation'))
+    launcher.serve(native_desktop=True,ready_file=ready)
     assert closed==[True] and not ready.exists()

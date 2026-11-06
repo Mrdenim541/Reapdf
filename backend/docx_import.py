@@ -74,7 +74,7 @@ def import_docx(data,paper='source'):
     notes=Notes(package,relationships,parse_xml,warnings)
     notes.active={kind for kind in ['footnote','endnote'] if any(n.tag==tag(kind+'Reference') for n in body.iter())}
     if any(any(token.encode() in raw for token in [PAGE_TOKEN,TOTAL_TOKEN,PREFIX,BREAK_TOKEN]) for raw in package.values()):raise DocumentError('El Word contiene un marcador interno reservado.')
-    in_running=False;dynamic_fields=0;manual_breaks=0;page_fields=PageFields();complex_nodes=set();forced_cached=set();char_formats={}
+    in_running=False;dynamic_fields=0;manual_breaks=0;manual_column_breaks=0;page_fields=PageFields();complex_nodes=set();forced_cached=set();char_formats={}
     field_stats={"complex_fields":0,"complex_page_fields":0,"cached_fields":0}
     table_stats={"merged_tables":0,"combined_cells":0,"fallback_tables":0}
     if any(n.tag in {tag('del'),tag('ins'),tag('moveFrom'),tag('moveTo')} for n in body.iter()):raise DocumentError('Resuelve el control de cambios en Word antes de importar; no se elige una revisión por ti.')
@@ -83,7 +83,7 @@ def import_docx(data,paper='source'):
     if any(len(s['columns']['widths'])>1 for s in segments):
         for segment in segments:
             if len(segment['columns']['widths'])==1:continue
-            if any(n.tag==tag('br') and n.attrib.get(tag('type')) in ['page','column'] or n.tag==tag('pageBreakBefore') and n.attrib.get(tag('val'),'1') not in ['0','false','off'] for node in segment['nodes'] for n in node.iter()):raise DocumentError('Los saltos manuales dentro de secciones Word con columnas requieren otro tratamiento; no se convierten en saltos de columna incorrectos.')
+            if any(n.tag==tag('br') and n.attrib.get(tag('type'))=='page' or n.tag==tag('pageBreakBefore') and n.attrib.get(tag('val'),'1') not in ['0','false','off'] for node in segment['nodes'] for n in node.iter()):raise DocumentError('Los saltos manuales de página dentro de secciones Word con columnas requieren otro tratamiento; no se convierten en saltos de columna incorrectos.')
         warnings.add('Las columnas se llenan en orden de izquierda a derecha; la última página de cada sección no se equilibra automáticamente.')
     size=segments[0]['size'];margins=segments[0]['margins']
     archive=f.Archive()
@@ -123,7 +123,7 @@ def import_docx(data,paper='source'):
             if any(n.tag.endswith('}anchor') for n in node.iter()):warnings.add('Las imágenes flotantes se colocan en el flujo del texto.')
         return ''.join(result)
     def run(node,inherited,field_token=None,note_marks=None):
-        nonlocal manual_breaks
+        nonlocal manual_breaks,manual_column_breaks
         style=[];props=styles.run(node,inherited)
         if props is not None:
             for name,css in [('b','font-weight:bold'),('i','font-style:italic'),('u','text-decoration:underline'),('strike','text-decoration:line-through')]:
@@ -143,9 +143,13 @@ def import_docx(data,paper='source'):
             if child.tag==tag('t'):parts.append(field_token if field_token is not None else text(child.text))
             elif child.tag in {tag('br'),tag('cr')}:
                 expected.append(' ')
-                if child.attrib.get(tag('type'))=='page':
-                    if in_running:raise DocumentError('No se admiten saltos de página dentro de encabezados/pies Word.')
-                    manual_breaks+=1;parts.append('</span>'+BREAK_TOKEN+'<span style="'+';'.join(style)+'">')
+                if child.attrib.get(tag('type')) in ['page','column']:
+                    kind=child.attrib.get(tag('type'))
+                    if in_running:raise DocumentError('No se admiten saltos de página/columna dentro de encabezados/pies Word.')
+                    if kind=='column' and notes.inside:raise DocumentError('Los saltos de columna dentro de notas requieren otro tratamiento.')
+                    if kind=='column':manual_column_breaks+=1
+                    else:manual_breaks+=1
+                    parts.append('</span>'+BREAK_TOKEN+'<span style="'+';'.join(style)+'">')
                 else:parts.append('<br/>')
             elif child.tag in {tag('footnoteReference'),tag('endnoteReference')}:
                 custom=None
@@ -207,15 +211,14 @@ def import_docx(data,paper='source'):
             if child.tag==tag('r'):return '' if child in consumed_note_runs else run(child,inherited,note_marks=note_marks)
             if child.tag==tag('hyperlink'):
                 content=''.join(inline(r,allow_dynamic,depth+1) for r in child);rel=relationships.get(child.attrib.get('{'+R+'}id'),{})
-                if BREAK_TOKEN in content:raise DocumentError('Divide el enlace Word antes de un salto manual de página para importarlo.')
                 anchor=child.attrib.get(tag('anchor'))
                 if anchor and not child.attrib.get('{'+R+'}id'):
                     target=bookmarks.target(anchor)
                     if target:
                         bookmarks.links+=1
-                        return '<a href="#'+target+'">'+content+'</a>'
+                        return BREAK_TOKEN.join('<a href="#'+target+'">'+fragment+'</a>' for fragment in content.split(BREAK_TOKEN))
                     warnings.add('El destino del enlace interno Word no existe: se conserva solo su texto.');return content
-                try:return '<a href="'+html.escape(safe_web_url(rel.get('Target')),quote=True)+'">'+content+'</a>'
+                try:return BREAK_TOKEN.join('<a href="'+html.escape(safe_web_url(rel.get('Target')),quote=True)+'">'+fragment+'</a>' for fragment in content.split(BREAK_TOKEN))
                 except DocumentError:warnings.add('Enlace no web o destino no compatible: se conserva solo su texto.');return content
             if child.tag==tag('bookmarkStart'):return bookmarks.destination(child)
             if child.tag==tag('bookmarkEnd'):return ''
@@ -236,7 +239,14 @@ def import_docx(data,paper='source'):
         pieces.extend(inline(child) for child in node)
         expected[expected_start:]=[''.join(expected[expected_start:])]
         fragments=''.join(pieces).split(BREAK_TOKEN)
-        return ''.join('<p style="'+';'.join(css+(['page-break-before:always'] if index else []))+'">'+(fragment or '<br/>')+'</p>' for index,fragment in enumerate(fragments))
+        rendered=[]
+        for index,fragment in enumerate(fragments):
+            # A continuation is the same paragraph: do not repeat its first-line
+            # indentation or before/after spacing at every column boundary.
+            properties=[v for v in css if not (index and v.startswith(('text-indent:','margin-top:'))) and not (index<len(fragments)-1 and v.startswith('margin-bottom:'))]
+            if index:properties.append('page-break-before:always')
+            rendered.append('<p style="'+';'.join(properties)+'">'+(fragment or '<br/>')+'</p>')
+        return ''.join(rendered)
     def blocks(nodes):
         nonlocal tables,cells
         parts=[]
@@ -249,6 +259,7 @@ def import_docx(data,paper='source'):
                 if cells>3000:raise DocumentError('Hasta 3000 celdas por importación.')
                 plan,merged,reason=table_plan(node)
                 def cell_content(cell):
+                    if any(n.tag==tag('br') and n.attrib.get(tag('type'))=='column' for n in cell.iter()):raise DocumentError('Los saltos de columna dentro de tablas requieren otro tratamiento.')
                     if cell.find(tag('tbl')) is not None:warnings.add('Tabla anidada omitida.')
                     return ''.join(paragraph(p) for p in cell.findall(tag('p')))
                 if plan is None:
@@ -380,6 +391,6 @@ def import_docx(data,paper='source'):
     if missing and table_stats['merged_tables']:raise DocumentError('La comprobación detectó texto perdido en una tabla combinada. Simplifica la tabla antes de importar; no se entrega un PDF incompleto.')
     if missing:warnings.add('La comprobación de texto detectó diferencias; revisa los fragmentos indicados y el PDF completo.')
     warnings.add('Las fuentes originales se sustituyen por DejaVu Sans. La paginación y el diseño pueden cambiar.')
-    report={'schema':'reapdf-docx-import-1','source_sha256':hashlib.sha256(data).hexdigest(),'pdf_sha256':hashlib.sha256(result).hexdigest(),'pages':pages,'paragraphs':paragraphs,'tables':tables,'cells':cells,'images':len(images),'characters':characters,'manual_page_breaks':manual_breaks,'sections':section_report,'section_count':len(segments),'header_footer_templates':sum(len(s['running'].templates) for s in segments),'header_footer_instances':sum(s['running'].drawn for s in segments),'page_fields':dynamic_fields,**notes.report(),**field_stats,**table_stats,'page_number_start':segments[0]['fields'].start,'page_number_format':segments[0]['fields'].format,'page_labels_preserved':page_labels_preserved,'styles_applied':len(styles.used),'list_items':styles.list_items,'fonts_replaced':sorted(fonts),'warnings':sorted(warnings),'missing_words':list(missing)[:30],'text_check_passed':not missing,'layout_preserved':False,'output_bytes':len(result)}
+    report={'schema':'reapdf-docx-import-1','source_sha256':hashlib.sha256(data).hexdigest(),'pdf_sha256':hashlib.sha256(result).hexdigest(),'pages':pages,'paragraphs':paragraphs,'tables':tables,'cells':cells,'images':len(images),'characters':characters,'manual_page_breaks':manual_breaks,'manual_column_breaks':manual_column_breaks,'sections':section_report,'section_count':len(segments),'header_footer_templates':sum(len(s['running'].templates) for s in segments),'header_footer_instances':sum(s['running'].drawn for s in segments),'page_fields':dynamic_fields,**notes.report(),**field_stats,**table_stats,'page_number_start':segments[0]['fields'].start,'page_number_format':segments[0]['fields'].format,'page_labels_preserved':page_labels_preserved,'styles_applied':len(styles.used),'list_items':styles.list_items,'fonts_replaced':sorted(fonts),'warnings':sorted(warnings),'missing_words':list(missing)[:30],'text_check_passed':not missing,'layout_preserved':False,'output_bytes':len(result)}
     report.update(bookmarks=len(bookmarks.names),internal_hyperlinks=bookmarks.links)
     return result,report

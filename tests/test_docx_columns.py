@@ -83,7 +83,7 @@ def test_invalid_or_too_narrow_columns_do_not_return_incomplete_pdf(columns):
     with pytest.raises(DocumentError):import_docx(source(columns))
 
 
-@pytest.mark.parametrize('kind',['page','column','before'])
+@pytest.mark.parametrize('kind',['page','before'])
 def test_manual_breaks_in_columns_are_not_silently_reinterpreted(kind):
     body=p('Before')+('<w:p><w:pPr><w:pageBreakBefore/></w:pPr><w:r><w:t>After</w:t></w:r></w:p>' if kind=='before' else f'<w:p><w:r><w:br w:type="{kind}"/><w:t>After</w:t></w:r></w:p>')
     with pytest.raises(DocumentError,match='saltos manuales'):import_docx(source(body=body))

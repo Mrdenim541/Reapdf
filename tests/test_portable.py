@@ -57,6 +57,7 @@ def test_launcher_self_test_http_and_export_in_staged_folder_with_spaces(tmp_pat
     (app/'web/dist/index.html').write_text('<html><div id="root"></div></html>')
     shutil.copy2(root/'portable/launcher.py',app/'launcher.py')
     shutil.copy2(root/'portable/desktop.py',app/'desktop.py')
+    shutil.copy2(root/'portable/lifecycle.py',app/'lifecycle.py')
     shutil.copy2(root/'portable/parent_pipe.py',app/'parent_pipe.py')
     (folder/'ejemplos').mkdir()
     with f.open() as d:
