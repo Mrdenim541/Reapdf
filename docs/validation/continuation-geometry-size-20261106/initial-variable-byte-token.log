@@ -1,0 +1,33 @@
+F.................                                                       [100%]
+=================================== FAILURES ===================================
+___ test_ordered_parts_are_under_actual_limit_with_custom_names_and_receipt ____
+
+    def test_ordered_parts_are_under_actual_limit_with_custom_names_and_receipt():
+        base=sample();maximum=limit(base);review=inspect_split(base,[],max_bytes=maximum);assert review['files']>1
+        names=[f'1.46 PINTURA {i+1:03d}.pdf' for i in range(review['files'])];groups=[p['pages'] for p in review['parts']]
+        checked=inspect_split(base,[],groups=groups,names=names,max_bytes=maximum)
+>       archive=split_pdf(base,[],groups=groups,names=names,max_bytes=maximum,manifest=True,review_token=checked['review_token'])
+
+tests/test_split_size.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = b'%PDF-1.7\n%\xc2\xb5\xc2\xb6\n% Written by MuPDF 1.28.2\n\n1 0 obj\n<</Type/Catalog/Pages 2 0 R/Info<</Producer(MuPDF...ize 25/Root 1 0 R/ID[<5DC2BA46C3A63804C39DC39C1A5D73C3><53DAE4CA992B7D0B7A8766BA1A4BCEDC>]>>\nstartxref\n2480\n%%EOF\n'
+operations = []
+
+    def split_pdf(data, operations, *, size=None, groups=None,names=None,bookmark_level=None,manifest=False,preserve_tags=True,review_token=None,max_bytes=None):
+        import json,hashlib
+        if type(manifest) is not bool:raise DocumentError('La opción de relación de archivos debe ser verdadera o falsa.')
+        edited,review=prepare_split(data,operations,size=size,groups=groups,names=names,bookmark_level=bookmark_level,preserve_tags=preserve_tags,max_bytes=max_bytes)
+>       if review_token is not None and (not isinstance(review_token,str) or review_token!=review['review_token']):raise DocumentError('La configuración o el documento cambió desde la comprobación. Revisa de nuevo antes de descargar.')
+E       backend.engine.DocumentError: La configuración o el documento cambió desde la comprobación. Revisa de nuevo antes de descargar.
+
+backend/page_tools.py:118: DocumentError
+=============================== warnings summary ===============================
+tests/test_split_size.py::test_api_byte_limit_review_download_and_stale_token_are_connected
+  /workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_split_size.py::test_ordered_parts_are_under_actual_limit_with_custom_names_and_receipt
+1 failed, 17 passed, 1 warning in 9.42s

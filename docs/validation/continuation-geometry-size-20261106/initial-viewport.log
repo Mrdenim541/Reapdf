@@ -1,0 +1,12 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[490131:490151:1106/132934.359353:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 490152: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_paragraph_geometry_qt.py", line 47, in <module>
+    QTest.qWait(300);assert js('(()=>{const r=document.querySelector(".inline-paragraph-editor").getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;})()')
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

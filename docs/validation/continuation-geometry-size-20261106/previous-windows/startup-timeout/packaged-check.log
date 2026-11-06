@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 335, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 328, in main
+    folder=Path(tmp)/'Reapdf-portable';native=native_check(folder);compiled_gui_check(folder);spacing=compiled_gui_check(folder,'spacing_flow');gui=compiled_gui_check(folder,'pagination');images=compiled_gui_check(folder,'tagged_images');shear=compiled_gui_check(folder,'variable_shear');tagged=compiled_gui_check(folder,'tagged_paragraph');word_columns=compiled_gui_check(folder,'word_columns');semantic_stream=compiled_gui_check(folder,'semantic_stream');semantic_outer=compiled_gui_check(folder,'semantic_outer');quick_text=compiled_gui_check(folder,'quick_text');native_format=compiled_gui_check(folder,'native_format');paragraph_format=compiled_gui_check(folder,'paragraph_format');paragraph_geometry=compiled_gui_check(folder,'paragraph_geometry');result={**native,**spacing,**gui,**images,**shear,**tagged,**word_columns,**semantic_stream,**semantic_outer,**quick_text,**native_format,**paragraph_format,**paragraph_geometry,'compiled_gui_independent_runs':13,'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
+                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 220, in compiled_gui_check
+    if time.monotonic()>deadline:raise RuntimeError('La ventana incluida no qued� disponible para su verificaci�n.')
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: La ventana incluida no qued� disponible para su verificaci�n.

@@ -1,0 +1,3 @@
+INSPECT {"runs":[{"id":"3:0:0","text":"Texto original","font":"Helvetica","size":18,"color":0,"origin":[56,250],"bbox":[56,230.64999389648438,164.0360107421875,255.3820037841797],"editable":true,"reason":"","subset":false}]}
+REQUEST {"operations":[],"page":0,"box":[56,230.64999389648438,108.0360107421875,24.732009887695312],"changes":[{"id":"3:0:0","text":"Ejecutable"}],"expand":false}
+PASS: attached embedded Qt window loads PDF, edits text on page, undoes/redoes and exports through its server. Executable identity is checked by the Windows verifier.

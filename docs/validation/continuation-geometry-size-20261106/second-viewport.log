@@ -1,0 +1,13 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[490240:490260:1106/132954.525738:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 490261: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+{"rect":{"x":625.5,"y":387.234375,"width":220,"height":620,"top":387.234375,"right":845.5,"bottom":1007.234375,"left":625.5},"viewport":880,"max":"620px"}
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_paragraph_geometry_qt.py", line 47, in <module>
+    QTest.qWait(300);print(js('JSON.stringify((()=>{const e=document.querySelector(".inline-paragraph-editor");return {rect:e.getBoundingClientRect().toJSON(),viewport:innerHeight,max:getComputedStyle(e).maxHeight};})())'),flush=True);window.grab().save('/tmp/reapdf-geometry-controls.png');assert js('(()=>{const r=document.querySelector(".inline-paragraph-editor").getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight;})()')
+                                                                                                                                                                                                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

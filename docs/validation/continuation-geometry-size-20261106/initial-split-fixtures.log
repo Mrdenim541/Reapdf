@@ -1,0 +1,171 @@
+........F....F.F........................................................ [ 60%]
+...............................................                          [100%]
+=================================== FAILURES ===================================
+_____________ test_oversized_page_never_produces_a_partial_archive _____________
+
+    def test_oversized_page_never_produces_a_partial_archive():
+        with f.open() as d:
+            p=d.new_page();p.insert_text((30,40),'LARGE PAGE '+''.join(chr(65+i%26) for i in range(3000)),fontsize=8);base=d.tobytes(deflate=False)
+>       with pytest.raises(DocumentError,match='supera el tamaño máximo'):split_pdf(base,[],max_bytes=1024)
+E       Failed: DID NOT RAISE <class 'backend.engine.DocumentError'>
+
+tests/test_split_size.py:47: Failed
+__________ test_nonconsecutive_atomic_pages_keep_their_whole_interval __________
+
+    def test_nonconsecutive_atomic_pages_keep_their_whole_interval():
+>       groups=groups_by_bytes(7,[[0,2],[4,5]],1800,lambda g:200+500*len(g));assert groups==[[0,1,2],[3],[4,5,6]]
+E       assert [[0, 1, 2], [3, 4, 5], [6]] == [[0, 1, 2], [3], [4, 5, 6]]
+E         
+E         At index 1 diff: [3, 4, 5] != [3]
+E         Use -v to get more diff
+
+tests/test_split_size.py:66: AssertionError
+__________________ test_size_is_measured_after_pending_edits ___________________
+
+    def test_size_is_measured_after_pending_edits():
+        base=sample();ops=[{'type':'rotate','page':0,'rotation':180}]
+>       review=inspect_split(base,ops,max_bytes=limit(base));assert review['complete_partition']
+
+tests/test_split_size.py:75: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+backend/page_tools.py:110: in inspect_split
+    _,result=prepare_split(data,operations,**options)
+backend/page_tools.py:70: in prepare_split
+    edited=export_pdf(data,operations)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = b'%PDF-1.7\n%\xc2\xb5\xc2\xb6\n% Written by MuPDF 1.28.2\n\n1 0 obj\n<</Type/Catalog/Pages 2 0 R/Info<</Producer(MuPDF...ize 25/Root 1 0 R/ID[<48C3977DC3B41EC380C2BDC3932BC28D><6631CDDA8EE5B61B97D66A5F67C4767A>]>>\nstartxref\n2480\n%%EOF\n'
+operations = [{'page': 0, 'rotation': 180, 'type': 'rotate'}]
+
+    def export_pdf(data, operations, *, preserve_streams=False):
+        if not isinstance(operations, list) or len(operations) > MAX_OPERATIONS:
+            raise DocumentError("Demasiadas operaciones o formato no válido.")
+        if any(isinstance(op,dict) and op.get('type')=='form_rules' for op in operations):
+            from .form_rules import resolve_rules
+            operations=resolve_rules(data,operations)[0]
+        with open_pdf(data) as doc:
+            if not operations:
+                return data
+            if doc.get_sigflags() > 0:
+                raise DocumentError("No se modifican PDF firmados en este prototipo.")
+            from .existing_annotations import related_annotations, prepare_existing, apply_existing
+            related = related_annotations(doc) if any(isinstance(op, dict) and op.get('type') == 'existing_annot' for op in operations) else set()
+            prepared = []
+            image_encoded = 0
+            seen = set()
+            for op in operations:
+                if not isinstance(op, dict):
+                    raise DocumentError("Operación no válida.")
+                number = op.get("page")
+                if type(number) is not int or not 0 <= number < len(doc):
+                    raise DocumentError("Página no válida.")
+                page = doc[number]
+                kind = op.get("type")
+                if kind=='watermark':
+                    from .watermarks import prepare_watermark
+                    if not doc.permissions & fitz.PDF_PERM_MODIFY or kind in seen:raise DocumentError('No se permite esta marca de agua o existe otra configuración.')
+                    seen.add(kind);prepared.append((number,kind,prepare_watermark(doc,op),None))
+                elif kind in ['form_fill','form_recalculate']:
+                    from .forms import prepare_fill
+                    if 'form_fill' in seen:raise DocumentError('Solo se admite una configuración de formulario.')
+                    seen.add('form_fill')
+                    if kind=='form_recalculate' and (set(op)!={'type','page'} or number!=0):raise DocumentError('Configuración de recálculo no válida.')
+                    prepared.append((number,'form_fill',prepare_fill(doc,[] if kind=='form_recalculate' else op.get('values'),recalculate=kind=='form_recalculate'),None))
+                elif kind in {'bookmarks','header_footer'}:
+                    if not doc.permissions & fitz.PDF_PERM_MODIFY:
+                        raise DocumentError('El documento no permite modificar el índice o el contenido de página.')
+                    if kind in seen:raise DocumentError('Solo se admite una configuración consolidada de este tipo.')
+                    seen.add(kind)
+                    if kind=='bookmarks':
+                        from .bookmarks import prepare_bookmarks
+                        payload=prepare_bookmarks(doc,op.get('items'))
+                    else:
+                        from .headers import prepare_headers
+                        payload=prepare_headers(doc,op)
+                    prepared.append((number,kind,payload,None))
+                elif kind in {'textbox', 'stamp', 'link'}:
+                    from .content_tools import prepare_content
+                    required = fitz.PDF_PERM_ANNOTATE if kind == 'stamp' else fitz.PDF_PERM_MODIFY
+                    if not doc.permissions & required:
+                        raise DocumentError('El documento no permite esta modificación.')
+                    prepared.append((number, kind, prepare_content(doc, page, op), None))
+                elif kind == "image":
+                    from .images import prepare_image, MAX_IMAGE_ENCODED
+                    if not doc.permissions & fitz.PDF_PERM_MODIFY:
+                        raise DocumentError("El documento no permite modificar contenido.")
+                    image_encoded += len(op.get('data', '')) if isinstance(op.get('data'), str) else 0
+                    if image_encoded > MAX_IMAGE_ENCODED:
+                        raise DocumentError("Las imágenes de la sesión superan 4 MB codificados. Exporta y vuelve a abrir el PDF antes de insertar más.")
+                    prepared.append((number, kind, prepare_image(page, op), None))
+                elif kind == "existing_annot":
+                    payload = prepare_existing(doc, page, op, related)
+                    key = (number, 'existing', payload[0])
+                    if key in seen:
+                        raise DocumentError("Una anotación existente solo admite una operación consolidada por exportación.")
+                    seen.add(key)
+                    prepared.append((number, kind, payload, None))
+                elif kind == "text":
+                    if not doc.permissions & fitz.PDF_PERM_MODIFY:
+                        raise DocumentError("El documento no permite modificar contenido.")
+                    if any(a.type[0] == fitz.PDF_ANNOT_REDACT for a in page.annots() or []):
+                        raise DocumentError("La página contiene censuras pendientes. No se editará texto en ella.")
+                    if not isinstance(op.get("span_id"), str):
+                        raise DocumentError("Identificador de texto no válido.")
+                    key = (number, op.get("span_id"))
+                    if key in seen:
+                        raise DocumentError("Una línea no puede reemplazarse dos veces en la misma exportación.")
+                    seen.add(key)
+                    all_spans = spans(page)
+                    source = next((s for s in all_spans if s["id"] == op.get("span_id")), None)
+                    if not source or not source["editable"]:
+                        raise DocumentError("Esta línea no es compatible con la edición inicial.")
+                    replacement = op.get("text")
+                    if not isinstance(replacement, str) or len(replacement) > 2000 or any(ord(c) < 32 or ord(c) > 255 for c in replacement):
+                        raise DocumentError("Usa una sola línea con caracteres latinos compatibles.")
+                    box = fitz.Rect(source["bbox"])
+                    if any(s["id"] != source["id"] and (box & fitz.Rect(s["bbox"])).get_area() > 0.1 for s in all_spans):
+                        raise DocumentError("La región se cruza con otro texto; no se modificará automáticamente.")
+                    from .text_style import prepare_text_style
+                    source = prepare_text_style(page, source, replacement, op, all_spans)
+                    prepared.append((number, kind, source, replacement))
+                elif kind in {"highlight", "underline", "strikeout", "note"}:
+                    from .review import prepare_review
+                    if not doc.permissions & fitz.PDF_PERM_ANNOTATE:
+                        raise DocumentError("El documento no permite anotaciones.")
+                    prepared.append((number, kind, prepare_review(page, op), None))
+                elif kind in {"ink", "line", "arrow", "rectangle"}:
+                    if not doc.permissions & fitz.PDF_PERM_ANNOTATE:
+                        raise DocumentError("El documento no permite anotaciones.")
+                    pts, color, width = op.get("points"), op.get("color"), op.get("width")
+                    if not isinstance(pts, list) or not 2 <= len(pts) <= 10000:
+                        raise DocumentError("Trazo no válido.")
+                    if kind != "ink" and len(pts) != 2:
+                        raise DocumentError("La figura requiere dos puntos.")
+                    if not isinstance(color, list) or len(color) != 3 or any(not finite(c) or not 0 <= c <= 1 for c in color):
+                        raise DocumentError("Color no válido.")
+                    if not finite(width) or not 0.5 <= width <= 12:
+                        raise DocumentError("Grosor no válido.")
+                    for pt in pts:
+                        if not isinstance(pt, list) or len(pt) != 2 or not all(finite(v) for v in pt) or not page.rect.contains(fitz.Point(*pt)):
+                            raise DocumentError("El trazo sale de la página.")
+                    if kind in {"line", "arrow"} and math.dist(*pts) < 1:
+                        raise DocumentError("La línea es demasiado corta.")
+                    if kind == "rectangle" and any(abs(pts[0][i] - pts[1][i]) < 1 for i in (0, 1)):
+                        raise DocumentError("El rectángulo requiere ancho y alto.")
+                    prepared.append((number, kind, pts, (color, width)))
+                else:
+>                   raise DocumentError("Tipo de operación no compatible.")
+E                   backend.engine.DocumentError: Tipo de operación no compatible.
+
+backend/engine.py:210: DocumentError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_split_size.py::test_oversized_page_never_produces_a_partial_archive
+FAILED tests/test_split_size.py::test_nonconsecutive_atomic_pages_keep_their_whole_interval
+FAILED tests/test_split_size.py::test_size_is_measured_after_pending_edits - ...
+3 failed, 116 passed, 1 warning in 52.35s

@@ -1,0 +1,84 @@
+..................FF.................................................... [100%]
+=================================== FAILURES ===================================
+__________ test_format_and_geometry_are_updated_together[serif-False] __________
+
+classes = False, family = 'serif'
+
+    @pytest.mark.parametrize('classes',[False,True])
+    @pytest.mark.parametrize('family',['sans','serif','mono'])
+    def test_format_and_geometry_are_updated_together(classes,family):
+>       out,_=change(sample(classes),{'family':family,'style':'keep','size':22},words=2,width=200,height=170);check_boxes(out)
+
+tests/test_paragraph_geometry.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = b'%PDF-1.7\n%\xc2\xb5\xc2\xb6\n% Written by MuPDF 1.28.2\n\n1 0 obj\n<</Type/Catalog/Pages 2 0 R/Info<</Producer(MuPDF...e 36/Root 1 0 R/ID[<2569010FC3A8C3A0C3B63EC39B7756C2><E3AB43369F530013D38558EB64CDA436>]>>\nstartxref\n421109\n%%EOF\n'
+
+    def check_boxes(data):
+        with f.open(stream=data) as d:
+            d[0].set_rotation(0);n=f.mupdf;t=tree(d);rows=native_model(d,0,d[0].rect)[1]
+            for owner,record in t.records.items():
+                for _,_,_,attr in declarations(d,record['object']):
+                    box=n.pdf_dict_gets(attr,'BBox')
+                    if n.pdf_is_null(box):continue
+                    actual=f.Rect([n.pdf_to_real(n.pdf_array_get(box,i)) for i in range(4)])
+                    covered=[]
+                    for row in rows:
+                        leaf=row['_semantic_identity']
+                        if owner in t.records[leaf]['chain']+[leaf]:covered.append(row)
+                    assert covered
+                    expected=f.Rect()
+                    for row in covered:expected|=f.Rect(row['bbox'])*~d[0].transformation_matrix
+>                   assert list(actual)==pytest.approx(list(expected),abs=.02)
+E                   assert [200.0, 394.8...20.6572265625] == approx([200.0...25 ± 2.0e-02])
+E                     
+E                     comparison failed. Mismatched elements: 1 / 4:
+E                     Max absolute difference: 0.021240234375
+E                     Max relative difference: 5.0492973931696356e-05
+E                     Index | Obtained       | Expected                  
+E                     3     | 420.6572265625 | 420.635986328125 ± 2.0e-02
+
+tests/test_paragraph_geometry.py:54: AssertionError
+__________ test_format_and_geometry_are_updated_together[serif-True] ___________
+
+classes = True, family = 'serif'
+
+    @pytest.mark.parametrize('classes',[False,True])
+    @pytest.mark.parametrize('family',['sans','serif','mono'])
+    def test_format_and_geometry_are_updated_together(classes,family):
+>       out,_=change(sample(classes),{'family':family,'style':'keep','size':22},words=2,width=200,height=170);check_boxes(out)
+
+tests/test_paragraph_geometry.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = b'%PDF-1.7\n%\xc2\xb5\xc2\xb6\n% Written by MuPDF 1.28.2\n\n1 0 obj\n<</Type/Catalog/Pages 2 0 R/Info<</Producer(MuPDF...e 39/Root 1 0 R/ID[<14C28928C284C289322EC287C3B6C2B9><5AB71308D8293CAF0DFD58CC3910AC7C>]>>\nstartxref\n421711\n%%EOF\n'
+
+    def check_boxes(data):
+        with f.open(stream=data) as d:
+            d[0].set_rotation(0);n=f.mupdf;t=tree(d);rows=native_model(d,0,d[0].rect)[1]
+            for owner,record in t.records.items():
+                for _,_,_,attr in declarations(d,record['object']):
+                    box=n.pdf_dict_gets(attr,'BBox')
+                    if n.pdf_is_null(box):continue
+                    actual=f.Rect([n.pdf_to_real(n.pdf_array_get(box,i)) for i in range(4)])
+                    covered=[]
+                    for row in rows:
+                        leaf=row['_semantic_identity']
+                        if owner in t.records[leaf]['chain']+[leaf]:covered.append(row)
+                    assert covered
+                    expected=f.Rect()
+                    for row in covered:expected|=f.Rect(row['bbox'])*~d[0].transformation_matrix
+>                   assert list(actual)==pytest.approx(list(expected),abs=.02)
+E                   assert [200.0, 394.8...20.6572265625] == approx([200.0...25 ± 2.0e-02])
+E                     
+E                     comparison failed. Mismatched elements: 1 / 4:
+E                     Max absolute difference: 0.021240234375
+E                     Max relative difference: 5.0492973931696356e-05
+E                     Index | Obtained       | Expected                  
+E                     3     | 420.6572265625 | 420.635986328125 ± 2.0e-02
+
+tests/test_paragraph_geometry.py:54: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_paragraph_geometry.py::test_format_and_geometry_are_updated_together[serif-False]
+FAILED tests/test_paragraph_geometry.py::test_format_and_geometry_are_updated_together[serif-True]
+2 failed, 70 passed in 12.73s
