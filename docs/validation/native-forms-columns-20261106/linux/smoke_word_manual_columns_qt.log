@@ -1,0 +1,8 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[531795:531815:1106/175955.339740:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 531816: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: actual Qt imports three manual column breaks, reviews both pages, opens/saves/reopens; new columns/pages, first-line indentation, bold color and both halves of a bookmark hyperlink remain correct; source DOCX unchanged.

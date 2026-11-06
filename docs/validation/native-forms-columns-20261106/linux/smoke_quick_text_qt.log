@@ -1,0 +1,9 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[531411:531433:1106/175922.568454:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 531434: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+[531411:531431:1106/175924.571181:ERROR:latency_info.cc(93)] CompositorFrameSinkSupport::MaybeSubmitCompositorFrame, LatencyInfo vector size 101 is too big.
+PASS: actual Qt right-click and Shift+F10 open text menu; compact dialog preloads code, cancel preserves original, overflow retains draft, Ctrl+Enter updates visible/accessible code, Delete works with document undo, native save preserves final edit and source bytes.

@@ -1,0 +1,17 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[526493:526512:1106/174019.151305:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 526513: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_form_datetime_qt.py", line 60, in <module>
+    wait('document.querySelector(".document-bar")?.textContent.includes("DateTime.pdf")');click('Formularios y firmas');tool('Rellenar formulario');edit('Valor del formulario','31/02/2026 25:00:00');click('Aplicar formulario');wait('document.body.innerText.includes("La fecha no es válida")');assert js(field('Valor del formulario')+'.value')=='31/02/2026 25:00:00'
+                                                                                                                                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_form_datetime_qt.py", line 35, in click
+    wait('!!'+expr+' && !'+expr+'.disabled');js(expr+'.dispatchEvent(new MouseEvent("click",{bubbles:true}))')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_form_datetime_qt.py", line 30, in wait
+    raise AssertionError(script)
+AssertionError: !![...document.querySelectorAll("button,[role=button]")].find(e=>(e.getAttribute("aria-label")||e.textContent.trim())==="Aplicar formulario") && ![...document.querySelectorAll("button,[role=button]")].find(e=>(e.getAttribute("aria-label")||e.textContent.trim())==="Aplicar formulario").disabled

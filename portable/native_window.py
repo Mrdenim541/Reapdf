@@ -71,9 +71,9 @@ def create_window(url,initial_file=None):
         def __init__(self):
             super().__init__();self.allow_close=False;self.close_emitted=False;self.checking_close=False;self.unfinished_save=False;self.save_targets={}
             self.setWindowTitle('Reapdf');self.resize(1320,900)
-            self.view=QWebEngineView(self)
+            self.view=QWebEngineView(self);trace('native.view.created')
             self.profile=QWebEngineProfile(self) # Off-the-record profile, owned by this window.
-            self.page=Page(self.profile,self.view);self.page.view_window=self;self.view.setPage(self.page)
+            self.page=Page(self.profile,self.view);trace('native.page.created');self.page.view_window=self;self.view.setPage(self.page)
             self.channel=QWebChannel(self.page);self.bridge=Bridge(self)
             self.channel.registerObject('reapdf',self.bridge);self.page.setWebChannel(self.channel)
             resource=QFile(':/qtwebchannel/qwebchannel.js')
@@ -100,7 +100,7 @@ def create_window(url,initial_file=None):
             if initial_file:self.initial_timer.start()
             self.startup_load_failed=False
             self.page.loadFinished.connect(lambda ok:setattr(self,'startup_load_failed',not ok))
-            self.view.setUrl(QUrl(url))
+            trace('native.navigation.start');self.view.setUrl(QUrl(url));trace('native.navigation.scheduled')
 
         def watch_ready(self,on_ready,on_failure,timeout=20):
             self.ready_probe=QTimer(self);self.ready_probe.setInterval(100)
@@ -213,13 +213,17 @@ def create_window(url,initial_file=None):
 
 
 def main():
+    # Portable startup must also work without a usable graphics driver (RDP,
+    # virtual machines and Windows Server). Explicit user flags take precedence.
+    if sys.platform=='win32':os.environ.setdefault('QTWEBENGINE_CHROMIUM_FLAGS','--disable-gpu')
+    trace('native.start')
     from PySide6.QtCore import QCoreApplication,Qt,QTimer
     from PySide6.QtWidgets import QApplication
     QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
-    app=QApplication(sys.argv[:1]);app.setApplicationName('Reapdf');app.setOrganizationName('Reapdf')
+    app=QApplication(sys.argv[:1]);trace('native.application.created');app.setApplicationName('Reapdf');app.setOrganizationName('Reapdf')
     try:from .single_instance import SingleInstance
     except ImportError:from single_instance import SingleInstance
-    instance=SingleInstance(sys.argv[2] if len(sys.argv)>2 else None,namespace=os.environ.get('REAPDF_INSTANCE_NAMESPACE'))
+    instance=SingleInstance(sys.argv[2] if len(sys.argv)>2 else None,namespace=os.environ.get('REAPDF_INSTANCE_NAMESPACE'));trace('native.instance.acquired')
     def confirm(state):
         trace('native.ready.'+state)
         path=os.environ.get('REAPDF_NATIVE_READY_FILE')

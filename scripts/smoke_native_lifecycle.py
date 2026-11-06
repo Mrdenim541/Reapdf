@@ -35,10 +35,11 @@ sys.argv=['native_window.py','http://127.0.0.1:8000'];sys.exit(native.main())
 '''
 for mode in ['early','clean','busy','cancel']:
  env={**os.environ,'REAPDF_TRACE_LIFECYCLE':'1','REAPDF_INSTANCE_NAMESPACE':str(root/mode),'XDG_CACHE_HOME':str(root/(mode+'-cache'))}
+ if sys.platform=='win32':env.pop('QTWEBENGINE_CHROMIUM_FLAGS',None) # Exercise the real portable default.
  run=subprocess.run([sys.executable,'-c',code,mode],env=env,capture_output=True,text=True,timeout=30)
  print(run.stdout);print(run.stderr)
  assert run.returncode==0,(mode,run.returncode)
- entries=[json.loads(line.split(' ',1)[1]) for line in run.stdout.splitlines() if line.startswith('REAPDF_LIFECYCLE ')]
+ entries=[json.loads(line.split(' ',1)[1]) for line in (run.stdout+'\n'+run.stderr).splitlines() if line.startswith('REAPDF_LIFECYCLE ')]
  stages=[entry['stage'] for entry in entries]
  assert stages.count('native.close.accepted')==1 and 'native.loop.finished:0' in stages and stages[-1]=='native.instance.closed'
  if mode in ['busy','cancel']:assert 'GUARD_PRESERVED='+mode in run.stdout

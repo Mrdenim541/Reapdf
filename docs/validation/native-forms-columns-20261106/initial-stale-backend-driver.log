@@ -1,0 +1,73 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[525357:525385:1106/172849.224711:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 525386: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+R
+reapdf
+PERSONAL · EN DESARROLLO
+Guía y atajos
+●
+Procesamiento local
+Archivo
+Abrir PDF
+Exportar copia
+Tu espacio de trabajo PDF
+Edición · organización · formularios · OCR
+UN NUEVO ESPACIO PARA TUS DOCUMENTOS
+Tu PDF.
+Con tus cambios.
+
+Lee, corrige, organiza y prepara tus documentos en un espacio de trabajo local. Encuentra cada herramienta por su nombre o por lo que necesitas hacer.
+
+Seleccionar un PDF
+Crear PDF desde imágenes
+Crear PDF desde Word
+Hasta 30 MB · 500 páginas · Sin envío a servicios externos
+01 / Leer
+Encuentra tu página
+
+Miniaturas, índice, búsqueda y revisión de la estructura del documento.
+
+02 / Marcar
+Deja tu trazo
+
+Anotaciones, notas, trazos, formularios y firma visual, con cambios reversibles.
+
+03 / Editar
+Cambia el contenido
+
+Texto e imágenes compatibles, OCR local, organización y exportación de copias.
+
+Versión en desarrollo. La edición depende de la estructura y fuentes del PDF. Incluye OCR local en español e inglés; las firmas visuales y las firmas con certificado tienen asistentes separados. Consulta la guía para conocer los flujos y límites.
+Crear PDF desde Word
+×
+1. Elegir DOCX
+
+Convierte párrafos, estilos heredados compatibles, listas, formato directo, tablas con combinaciones compatibles, secciones con papel, márgenes y de una a cuatro columnas propias, encabezados/pies compatibles, imágenes PNG/JPEG y enlaces web compatibles. Las fuentes se sustituyen por DejaVu Sans; la paginación y el diseño pueden cambiar.
+
+Documento Word
+Papel
+Tamaño y márgenes del Word
+A4
+Carta
+Convertir y revisar Word
+Convertir varios Word a PDF independientes
+
+Los saltos manuales dentro de secciones Word con columnas requieren otro tratamiento; no se convierten en saltos de columna incorrectos.
+
+DOCX de hasta 10 MB, 50 páginas y 100000 caracteres. Sin macros ni objetos incrustados. Admite herencia de estilos y listas decimales, alfabéticas, romanas y viñetas compatibles. Encabezados/pies con variantes de portada y páginas pares; PAGE/NUMPAGES/SECTIONPAGES simples y complejos compatibles se recalculan. Admite inicio y formato decimal, romano o alfabético; las secciones con salto a página siguiente conservan papel, márgenes, herencia de encabezados y reinicios de numeración. Los saltos a página par o impar añaden una página vacía cuando corresponde, contando esa página en numeración y totales. Las secciones admiten de una a cuatro columnas iguales o desiguales, con separadores opcionales y notas al pie bajo el área completa. La última página no se equilibra automáticamente. Los saltos de columna explícitos avanzan a la siguiente columna y desde la última a la página siguiente, conservando estilos y enlaces compatibles. Los saltos continuos y los saltos manuales de página dentro de varias columnas requieren otro tratamiento. Los enlaces internos a marcadores compatibles se convierten en enlaces PDF nativos. Las notas al pie compatibles se distribuyen al final de su página, con referencias y enlaces de retorno, incluidas marcas personalizadas de uno a cuatro caracteres en el mismo fragmento; las notas finales se conservan al final del documento o sección. Admite numeración de notas al pie reiniciada por página con referencias y etiquetas coherentes tras paginar. No se admiten notas partidas entre páginas ni reinicio por página de notas finales. Otros campos conservan resultados guardados. No necesita Office instalado ni descarga recursos externos. Al abrir el resultado podrás editarlo y guardar un proyecto.
+
+Cancelar
+Abrir PDF convertido
+REAPDF / ESCRITORIO
+Tu espacio para trabajar con PDF.
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_word_manual_columns_qt.py", line 31, in <module>
+    click('Convertir y revisar Word');wait('!!'+field('Página de Word importado'));wait('document.body.innerText.includes("Columnas por sección: 2")&&document.body.innerText.includes("enlaces internos a marcadores")')
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/Reapdf/scripts/smoke_word_manual_columns_qt.py", line 22, in wait
+    raise AssertionError(script)
+AssertionError: !!document.querySelector("[aria-label=\"P\u00e1gina de Word importado\"]")
