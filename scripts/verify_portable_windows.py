@@ -151,6 +151,24 @@ def _compiled_window(folder):
     return found[0]
 
 
+def close_diagnostics(launcher_pid,qt_pid):
+    """Owned process names and this synthetic candidate's startup log only."""
+    try:
+        command=(f'$reapdfIds=@({int(launcher_pid)},{int(qt_pid)});'
+                 '$reapdfRows=@(Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,Name);'
+                 'for($reapdfDepth=0;$reapdfDepth -lt 8;$reapdfDepth++){'
+                 '$reapdfChildren=@($reapdfRows | Where-Object {$reapdfIds -contains $_.ParentProcessId} | ForEach-Object {$_.ProcessId});'
+                 '$reapdfIds=@($reapdfIds+$reapdfChildren | Select-Object -Unique)};'
+                 '$reapdfRows | Where-Object {$reapdfIds -contains $_.ProcessId} | ConvertTo-Json -Compress')
+        run=subprocess.run(['powershell','-NoProfile','-NonInteractive','-Command',command],capture_output=True,text=True,timeout=10)
+        print('CLOSE_PROCESS_DIAGNOSTICS:',run.stdout.strip() or run.stderr.strip(),flush=True)
+        root=os.environ.get('LOCALAPPDATA')
+        if root:
+            log=Path(root)/'Reapdf/logs'/f'inicio-{int(launcher_pid)}.log'
+            if log.is_file():print('CLOSE_OWNED_STARTUP_LOG:',log.read_bytes()[-8000:].decode('utf-8',errors='replace'),flush=True)
+    except Exception as exc:print('CLOSE_DIAGNOSTICS_UNAVAILABLE:',type(exc).__name__,str(exc),flush=True)
+
+
 def compiled_gui_check(folder,journey='basic'):
     if os.name!='nt':raise RuntimeError('La comprobación del ejecutable exige Windows.')
     root=Path(__file__).resolve().parents[1];node=shutil.which('node')
@@ -287,7 +305,10 @@ for index,path in enumerate(sys.argv[2:]):
         def key(handle,value):
             user.PostMessageW(handle,0x0100,value,0);user.PostMessageW(handle,0x0101,value,0)
         from scripts.compiled_close import wait_closed
-        discarded=wait_closed(process,pid,windows,key)
+        try:discarded=wait_closed(process,pid,windows,key)
+        except RuntimeError:
+            close_diagnostics(process.pid,pid)
+            raise
         print('CLOSE:',journey,'native discard confirmation:',discarded,flush=True)
         if journey in ['variable_shear','tagged_paragraph'] and not discarded:raise RuntimeError('El recorrido nuevo no comprobó la confirmación nativa de descartar el borrador de prueba.')
         print(run.stdout.strip())
