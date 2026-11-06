@@ -1,0 +1,7 @@
+C:\hostedtoolcache\windows\Python\3.12.10\x64\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+[9128:2096:1106/124544.351:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[9128:2096:1106/124544.351:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+STEP: table repair saved
+STEP: layer print rules saved
+PASS: actual Qt repairs an existing table and saves without pixel changes; edits independent layer print rules and verifies resolved print content; reviews a page-scoped recipe, schedules a persistent local snapshot, executes through the real background queue, downloads its actual ZIP through native dialog and deletes the stored task.
