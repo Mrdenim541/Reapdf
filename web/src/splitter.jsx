@@ -3,17 +3,33 @@ import {splitGroups,namedParts,numberedPartNames} from './split-plan.js';
 export function Splitter({doc,operations,busy,error,onClearError,onClose,onSplit}){
  const dialog=useRef(null),pending=useRef(null);
  const [mode,setMode]=useState('blocks'),[size,setSize]=useState(1),[draft,setDraft]=useState(`1-${doc.pages.length}`),[names,setNames]=useState({});
+ const [maximumMb,setMaximumMb]=useState(5),[bytePlan,setBytePlan]=useState(null),[planning,setPlanning]=useState(false);
+ const maximumBytes=Number.isFinite(maximumMb)&&maximumMb>=.01&&maximumMb<=100?Math.floor(maximumMb*1000000):null;
  const [prefix,setPrefix]=useState('parte'),[separator,setSeparator]=useState(' '),[start,setStart]=useState(1),[padding,setPadding]=useState(3);
  const [level,setLevel]=useState(1),[bookmarks,setBookmarks]=useState(null),[working,setWorking]=useState(false),[issue,setIssue]=useState(''),[status,setStatus]=useState(''),[receipt,setReceipt]=useState(false),[preserveTags,setPreserveTags]=useState(true);
  const [checked,setChecked]=useState(null),[checking,setChecking]=useState(false);
  const disabled=busy||working;let groups=[],parts=[],generated=[],validation='';
  try{
-  groups=mode==='bookmarks'?bookmarks?.parts.map(p=>p.pages):splitGroups(mode,size,draft,doc.pages.length);
-  if(!groups){groups=[];throw new Error('Prepara las partes desde el nivel de marcadores elegido.');}
+  if(mode==='bytes'&&maximumBytes===null)throw new Error('Indica un tamaño máximo entre 0,01 y 100 MB.');
+  groups=mode==='bytes'?bytePlan?.parts.map(p=>p.pages):mode==='bookmarks'?bookmarks?.parts.map(p=>p.pages):splitGroups(mode,size,draft,doc.pages.length);
+  if(!groups){groups=[];if(mode!=='bytes')throw new Error('Prepara las partes desde el nivel de marcadores elegido.');}
   if(groups.length){generated=numberedPartNames(groups.length,{prefix,separator,start,padding});parts=namedParts(groups,Object.fromEntries(generated.map((name,i)=>[i,names[i]??name])));}
  }catch(e){validation=e.message;}
  useEffect(()=>{dialog.current.showModal();return()=>{pending.current?.abort();dialog.current?.close();};},[]);
- const reviewKey=JSON.stringify({id:doc.id,operations,groups:parts.map(p=>p.pages),names:parts.map(p=>p.name),preserve_tags:preserveTags});
+ useEffect(()=>{
+  setBytePlan(null);setPlanning(false);
+  if(mode!=='bytes'||maximumBytes===null)return;
+  const controller=new AbortController();pending.current?.abort();pending.current=controller;setPlanning(true);setIssue('');
+  const timer=setTimeout(async()=>{
+   try{
+    const r=await fetch(`/api/documents/${doc.id}/split-plan`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operations,max_bytes:maximumBytes,preserve_tags:preserveTags}),signal:controller.signal}),data=await r.json();
+    if(!r.ok)throw new Error(data.detail);
+    if(!controller.signal.aborted){setBytePlan(data);setNames({});}
+   }catch(e){if(!controller.signal.aborted)setIssue(e.message);}finally{if(!controller.signal.aborted)setPlanning(false);}
+  },450);
+  return()=>{clearTimeout(timer);controller.abort();};
+ },[mode,maximumBytes,doc.id,operations,preserveTags]);
+ const reviewKey=JSON.stringify({id:doc.id,operations,groups:parts.map(p=>p.pages),names:parts.map(p=>p.name),preserve_tags:preserveTags,...(mode==='bytes'?{max_bytes:maximumBytes}:{})});
  useEffect(()=>{
   setChecked(null);setIssue('');setStatus('');onClearError?.();
   if(validation||!parts.length){setChecking(false);return;}
@@ -42,8 +58,8 @@ export function Splitter({doc,operations,busy,error,onClearError,onClose,onSplit
   <div className="organizer-heading"><h2 id="split-title">Dividir PDF</h2><button aria-label="Cerrar división" disabled={disabled} onClick={onClose}>×</button></div>
   <p>Genera PDFs independientes con el nombre que elijas. Revisa las páginas de cada archivo y descarga todas las partes en un ZIP. El documento abierto se conserva.</p>
   <div className="page-tool-fields">
-   <label>Modo<select aria-label="Modo de división" value={mode} disabled={disabled} onChange={e=>{setMode(e.target.value);setIssue('');setStatus('');}}><option value="blocks">Bloques de tamaño fijo</option><option value="groups">Grupos personalizados</option><option value="bookmarks">Secciones por marcadores</option></select></label>
-   {mode==='blocks'?<label>Páginas por archivo<input aria-label="Páginas por archivo" type="number" min="1" max={doc.pages.length} value={Number.isNaN(size)?'':size} disabled={disabled} onChange={e=>{setSize(e.target.valueAsNumber);setStatus('');}}/></label>:mode==='groups'?<label>Un archivo por línea<textarea aria-label="Grupos para dividir" rows="4" maxLength="5000" value={draft} disabled={disabled} onChange={e=>{setDraft(e.target.value);setStatus('');}} placeholder={'1-3\n4, 6\n5'}/></label>:<>
+   <label>Modo<select aria-label="Modo de división" value={mode} disabled={disabled} onChange={e=>{setMode(e.target.value);setIssue('');setStatus('');}}><option value="blocks">Bloques de tamaño fijo</option><option value="groups">Grupos personalizados</option><option value="bookmarks">Secciones por marcadores</option><option value="bytes">Tamaño máximo por archivo</option></select></label>
+   {mode==='bytes'?<><label>Tamaño máximo por PDF (MB)<input aria-label="Tamaño máximo de partes en MB" type="number" min="0.01" max="100" step="0.01" value={Number.isNaN(maximumMb)?'':maximumMb} disabled={disabled} onChange={e=>{setMaximumMb(e.target.valueAsNumber);setStatus('');}}/></label><p>Se calcula con el tamaño real de cada PDF. 1 MB = 1.000.000 bytes. Se conserva el orden y la calidad; un grupo inseparable que exceda el límite detiene la operación.</p></>:mode==='blocks'?<label>Páginas por archivo<input aria-label="Páginas por archivo" type="number" min="1" max={doc.pages.length} value={Number.isNaN(size)?'':size} disabled={disabled} onChange={e=>{setSize(e.target.valueAsNumber);setStatus('');}}/></label>:mode==='groups'?<label>Un archivo por línea<textarea aria-label="Grupos para dividir" rows="4" maxLength="5000" value={draft} disabled={disabled} onChange={e=>{setDraft(e.target.value);setStatus('');}} placeholder={'1-3\n4, 6\n5'}/></label>:<>
     <label>Nivel de marcadores<input aria-label="Nivel de marcadores para dividir" type="number" min="1" max="10" value={Number.isNaN(level)?'':level} disabled={disabled} onChange={e=>{setLevel(e.target.valueAsNumber);setBookmarks(null);}}/></label>
     <button disabled={disabled||!Number.isInteger(level)||level<1||level>10} onClick={fromBookmarks}>{working?'Preparando…':'Preparar desde marcadores'}</button>
     <p>Cada marcador del nivel elegido inicia una parte hasta el siguiente. Las páginas anteriores al primero forman «Inicio». Después puedes cambiar los nombres.</p>
@@ -61,10 +77,10 @@ export function Splitter({doc,operations,busy,error,onClearError,onClose,onSplit
    </fieldset>
    <p role="status">{groups.length} archivos PDF · {doc.pages.length} páginas incluidas</p>
   </>}
-  <div style={{maxHeight:300,overflow:'auto'}} className="page-tool-fields">{groups.map((pages,i)=>({pages,name:names[i]??generated[i]??''})).map((part,i)=><label key={i}>Archivo {i+1} · páginas {part.pages.map(n=>n+1).join(', ')}<input aria-label={`Nombre de parte ${i+1}`} value={names[i]??part.name} maxLength="120" disabled={disabled} onChange={e=>{setNames({...names,[i]:e.target.value});setStatus('');}}/></label>)}</div>
+  <div style={{maxHeight:300,overflow:'auto'}} className="page-tool-fields">{groups.map((pages,i)=>({pages,name:names[i]??generated[i]??''})).map((part,i)=><label key={i}>Archivo {i+1} · páginas {part.pages.map(n=>n+1).join(', ')}{mode==='bytes'&&bytePlan?.parts[i]?.bytes!=null?` · ${(bytePlan.parts[i].bytes/1000000).toFixed(3)} MB`:null}<input aria-label={`Nombre de parte ${i+1}`} value={names[i]??part.name} maxLength="120" disabled={disabled} onChange={e=>{setNames({...names,[i]:e.target.value});setStatus('');}}/></label>)}</div>
   <label><input aria-label="Incluir relación de archivos de división" type="checkbox" checked={receipt} disabled={disabled} onChange={e=>setReceipt(e.target.checked)}/>Incluir relación de archivos y páginas en el ZIP</label>
-  {(error||issue||validation)&&<p role="alert">{error||issue||validation}</p>}{checking&&<p role="status">Comprobando páginas, nombres y etiquetas…</p>}{checked?.key===reviewKey&&<p role="status">Configuración comprobada. Antes de publicar el ZIP se verificará el contenido y la apariencia de cada parte.</p>}{status&&<p role="status">{status}</p>}
+  {(error||issue||validation)&&<p role="alert">{error||issue||validation}</p>}{planning&&<p role="status">Calculando partes según su tamaño real…</p>}{checking&&<p role="status">Comprobando páginas, nombres y etiquetas…</p>}{checked?.key===reviewKey&&<p role="status">Configuración comprobada. Antes de publicar el ZIP se verificará el contenido y la apariencia de cada parte.</p>}{status&&<p role="status">{status}</p>}
   <p className="organizer-note">Se conserva el orden escrito. Cada página debe aparecer una vez; los enlaces a otra parte se retiran. Nombres compatibles con Windows, sin duplicados. Máximo 100 MB de PDF de salida. Los documentos firmados y otras estructuras no compatibles requieren una copia adecuada.</p>
-  <div className="organizer-footer"><button disabled={disabled} onClick={onClose}>Cerrar</button><button className="primary" disabled={disabled||!!validation||!parts.length||checked?.key!==reviewKey} onClick={async()=>{setStatus('');if(await onSplit({groups:parts.map(p=>p.pages),names:parts.map(p=>p.name),manifest:receipt,preserve_tags:preserveTags,review_token:checked.token}))setStatus('ZIP preparado para descargar. El documento abierto no cambió.');}}>Descargar partes ZIP</button></div>
+  <div className="organizer-footer"><button disabled={disabled} onClick={onClose}>Cerrar</button><button className="primary" disabled={disabled||!!validation||!parts.length||checked?.key!==reviewKey} onClick={async()=>{setStatus('');if(await onSplit({groups:parts.map(p=>p.pages),names:parts.map(p=>p.name),manifest:receipt,preserve_tags:preserveTags,review_token:checked.token,...(mode==='bytes'?{max_bytes:maximumBytes}:{})}))setStatus('ZIP preparado para descargar. El documento abierto no cambió.');}}>Descargar partes ZIP</button></div>
  </dialog>;
 }

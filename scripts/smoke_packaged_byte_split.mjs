@@ -1,0 +1,11 @@
+// Uses the actual bundled Qt window and its server; no external browser.
+import {chromium,expect} from '@playwright/test';
+import {writeFileSync} from 'node:fs';
+import {openTool} from './smoke-tool-navigation.mjs';
+const [endpoint,output]=process.argv.slice(2),browser=await chromium.connectOverCDP(endpoint,{timeout:45000,noDefaults:true});
+try{
+ const page=browser.contexts()[0].pages().find(p=>p.url().startsWith('http://127.0.0.1:'));page.setDefaultTimeout(30000);await expect(page.locator('.text-layer')).toContainText('SIZEPAGE 1',{timeout:40000});await openTool(page,'Dividir PDF');await page.getByLabel('Modo de división',{exact:true}).selectOption('bytes');await page.getByLabel('Tamaño máximo de partes en MB',{exact:true}).fill('0.06');await page.getByLabel('Nombre de parte 3',{exact:true}).waitFor();
+ const pending=page.waitForResponse(r=>r.url().endsWith('/split-plan')&&r.request().postDataJSON().names?.[0]==='1.46 PINTURA 001.pdf'&&r.request().postDataJSON().max_bytes===60000);await page.getByLabel('Prefijo de nombres de partes',{exact:true}).fill('1.46 PINTURA');const response=await pending,review=await response.json(),payload=response.request().postDataJSON();if(!response.ok()||review.files!==3)throw new Error(JSON.stringify(review));await expect(page.getByRole('button',{name:'Descargar partes ZIP',exact:true})).toBeEnabled();
+ const encoded=await page.evaluate(async({payload,token})=>{const r=await fetch(`/api/documents/${payload.id}/split`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...payload,manifest:true,review_token:token})});if(!r.ok)throw new Error(await r.text());let s='';for(const b of new Uint8Array(await r.arrayBuffer()))s+=String.fromCharCode(b);return btoa(s);},{payload,token:review.review_token});writeFileSync(output,Buffer.from(encoded,'base64'));await page.getByRole('button',{name:'Cerrar',exact:true}).click();await expect(page.locator('.document-bar')).toContainText('0 cambios');
+ console.log('PASS: compiled Qt configures size-based native split and custom numbered names; its reviewed request exports a ZIP through the bundled server with byte-limit token; no external browser or native ZIP save dialog in this journey.');
+}finally{await browser.close();}

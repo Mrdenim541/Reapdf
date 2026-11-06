@@ -1330,7 +1330,7 @@ async def crop(doc_id: str, request: Request):
 async def split_plan(doc_id:str,request:Request):
     from .page_tools import inspect_split
     p=await read_payload(request)
-    return await run_in_threadpool(inspect_split,document_path(doc_id).read_bytes(),p.get('operations',[]),size=p.get('size'),groups=p.get('groups'),names=p.get('names'),bookmark_level=p.get('bookmark_level'),preserve_tags=p.get('preserve_tags',True))
+    return await run_in_threadpool(inspect_split,document_path(doc_id).read_bytes(),p.get('operations',[]),size=p.get('size'),groups=p.get('groups'),names=p.get('names'),bookmark_level=p.get('bookmark_level'),preserve_tags=p.get('preserve_tags',True),max_bytes=p.get('max_bytes'))
 
 @app.post('/api/documents/{doc_id}/untagged-copy')
 async def create_untagged_copy(doc_id:str,request:Request):
@@ -1343,7 +1343,7 @@ async def create_untagged_copy(doc_id:str,request:Request):
 async def split(doc_id: str, request: Request):
     payload = await read_payload(request)
     result = await run_in_threadpool(split_pdf,document_path(doc_id).read_bytes(), payload.get("operations", []),
-                       size=payload.get("size"), groups=payload.get("groups"),names=payload.get("names"),bookmark_level=payload.get("bookmark_level"),manifest=payload.get("manifest",False),preserve_tags=payload.get('preserve_tags',True),review_token=payload.get('review_token'))
+                       size=payload.get("size"), groups=payload.get("groups"),names=payload.get("names"),bookmark_level=payload.get("bookmark_level"),manifest=payload.get("manifest",False),preserve_tags=payload.get('preserve_tags',True),review_token=payload.get('review_token'),max_bytes=payload.get('max_bytes'))
     return Response(result, media_type="application/zip", headers={"Content-Disposition": 'attachment; filename="reapdf-dividido.zip"'})
 
 @app.post("/api/documents/{doc_id}/extract")
