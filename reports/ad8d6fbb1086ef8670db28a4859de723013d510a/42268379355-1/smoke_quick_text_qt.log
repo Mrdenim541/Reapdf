@@ -1,0 +1,4 @@
+[7972:5676:1106/181608.174:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[7972:5676:1106/181608.174:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[7972:5236:1106/181609.679:ERROR:latency_info.cc(93)] CompositorFrameSinkSupport::MaybeSubmitCompositorFrame, LatencyInfo vector size 102 is too big.
+PASS: actual Qt right-click and Shift+F10 open text menu; compact dialog preloads code, cancel preserves original, overflow retains draft, Ctrl+Enter updates visible/accessible code, Delete works with document undo, native save preserves final edit and source bytes.
