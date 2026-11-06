@@ -1,0 +1,6 @@
+[1488:1720:1106/134349.776:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[1488:1720:1106/134349.776:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+[6972:8360:1106/134350.759:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[6972:8360:1106/134350.759:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+La interfaz de Reapdf no pudo cargar.
+PASS: real Qt frontend ready, separate child forwards activation, 404 fails before ready and exits.
