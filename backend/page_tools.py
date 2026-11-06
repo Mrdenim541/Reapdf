@@ -12,7 +12,7 @@ MAX_SPLIT_BYTES = 100 * 1024 * 1024
 
 def split_token(data,operations,review,preserve_tags):
     import hashlib,json
-    try:payload=json.dumps({"input":hashlib.sha256(data).hexdigest(),"operations":operations,"parts":review["parts"],"rotations":review["rotations"],"preserve_tags":preserve_tags,"max_bytes":review.get("max_bytes")},sort_keys=True,ensure_ascii=True,allow_nan=False)
+    try:payload=json.dumps({"input":hashlib.sha256(data).hexdigest(),"operations":operations,"parts":[{k:part[k] for k in ["name","pages","count"]} for part in review["parts"]],"rotations":review["rotations"],"preserve_tags":preserve_tags,"max_bytes":review.get("max_bytes")},sort_keys=True,ensure_ascii=True,allow_nan=False)
     except (TypeError,ValueError):raise DocumentError("No se puede verificar el plan de división.") from None
     return hashlib.sha256(payload.encode()).hexdigest()
 

@@ -106,3 +106,25 @@ def test_api_byte_limit_review_download_and_stale_token_are_connected():
         assert c.post(url+'/export',json={}).content==base
         assert c.post(url+'/split',json={**config,'max_bytes':61000,'review_token':token}).status_code==422
         assert c.post(url+'/split-plan',json={'max_bytes':False}).status_code==422
+
+
+def test_review_does_not_treat_nondeterministic_output_bytes_as_a_configuration_change(monkeypatch):
+    import backend.page_tools as module
+    original=module.organize_pdf;calls=[0]
+    def variable_size(*args,**kwargs):
+        data=original(*args,**kwargs);calls[0]+=1;head,marker,tail=data.rpartition(b'%%EOF')
+        return head+b'%'+b'x'*(300*calls[0])+b'\n'+marker+tail
+    monkeypatch.setattr(module,'organize_pdf',variable_size)
+    base=sample(1);first=inspect_split(base,[],groups=[[0]],max_bytes=5000);second=inspect_split(base,[],groups=[[0]],max_bytes=5000)
+    assert first['parts'][0]['bytes']!=second['parts'][0]['bytes']
+    assert first['review_token']==second['review_token']
+
+
+def test_final_serialized_file_cannot_exceed_the_measured_limit(monkeypatch):
+    import backend.page_tools as module
+    original=module.organize_pdf;calls=[0]
+    def grown_output(*args,**kwargs):
+        data=original(*args,**kwargs);calls[0]+=1;head,marker,tail=data.rpartition(b'%%EOF')
+        return head+b'%'+b'x'*(6000 if calls[0]>1 else 0)+b'\n'+marker+tail
+    monkeypatch.setattr(module,'organize_pdf',grown_output)
+    with pytest.raises(DocumentError,match='tras guardarse'):split_pdf(sample(1),[],max_bytes=5000)
