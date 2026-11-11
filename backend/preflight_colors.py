@@ -17,12 +17,25 @@ def inspect(doc,page):
             if n.pdf_is_dict(res):return res
             owner=n.pdf_to_num(n.pdf_dict_gets(obj,'Parent'))
         return fallback if fallback is not None else n.pdf_new_dict(pdf,0)
-    def space(value,res):
+    def space(value,res,depth=0):
+        if depth>16:raise DocumentError("Los espacios de color anidados superan el límite.")
         if value in ['DeviceRGB','DeviceCMYK','DeviceGray']:colors.add({'DeviceRGB':'RGB','DeviceCMYK':'CMYK','DeviceGray':'Gray'}[value]);return
         obj=n.pdf_dict_gets(n.pdf_dict_gets(res,'ColorSpace'),value)
         if n.pdf_is_name(obj):return space(n.pdf_to_name(obj),None) if n.pdf_to_name(obj) in ['DeviceRGB','DeviceCMYK','DeviceGray'] else colors.add('Otro')
         if not n.pdf_is_array(obj) or n.pdf_array_len(obj)<2:colors.add('Otro');return
         kind=n.pdf_to_name(n.pdf_array_get(obj,0));colors.add(kind or 'Otro')
+        if kind=='ICCBased':
+            count=n.pdf_dict_gets(n.pdf_array_get(obj,1),'N')
+            if n.pdf_is_int(count) and n.pdf_to_int(count) in [1,3,4]:colors.add('ICCBased'+str(n.pdf_to_int(count)))
+        if kind in ['Indexed','Separation','DeviceN']:
+            at=1 if kind=='Indexed' else 2
+            alternate=n.pdf_array_get(obj,at)
+            if n.pdf_is_name(alternate):space(n.pdf_to_name(alternate),res,depth+1)
+            elif n.pdf_is_array(alternate) and n.pdf_array_len(alternate)>0:
+                base=n.pdf_to_name(n.pdf_array_get(alternate,0));colors.add(base or 'Otro')
+                if base=='ICCBased':
+                    count=n.pdf_dict_gets(n.pdf_array_get(alternate,1),'N')
+                    if n.pdf_is_int(count):colors.add('ICCBased'+str(n.pdf_to_int(count)))
         if kind=='Separation':
             name=n.pdf_array_get(obj,1)
             if not n.pdf_is_name(name):raise DocumentError('Nombre de colorante Separation no válido.')

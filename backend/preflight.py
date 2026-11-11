@@ -5,7 +5,9 @@ from .engine import open_pdf,export_pdf,DocumentError
 BASE14={'Helvetica','Helvetica-Bold','Helvetica-Oblique','Helvetica-BoldOblique','Times-Roman','Times-Bold','Times-Italic','Times-BoldItalic','Courier','Courier-Bold','Courier-Oblique','Courier-BoldOblique','Symbol','ZapfDingbats'}
 
 
-def inspect(base,ops,min_dpi=150):
+def inspect(base,ops,min_dpi=150,profile="general"):
+    from .press_preflight import PROFILES
+    if profile!="general" and profile not in PROFILES:raise DocumentError("Perfil de impresión no válido.")
     if type(min_dpi) is not int or min_dpi not in [72,150,200,300,600]:raise DocumentError('Elige un umbral de 72, 150, 200, 300 o 600 ppp.')
     with open_pdf(export_pdf(base,ops)) as doc:
         if len(doc)>100 or doc.xref_length()>50000:raise DocumentError('La inspección admite hasta 100 páginas y 50000 objetos.')
@@ -39,4 +41,9 @@ def inspect(base,ops,min_dpi=150):
             if list(page.widgets() or []):issues.append({'page':page.number,'code':'interactive_fields','message':'La página contiene campos interactivos; revisa su apariencia antes de imprimir.','severity':'info'})
             pages.append({'page':page.number,'size':[page.rect.width,page.rect.height],'rotation':page.rotation,'boxes':boxes,'images':rows,'vector_colors':sorted(colors),'color_analysis':color_info})
             if len(issues)>2000:raise DocumentError('Más de 2000 hallazgos; divide el documento.')
-        return {'pages':pages,'fonts':list(fonts.values()),'issues':issues,'min_dpi':min_dpi,'layers':len(doc.get_ocgs()),'signed':doc.get_sigflags()>0,'scope':'Diagnóstico de resolución efectiva, fuentes, cajas y contenido. Incluye espacios declarados en Forms, nombres de colorantes y estados de sobreimpresión aplicados. No evalúa funciones de tinta ni certifica PDF/X, cobertura de tinta o fidelidad de imprenta.'}
+        report={'pages':pages,'fonts':list(fonts.values()),'issues':issues,'min_dpi':min_dpi,'layers':len(doc.get_ocgs()),'signed':doc.get_sigflags()>0,'scope':'Diagnóstico de resolución efectiva, fuentes, cajas y contenido. Incluye espacios declarados en Forms, nombres de colorantes y estados de sobreimpresión aplicados. No evalúa funciones de tinta ni certifica PDF/X, cobertura de tinta o fidelidad de imprenta.'}
+
+        if profile!='general':
+            from .press_preflight import evaluate
+            report['press_profile']=evaluate(doc,report,profile)
+        return report

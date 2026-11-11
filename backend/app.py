@@ -324,7 +324,16 @@ async def edit_structure(doc_id:str,action:str,request:Request):
 @app.post('/api/documents/{doc_id}/preflight')
 async def inspect_print(doc_id:str,request:Request):
     p=await read_payload(request)
-    return await run_in_threadpool(preflight.inspect,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('min_dpi',150))
+    return await run_in_threadpool(preflight.inspect,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('min_dpi',150),p.get('profile','general'))
+
+@app.post('/api/documents/{doc_id}/prepare-print')
+async def prepare_print(doc_id:str,request:Request):
+    from .press_prepare import prepare
+    p=await read_payload(request);base=document_path(doc_id).read_bytes();ops=p.get('operations',[]);review=p.get('review',False)
+    result=await run_in_threadpool(prepare,base,ops,p,review)
+    if review is True:return result
+    data,report=result
+    return {**store_project_version(base,ops,data),'print_report':report}
 
 @app.post('/api/documents/{doc_id}/extract-table-region')
 async def extract_table_region(doc_id:str,request:Request):
