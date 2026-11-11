@@ -1,0 +1,1 @@
+PASS: compiled Qt applies red negative then black positive with quoted range bounds; native PDFs verified via bundled server; undo restores original. No external browser or native save dialog in this journey.

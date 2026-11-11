@@ -1,0 +1,1 @@
+PASS: compiled Qt updates paragraph geometry with font and native editable output, then carries and changes formatting into manual continuation, preview, undo/redo, bundled-server exports; no external browser or native save dialog in this journey.

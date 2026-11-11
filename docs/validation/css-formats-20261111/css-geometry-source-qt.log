@@ -1,0 +1,8 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[405053:405076:1111/132342.581116:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 405077: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: page-local continued geometry and Qt mouse edits geometric mixed paragraph, reachable expanded controls at 1366x900, checks updated bounds, undo/redo, native save/reopen; carries font into manual continuation, changes it in that dialog, previews and saves complete editable text on both pages.

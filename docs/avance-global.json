@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "review_date": "2026-11-06",
-  "status": "provisional_with_page_local_continuation_geometry_and_shared_choices",
+  "status": "provisional_with_absolute_css_fonts_colored_numbers_and_literal_ranges",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 87.83,
+  "weighted_percent": 87.9,
   "reported_percent": 88,
   "subjective_range_percent": [
     62,
@@ -113,7 +113,7 @@
     {
       "id": "text_images",
       "weight": 16,
-      "maturity": 99.9,
+      "maturity": 99.95,
       "evidence": [
         "backend/styled_text.py",
         "backend/text_flow.py",
@@ -232,9 +232,11 @@
         "tests/test_paragraph_geometry.py",
         "web/src/paragraph-format.jsx",
         "docs/CAJAS_POR_PAGINA_Y_LISTAS_COMPARTIDAS_20261106.md",
-        "docs/validation/pageboxes-shared-choices-20261106/results.json"
+        "docs/validation/pageboxes-shared-choices-20261106/results.json",
+        "docs/CSS_Y_FORMATOS_DE_FORMULARIO_20261111.md",
+        "docs/validation/css-formats-20261111/results.json"
       ],
-      "remaining": "Ya incorporados: edición sobre página y formato nativo de línea/párrafo, continuación y paginación compatibles, varios estilos e inclinaciones con dirección común, clases Layout aisladas, cajas por fragmento de página y retiro de cajas de estilos vacíos; figuras de página y ActualText/Stm de perfiles únicos verificables. Pendientes: ejes no predeterminados, CFF2 crudo/Type3 fuera del subconjunto, composición/direcciones/espaciados especiales, CSS y geometría inicial multipágina sin asociación completa, estilos comunes contradictorios, ActualText multigrupo/contradictorio y reflujo Stm/ActualText general, Stm compartido, propiedades nombradas/heredadas y semántica mixta/no verificable, imágenes inline/Forms/capas/recortes y máscaras/knockout/grupos complejos fuera del perfil. La copia explícita sin etiquetas no equivale a edición semántica universal; las protecciones no cierran estas implementaciones."
+      "remaining": "Ya incorporados: edición sobre página y formato nativo de línea/párrafo, continuación y paginación compatibles, varios estilos e inclinaciones con dirección común, clases Layout y CSS-1.00 tipográfico aisladas, cajas por fragmento de página y retiro de cajas de estilos vacíos; figuras de página y ActualText/Stm de perfiles únicos verificables. Pendientes: ejes no predeterminados, CFF2 crudo/Type3 fuera del subconjunto, composición/direcciones/espaciados especiales, CSS relativo/de composición y geometría inicial multipágina sin asociación completa, estilos comunes contradictorios, ActualText multigrupo/contradictorio y reflujo Stm/ActualText general, Stm compartido, propiedades nombradas/heredadas y semántica mixta/no verificable, imágenes inline/Forms/capas/recortes y máscaras/knockout/grupos complejos fuera del perfil. La copia explícita sin etiquetas no equivale a edición semántica universal; las protecciones no cierran estas implementaciones."
     },
     {
       "id": "annotations",
@@ -259,7 +261,7 @@
     {
       "id": "forms",
       "weight": 6,
-      "maturity": 95,
+      "maturity": 96,
       "evidence": [
         "backend/form_import.py",
         "backend/form_calculations.py",
@@ -283,9 +285,11 @@
         "docs/CIERRE_NATIVO_FORMULARIOS_Y_COLUMNAS_20261106.md",
         "docs/validation/native-forms-columns-20261106/results.json",
         "docs/CAJAS_POR_PAGINA_Y_LISTAS_COMPARTIDAS_20261106.md",
-        "docs/validation/pageboxes-shared-choices-20261106/results.json"
+        "docs/validation/pageboxes-shared-choices-20261106/results.json",
+        "docs/CSS_Y_FORMATOS_DE_FORMULARIO_20261111.md",
+        "docs/validation/css-formats-20261111/results.json"
       ],
-      "remaining": "Ya incorporados: ayudantes estándar de fecha/hora y streams acotados, cálculos numéricos/condicionales y lógica restringida, campos de texto/casillas/radios compartidos y listas/desplegables de selección simple compartidos coherentes. Pendientes: XFA, JavaScript/acciones/validadores generales, fórmulas fuera de la gramática, fuentes incompatibles, selección múltiple y listas de escritura libre, grafos mixtos con reglas de proyecto e interoperabilidad externa. No se ejecutan scripts arbitrarios ni se acepta un grupo con valores/opciones/índices contradictorios."
+      "remaining": "Ya incorporados: ayudantes estándar de fecha/hora, estilos rojos de número negativo, límites de rango literales y streams acotados, cálculos numéricos/condicionales y lógica restringida, campos de texto/casillas/radios compartidos y listas/desplegables de selección simple compartidos coherentes. Pendientes: XFA, JavaScript/acciones/validadores generales, fórmulas fuera de la gramática, fuentes incompatibles, selección múltiple y listas de escritura libre, grafos mixtos con reglas de proyecto e interoperabilidad externa. No se ejecutan scripts arbitrarios ni se acepta un grupo con valores/opciones/índices contradictorios."
     },
     {
       "id": "ocr_conversion",
@@ -377,7 +381,7 @@
     {
       "id": "accessibility",
       "weight": 3,
-      "maturity": 99.5,
+      "maturity": 99.75,
       "evidence": [
         "backend/accessibility.py",
         "backend/structure_editing.py",
@@ -424,9 +428,11 @@
         "docs/CONTINUACION_GEOMETRIA_Y_DIVISION_20261106.md",
         "docs/validation/continuation-geometry-size-20261106/results.json",
         "docs/CAJAS_POR_PAGINA_Y_LISTAS_COMPARTIDAS_20261106.md",
-        "docs/validation/pageboxes-shared-choices-20261106/results.json"
+        "docs/validation/pageboxes-shared-choices-20261106/results.json",
+        "docs/CSS_Y_FORMATOS_DE_FORMULARIO_20261111.md",
+        "docs/validation/css-formats-20261111/results.json"
       ],
-      "remaining": "Ya incorporados: estructura/orden/ParentTree de párrafos compatibles, figuras independientes, ActualText/Stm únicos verificables, tipografía Layout y clases compatibles, cajas por fragmento de página reeditables y eliminación de cajas de estilos vacíos. Pendientes: semántica general/mixta interna de Forms, imágenes inline/recortes, enlaces ambiguos/listas/celdas complejas, ActualText multigrupo/contradictorio, Stm compartido y reflujo general de alternativas, CSS/geometría inicial ambigua y namespaces, reparación general/PDF/UA y etiquetado automático de texto nuevo. Lectores de pantalla e interoperabilidad externos pendientes."
+      "remaining": "Ya incorporados: estructura/orden/ParentTree de párrafos compatibles, figuras independientes, ActualText/Stm únicos verificables, tipografía Layout/CSS-1.00 explícita y clases compatibles, cajas por fragmento de página reeditables y eliminación de cajas de estilos vacíos. Pendientes: semántica general/mixta interna de Forms, imágenes inline/recortes, enlaces ambiguos/listas/celdas complejas, ActualText multigrupo/contradictorio, Stm compartido y reflujo general de alternativas, CSS relativo/de composición y geometría inicial ambigua y namespaces, reparación general/PDF/UA y etiquetado automático de texto nuevo. Lectores de pantalla e interoperabilidad externos pendientes."
     },
     {
       "id": "automation_linking",
@@ -482,7 +488,7 @@
         "docs/CIERRE_NATIVO_FORMULARIOS_Y_COLUMNAS_20261106.md",
         "docs/validation/native-forms-columns-20261106/results.json"
       ],
-      "remaining": "46 recorridos desde fuente en Linux/Windows Server y 19 ejecuciones independientes de Reapdf.exe comprobadas en esta fuente; tres son repeticiones básicas. Cierre explícito y cancelación antes de disponibilidad incorporados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga y recuperación sostenidas, migración del recorrido histórico extendido y aceptación personal al final. Intermitencias históricas de arranque/ajuste y causa del cierre Windows anterior no declaradas resueltas."
+      "remaining": "47 recorridos desde fuente en Linux/Windows Server y 20 ejecuciones independientes de Reapdf.exe comprobadas en esta fuente; tres son repeticiones básicas. Cierre explícito y cancelación antes de disponibilidad incorporados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga y recuperación sostenidas, migración del recorrido histórico extendido y aceptación personal al final. Intermitencias históricas de arranque/ajuste y causa del cierre Windows anterior no declaradas resueltas."
     },
     {
       "id": "migration_interoperability",
@@ -623,34 +629,34 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261106-before-pageboxes-shared-choices.json",
-    "before_weighted": 87.73,
-    "before_unrounded": "87.730",
-    "after_weighted": 87.83,
-    "unrounded_after_weighted": "87.829",
-    "new_points": 0.1,
-    "unrounded_delta": "0.099",
+    "baseline": "docs/progress/20261111-before-css-formats.json",
+    "before_weighted": 87.83,
+    "before_unrounded": "87.829",
+    "after_weighted": 87.9,
+    "unrounded_after_weighted": "87.9045",
+    "new_points": 0.08,
+    "unrounded_delta": "0.0755",
     "changes": [
       {
         "id": "text_images",
-        "before": 99.75,
-        "after": 99.9,
-        "points": 0.024,
-        "reason": "Continuación manual/automática con cajas Layout por fragmento y eliminación de cajas de estilos vacíos."
+        "before": 99.9,
+        "after": 99.95,
+        "points": 0.008,
+        "reason": "Cambio de fuente/tamaño con atributos CSS-1.00 absolutos coordinados y clases compartidas aisladas."
       },
       {
         "id": "accessibility",
-        "before": 99,
-        "after": 99.5,
-        "points": 0.015,
-        "reason": "Geometría espacial migrada a hojas Span de cada página, contenedor y ParentTree conservados y guardado comprobado."
+        "before": 99.5,
+        "after": 99.75,
+        "points": 0.0075,
+        "reason": "Familia/tamaño/peso/estilo CSS conservan unidades y representación y se actualizan junto con glifos y estructura."
       },
       {
         "id": "forms",
-        "before": 94,
-        "after": 95,
+        "before": 95,
+        "after": 96,
         "points": 0.06,
-        "reason": "Listas y desplegables compartidos de selección simple sincronizan valor, índice y apariencias; borrado/reapertura/datos/aplanado completos."
+        "reason": "Formatos rojos nativos de negativos con restablecimiento de color y rangos estándar con límites decimales textuales."
       }
     ]
   },
@@ -690,29 +696,29 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "c41be59da7ddd6c597795fd5dd9788416676b599",
+    "source_commit": "c1463f59f1f6d71c49ab01df8c1f3d43ab8f131f",
     "linux": {
-      "checks": 46,
-      "evidence": "docs/validation/pageboxes-shared-choices-20261106/linux/desktop-report.json"
+      "checks": 47,
+      "evidence": "docs/validation/css-formats-20261111/linux/desktop-report.json"
     },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 46,
-      "evidence": "docs/validation/pageboxes-shared-choices-20261106/windows/assessment.json"
+      "checks": 47,
+      "evidence": "docs/validation/css-formats-20261111/windows/assessment.json"
     },
     "packaged_executable_verified": true,
-    "compiled_gui_independent_runs": 19,
+    "compiled_gui_independent_runs": 20,
     "compiled_basic_repetitions": 3,
-    "packaged_scope": "19 ejecuciones independientes, tres básicas; geometría continuada desde origen con cajas y nuevo relleno de listas compartidas. Exportaciones por servidor/intérprete incluidos; no acredita diálogo nativo de guardar del exe, cliente Windows/DPI/impresión física ni causa resuelta de todas las intermitencias históricas."
+    "packaged_scope": "20 ejecuciones independientes, tres básicas; geometría/continuación con CSS-1.00 y nuevo recorrido de número rojo/rangos textuales. Exportación por servidor y verificación por intérprete incluidos; no acredita guardar mediante diálogo nativo del exe, cliente Windows/DPI/impresión ni resolución de todas las intermitencias históricas."
   },
   "last_implementation": {
-    "date": "2026-11-06",
-    "source_commit": "c41be59da7ddd6c597795fd5dd9788416676b599",
-    "evidence": "docs/validation/pageboxes-shared-choices-20261106/results.json",
+    "date": "2026-11-11",
+    "source_commit": "c1463f59f1f6d71c49ab01df8c1f3d43ab8f131f",
+    "evidence": "docs/validation/css-formats-20261111/results.json",
     "features": [
-      "Continuación manual/automática con cajas Layout por fragmento y eliminación de cajas de estilos vacíos.",
-      "Geometría espacial migrada a hojas Span de cada página, contenedor y ParentTree conservados y guardado comprobado.",
-      "Listas y desplegables compartidos de selección simple sincronizan valor, índice y apariencias; borrado/reapertura/datos/aplanado completos."
+      "Cambio de fuente/tamaño con atributos CSS-1.00 absolutos coordinados y clases compartidas aisladas.",
+      "Familia/tamaño/peso/estilo CSS conservan unidades y representación y se actualizan junto con glifos y estructura.",
+      "Formatos rojos nativos de negativos con restablecimiento de color y rangos estándar con límites decimales textuales."
     ],
     "global_estimate_recalculated": true,
     "global_blocks_closed": []
@@ -821,6 +827,13 @@
     "source_commit": "c41be59da7ddd6c597795fd5dd9788416676b599",
     "report": "docs/CAJAS_POR_PAGINA_Y_LISTAS_COMPARTIDAS_20261106.md",
     "evidence": "docs/validation/pageboxes-shared-choices-20261106/results.json",
+    "technical_complete": false,
+    "accepted_complete": false
+  },
+  "last_css_formats": {
+    "source_commit": "c1463f59f1f6d71c49ab01df8c1f3d43ab8f131f",
+    "report": "docs/CSS_Y_FORMATOS_DE_FORMULARIO_20261111.md",
+    "evidence": "docs/validation/css-formats-20261111/results.json",
     "technical_complete": false,
     "accepted_complete": false
   }
