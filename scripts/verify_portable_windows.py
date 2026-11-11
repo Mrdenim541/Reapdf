@@ -301,13 +301,14 @@ for event in ['F','K']:
 """
         if journey=='word_manual_columns':
             verification="""import pymupdf as f,sys
-d=f.open(sys.argv[1]);assert len(d)==2
+d=f.open(sys.argv[1]);assert len(d)==4
 labels=['FIRSTCOLLINK','SECONDCOLLINK','NEXTPAGELEFT','NEXTPAGERIGHT','DESTINATIONWORD'];locations={word:[(p.number,r) for p in d for r in p.search_for(word)] for word in labels}
 assert all(len(v)==1 for v in locations.values())
 assert [locations[word][0][0] for word in labels]==[0,0,1,1,1]
 assert locations['FIRSTCOLLINK'][0][1].x0<locations['SECONDCOLLINK'][0][1].x0 and locations['NEXTPAGELEFT'][0][1].x0<locations['NEXTPAGERIGHT'][0][1].x0
 assert abs(locations['FIRSTCOLLINK'][0][1].x0-locations['NEXTPAGELEFT'][0][1].x0-18)<1
-links=[l for p in d for l in p.get_links() if l['kind']==f.LINK_GOTO];assert len(links)==2 and all(l['page']==1 for l in links)
+extra=['PHYSICALPAGELEFT','PHYSICALPAGERIGHT','NEXTWHOLEPAGE','CONTINUOUSLAST'];extra_rows=[next((p.number,rect) for p in d for rect in p.search_for(label)) for label in extra];assert [row[0] for row in extra_rows]==[2,2,3,3] and extra_rows[0][1].x0==extra_rows[2][1].x0 and extra_rows[0][1].x0<extra_rows[1][1].x0
+links=[l for p in d for l in p.get_links() if l['kind']==f.LINK_GOTO];assert len(links)==5 and all(l['page']==1 for l in links)
 spans=[s for p in d for b in p.get_text('dict')['blocks'] for line in b.get('lines',[]) for s in line['spans'] if 'COLLINK' in s['text']];assert len(spans)==2 and all('Bold' in s['font'] and s['color']==0x214eaa for s in spans)
 """
         if journey=='byte_split':

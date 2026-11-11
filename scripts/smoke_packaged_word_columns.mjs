@@ -8,7 +8,7 @@ try{
  await expect(page.locator('.file-menu')).toBeVisible();await page.locator('.file-menu').evaluate(e=>{e.open=true;});await page.getByRole('button',{name:'Crear PDF desde Word',exact:true}).click();
  await page.getByLabel('Archivo Word para convertir',{exact:true}).setInputFiles({name:'Columns.docx',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',buffer:readFileSync(word)});
  const response=page.waitForResponse(r=>r.url().endsWith('/api/import/docx')&&r.request().method()==='POST');await page.getByRole('button',{name:'Convertir y revisar Word',exact:true}).click();const r=await response,d=await r.json();if(!r.ok()||!d.document?.id)throw new Error(JSON.stringify(d));
- if(!d.report.text_check_passed||d.report.sections[0].columns.widths.length!==2||d.report.internal_hyperlinks!==1||(mode==='manual'&&d.report.manual_column_breaks!==3))throw new Error('Column/bookmark conversion incomplete');
+ if(!d.report.text_check_passed||d.report.sections[0].columns.widths.length!==2||d.report.internal_hyperlinks!==(mode==='manual'?2:1)||(mode==='manual'&&(d.report.manual_column_breaks!==4||d.report.manual_page_breaks!==2||d.report.continuous_sections_merged!==1||d.document.pages.length!==4)))throw new Error('Column/bookmark conversion incomplete');
  for(let i=0;i<d.document.pages.length;i++){
   await page.getByLabel('Página de Word importado',{exact:true}).selectOption(String(i));const check=page.getByLabel(`Revisé Word página ${i+1}`,{exact:true});await expect(check).toBeEnabled();await check.check();
  }

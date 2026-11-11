@@ -15,7 +15,7 @@ from .docx_styles import WordStyles
 from .docx_headers import running_parts,PAGE_TOKEN,TOTAL_TOKEN
 from .docx_fields import normalize_fields,PageFields,PREFIX
 from .docx_tables import table_plan
-from .docx_sections import sections
+from .docx_sections import sections,continuous_groups
 from .docx_notes import Notes,checked_text
 
 W='http://schemas.openxmlformats.org/wordprocessingml/2006/main'
@@ -25,6 +25,8 @@ FONTS=Path(__file__).resolve().parent.parent/'resources/fonts'
 MAX_INPUT=10*1024*1024
 MAX_EXPANDED=40*1024*1024
 BREAK_TOKEN='REAPDF_MANUAL_PAGE_BREAK_042'
+PHYSICAL_BREAK='REAPDF_PHYSICAL_PAGE_TOKEN_042'
+from .docx_frames import PAGE_BREAK_PREFIX
 
 
 def tag(name):return '{'+W+'}'+name
@@ -73,17 +75,14 @@ def import_docx(data,paper='source'):
     if any(name.startswith('word/comments') for name in package):warnings.add('Los comentarios de Word no se incorporan.')
     notes=Notes(package,relationships,parse_xml,warnings)
     notes.active={kind for kind in ['footnote','endnote'] if any(n.tag==tag(kind+'Reference') for n in body.iter())}
-    if any(any(token.encode() in raw for token in [PAGE_TOKEN,TOTAL_TOKEN,PREFIX,BREAK_TOKEN]) for raw in package.values()):raise DocumentError('El Word contiene un marcador interno reservado.')
+    if any(any(token.encode() in raw for token in [PAGE_TOKEN,TOTAL_TOKEN,PREFIX,BREAK_TOKEN,PHYSICAL_BREAK,PAGE_BREAK_PREFIX]) for raw in package.values()):raise DocumentError('El Word contiene un marcador interno reservado.')
     in_running=False;dynamic_fields=0;manual_breaks=0;manual_column_breaks=0;page_fields=PageFields();complex_nodes=set();forced_cached=set();char_formats={}
     field_stats={"complex_fields":0,"complex_page_fields":0,"cached_fields":0}
     table_stats={"merged_tables":0,"combined_cells":0,"fallback_tables":0}
     if any(n.tag in {tag('del'),tag('ins'),tag('moveFrom'),tag('moveTo')} for n in body.iter()):raise DocumentError('Resuelve el control de cambios en Word antes de importar; no se elige una revisión por ti.')
     if any(n.tag in {tag('object'),tag('altChunk')} for n in body.iter()):raise DocumentError('El documento contiene objetos o contenido alternativo no compatible.')
-    segments=sections(body,paper)
+    segments=sections(body,paper);source_section_count=len(segments);segments=continuous_groups(segments,package,parse_xml)
     if any(len(s['columns']['widths'])>1 for s in segments):
-        for segment in segments:
-            if len(segment['columns']['widths'])==1:continue
-            if any(n.tag==tag('br') and n.attrib.get(tag('type'))=='page' or n.tag==tag('pageBreakBefore') and n.attrib.get(tag('val'),'1') not in ['0','false','off'] for node in segment['nodes'] for n in node.iter()):raise DocumentError('Los saltos manuales de página dentro de secciones Word con columnas requieren otro tratamiento; no se convierten en saltos de columna incorrectos.')
         warnings.add('Las columnas se llenan en orden de izquierda a derecha; la última página de cada sección no se equilibra automáticamente.')
     size=segments[0]['size'];margins=segments[0]['margins']
     archive=f.Archive()
@@ -146,10 +145,10 @@ def import_docx(data,paper='source'):
                 if child.attrib.get(tag('type')) in ['page','column']:
                     kind=child.attrib.get(tag('type'))
                     if in_running:raise DocumentError('No se admiten saltos de página/columna dentro de encabezados/pies Word.')
-                    if kind=='column' and notes.inside:raise DocumentError('Los saltos de columna dentro de notas requieren otro tratamiento.')
+                    if notes.inside:raise DocumentError('Los saltos de página/columna dentro de notas requieren otro tratamiento.')
                     if kind=='column':manual_column_breaks+=1
                     else:manual_breaks+=1
-                    parts.append('</span>'+BREAK_TOKEN+'<span style="'+';'.join(style)+'">')
+                    parts.append('</span>'+(PHYSICAL_BREAK if kind=='page' else BREAK_TOKEN)+'<span style="'+';'.join(style)+'">')
                 else:parts.append('<br/>')
             elif child.tag in {tag('footnoteReference'),tag('endnoteReference')}:
                 custom=None
@@ -167,7 +166,12 @@ def import_docx(data,paper='source'):
             elif child.tag in {tag('instrText'),tag('fldChar')}:warnings.add('Los campos automáticos se importan como su resultado de texto disponible, sin actualización.')
             elif child.tag not in {tag('rPr'),tag('lastRenderedPageBreak')}:warnings.add('Algunos elementos de texto de Word no compatibles se omiten.')
         return '<span style="'+';'.join(style)+'">'+''.join(parts)+'</span>'
-    def paragraph(node):
+    page_break_ids=[]
+    def wrap_link(content,target):
+        return ''.join(fragment if fragment in [BREAK_TOKEN,PHYSICAL_BREAK] else '<a href="'+target+'">'+fragment+'</a>' for fragment in re.split('('+BREAK_TOKEN+'|'+PHYSICAL_BREAK+')',content))
+    def break_id():
+        value=PAGE_BREAK_PREFIX+str(len(page_break_ids));page_break_ids.append(value);return value
+    def paragraph(node,in_table=False):
         nonlocal paragraphs,dynamic_fields,manual_breaks
         paragraphs+=1
         if paragraphs>3000:raise DocumentError('Hasta 3000 párrafos por importación.')
@@ -201,6 +205,8 @@ def import_docx(data,paper='source'):
             before=props.find(tag('pageBreakBefore'))
             if before is not None and before.attrib.get(tag('val'),'1') not in ['0','false','off']:
                 if in_running:raise DocumentError('No se admiten saltos de página dentro de encabezados/pies Word.')
+                if notes.inside:raise DocumentError('Los saltos de página dentro de notas requieren otro tratamiento.')
+                if in_table:raise DocumentError('Los saltos de página dentro de tablas requieren otro tratamiento.')
                 css.append('page-break-before:always');manual_breaks+=1
             if any(props.find(tag(k)) is not None for k in ['keepNext','keepLines','tabs']):warnings.add('Las tabulaciones y agrupación de párrafos pueden cambiar durante la conversión.')
         from .docx_notes import following_marks
@@ -216,9 +222,9 @@ def import_docx(data,paper='source'):
                     target=bookmarks.target(anchor)
                     if target:
                         bookmarks.links+=1
-                        return BREAK_TOKEN.join('<a href="#'+target+'">'+fragment+'</a>' for fragment in content.split(BREAK_TOKEN))
+                        return wrap_link(content,'#'+target)
                     warnings.add('El destino del enlace interno Word no existe: se conserva solo su texto.');return content
-                try:return BREAK_TOKEN.join('<a href="'+html.escape(safe_web_url(rel.get('Target')),quote=True)+'">'+fragment+'</a>' for fragment in content.split(BREAK_TOKEN))
+                try:return wrap_link(content,html.escape(safe_web_url(rel.get('Target')),quote=True))
                 except DocumentError:warnings.add('Enlace no web o destino no compatible: se conserva solo su texto.');return content
             if child.tag==tag('bookmarkStart'):return bookmarks.destination(child)
             if child.tag==tag('bookmarkEnd'):return ''
@@ -238,14 +244,16 @@ def import_docx(data,paper='source'):
             return ''
         pieces.extend(inline(child) for child in node)
         expected[expected_start:]=[''.join(expected[expected_start:])]
-        fragments=''.join(pieces).split(BREAK_TOKEN)
+        fragments=re.split('('+BREAK_TOKEN+'|'+PHYSICAL_BREAK+')',''.join(pieces));kinds=fragments[1::2];fragments=fragments[::2]
         rendered=[]
+        physical_before='page-break-before:always' in css
         for index,fragment in enumerate(fragments):
             # A continuation is the same paragraph: do not repeat its first-line
             # indentation or before/after spacing at every column boundary.
             properties=[v for v in css if not (index and v.startswith(('text-indent:','margin-top:'))) and not (index<len(fragments)-1 and v.startswith('margin-bottom:'))]
             if index:properties.append('page-break-before:always')
-            rendered.append('<p style="'+';'.join(properties)+'">'+(fragment or '<br/>')+'</p>')
+            identity=' id="'+break_id()+'"' if (index and kinds[index-1]==PHYSICAL_BREAK or not index and physical_before) else ''
+            rendered.append('<p'+identity+' style="'+';'.join(properties)+'">'+(fragment or '<br/>')+'</p>')
         return ''.join(rendered)
     def blocks(nodes):
         nonlocal tables,cells
@@ -259,9 +267,9 @@ def import_docx(data,paper='source'):
                 if cells>3000:raise DocumentError('Hasta 3000 celdas por importación.')
                 plan,merged,reason=table_plan(node)
                 def cell_content(cell):
-                    if any(n.tag==tag('br') and n.attrib.get(tag('type'))=='column' for n in cell.iter()):raise DocumentError('Los saltos de columna dentro de tablas requieren otro tratamiento.')
+                    if any(n.tag==tag('br') and n.attrib.get(tag('type')) in ['page','column'] or n.tag==tag('pageBreakBefore') and n.attrib.get(tag('val'),'1') not in ['0','false','off'] for n in cell.iter()):raise DocumentError('Los saltos de página/columna dentro de tablas requieren otro tratamiento.')
                     if cell.find(tag('tbl')) is not None:warnings.add('Tabla anidada omitida.')
-                    return ''.join(paragraph(p) for p in cell.findall(tag('p')))
+                    return ''.join(paragraph(p,in_table=True) for p in cell.findall(tag('p')))
                 if plan is None:
                     table_stats['fallback_tables']+=1
                     warnings.add('Tabla no reconstruida ('+reason+'): se conserva como texto por filas, sin combinar celdas.')
@@ -339,20 +347,24 @@ def import_docx(data,paper='source'):
             from .docx_fields import number_label
             number_label(fields.start+count[0]-1,fields.format)
             page_labels.append({'startpage':total,'prefix':'','style':{'decimal':'D','upperRoman':'R','lowerRoman':'r','upperLetter':'A','lowerLetter':'a'}[fields.format],'firstpagenum':fields.start})
-            section_report.append({'section':index+1,'first_page':total+1,'pages':count[0],'blank_pages':0,'break':segment['break'],'width':width,'height':height,'margins':list(segment['margins']),'number_start':fields.start,'number_format':fields.format,'header_footer_templates':len(running.templates)})
+            section_report.append({'section':index+1,'source_sections':segment['source_sections'],'first_page':total+1,'pages':count[0],'blank_pages':0,'break':segment['break'],'width':width,'height':height,'margins':list(segment['margins']),'number_start':fields.start,'number_format':fields.format,'header_footer_templates':len(running.templates)})
             section_report[-1]['columns']=segment['columns']
             total+=count[0]
         with f.open() as doc:
             all_positions=[]
             for segment in segments:
                 width,height,left,top,right,bottom=segment['frame'];running=segment['running']
+                from .docx_frames import Frames
+                frames=Frames(segment['columns'],segment['note_plan']['page_break_frames'])
                 def rectangle(n,filled):
-                    page=n//len(segment['columns']['widths'])
+                    page,logical=frames.locate(n)
                     if page>=segment['count']:raise DocumentError('La paginación Word cambió durante la conversión.')
-                    from .docx_columns import frame
-                    return frame(segment['columns'],n,width,height,left,top,right,bottom,segment['note_plan']['reserves'].get(page,0))
-                actual_refs={}
+                    return frames.rect(logical,width,height,left,top,right,bottom,segment['note_plan']['reserves'].get(page,0))
+                actual_refs={};actual_breaks=set()
                 def position(node):
+                    if node.id and node.id.startswith(PAGE_BREAK_PREFIX) and node.open_close&1:
+                        if frames.logical[-1]%len(segment['columns']['widths']):raise DocumentError('Un salto Word no inicia una página física; no se entrega la conversión.')
+                        actual_breaks.add(len(frames.logical)-1)
                     if node.id in segment['note_plan']['ref_pages'] and node.open_close&1 and not f.Rect(node.rect).is_empty:actual_refs.setdefault(node.id,node.page_num-1)
                     node.page_num+=segment['offset'];all_positions.append(node)
                 active_page=[0]
@@ -366,7 +378,7 @@ def import_docx(data,paper='source'):
                 try:segment['story'].write(writer,rectangle,positionfn=position,pagefn=pagefn)
                 finally:writer.close()
                 with f.open(stream=stream.getvalue()) as part:
-                    if len(part)!=segment['count'] or actual_refs!=segment['note_plan']['ref_pages']:raise DocumentError('La paginación de texto/notas Word cambió durante la conversión.')
+                    if len(part)!=segment['count'] or actual_refs!=segment['note_plan']['ref_pages'] or actual_breaks!=set(segment['note_plan']['page_break_frames']):raise DocumentError('La paginación de texto/notas Word cambió durante la conversión.')
                     from .docx_columns import separators
                     separators(part,{**segment['columns'],'left':left},top,bottom,segment['note_plan']['reserves'])
                     doc.insert_pdf(part)
@@ -391,6 +403,6 @@ def import_docx(data,paper='source'):
     if missing and table_stats['merged_tables']:raise DocumentError('La comprobación detectó texto perdido en una tabla combinada. Simplifica la tabla antes de importar; no se entrega un PDF incompleto.')
     if missing:warnings.add('La comprobación de texto detectó diferencias; revisa los fragmentos indicados y el PDF completo.')
     warnings.add('Las fuentes originales se sustituyen por DejaVu Sans. La paginación y el diseño pueden cambiar.')
-    report={'schema':'reapdf-docx-import-1','source_sha256':hashlib.sha256(data).hexdigest(),'pdf_sha256':hashlib.sha256(result).hexdigest(),'pages':pages,'paragraphs':paragraphs,'tables':tables,'cells':cells,'images':len(images),'characters':characters,'manual_page_breaks':manual_breaks,'manual_column_breaks':manual_column_breaks,'sections':section_report,'section_count':len(segments),'header_footer_templates':sum(len(s['running'].templates) for s in segments),'header_footer_instances':sum(s['running'].drawn for s in segments),'page_fields':dynamic_fields,**notes.report(),**field_stats,**table_stats,'page_number_start':segments[0]['fields'].start,'page_number_format':segments[0]['fields'].format,'page_labels_preserved':page_labels_preserved,'styles_applied':len(styles.used),'list_items':styles.list_items,'fonts_replaced':sorted(fonts),'warnings':sorted(warnings),'missing_words':list(missing)[:30],'text_check_passed':not missing,'layout_preserved':False,'output_bytes':len(result)}
+    report={'schema':'reapdf-docx-import-1','source_sha256':hashlib.sha256(data).hexdigest(),'pdf_sha256':hashlib.sha256(result).hexdigest(),'pages':pages,'paragraphs':paragraphs,'tables':tables,'cells':cells,'images':len(images),'characters':characters,'manual_page_breaks':manual_breaks,'manual_column_breaks':manual_column_breaks,'physical_page_breaks_verified':sum(len(s['note_plan']['page_break_frames']) for s in segments),'sections':section_report,'section_count':source_section_count,'layout_section_count':len(segments),'continuous_sections_merged':source_section_count-len(segments),'header_footer_templates':sum(len(s['running'].templates) for s in segments),'header_footer_instances':sum(s['running'].drawn for s in segments),'page_fields':dynamic_fields,**notes.report(),**field_stats,**table_stats,'page_number_start':segments[0]['fields'].start,'page_number_format':segments[0]['fields'].format,'page_labels_preserved':page_labels_preserved,'styles_applied':len(styles.used),'list_items':styles.list_items,'fonts_replaced':sorted(fonts),'warnings':sorted(warnings),'missing_words':list(missing)[:30],'text_check_passed':not missing,'layout_preserved':False,'output_bytes':len(result)}
     report.update(bookmarks=len(bookmarks.names),internal_hyperlinks=bookmarks.links)
     return result,report

@@ -14,7 +14,7 @@ def sections(body,paper):
         if len(result)>=50:raise DocumentError('Hasta 50 secciones Word por importación.')
         section=deepcopy(properties) if properties is not None else E.Element(tag('sectPr'))
         kind=section.find(tag('type'));kind=kind.attrib.get(tag('val'),'nextPage') if kind is not None else 'nextPage'
-        if result and kind not in ['nextPage','oddPage','evenPage']:raise DocumentError('Esta importación admite secciones con salto a página siguiente, par o impar. Convierte los saltos continuos o de columna antes de importar.')
+        if result and kind not in ['nextPage','oddPage','evenPage','continuous']:raise DocumentError('Esta importación admite secciones con salto a página siguiente, par, impar o continuas compatibles. Los saltos de sección a columna requieren otro tratamiento.')
         # Missing header/footer references link to the preceding section, by variant.
         own={}
         for name in ['headerReference','footerReference']:
@@ -44,4 +44,31 @@ def sections(body,paper):
                 props=node.find(tag('pPr'));end=props.find(tag('sectPr')) if props is not None else None
                 if end is not None:append(end)
     if nodes or not result:append(None)
+    return result
+
+
+def continuous_groups(segments,package,parse_xml):
+    """Join identical-layout continuous sections, keeping source identities.
+
+    Geometry-changing continuous sections need balancing and remain protected.
+    """
+    def key(node):
+        children=[key(c) for c in node if c.tag!=tag('type')]
+        return node.tag,tuple(sorted(node.attrib.items())),(node.text or '').strip(),tuple(sorted(children) if node.tag==tag('sectPr') else children)
+    result=[];section_pages=None
+    for index,segment in enumerate(segments):
+        segment['source_sections']=[index+1]
+        if not result or segment['break']!='continuous':result.append(segment);continue
+        previous=result[-1];a=previous['properties'];b=segment['properties']
+        unsafe=['pgNumType','titlePg','footnotePr','endnotePr']
+        has_notes=any(n.tag in [tag('footnoteReference'),tag('endnoteReference')] for s in [previous,segment] for node in s['nodes'] for n in node.iter())
+        if section_pages is None:
+            section_pages=False
+            for name,value in package.items():
+                if name.endswith('.xml') and name.startswith(('word/header','word/footer')):
+                    root=parse_xml(value);content=''.join(list(root.itertext())+[v for node in root.iter() for v in node.attrib.values()]).upper()
+                    section_pages=section_pages or 'SECTIONPAGES' in content
+        if previous['size']!=segment['size'] or previous['margins']!=segment['margins'] or previous['columns']!=segment['columns'] or key(a)!=key(b) or has_notes or section_pages or any(a.find(tag(k)) is not None or b.find(tag(k)) is not None for k in unsafe):
+            raise DocumentError('Las secciones continuas con cambios de geometría, encabezados, numeración o notas necesitan otro tratamiento; usa página siguiente para este perfil compatible.')
+        previous['nodes'].extend(segment['nodes']);previous['source_sections'].append(index+1)
     return result
