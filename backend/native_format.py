@@ -24,6 +24,8 @@ def availability(doc,row):
                 owner=n.pdf_to_name(n.pdf_dict_gets(attr,'O'))
                 if n.pdf_dict_len(attr)>64:return 'Demasiados atributos para cambiar formato con seguridad.'
                 keys={n.pdf_to_name(n.pdf_dict_get_key(attr,i)) for i in range(n.pdf_dict_len(attr))}
+                from .css_typography import OWNERS
+                if owner in OWNERS:continue # validate() already checked every CSS property.
                 if owner in ['Table','List']:
                     permitted={'O','RowSpan','ColSpan','Headers','Scope','Summary'} if owner=='Table' else {'O','ListNumbering'}
                     if keys-permitted:return 'Los atributos de tabla o lista no son compatibles con el cambio de formato.'

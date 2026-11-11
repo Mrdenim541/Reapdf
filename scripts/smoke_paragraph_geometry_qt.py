@@ -9,7 +9,7 @@ from portable.native_window import create_window
 from scripts.create_paragraph_format_sample import create
 from backend.native_text import native_model
 from backend.structure_editing import reading_preview
-root=Path(tempfile.mkdtemp(prefix='reapdf-format-qt-'));original=root/'Paragraph.pdf';base=create(geometry=True);original.write_bytes(base)
+root=Path(tempfile.mkdtemp(prefix='reapdf-format-qt-'));original=root/'Paragraph.pdf';base=create(geometry=True,css=True);original.write_bytes(base)
 QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts);app=QApplication([]);QMessageBox.question=lambda *a:QMessageBox.StandardButton.Yes
 window=create_window('http://127.0.0.1:8000',str(original));window.resize(1366,900);window.show()
 def js(script):
@@ -55,10 +55,11 @@ try:
                 bbox=n.pdf_dict_gets(attr,'BBox')
                 if n.pdf_is_null(bbox):continue
                 boxes+=1;assert n.pdf_to_real(n.pdf_dict_gets(attr,'Height'))>20
+        assert sum(1 for rec in t.records.values() for _,_,_,attr in declarations(d,rec['object']) if n.pdf_to_name(n.pdf_dict_gets(attr,'O'))=='CSS-1.00' and n.pdf_to_text_string(n.pdf_dict_gets(attr,'font-family'))=='DejaVu Serif')>=2
         assert boxes==2 and all(r['editable'] for r in native_model(d,0,d[0].rect)[1])
     open_file(output);select('HELLO');click('Cancelar')
     # Continue a second paragraph whose geometry must migrate to page-local leaves.
-    original2=root/'Continuation.pdf';original2.write_bytes(create(geometry=True));open_file(original2);select('HELLO');click('Editar párrafo');wait(field('Cambiar formato del párrafo')+'?.disabled===false');js('document.querySelector(".paragraph-format").open=true');js(field('Cambiar formato del párrafo')+'.click()');wait(field('Fuente del párrafo nativo')+'?.disabled===false');js('(()=>{const e='+field('Fuente del párrafo nativo')+';e.value="serif";e.dispatchEvent(new Event("change",{bubbles:true}));})()');edit('Tamaño del párrafo nativo',12);edit('Ancho del párrafo en página',130);edit('Alto del párrafo en página',30);edit('Párrafo sobre la página','HELLO '*15+'TEXT '*15,True)
+    original2=root/'Continuation.pdf';original2.write_bytes(create(geometry=True,css=True));open_file(original2);select('HELLO');click('Editar párrafo');wait(field('Cambiar formato del párrafo')+'?.disabled===false');js('document.querySelector(".paragraph-format").open=true');js(field('Cambiar formato del párrafo')+'.click()');wait(field('Fuente del párrafo nativo')+'?.disabled===false');js('(()=>{const e='+field('Fuente del párrafo nativo')+';e.value="serif";e.dispatchEvent(new Event("change",{bubbles:true}));})()');edit('Tamaño del párrafo nativo',12);edit('Ancho del párrafo en página',130);edit('Alto del párrafo en página',30);edit('Párrafo sobre la página','HELLO '*15+'TEXT '*15,True)
     click('Continuar en otra página');wait(field('Texto del párrafo entre páginas')+'?.disabled===false');assert js(field('Cambiar formato del párrafo')+'.checked');assert js(field('Fuente del párrafo nativo')+'.value')=='serif'
     # Changing a carried format and checking again must invalidate its preview.
     js('document.querySelector(".paragraph-format").open=true');edit('Tamaño del párrafo nativo',13);edit('Y de continuación',150);click('Comprobar distribución');wait('document.querySelector(".flow-dialog [role=status]")?.parentElement.innerText.includes("Ajuste completo:")');click('Aplicar continuación completa');wait('!document.querySelector(".flow-dialog")');click('↶ Deshacer');click('↷ Rehacer');continued=root/'Continuation formatted.pdf';save(continued)

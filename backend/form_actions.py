@@ -86,7 +86,7 @@ def policy(doc,chain,events=None):
         name,args=fmt
         if name=='AFNumber_Format' and len(args)==6:
             places=integer(args[0],0,6);separator=integer(args[1],0,3);negative=integer(args[2],0,3)
-            if negative not in [0,2] or integer(args[3],0,0)!=0 or not isinstance(args[4],str) or len(args[4])>12 or any(ord(c)<32 or ord(c)>255 for c in args[4]) or type(args[5]) is not bool:raise DocumentError('El formato de moneda/color requiere otro tratamiento.')
+            if integer(args[3],0,0)!=0 or not isinstance(args[4],str) or len(args[4])>12 or any(ord(c)<32 or ord(c)>255 for c in args[4]) or type(args[5]) is not bool:raise DocumentError('El formato de moneda/color requiere otro tratamiento.')
             result={'kind':'number','places':places,'separator':separator,'negative':negative,'currency':args[4],'prepend':args[5]}
         elif name=='AFPercent_Format' and len(args)==2:result={'kind':'percent','places':integer(args[0],0,6),'separator':integer(args[1],0,3),'negative':0,'currency':'','prepend':False}
         elif name in ['AFTime_FormatEx','AFTime_Format']:
@@ -110,8 +110,13 @@ def policy(doc,chain,events=None):
         elif len(args)!=2 or integer(args[0],0,6)!=result['places'] or integer(args[1],0,3)!=result['separator']:raise DocumentError('El filtro numérico no coincide con su formato.')
     if validation:
         name,args=validation
-        if name!='AFRange_Validate' or len(args)!=4 or type(args[0]) is not bool or type(args[2]) is not bool or any(not isinstance(v,Decimal) or not v.is_finite() or abs(v)>Decimal('1e12') for v in [args[1],args[3]]) or result.get('kind') in ['date','time','special']:raise DocumentError('La validación de este campo requiere otro tratamiento.')
-        low=str(args[1]) if args[0] else None;high=str(args[3]) if args[2] else None
+        if name!='AFRange_Validate' or len(args)!=4 or type(args[0]) is not bool or type(args[2]) is not bool or result.get('kind') in ['date','time','special']:raise DocumentError('La validación de este campo requiere otro tratamiento.')
+        def bound(enabled,value):
+            if not enabled:return None
+            if isinstance(value,str):value=number(value,stored=True)
+            if not isinstance(value,Decimal) or not value.is_finite() or abs(value)>Decimal('1e12'):raise DocumentError('El límite de validación no es un número compatible.')
+            return str(value)
+        low=bound(args[0],args[1]);high=bound(args[2],args[3])
         if low is not None and high is not None and Decimal(low)>Decimal(high):raise DocumentError('El rango de validación está invertido.')
         result.update(minimum=low,maximum=high)
         if not result.get('kind'):result['kind']='number';result['plain']=True
@@ -167,10 +172,10 @@ def value(policy,text,stored=False):
     if policy.get('plain'):return canonical,canonical
     with localcontext() as ctx:
         ctx.prec=100;shown=amount*(100 if policy['kind']=='percent' else 1);shown=shown.quantize(Decimal(1).scaleb(-policy['places']),rounding=ROUND_HALF_UP)
-    negative=shown<0;shown=abs(shown);display=format(shown,(',' if policy['separator'] in [0,2] else '')+'.'+str(policy['places'])+'f')
+    negative=amount<0 if policy['negative'] in [1,3] else shown<0;shown=abs(shown);display=format(shown,(',' if policy['separator'] in [0,2] else '')+'.'+str(policy['places'])+'f')
     if policy['separator'] in [2,3]:display=display.replace(',','X').replace('.',',').replace('X','.')
     currency=policy['currency'];display=currency+display if policy['prepend'] else display+currency
-    if negative:display='('+display+')' if policy['negative']==2 else '-'+display
+    if negative and policy['negative'] in [0,2,3]:display='('+display+')' if policy['negative'] in [2,3] else '-'+display
     if policy['kind']=='percent':display+='%'
     return canonical,display
 
@@ -179,3 +184,10 @@ def edit_value(policy,text):
     # PDF /V uses an unformatted decimal; the editable input uses its locale.
     canonical,_=value(policy,text,stored=True)
     return canonical.replace('.',',') if policy.get('kind') in ['number','percent'] and policy.get('separator',1) in [2,3] else canonical
+
+
+def appearance_color(policy,canonical):
+    if not policy or policy.get('negative') not in [1,3]:return None
+    # AFNumber_Format styles 1/3 convey the sign through red text. Positive
+    # values reset to black on every update, including after reopening a PDF.
+    return (1,0,0) if canonical.strip() and number(canonical,stored=True)<0 else (0,0,0)

@@ -118,6 +118,8 @@ class Paragraph:
             validate(attrs)
             owner=n.pdf_to_name(n.pdf_dict_gets(attrs,'O'))
             keys={n.pdf_to_name(n.pdf_dict_get_key(attrs,i)) for i in range(n.pdf_dict_len(attrs))}
+            from .css_typography import OWNERS
+            if owner in OWNERS:continue # Explicit absolute typography only.
             if owner=='Table' and keys<={'O','Scope','RowSpan','ColSpan','Headers'}:continue
             if owner=='Layout' and keys<={'O','Color','BBox','Width','Height'}|TYPO:
                 from .text_geometry import validate

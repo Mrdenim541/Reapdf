@@ -50,6 +50,8 @@ def declarations(doc,obj):
 
 def validate(attr):
     n=f.mupdf
+    from .css_typography import OWNERS,read
+    if n.pdf_to_name(n.pdf_dict_gets(attr,'O')) in OWNERS:read(attr);return
     for key in TYPO:
         value=n.pdf_dict_gets(attr,key)
         if n.pdf_is_null(value):continue
@@ -68,7 +70,10 @@ def validate(attr):
 
 
 def requested(row,attr):
-    n=f.mupdf;options=row['_format_options'];result={};original=options['family']=='original'
+    n=f.mupdf
+    from .css_typography import OWNERS,requested as css_requested
+    if n.pdf_to_name(n.pdf_dict_gets(attr,'O')) in OWNERS:return css_requested(row,attr)
+    options=row['_format_options'];result={};original=options['family']=='original'
     for key in TYPO:
         old=n.pdf_dict_gets(attr,key)
         if n.pdf_is_null(old) or original and key!='FontSize':continue

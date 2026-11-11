@@ -60,7 +60,7 @@ def test_invalid_dates_are_rejected(text):
 
 @pytest.mark.parametrize('code',[
  'AFNumber_Format(2,0,0,0,"",true); evil();','AFNumber_Format(2+1,0,0,0,"",true);',
- 'AFNumber_Format(2,0,1,0,"",true);','AFNumber_Format(2,0,0,0,app.alert(1),true);',
+'AFNumber_Format(2,0,0,0,app.alert(1),true);',
  'AFNumber_Format(2,0,0,0,"",true,);','event.value="abc";', 'AFDate_FormatEx("unknown");',
  'AFNumber_Format(2,4,0,0,"",true);','AFNumber_Format(2,0,0,0,"",1);','AFNumber_Format(200,0,0,0,"",true);',
  ])

@@ -174,7 +174,7 @@ def prepare_fill(doc,values,recalculate=False):
     model={(row['page'],row['xref']):row for row in rows};result=[]
     for entry in values:
         key=entry['page'],entry['xref'];row=model[key]
-        value=entry.get('value');page=doc[key[0]];w=page.load_widget(key[1]);size=None;display=None;choice_index=None
+        value=entry.get('value');page=doc[key[0]];w=page.load_widget(key[1]);size=None;display=None;choice_index=None;text_color=None
         if row['kind']=='radio':
             if not isinstance(value,str) or value not in ['',*[o['value'] for o in row['choices']]]:raise DocumentError('Elige una opción válida del grupo de radio.')
             if not value and not row['can_clear'] and row['value']:raise DocumentError('Este grupo de radio no permite retirar la selección.')
@@ -194,8 +194,10 @@ def prepare_fill(doc,values,recalculate=False):
             if row.get('format'):
                 from .form_actions import value as format_value
                 value,display=format_value(row['format'],value)
+                from .form_actions import appearance_color
+                text_color=appearance_color(row['format'],value)
             size=fitted_text_size(w,display if display is not None else value,row['multiline'])
-        result.append((key[0],key[1],value,size,display,choice_index,row['group'],row['kind'],row.get('radio_state')))
+        result.append((key[0],key[1],value,size,display,choice_index,row['group'],row['kind'],row.get('radio_state'),text_color))
     return result
 
 
@@ -207,7 +209,7 @@ def apply_fill(doc,prepared):
     actions={n:raw_key(doc,n,'AA') for n in nodes}
     for node in nodes:doc.xref_set_key(node,'AA','null')
     structural={xref:{key:raw_key(doc,xref,key) for key in ['T','FT','Ff','MaxLen','Opt','TU','Parent']} for _,xref,*_ in prepared}
-    for number,xref,value,size,display,choice_index,owner,kind,on_state in prepared:
+    for number,xref,value,size,display,choice_index,owner,kind,on_state,text_color in prepared:
         page=doc[number];widget=page.load_widget(xref)
         doc.xref_set_key(xref,'P',f'{page.xref} 0 R')
         if widget is None:raise DocumentError('Una edición anterior retiró el campo. Rellena antes de modificar esa región.')
@@ -224,6 +226,7 @@ def apply_fill(doc,prepared):
         if choice_index is not None:doc.xref_set_key(xref,'I',f'[{choice_index}]' if choice_index>=0 else 'null')
         widget.field_value=display if display is not None else value
         if size is not None:widget.text_fontsize=size
+        if text_color is not None:widget.text_color=text_color
         widget.update()
         if display is not None:
             # MuPDF paints combo export codes instead of their display labels.
@@ -236,7 +239,7 @@ def apply_fill(doc,prepared):
     # Native updates materialize inherited flags on widgets and may leave /V on
     # bare widget children. Restore the source ownership and keep values at the
     # logical field owner, with all sibling appearances already generated.
-    for number,xref,value,size,display,choice_index,owner,kind,on_state in prepared:
+    for number,xref,value,size,display,choice_index,owner,kind,on_state,text_color in prepared:
         if kind=='radio':continue
         for key,raw in structural[xref].items():doc.xref_set_key(xref,key,raw)
         encoded='/'+value if kind=='checkbox' else pdf_string(value)
