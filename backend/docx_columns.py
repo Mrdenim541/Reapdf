@@ -34,7 +34,7 @@ def frame(columns,index,width,height,left,top,right,bottom,reserve=0):
     return (f.Rect(0,0,width,height) if column==0 else None),f.Rect(x,top,x+columns['widths'][column],height-bottom-reserve),None
 
 
-def separators(doc,columns,top,bottom,reserves):
+def separators(doc,columns,top,bottom,reserves,heights=None):
     if not columns['separator'] or len(columns['widths'])==1:return
     # x positions are relative to the left text margin; caller supplies it.
     left=columns['left'];positions=[];x=left
@@ -42,4 +42,5 @@ def separators(doc,columns,top,bottom,reserves):
         x+=width;positions.append(x+gap/2);x+=gap
     for number,page in enumerate(doc):
         y1=page.rect.height-bottom-reserves.get(number,0)
+        if heights and number in heights:y1=min(y1,top+heights[number])
         for x in positions:page.draw_line((x,top),(x,y1),color=(.25,.25,.25),width=.5)

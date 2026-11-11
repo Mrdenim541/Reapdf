@@ -717,9 +717,9 @@ async def import_word_batch(files:list[UploadFile],paper:str=Form('source'),revi
     return result if review else Response(result,media_type='application/zip',headers={'Content-Disposition':'attachment; filename="reapdf-word-lote.zip"'})
 
 @app.post('/api/import/docx')
-async def import_word(file: UploadFile, paper: str=Form('source')):
+async def import_word(file: UploadFile, paper: str=Form('source'),balance_columns:bool=Form(False)):
     data=await file.read(MAX_DOCX_INPUT+1);name=file.filename or 'Word.docx';await file.close()
-    result,report=await run_in_threadpool(import_docx,data,paper)
+    result,report=await run_in_threadpool(import_docx,data,paper,balance_columns)
     return {'document':store_document(result),'report':report,'name':Path(name).stem[:160]+'.pdf'}
 
 

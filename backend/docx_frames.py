@@ -4,8 +4,8 @@ PAGE_BREAK_PREFIX='REAPDF_PHYSICAL_PAGE_BREAK_042_'
 
 
 class Frames:
-    def __init__(self,columns,starts=()):
-        self.columns=columns;self.starts=set(starts);self.logical=[]
+    def __init__(self,columns,starts=(),heights=None):
+        self.columns=columns;self.starts=set(starts);self.logical=[];self.heights=heights or {}
 
     def locate(self,index):
         if index!=len(self.logical):raise DocumentError('La secuencia de columnas Word cambió durante la conversión.')
@@ -16,4 +16,7 @@ class Frames:
 
     def rect(self,logical,width,height,left,top,right,bottom,reserve=0):
         from .docx_columns import frame
-        return frame(self.columns,logical,width,height,left,top,right,bottom,reserve)
+        media,rect,ctm=frame(self.columns,logical,width,height,left,top,right,bottom,reserve)
+        page=logical//len(self.columns['widths'])
+        if page in self.heights:rect.y1=min(rect.y1,rect.y0+self.heights[page])
+        return media,rect,ctm

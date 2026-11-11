@@ -158,7 +158,7 @@ class Notes:
             break_frames=current_breaks
             if breaks_stable and (not refs or not grew and not labels_changed and positions==previous):
                 self.resolved_foot_counter=resolved_counter
-                return {'story':story,'count':count[0],'reserves':reserves,'foot_pages':dict(by_page),'foot_heights':needed,'ref_pages':positions,'passes':attempt+1,'page_break_frames':sorted(break_frames)}
+                return {'story':story,'count':count[0],'reserves':reserves,'foot_pages':dict(by_page),'foot_heights':needed,'ref_pages':positions,'passes':attempt+1,'page_break_frames':sorted(break_frames),'layout_content':reviewed_content}
             previous=positions
         raise DocumentError('La distribución de las notas no converge dentro del límite. No se entrega un PDF incompleto.')
 

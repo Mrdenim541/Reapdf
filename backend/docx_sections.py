@@ -53,11 +53,11 @@ def continuous_groups(segments,package,parse_xml):
     Geometry-changing continuous sections need balancing and remain protected.
     """
     def key(node):
-        children=[key(c) for c in node if c.tag!=tag('type')]
+        children=[key(c) for c in node if c.tag not in [tag('type'),tag('cols')]]
         return node.tag,tuple(sorted(node.attrib.items())),(node.text or '').strip(),tuple(sorted(children) if node.tag==tag('sectPr') else children)
     result=[];section_pages=None
     for index,segment in enumerate(segments):
-        segment['source_sections']=[index+1]
+        segment['source_sections']=[index+1];segment['flow_parts']=[{'nodes':list(segment['nodes']),'columns':segment['columns'],'source_sections':[index+1]}]
         if not result or segment['break']!='continuous':result.append(segment);continue
         previous=result[-1];a=previous['properties'];b=segment['properties']
         unsafe=['pgNumType','titlePg','footnotePr','endnotePr']
@@ -68,7 +68,10 @@ def continuous_groups(segments,package,parse_xml):
                 if name.endswith('.xml') and name.startswith(('word/header','word/footer')):
                     root=parse_xml(value);content=''.join(list(root.itertext())+[v for node in root.iter() for v in node.attrib.values()]).upper()
                     section_pages=section_pages or 'SECTIONPAGES' in content
-        if previous['size']!=segment['size'] or previous['margins']!=segment['margins'] or previous['columns']!=segment['columns'] or key(a)!=key(b) or has_notes or section_pages or any(a.find(tag(k)) is not None or b.find(tag(k)) is not None for k in unsafe):
+        if previous['size']!=segment['size'] or previous['margins']!=segment['margins'] or key(a)!=key(b) or has_notes or section_pages or any(a.find(tag(k)) is not None or b.find(tag(k)) is not None for k in unsafe):
             raise DocumentError('Las secciones continuas con cambios de geometría, encabezados, numeración o notas necesitan otro tratamiento; usa página siguiente para este perfil compatible.')
         previous['nodes'].extend(segment['nodes']);previous['source_sections'].append(index+1)
+        if previous['flow_parts'][-1]['columns']==segment['columns']:
+            previous['flow_parts'][-1]['nodes'].extend(segment['nodes']);previous['flow_parts'][-1]['source_sections'].append(index+1)
+        else:previous['flow_parts'].extend(segment['flow_parts'])
     return result
