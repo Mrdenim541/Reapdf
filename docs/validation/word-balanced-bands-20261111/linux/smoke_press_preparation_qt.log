@@ -1,0 +1,8 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[458003:458023:1111/203653.427717:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 458024: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: Qt PDF/X preparation inspection, invalid bleed draft retained, explicit synthetic local ICC, preview invalidation and renewed acknowledgement, apply, undo/redo, native save/reopen, preserved text/content and original; synthetic ICC rendering differs by at most one channel level; no conformance claim or color conversion.

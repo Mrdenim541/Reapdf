@@ -1,0 +1,57 @@
+........................................F............................... [ 81%]
+................                                                         [100%]
+=================================== FAILURES ===================================
+_ test_prior_section_endnote_is_not_dropped_when_final_section_changes_columns _
+
+    def test_prior_section_endnote_is_not_dropped_when_final_section_changes_columns():
+        from tests.test_docx_notes import source as notes,reference
+        first=properties();two=first.replace('</w:sectPr>','<w:cols w:num="2" w:space="240"/></w:sectPr>');three=two.replace('nextPage','continuous').replace('w:num="2"','w:num="3"')
+        body=reference('endnote',1,'PREVIOUSENDREF')+'<w:p><w:pPr>'+first+'</w:pPr><w:r><w:t>FIRSTENDING</w:t></w:r></w:p>'+'<w:p><w:pPr>'+two+'</w:pPr><w:r><w:t>COLUMNSECOND</w:t></w:r></w:p>'+p('COLUMNTHIRD')+three
+        data=rewrite(notes(),{'word/document.xml':f'<w:document xmlns:w="{W}" xmlns:r="{R}"><w:body>{body}</w:body></w:document>'})
+>       out,r=import_docx(data);assert r['endnotes']==1 and r['text_check_passed']
+
+tests/test_docx_balance.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+backend/docx_import.py:315: in import_docx
+    else:segment['content']=blocks(segment['nodes'])
+backend/docx_import.py:263: in blocks
+    if node.tag==tag('p'):parts.append(paragraph(node))
+backend/docx_import.py:246: in paragraph
+    pieces.extend(inline(child) for child in node)
+backend/docx_import.py:246: in <genexpr>
+    pieces.extend(inline(child) for child in node)
+backend/docx_import.py:218: in inline
+    if child.tag==tag('r'):return '' if child in consumed_note_runs else run(child,inherited,note_marks=note_marks)
+backend/docx_import.py:162: in run
+    parts.append(notes.reference(child,in_running,custom))
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <backend.docx_notes.Notes object at 0x7f3e7bee3500>
+node = <Element '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}endnoteReference' at 0x7f3e7bf37740>
+in_running = False, custom_label = None
+
+    def reference(self,node,in_running=False,custom_label=None):
+        if self.inside or in_running:raise DocumentError('No se admiten referencias de notas dentro de otras notas, encabezados o pies.')
+        kind='footnote' if node.tag==tag('footnoteReference') else 'endnote';raw=node.attrib.get(tag('id'),'')
+        if not re.fullmatch(r'\d{1,9}',raw) or node.attrib.get(tag('customMarkFollows'),'0') not in ['0','false','1','true']:raise DocumentError('La referencia de nota necesita un identificador y marcador compatibles.')
+        custom=node.attrib.get(tag('customMarkFollows'),'0') in ['1','true']
+        if custom!=(custom_label is not None) or custom and (not isinstance(custom_label,str) or not 1<=len(custom_label)<=4 or any(c.isspace() or not c.isprintable() for c in custom_label)):raise DocumentError('El marcador personalizado necesita de uno a cuatro caracteres visibles en el mismo fragmento o en el siguiente fragmento de texto.')
+        if custom:
+            if self.marker_font is None:self.marker_font=f.Font(fontfile=str(Path(__file__).resolve().parent.parent/'resources/fonts/DejaVuSans.ttf'))
+            if any(not self.marker_font.has_glyph(ord(c),fallback=0) for c in custom_label):raise DocumentError('La fuente incluida no cubre la marca personalizada de la nota.')
+        ident=int(raw);key=(kind,ident)
+        if key in self.used:raise DocumentError('Una definición de nota tiene referencias repetidas; usa un enlace NOTEREF explícito antes de importar.')
+        definition=self.definitions.get(kind,{}).get(ident)
+>       if definition is None:raise DocumentError('Falta el contenido de una nota referenciada; no se importa un documento incompleto.')
+E       backend.engine.DocumentError: Falta el contenido de una nota referenciada; no se importa un documento incompleto.
+
+backend/docx_notes.py:84: DocumentError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_docx_balance.py::test_prior_section_endnote_is_not_dropped_when_final_section_changes_columns
+1 failed, 87 passed, 1 warning in 13.53s

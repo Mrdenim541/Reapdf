@@ -1,0 +1,10 @@
+{
+  "run_id": "43096564819",
+  "url": "https://github.com/Mrdenim541/Reapdf/actions/runs/43096564819",
+  "source_commit": "49f7db9fbd4146974b208c8d6f0363457b756083",
+  "observed_status": "Queued",
+  "observation": "Run page explicitly shows Queued and no completed jobs; no source-bound receipt is available in validation/desktop-windows. Cause is not disclosed; no billing/runner diagnosis inferred.",
+  "observed_at_utc": "2026-11-11T20:55:54.524345+00:00",
+  "windows_execution_verified": false,
+  "compiled_executable_verified": false
+}

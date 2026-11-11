@@ -1,0 +1,40 @@
+........F............................................................... [ 88%]
+.........                                                                [100%]
+=================================== FAILURES ===================================
+___ test_balance_last_page_keeps_all_text_page_count_and_column_bounds[98-4] ___
+
+columns = 4, rows = 98
+
+    @pytest.mark.parametrize('columns',[2,3,4])
+    @pytest.mark.parametrize('rows',[12,27,98])
+    def test_balance_last_page_keeps_all_text_page_count_and_column_bounds(columns,rows):
+        data=source(f'<w:cols w:num="{columns}" w:space="240"/>',body=''.join(p(f'ITEM{i:03d}') for i in range(rows)))
+        original,old=import_docx(data);out,r=import_docx(data,balance_columns=True)
+        assert r['pages']==old['pages'] and r['balanced_column_pages']==1 and r['text_check_passed']
+        with f.open(stream=out) as d,f.open(stream=original) as a:
+            for page in list(d)[:-1]:assert page.get_text()==a[page.number].get_text() and page.get_pixmap().samples==a[page.number].get_pixmap().samples
+            text=''.join(page.get_text() for page in d);assert all(text.count(f'ITEM{i:03d}')==1 for i in range(rows))
+            last=d[-1];found=last.search_for('ITEM');by_x={round(rect.x0):[] for rect in found}
+            for rect in found:by_x[round(rect.x0)].append(rect.y1)
+>           assert len(by_x)==columns and max(map(max,by_x.values()))-min(map(max,by_x.values()))<24
+E           assert (4 == 4 and (575.28515625 - 532.8851318359375) < 24)
+E            +  where 4 = len({72: [66.48500061035156, 87.68499755859375, 108.88499450683594, 130.08499145507812, 151.2849884033203, 172.48498535156....48500061035156, 87.68499755859375, 108.88499450683594, 130.08499145507812, 151.2849884033203, 172.4849853515625, ...]})
+E            +  and   575.28515625 = max(<map object at 0x7f02466b41f0>)
+E            +    where <map object at 0x7f02466b41f0> = map(max, dict_values([[66.48500061035156, 87.68499755859375, 108.88499450683594, 130.08499145507812, 151.2849884033203, 172.484...19, 426.8850402832031, 448.0850524902344, 469.2850646972656, 490.4850769042969, 511.6850891113281, 532.8851318359375]]))
+E            +      where dict_values([[66.48500061035156, 87.68499755859375, 108.88499450683594, 130.08499145507812, 151.2849884033203, 172.484...19, 426.8850402832031, 448.0850524902344, 469.2850646972656, 490.4850769042969, 511.6850891113281, 532.8851318359375]]) = <built-in method values of dict object at 0x7f024682a600>()
+E            +        where <built-in method values of dict object at 0x7f024682a600> = {72: [66.48500061035156, 87.68499755859375, 108.88499450683594, 130.08499145507812, 151.2849884033203, 172.48498535156....48500061035156, 87.68499755859375, 108.88499450683594, 130.08499145507812, 151.2849884033203, 172.4849853515625, ...]}.values
+E            +  and   532.8851318359375 = min(<map object at 0x7f02466b4190>)
+E            +    where <map object at 0x7f02466b4190> = map(max, dict_values([[66.48500061035156, 87.68499755859375, 108.88499450683594, 130.08499145507812, 151.2849884033203, 172.484...19, 426.8850402832031, 448.0850524902344, 469.2850646972656, 490.4850769042969, 511.6850891113281, 532.8851318359375]]))
+E            +      where dict_values([[66.48500061035156, 87.68499755859375, 108.88499450683594, 130.08499145507812, 151.2849884033203, 172.484...19, 426.8850402832031, 448.0850524902344, 469.2850646972656, 490.4850769042969, 511.6850891113281, 532.8851318359375]]) = <built-in method values of dict object at 0x7f024682a600>()
+E            +        where <built-in method values of dict object at 0x7f024682a600> = {72: [66.48500061035156, 87.68499755859375, 108.88499450683594, 130.08499145507812, 151.2849884033203, 172.48498535156....48500061035156, 87.68499755859375, 108.88499450683594, 130.08499145507812, 151.2849884033203, 172.4849853515625, ...]}.values
+
+tests/test_docx_balance.py:22: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_docx_balance.py::test_balance_last_page_keeps_all_text_page_count_and_column_bounds[98-4]
+1 failed, 80 passed, 1 warning in 11.06s

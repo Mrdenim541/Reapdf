@@ -1,0 +1,29 @@
+............................................F........................... [ 80%]
+.................                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_continuous_band_keeps_explicit_paragraph_after_spacing __________
+
+    def test_continuous_band_keeps_explicit_paragraph_after_spacing():
+        from io import BytesIO
+        from zipfile import ZipFile
+        second=properties(kind='continuous').replace('</w:sectPr>','<w:cols w:num="3" w:space="240"/></w:sectPr>')
+        data=continuous(second=second)
+        with ZipFile(BytesIO(data)) as z:xml=z.read('word/document.xml').decode()
+        xml=xml.replace('<w:pPr><w:sectPr>','<w:pPr><w:spacing w:after="720"/><w:sectPr>',1)
+        out,r=import_docx(rewrite(data,{'word/document.xml':xml}))
+        with f.open(stream=out) as d:
+>           first,last=positions(d,['SECTIONFIRST','SECTIONSECOND']);assert first[0]==last[0]==0 and last[1].y0-first[1].y1>=35
+E           assert (0 == 0 and (69.87166595458984 - 66.48500061035156) >= 35)
+E            +  where 69.87166595458984 = Rect(72.0, 69.87166595458984, 167.36997985839844, 82.66466522216797).y0
+E            +  and   66.48500061035156 = Rect(72.0, 53.69200134277344, 151.2989959716797, 66.48500061035156).y1
+
+tests/test_docx_balance.py:149: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_docx_balance.py::test_continuous_band_keeps_explicit_paragraph_after_spacing
+1 failed, 88 passed, 1 warning in 13.54s
