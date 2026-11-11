@@ -1,0 +1,3 @@
+[7528:7804:1111/133349.735:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[7528:7804:1111/133349.737:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: Qt native size-based split automatically measures and refreshes groups, rejects invalid limit, keeps personalized numbered names, saves ZIP through native dialog and reopens all native parts within exact byte limit; original and pixels unchanged.
