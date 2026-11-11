@@ -20,7 +20,7 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 | Seleccionar y copiar | En Leer, selecciona texto y pulsa Ctrl+C. Un escaneado requiere OCR. |
 | Buscar | Introduce texto y recorre coincidencias en el documento editado. |
 | Crear desde imágenes | Archivo → Crear PDF desde imágenes: carga, ordena y configura papel/márgenes. |
-| Crear desde Word | Archivo → Crear PDF desde Word: carga DOCX y revisa la conversión. No hay garantía de fidelidad universal. |
+| Crear desde Word | Archivo → Crear PDF desde Word: carga DOCX y revisa la conversión. Los saltos de página física inician la primera columna de la página siguiente; las secciones continuas idénticas comparten el flujo sin página extra. El informe distingue ambos saltos y las secciones agrupadas. No hay equilibrio ni fidelidad Office universal. |
 | Herramientas y favoritos | Cambia de área o busca por nombre. Aplica o cancela los borradores antes de cambiar de tarea. |
 | Instancia y cierre | La aplicación propia recibe nuevos archivos y protege borradores u operaciones pendientes al cerrar. |
 

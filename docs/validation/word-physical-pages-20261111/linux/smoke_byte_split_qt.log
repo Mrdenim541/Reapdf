@@ -1,0 +1,8 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[449249:449268:1111/192932.427921:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 449269: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: Qt native size-based split automatically measures and refreshes groups, rejects invalid limit, keeps personalized numbered names, saves ZIP through native dialog and reopens all native parts within exact byte limit; original and pixels unchanged.

@@ -1,0 +1,78 @@
+.................................F....F................................. [ 63%]
+.........................................                                [100%]
+=================================== FAILURES ===================================
+_____ test_unequal_columns_and_page_breaks_do_not_reuse_the_previous_width _____
+
+    def test_unequal_columns_and_page_breaks_do_not_reuse_the_previous_width():
+        cols='<w:cols w:num="2" w:equalWidth="0"><w:col w:w="3600" w:space="480"/><w:col w:w="5666"/></w:cols>'
+        out,r=import_docx(source(cols,body=inline(['LEFTMARK','WIDEMARK','NEWLEFTMARK'],['column','page'])))
+        with f.open(stream=out) as d:
+>           a,b,c=positions(d,['LEFTMARK','WIDEMARK','NEWLEFTMARK']);assert a[0]==b[0]==0 and c[0]==1 and a[1].x0==c[1].x0<b[1].x0
+
+tests/test_docx_physical_pages.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+doc = closed Document('None', <memory, doc# 226>)
+labels = ['LEFTMARK', 'WIDEMARK', 'NEWLEFTMARK']
+
+    def positions(doc,labels):
+        result=[]
+        for label in labels:
+>           matches=[(p.number,r) for p in doc for r in p.search_for(label)];assert len(matches)==1,(label,matches)
+E           AssertionError: ('LEFTMARK', [(0, Rect(72.0, 53.69200134277344, 137.96701049804688, 66.48500061035156)), (1, Rect(100.84200286865234, 53.69200134277344, 166.8090362548828, 66.48500061035156))])
+E           assert 2 == 1
+E            +  where 2 = len([(0, Rect(72.0, 53.69200134277344, 137.96701049804688, 66.48500061035156)), (1, Rect(100.84200286865234, 53.69200134277344, 166.8090362548828, 66.48500061035156))])
+
+tests/test_docx_column_breaks.py:17: AssertionError
+_ test_continuous_section_with_unchanged_header_page_field_uses_physical_page_count _
+
+    def test_continuous_section_with_unchanged_header_page_field_uses_physical_page_count():
+        from tests.test_docx_sections import P,field
+        from io import BytesIO
+        from zipfile import ZipFile
+        data=continuous(body2=inline(['CONTINUED','NEXTPAGE'],['page']))
+        with ZipFile(BytesIO(data)) as z:xml=z.read('word/document.xml').decode()
+        xml=xml.replace('<w:sectPr>','<w:sectPr><w:headerReference w:type="default" r:id="sameheader"/>',1)
+        files={'word/document.xml':xml,'word/_rels/document.xml.rels':f'<Relationships xmlns="{P}"><Relationship Id="sameheader" Type="{R}/header" Target="header1.xml"/></Relationships>','word/header1.xml':f'<w:hdr xmlns:w="{W}"><w:p><w:r><w:t>HEADER </w:t></w:r>{field("PAGE")}<w:r><w:t> / </w:t></w:r>{field("NUMPAGES")}</w:p></w:hdr>'}
+>       out,r=import_docx(rewrite(data,files));assert r['continuous_sections_merged']==1
+
+tests/test_docx_physical_pages.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+backend/docx_import.py:84: in import_docx
+    segments=sections(body,paper);source_section_count=len(segments);segments=continuous_groups(segments,package,parse_xml)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+segments = [{'break': 'nextPage', 'columns': {'gaps': [12.0], 'separator': False, 'widths': [237.64999999999998, 237.649999999999... 0x7f45c084ac50>, <Element '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p' at 0x7f45c0849030>], ...}]
+package = {'[Content_Types].xml': b'<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/packag...0" w:right="720" w:top="1080" w:bottom="720"/><w:cols w:num="2" w:space="240"/></w:sectPr></w:body></w:document>', ...}
+parse_xml = <function parse_xml at 0x7f45c42c6020>
+
+    def continuous_groups(segments,package,parse_xml):
+        """Join identical-layout continuous sections, keeping source identities.
+    
+        Geometry-changing continuous sections need balancing and remain protected.
+        """
+        def key(node):
+            return node.tag,tuple(sorted(node.attrib.items())),(node.text or '').strip(),tuple(key(c) for c in node if c.tag!=tag('type'))
+        result=[]
+        for index,segment in enumerate(segments):
+            segment['source_sections']=[index+1]
+            if not result or segment['break']!='continuous':result.append(segment);continue
+            previous=result[-1];a=previous['properties'];b=segment['properties']
+            unsafe=['pgNumType','titlePg','footnotePr','endnotePr']
+            has_notes=any(n.tag in [tag('footnoteReference'),tag('endnoteReference')] for s in [previous,segment] for node in s['nodes'] for n in node.iter())
+            section_pages=any('SECTIONPAGES' in ''.join(list(parse_xml(value).itertext())+[v for node in parse_xml(value).iter() for v in node.attrib.values()]).upper() for name,value in package.items() if name.startswith('word/header') and name.endswith('.xml') or name.startswith('word/footer') and name.endswith('.xml'))
+            if previous['size']!=segment['size'] or previous['margins']!=segment['margins'] or previous['columns']!=segment['columns'] or key(a)!=key(b) or has_notes or section_pages or any(a.find(tag(k)) is not None or b.find(tag(k)) is not None for k in unsafe):
+>               raise DocumentError('Las secciones continuas con cambios de geometría, encabezados, numeración o notas necesitan otro tratamiento; usa página siguiente para este perfil compatible.')
+E               backend.engine.DocumentError: Las secciones continuas con cambios de geometría, encabezados, numeración o notas necesitan otro tratamiento; usa página siguiente para este perfil compatible.
+
+backend/docx_sections.py:66: DocumentError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_docx_physical_pages.py::test_unequal_columns_and_page_breaks_do_not_reuse_the_previous_width
+FAILED tests/test_docx_physical_pages.py::test_continuous_section_with_unchanged_header_page_field_uses_physical_page_count
+2 failed, 111 passed, 1 warning in 21.12s
