@@ -1,0 +1,91 @@
+......................................................F........          [100%]
+=================================== FAILURES ===================================
+_ test_native_tag_graph_widgets_and_compressed_source_objects_are_preserved[object_stream] _
+
+kind = 'object_stream'
+
+    @pytest.mark.parametrize('kind',['tagged','shared_form','object_stream'])
+    def test_native_tag_graph_widgets_and_compressed_source_objects_are_preserved(kind):
+        if kind=='tagged':
+            from scripts.create_tagged_paragraph_sample import create as tagged
+            base=tagged()
+        elif kind=='shared_form':
+            from scripts.create_shared_choice_sample import create as form
+            base=form()
+        else:
+            with f.open(stream=create()) as d:base=d.tobytes(use_objstms=1,garbage=4,deflate=True)
+>       out,r=change(base,icc='');assert r['native_content_preserved']
+
+tests/test_press_preflight.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_press_preflight.py:15: in change
+    p=config(**kw);r=prepare(base,[],p,True);return prepare(base,[],{**p,'review_token':r['review_token'],'acknowledge':True})
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+base = b'%PDF-1.7\n%\xc2\xb5\xc2\xb6\n% Written by MuPDF 1.28.2\n\n1 0 obj\n<</Type/Catalog/Pages 2 0 R/Info<</Producer(MuPDF...A\xb2\x15\x0c@\x92Q\x02"\xcb\x02bO\x04\x890i\x81Hfo\x06\x00t\x8c\x03\x13\nendstream\nendobj\n\nstartxref\n843\n%%EOF\n'
+operations = []
+payload = {'bleed_mm': 3, 'condition': 'SYNTHETIC TEST - NOT A REAL PRESS', 'icc': '', 'pages': [0, 1], ...}
+review = True
+
+    def prepare(base,operations,payload,review=False):
+        if not isinstance(payload,dict) or type(review) is not bool:raise DocumentError('Configuración de impresión no válida.')
+        profile=payload.get('profile','x4-2010');boxes=payload.get('set_boxes',True)
+        if profile not in PROFILES or type(boxes) is not bool:raise DocumentError('Selecciona un perfil de impresión válido.')
+        margin=payload.get('trim_margin_mm',3);bleed=payload.get('bleed_mm',3);pages=payload.get('pages')
+        if boxes and (any(type(v) not in [int,float] or not math.isfinite(v) for v in [margin,bleed]) or not 0<=bleed<=20 or not bleed<=margin<=50):raise DocumentError('El corte debe dejar entre 0 y 50 mm desde MediaBox; el sangrado, entre 0 y 20 mm y no más que ese margen.')
+        encoded=payload.get('icc','');icc=None;icc_info=None;condition=payload.get('condition','')
+        if not isinstance(encoded,str) or len(encoded)>4*((MAX_ICC+2)//3):raise DocumentError('El perfil ICC supera 2 MiB.')
+        if encoded:
+            try:icc=base64.b64decode(encoded,validate=True)
+            except (ValueError,TypeError):raise DocumentError('Archivo ICC no válido.') from None
+            icc_info=inspect_icc(icc)
+            if not isinstance(condition,str) or not condition.strip() or len(condition)>200 or any(ord(c)<32 for c in condition):raise DocumentError('Escribe un identificador de condición de salida de 1 a 200 caracteres.')
+        if not boxes and not icc:raise DocumentError('Elige cajas de impresión o un perfil ICC para preparar la copia.')
+        with open_pdf(base) as source:editable(source)
+        data=export_pdf(base,operations)
+        with open_pdf(data) as doc:
+            editable(doc)
+            if len(doc)>100 or doc.xref_length()>50000:raise DocumentError('Hasta 100 páginas y 50000 objetos por preparación.')
+            if boxes and (not isinstance(pages,list) or not 1<=len(pages)<=100 or any(type(v) is not int or not 0<=v<len(doc) for v in pages) or len(set(pages))!=len(pages)):raise DocumentError('Selecciona páginas existentes, sin repetir.')
+            selected=sorted(pages) if boxes else []
+            configuration={'profile':profile,'set_boxes':boxes,'pages':selected,'trim_margin_mm':float(margin) if boxes else None,'bleed_mm':float(bleed) if boxes else None,'icc_sha256':icc_info['sha256'] if icc_info else None,'condition':condition.strip() if icc else ''}
+            try:token=hashlib.sha256(hashlib.sha256(base).digest()+json.dumps({'operations':operations,'configuration':configuration},sort_keys=True,separators=(',',':'),allow_nan=False).encode()).hexdigest()
+            except (TypeError,ValueError):raise DocumentError('Las operaciones no permiten revisar esta copia.') from None
+            if not review and (payload.get('acknowledge') is not True or payload.get('review_token')!=token):raise DocumentError('Revisa de nuevo las cajas y el perfil, y confirma los efectos antes de aplicar.')
+            n=f.mupdf;pdf=f._as_pdf_document(doc);catalog=doc.pdf_catalog();info=n.pdf_to_num(n.pdf_dict_gets(n.pdf_trailer(pdf),'Info'));md=n.pdf_to_num(n.pdf_dict_gets(n.pdf_load_object(pdf,catalog),'Metadata'));limit=doc.xref_length()
+            ignored={page.xref:{'TrimBox','BleedBox','ArtBox'} for page in doc if page.number in selected}
+            if icc:ignored.setdefault(catalog,set()).add('OutputIntents')
+            if info:ignored[info]={'GTS_PDFXVersion','GTS_PDFXConformance'}
+            # The XML object itself is compared to its intended new bytes below.
+            before=digest(doc,limit,ignored)
+            from .press_metadata import withdraw
+            removed=withdraw(doc)
+            if md:before.pop(md,None)
+            changed=[]
+            for number in selected:
+                page=doc[number];media=page.mediabox;edge=float(margin)*72/25.4;extra=float(bleed)*72/25.4;trim=media+(edge,edge,-edge,-edge);bleedbox=trim+(-extra,-extra,extra,extra)
+                if trim.width<1 or trim.height<1:raise DocumentError(f'Página {number+1}: el margen no deja un corte válido.')
+                old={key:doc.xref_get_key(page.xref,key)[1] for key in ['TrimBox','BleedBox','ArtBox']}
+                for key,box in [('TrimBox',trim),('BleedBox',bleedbox)]:doc.xref_set_key(page.xref,key,'['+' '.join(f'{v:.8f}' for v in box)+']')
+                doc.xref_set_key(page.xref,'ArtBox','null');changed.append({'page':number,'before':old,'trim_pdf':list(trim),'bleed_pdf':list(bleedbox)})
+            if icc:
+                x=doc.get_new_xref();doc.update_object(x,f'<</N {icc_info["channels"]}>>');doc.update_stream(x,icc,compress=True)
+                intent=doc.get_new_xref();doc.update_object(intent,f'<</Type/OutputIntent /S/GTS_PDFX /OutputConditionIdentifier {f.get_pdf_str(condition.strip())} /Info {f.get_pdf_str(icc_info["description"] or condition.strip())} /DestOutputProfile {x} 0 R>>');doc.xref_set_key(catalog,'OutputIntents',f'[{intent} 0 R]')
+            expected_metadata=doc.xref_stream_raw(md) if md else None
+            output=doc.tobytes(garbage=0,deflate=False,encryption=f.PDF_ENCRYPT_KEEP)
+        with open_pdf(output) as check:
+            after=digest(check,limit,ignored)
+            if md:after.pop(md,None)
+>           if before!=after or md and check.xref_stream_raw(md)!=expected_metadata:raise DocumentError('La comprobación detectó un cambio ajeno a cajas, perfil o declaraciones; no se publica la copia.')
+E           backend.engine.DocumentError: La comprobación detectó un cambio ajeno a cajas, perfil o declaraciones; no se publica la copia.
+
+backend/press_prepare.py:76: DocumentError
+=============================== warnings summary ===============================
+tests/test_press_preflight.py::test_profile_and_review_apply_endpoints_publish_only_verified_version
+  /workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_press_preflight.py::test_native_tag_graph_widgets_and_compressed_source_objects_are_preserved[object_stream]
+1 failed, 62 passed, 1 warning in 3.60s

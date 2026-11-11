@@ -1,14 +1,14 @@
 {
   "schema": 1,
-  "review_date": "2026-11-06",
-  "status": "provisional_with_absolute_css_fonts_colored_numbers_and_literal_ranges",
+  "review_date": "2026-11-11",
+  "status": "provisional_with_pdfx_preparation_profiles_and_native_print_copies",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 87.9,
+  "weighted_percent": 88.4,
   "reported_percent": 88,
   "subjective_range_percent": [
     62,
-    88
+    89
   ],
   "anchors": {
     "0": "Sin implementación",
@@ -369,14 +369,21 @@
     {
       "id": "standards_optimization",
       "weight": 5,
-      "maturity": 55,
+      "maturity": 65,
       "evidence": [
         "backend/standards.py",
         "backend/compression.py",
         "backend/preflight.py",
-        "tests/test_structure_preflight_regions.py"
+        "tests/test_structure_preflight_regions.py",
+        "backend/press_preflight.py",
+        "backend/press_prepare.py",
+        "backend/press_icc.py",
+        "backend/press_metadata.py",
+        "tests/test_press_preflight.py",
+        "docs/PREPARACION_DE_IMPRESION_20261111.md",
+        "docs/validation/print-preparation-20261111/results.json"
       ],
-      "remaining": "PDF/X y preflight exhaustivo, tintas planas, sobreimpresión y aceptación de imprenta."
+      "remaining": "Validación y conversión PDF/X completas, perfiles/espacios de origen, glifos, funciones de tinta, cobertura real, sobreimpresión/transparencia generales y aceptación de imprenta. Ya incorporados: controles preparatorios PDF/X-1a:2001/X-4:2010 y copia nativa con TrimBox/BleedBox, ICC de salida local explícito y retirada de declaraciones anteriores no revalidadas. Asignar ICC no convierte colores y puede alterar la interpretación del renderizador; definir sangrado no genera pintura."
     },
     {
       "id": "accessibility",
@@ -696,20 +703,20 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "c1463f59f1f6d71c49ab01df8c1f3d43ab8f131f",
+    "source_commit": "16d2036ebaf67cb773fafaf3d7cb0ebc47f86b51",
     "linux": {
-      "checks": 47,
-      "evidence": "docs/validation/css-formats-20261111/linux/desktop-report.json"
+      "checks": 48,
+      "evidence": "docs/validation/print-preparation-20261111/linux/desktop-report.json"
     },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 47,
-      "evidence": "docs/validation/css-formats-20261111/windows/assessment.json"
+      "checks": 48,
+      "evidence": "docs/validation/print-preparation-20261111/windows/assessment.json"
     },
     "packaged_executable_verified": true,
-    "compiled_gui_independent_runs": 20,
+    "compiled_gui_independent_runs": 21,
     "compiled_basic_repetitions": 3,
-    "packaged_scope": "20 ejecuciones independientes, tres básicas; geometría/continuación con CSS-1.00 y nuevo recorrido de número rojo/rangos textuales. Exportación por servidor y verificación por intérprete incluidos; no acredita guardar mediante diálogo nativo del exe, cliente Windows/DPI/impresión ni resolución de todas las intermitencias históricas."
+    "packaged_scope": "21 ejecuciones independientes, tres básicas; nuevo recorrido de preparación de impresión. Exportación por servidor y verificación por intérprete incluidos; no diálogo nativo de guardar del exe, Windows cliente/DPI/impresora ni resolución de intermitencias históricas."
   },
   "last_implementation": {
     "date": "2026-11-11",
@@ -834,6 +841,13 @@
     "source_commit": "c1463f59f1f6d71c49ab01df8c1f3d43ab8f131f",
     "report": "docs/CSS_Y_FORMATOS_DE_FORMULARIO_20261111.md",
     "evidence": "docs/validation/css-formats-20261111/results.json",
+    "technical_complete": false,
+    "accepted_complete": false
+  },
+  "last_print_preparation": {
+    "source_commit": "16d2036ebaf67cb773fafaf3d7cb0ebc47f86b51",
+    "report": "docs/PREPARACION_DE_IMPRESION_20261111.md",
+    "evidence": "docs/validation/print-preparation-20261111/results.json",
     "technical_complete": false,
     "accepted_complete": false
   }

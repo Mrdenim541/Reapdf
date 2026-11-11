@@ -1,0 +1,3 @@
+[6396:3348:1111/162710.965:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[6396:3348:1111/162710.965:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: page-local continued geometry and Qt mouse edits geometric mixed paragraph, reachable expanded controls at 1366x900, checks updated bounds, undo/redo, native save/reopen; carries font into manual continuation, changes it in that dialog, previews and saves complete editable text on both pages.

@@ -1,0 +1,1 @@
+PASS: compiled Qt inspects X4, prepares explicit synthetic ICC and boxes, invalidates stale preview, renews acknowledgement, applies and undo/redo; PDF verified via bundled server. No native save dialog or PDF/X conformance claim.

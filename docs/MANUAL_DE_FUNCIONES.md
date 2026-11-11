@@ -1055,13 +1055,14 @@ Las listas y desplegables compartidos compatibles se sincronizan desde cualquier
 
 **Acceso:** Proteger → Inspección de impresión.
 
-1. Abre Inspección de impresión.
-2. define la resolución mínima.
-3. consulta los hallazgos por página.
+1. Abre Proteger > Inspección de impresión y elige diagnóstico general o perfil preparatorio PDF/X-1a:2001 o PDF/X-4:2010.
+2. Inspecciona los bloqueos y comprobaciones pendientes; puedes guardar el informe JSON.
+3. En Preparar copia, elige páginas, margen de corte y sangrado dentro de MediaBox; opcionalmente selecciona el ICC de salida local indicado por la imprenta y su identificador.
+4. Revisa original y copia con sus cajas, confirma los efectos y aplica. Guarda el PDF; Deshacer permite recuperar la versión anterior.
 
-**Resultado esperado:** Se informa de fuentes, imágenes, colores y cajas que requieren atención.
+**Resultado esperado:** El diagnóstico identifica requisitos preparatorios. La copia define TrimBox/BleedBox, retira ArtBox de las páginas elegidas y puede asignar un OutputIntent ICC local, conservando objetos y contenido nativos. Retira declaraciones anteriores PDF/A, PDF/X y PDF/UA no revalidadas, conservando etiquetas y metadatos ajenos.
 
-**Límites actuales:** Inspección orientativa; no certifica todas las condiciones de imprenta ni PDF/X. Analiza espacios de color declarados dentro de Forms, nombres de colorantes Separation/DeviceN y estados de sobreimpresión aplicados. Informa análisis parcial ante ciclos o presupuestos agotados; no evalúa funciones de tinta ni cobertura real de impresión.
+**Límites actuales:** No certifica PDF/X ni realiza conversión de colores o creación de contenido de sangrado. Asignar un ICC puede cambiar cómo el visor o la imprenta interpretan los colores. Hasta 100 páginas, 50000 objetos e ICC de salida de 2 MiB. Requiere una copia editable sin firmas para preparar; la inspección sigue disponible en lectura. Se necesita validación completa y prueba de imprenta.
 
 <a id="funcion-working_copy"></a>
 

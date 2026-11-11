@@ -1,0 +1,12 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[425928:425948:1111/162028.555279:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 425949: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/smoke_press_preparation_qt.py", line 37, in <module>
+    for p,q in zip(d,a):assert p.read_contents()==q.read_contents() and p.get_text()==q.get_text() and p.get_pixmap().samples==q.get_pixmap().samples
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError
