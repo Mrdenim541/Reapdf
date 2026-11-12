@@ -29,13 +29,15 @@ def edit(label,value,select=False):
     expr=field(label);wait(expr+'?.disabled===false');kind='HTMLSelectElement' if select else 'HTMLInputElement'
     js('(()=>{const e='+expr+';Object.getOwnPropertyDescriptor('+kind+'.prototype,"value").set.call(e,'+json.dumps(value)+');e.dispatchEvent(new Event("'+('change' if select else 'input')+'",{bubbles:true}));})()');QTest.qWait(60)
 def image():
-    wait('document.querySelector(\'img[alt="Visibilidad de capas"]\')?.complete');return js('document.querySelector(\'img[alt="Visibilidad de capas"]\').src')
+    wait('document.querySelector(\'img[alt="Visibilidad de capas"]\')?.naturalWidth>0');return js('document.querySelector(\'img[alt="Visibilidad de capas"]\').src')
+def ink():
+    return js("(()=>{const img=document.querySelector('img[alt=\"Visibilidad de capas\"]');const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);return ctx.getImageData(0,0,c.width,c.height).data.some((v,i)=>i%4!==3&&v<245);})()")
 try:
     wait('document.querySelector(".document-bar")?.textContent.includes("Layers.pdf")');click('Documentos');wait(field('Capas del PDF')+'?.disabled===false');js(field('Capas del PDF')+'.closest("details").open=true');js(field('Capas del PDF')+'.click()');wait('!!'+field('Configuración de capas'));edit('Configuración de capas','0',True)
     js('[...document.querySelectorAll("summary")].find(e=>e.textContent==="Pantalla, zoom e idioma").click()')
     edit('Pantalla capa 6','ON',True);js(field('Condición de zoom capa 6')+'.click()');edit('Hasta, sin incluir (%) capa 6','200');js(field('Condición de idioma capa 6')+'.click()');edit('Idioma capa 6','es-MX')
-    js(field('Simular condiciones de pantalla')+'.click()');edit('Idioma de simulación','es-MX');edit('Zoom de simulación','150');click('Vista previa de capas');first=image();wait('[...document.querySelectorAll("button")].find(e=>e.textContent==="Guardar visibilidad")?.disabled===false')
-    edit('Zoom de simulación','200');assert js('!document.querySelector(\'img[alt="Visibilidad de capas"]\')');assert js('[...document.querySelectorAll("button")].find(e=>e.textContent==="Guardar visibilidad").disabled');click('Vista previa de capas');assert image()!=first
+    js(field('Simular condiciones de pantalla')+'.click()');edit('Idioma de simulación','es-MX');edit('Zoom de simulación','150');click('Vista previa de capas');first=image();assert ink();wait('[...document.querySelectorAll("button")].find(e=>e.textContent==="Guardar visibilidad")?.disabled===false')
+    edit('Zoom de simulación','200');assert js('!document.querySelector(\'img[alt="Visibilidad de capas"]\')');assert js('[...document.querySelectorAll("button")].find(e=>e.textContent==="Guardar visibilidad").disabled');click('Vista previa de capas');assert image()!=first;assert not ink()
     click('Guardar visibilidad');wait('!document.querySelector("dialog[open]")');QFileDialog.getSaveFileName=lambda *a,**kw:(str(output),'');window.save_as_action.trigger();wait('document.body.innerText.includes("PDF guardado.")&&!window.__reapdfCloseState.dirty');assert output.exists()
     info=model(output.read_bytes(),[]);row=next(r for r in info['screen']['layers'] if r['id']==6);assert row['view']=='ON' and row['zoom']=={'min':1.0,'max':2.0} and row['language']=={'lang':'es-MX','preferred':False}
     with f.open(stream=before) as a,f.open(output) as b:assert a[0].read_contents()==b[0].read_contents() and 'ONLY B' in b[0].get_text()
