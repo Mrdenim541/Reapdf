@@ -1,0 +1,3 @@
+[7340:9304:1112/124640.317:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[7340:9304:1112/124640.317:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: Qt mouse selects original Stm text; included font/style/size and Unicode save natively with accessible reading, undo/redo, reopen and compact-dialog original-font resize; both PDFs reopen editable and the original stays unchanged.
