@@ -1,0 +1,8 @@
+QRhiGles2: Failed to create temporary context
+QRhiGles2: Failed to create context
+This plugin does not support createPlatformVulkanInstance
+QVulkanInstance: Failed to initialize Vulkan
+Unable to detect GPU vendor.
+[559640:559660:1112/125123.275125:ERROR:zygote_host_impl_linux.cc(274)] Failed to adjust OOM score of renderer with pid 559661: Read-only file system (30)
+This plugin does not support propagateSizeHints()
+PASS: actual Qt configures native View/Zoom/Language, invalidates simulation after context edits, saves/reopens preferences using native route with test file selector, uses normal Save with a new copy identity, reopens both files and preserves print/export, initial state/content and originals. No automatic main-view zoom switching claimed.

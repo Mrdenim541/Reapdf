@@ -1,0 +1,2 @@
+PASS: compiled Qt configures native screen usage, previews zoom/language, invalidates changed context, opens a static contextual copy retaining print/export and undoes both versions. Bundled server exports for independent native verification; no native save dialog or automatic main-view zoom switching claimed.
+PASS: shared driver and exported preferences verified over SOURCE Qt, not an executable run

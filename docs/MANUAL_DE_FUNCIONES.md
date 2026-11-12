@@ -1028,10 +1028,13 @@ Las listas y desplegables compartidos compatibles se sincronizan desde cualquier
 2. elige configuración y visibilidad
 3. revisa la vista previa y guarda.
 4. En Impresión y exportación de capas puedes fijar Mostrar/Ocultar o dejar sin preferencia explícita.
+5. En Pantalla, zoom e idioma puedes guardar condiciones nativas por capa. El límite superior de zoom es exclusivo.
+6. Activa Simular zoom e idioma, elige el contexto y prepara la vista previa; cambiarlo exige una nueva revisión antes de guardar.
+7. Para usar el resultado de la simulación en el visor principal, elige Abrir copia contextual. Sus condiciones de pantalla se retiran de la copia; el original se conserva y puedes deshacer.
 
-**Resultado esperado:** Se conserva el contenido y cambia el estado inicial compatible.
+**Resultado esperado:** Se conservan contenido y recursos; se guardan visibilidad inicial y preferencias nativas compatibles de pantalla, zoom, idioma, impresión y exportación. La simulación no se guarda como estado inicial. Abrir copia contextual fija la visibilidad simulada en una nueva versión, conservando contenido y reglas de impresión/exportación.
 
-**Límites actuales:** Se respetan bloqueos y grupos exclusivos; reglas automáticas complejas quedan protegidas. Ocultar no es censurar. Admite reglas automáticas nativas Print/Export simples; preserva reglas no compatibles y no las sobrescribe. Reapdf resuelve Print al preparar su copia temporal de impresión, sin modificar el original. La vista previa de capas muestra pantalla; Export depende de lectores compatibles y no altera la copia PDF guardada. Las capas bloqueadas conservan sus preferencias.
+**Límites actuales:** Se respetan bloqueos y grupos exclusivos; reglas automáticas complejas quedan protegidas. Ocultar no es censurar. Admite reglas automáticas nativas Print/Export simples; preserva reglas no compatibles y no las sobrescribe. Reapdf resuelve Print al preparar su copia temporal de impresión, sin modificar el original. La vista previa de capas muestra pantalla; Export depende de lectores compatibles y no altera la copia PDF guardada. Las capas bloqueadas conservan sus preferencias. View/Zoom/Language compatibles se guardan y simulan en este panel. El visor principal aún no cambia automáticamente las capas por zoom o idioma. La simulación admite idioma exacto o alternativa parcial preferida única; una coincidencia parcial ambigua se rechaza. Zoom va desde el mínimo incluido hasta el máximo excluido; valores de preferencias entre 0 y 1.000.000, contexto entre 5 y 1600 %. Las condiciones no compatibles se conservan.
 
 <a id="funcion-portfolio"></a>
 

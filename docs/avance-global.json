@@ -1,10 +1,10 @@
 {
   "schema": 1,
   "review_date": "2026-11-12",
-  "status": "provisional_with_continuous_section_footnotes_and_logical_endnotes",
+  "status": "provisional_with_layer_screen_preferences_and_context_copies",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 88.52,
+  "weighted_percent": 88.61,
   "reported_percent": 89,
   "subjective_range_percent": [
     62,
@@ -511,7 +511,7 @@
         "scripts/smoke_backend_reset.py",
         "docs/validation/continuous-notes-20261112/results.json"
       ],
-      "remaining": "49 recorridos desde fuente Linux/Windows Server y 21 ejecuciones independientes de Reapdf.exe comprobados en la fuente a9d616c; tres son repeticiones básicas. Cierre explícito, cancelación antes de disponibilidad y bucle HTTP Windows con liberación tras reset TCP incorporados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga/recuperación sostenidas y migración del recorrido histórico extendido. No se declaran resueltas todas las intermitencias de arranque/ajuste/cierre; aceptación personal al final."
+      "remaining": "50 comprobaciones desde fuente Linux/Windows Server y 22 ejecuciones independientes de Reapdf.exe comprobados en la fuente 2cd1f139; tres son repeticiones básicas. Cierre explícito, cancelación antes de disponibilidad y bucle HTTP Windows con liberación tras reset TCP incorporados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga/recuperación sostenidas y migración del recorrido histórico extendido. No se declaran resueltas todas las intermitencias de arranque/ajuste/cierre; aceptación personal al final."
     },
     {
       "id": "migration_interoperability",
@@ -590,7 +590,7 @@
     {
       "id": "portfolios_layers",
       "weight": 3,
-      "maturity": 90,
+      "maturity": 93,
       "evidence": [
         "backend/pro_tools.py",
         "docs/FUNCIONES.md",
@@ -609,9 +609,15 @@
         "docs/validation/delivery-guide-windows-20261031/results.json",
         "docs/AVANCE_LOCAL_INTEGRAL_20261104.md",
         "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
-        "docs/validation/functional-closing-20261104/results.json"
+        "docs/validation/functional-closing-20261104/results.json",
+        "backend/layer_screen.py",
+        "tests/test_layer_screen.py",
+        "scripts/smoke_layer_screen_qt.py",
+        "scripts/smoke_packaged_layer_screen.mjs",
+        "docs/CAPAS_POR_ZOOM_IDIOMA_Y_COPIAS_20261112.md",
+        "docs/validation/layer-context-20261112/results.json"
       ],
-      "remaining": "Preferencias nativas Print/Export y resolución temporal de Print compatibles incorporadas; Export permanece preferencia del lector y no filtro del guardado. Quedan carpetas/esquemas complejos y tipos/valores restantes de portfolio, AS View/Zoom/Language y reglas OCG generales, edición de contenido de capas e interoperabilidad externa."
+      "remaining": "Preferencias nativas Print/Export y View/Zoom/Language compatibles, simulación explícita y copias contextuales estáticas ya incorporadas. Print se resuelve en copia temporal; Export es preferencia y no filtro del PDF guardado. Quedan sincronización en vivo de zoom/idioma con selección/edición, AS/categorías/solapamientos generales, expresiones OCMD y edición general de contenido de capas. Quedan carpetas/esquemas complejos y tipos/valores restantes de portfolio, corpus e interoperabilidad externa. No repetir los perfiles incorporados como ausentes."
     },
     {
       "id": "collaboration_services",
@@ -652,20 +658,20 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261112-before-continuous-notes.json",
-    "before_weighted": 88.49,
-    "before_unrounded": "88.4945",
-    "after_weighted": 88.52,
-    "unrounded_after_weighted": "88.517",
-    "new_points": 0.0225,
-    "unrounded_delta": "0.0225",
+    "baseline": "docs/progress/20261112-before-layer-context.json",
+    "before_weighted": 88.52,
+    "before_unrounded": "88.517",
+    "after_weighted": 88.61,
+    "unrounded_after_weighted": "88.607",
+    "new_points": 0.09,
+    "unrounded_delta": "0.09",
     "changes": [
       {
-        "id": "ocr_conversion",
-        "before": 99.5,
-        "after": 99.75,
-        "points": 0.0225,
-        "reason": "Notas al pie en bandas continuas con reservas/numeración físicas y límites de notas finales por sección lógica. Sin crédito adicional por repetir pruebas o documentar; madurez de escritorio conservada."
+        "id": "portfolios_layers",
+        "before": 90,
+        "after": 93,
+        "points": 0.09,
+        "reason": "Condiciones nativas View/Zoom/Language con simulación revisable y copias contextuales estáticas que conservan contenido y Print/Export."
       }
     ]
   },
@@ -705,20 +711,20 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "a9d616c0fbbe84f8a6a07b6bf3741001c7ce833e",
+    "source_commit": "2cd1f1395f8bb69c8838356b3a94e80ff040bf2d",
     "linux": {
-      "checks": 49,
-      "evidence": "docs/validation/continuous-notes-20261112/linux/desktop-report.json"
+      "checks": 50,
+      "evidence": "docs/validation/layer-context-20261112/linux/desktop-report.json"
     },
     "windows": {
       "platform": "Windows Server 2025",
-      "checks": 49,
-      "evidence": "docs/validation/continuous-notes-20261112/windows/assessment.json"
+      "checks": 50,
+      "evidence": "docs/validation/layer-context-20261112/windows/assessment.json"
     },
     "packaged_executable_verified": true,
-    "compiled_gui_independent_runs": 21,
+    "compiled_gui_independent_runs": 22,
     "compiled_basic_repetitions": 3,
-    "packaged_scope": "Recorrido Word existente ampliado a tres notas al pie y una final de sección, cuatro páginas/bandas 2→3→1 y dieciséis enlaces. 21 ejecuciones, tres básicas, exportación/verificación con servidor/intérprete incluidos. No diálogo nativo de guardar del exe, cliente Windows/DPI/impresora ni resolución de intermitencias históricas. Se añade recorrido de reset TCP al motor: 49 fuente, 21 compilados. No se atribuyen a esta fuente éxitos de revisiones anteriores."
+    "packaged_scope": "Nuevo recorrido de condiciones de capas y copia contextual, píxeles/invalidación, exportación de ambas versiones por servidor incluido y comprobación nativa con intérprete incluido. No diálogo nativo de guardar del exe, Windows cliente, DPI o impresión física."
   },
   "last_implementation": {
     "date": "2026-11-11",
@@ -877,5 +883,12 @@
     "python_related_passed": 540,
     "technical_complete": false,
     "accepted_complete": false
+  },
+  "last_layer_context": {
+    "source_commit": "2cd1f1395f8bb69c8838356b3a94e80ff040bf2d",
+    "report": "docs/CAPAS_POR_ZOOM_IDIOMA_Y_COPIAS_20261112.md",
+    "evidence": "docs/validation/layer-context-20261112/results.json",
+    "python_full_passed": 5251,
+    "technical_complete": false
   }
 }

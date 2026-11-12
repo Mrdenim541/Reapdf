@@ -1,0 +1,15 @@
+.F.......                                                                [100%]
+=================================== FAILURES ===================================
+__________ test_unknown_automatic_rules_are_retained_and_not_replaced __________
+
+    def test_unknown_automatic_rules_are_retained_and_not_replaced():
+        base,a,b=layered()
+        with f.open(stream=base) as d:
+            d.xref_set_key(d.pdf_catalog(),'OCProperties/D/AS',f'[<< /Event/View /Category[/Zoom] /OCGs[{a} 0 R] >>]');base=d.tobytes()
+>       assert not model(base,[])['usage']['supported']
+E       assert not True
+
+tests/test_layer_usage.py:24: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_layer_usage.py::test_unknown_automatic_rules_are_retained_and_not_replaced
+1 failed, 8 passed in 0.52s
