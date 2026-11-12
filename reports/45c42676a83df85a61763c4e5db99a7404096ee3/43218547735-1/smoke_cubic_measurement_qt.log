@@ -1,0 +1,3 @@
+[8664:8612:1112/123340.911:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[8664:8612:1112/123340.911:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: actual Qt mouse offset from two original cubic/cubic crossings snaps to both precise targets, calculates calibrated distance, saves natively and reopens; underlying plan and source unchanged.

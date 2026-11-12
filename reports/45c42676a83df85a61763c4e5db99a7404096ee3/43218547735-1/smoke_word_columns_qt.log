@@ -1,0 +1,3 @@
+[5712:9188:1112/123528.242:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[5712:9188:1112/123528.242:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: actual Qt imports and reviews all column pages, shows column/link summary and limits, opens, saves through native dialog and reopens; saved PDF retains ordered selectable text, separator lines and native internal bookmark link, with source DOCX unchanged.

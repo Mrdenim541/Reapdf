@@ -1,0 +1,3 @@
+[9004:10152:1112/123605.828:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[9004:10152:1112/123605.828:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: actual Qt fills combined date/time from compressed standard helper streams, retains invalid draft, saves and reopens with native appearance and unchanged actions/other page; original PDF unchanged.
