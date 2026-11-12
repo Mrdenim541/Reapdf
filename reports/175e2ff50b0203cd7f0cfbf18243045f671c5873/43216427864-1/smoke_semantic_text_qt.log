@@ -1,0 +1,3 @@
+[7136:6936:1112/122135.046:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[7136:6936:1112/122135.046:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: actual Qt mouse/caret edits visible glyphs and accessible reading in a Stm Form, undo/redo, native save/reopen/reedit; accessible-only edit preserves pixels; matching ActualText updates automatically; shared page-owned Form paragraph continues with tags and other occurrence intact.

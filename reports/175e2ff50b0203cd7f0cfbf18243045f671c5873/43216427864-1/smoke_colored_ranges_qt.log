@@ -1,0 +1,3 @@
+[7244:6816:1112/122220.215:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[7244:6816:1112/122220.215:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: Qt rejects out-of-range draft using quoted limits, fills red negative with parentheses, native saves/reopens, positive resets to black, original actions and other page preserved; no PDF JavaScript execution.

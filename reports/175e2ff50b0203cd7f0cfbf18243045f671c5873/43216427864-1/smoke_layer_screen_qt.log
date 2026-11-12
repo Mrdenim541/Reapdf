@@ -1,0 +1,3 @@
+[6444:8652:1112/121800.750:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[6444:8652:1112/121800.750:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: actual Qt configures native View/Zoom/Language, invalidates simulation after context edits, saves/reopens preferences using native route with test file selector, preserves initial state/content and original. No automatic main-view zoom switching claimed.

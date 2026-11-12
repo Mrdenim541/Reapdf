@@ -1,0 +1,3 @@
+[10076:9004:1112/122017.451:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[10076:9004:1112/122017.451:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: actual Qt selects/caret-edits a dense 240-fragment tagged page with existing metric-box overlap; edits its single native paragraph; allows verified tagged paragraph selection/pagination; native save preserves every other text placement/style and the complete tag graph/marked-content scopes, with source bytes untouched.
