@@ -142,7 +142,7 @@ def serve(open_browser=True,port=0,desktop=False,require_desktop=False,ready_fil
         # Mantener el socket reservado evita carreras entre elegir y abrir puerto.
         sock.bind(('127.0.0.1',port));sock.listen(128)
         selected_port=sock.getsockname()[1]
-        config=uvicorn.Config(app,host='127.0.0.1',port=selected_port,log_level='info' if os.environ.get('REAPDF_TRACE_LIFECYCLE')=='1' else 'warning',access_log=False,loop='asyncio',http='h11')
+        config=uvicorn.Config(app,host='127.0.0.1',port=selected_port,log_level='info' if os.environ.get('REAPDF_TRACE_LIFECYCLE')=='1' else 'warning',access_log=False,loop='server_loop:factory' if sys.platform=='win32' else 'asyncio',http='h11')
         server=uvicorn.Server(config)
         observe_shutdown(server)
         url=f'http://127.0.0.1:{selected_port}'
