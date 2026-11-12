@@ -1,0 +1,15 @@
+{
+  "verified": false,
+  "source_commit": "dea6df14fe7dc9078d68fdc43b08c821d0bd3f97",
+  "platform": "Windows",
+  "checks": 8,
+  "problems": [
+    "La batería no está completa o tiene fallos.",
+    "Una evidencia no coincide o indica fallo."
+  ],
+  "human_acceptance": false,
+  "distributable_built": false,
+  "packaged_windows_verified": false,
+  "run_id": "43209996807",
+  "run_attempt": "1"
+}
