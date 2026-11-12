@@ -1,0 +1,3 @@
+[5932:8208:1112/113356.323:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[5932:8208:1112/113356.323:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: Qt mouse selects a tagged paragraph with Span siblings and distinct shears, caret edits in one box, native save/reopen permits another edit, automatic overflow adds pages, undo/redo and final native save retain each font/color/size/transform and original pages.

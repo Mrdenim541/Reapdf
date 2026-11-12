@@ -1,0 +1,3 @@
+[5236:2844:1112/113445.152:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[5236:2844:1112/113445.152:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+PASS: real Qt changes a shared inherited choice, synchronizes both page appearances, undo/redo, native save and reopen selecting the second widget; only logical owner stores value/index, unrelated page and original remain unchanged.
