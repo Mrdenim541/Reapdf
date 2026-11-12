@@ -1,0 +1,74 @@
+
+REAPDF_LIFECYCLE {"pid": 8688, "at": 399.906, "stage": "native.start"}
+REAPDF_LIFECYCLE {"pid": 8688, "at": 399.921, "stage": "native.application.created"}
+REAPDF_LIFECYCLE {"pid": 8688, "at": 399.937, "stage": "native.instance.acquired"}
+REAPDF_LIFECYCLE {"pid": 8688, "at": 399.968, "stage": "native.view.created"}
+REAPDF_LIFECYCLE {"pid": 8688, "at": 400.0, "stage": "native.page.created"}
+REAPDF_LIFECYCLE {"pid": 8688, "at": 400.015, "stage": "native.navigation.start"}
+REAPDF_LIFECYCLE {"pid": 8688, "at": 400.031, "stage": "native.navigation.scheduled"}
+REAPDF_LIFECYCLE {"pid": 8688, "at": 400.031, "stage": "native.window.created"}
+REAPDF_LIFECYCLE {"pid": 8688, "at": 400.031, "stage": "native.close.check"}
+[8688:8732:1112/114445.627:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[8688:8732:1112/114445.627:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+REAPDF_LIFECYCLE {"pid": 8688, "at": 400.109, "stage": "native.close.accepted"}
+REAPDF_LIFECYCLE {"pid": 8688, "at": 400.109, "stage": "native.loop.finished:0"}
+REAPDF_LIFECYCLE {"pid": 8688, "at": 400.109, "stage": "native.instance.closed"}
+
+
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.265, "stage": "native.start"}
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.281, "stage": "native.application.created"}
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.296, "stage": "native.instance.acquired"}
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.328, "stage": "native.view.created"}
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.359, "stage": "native.page.created"}
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.375, "stage": "native.navigation.start"}
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.375, "stage": "native.navigation.scheduled"}
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.39, "stage": "native.window.created"}
+[8932:716:1112/114445.978:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[8932:716:1112/114445.978:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.609, "stage": "native.ready.ready"}
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.687, "stage": "native.close.check"}
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.687, "stage": "native.close.accepted"}
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.687, "stage": "native.loop.finished:0"}
+REAPDF_LIFECYCLE {"pid": 8932, "at": 400.687, "stage": "native.instance.closed"}
+
+GUARD_PRESERVED=busy
+
+REAPDF_LIFECYCLE {"pid": 9200, "at": 400.875, "stage": "native.start"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 400.89, "stage": "native.application.created"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 400.921, "stage": "native.instance.acquired"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 400.937, "stage": "native.view.created"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 400.968, "stage": "native.page.created"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 400.984, "stage": "native.navigation.start"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 401.0, "stage": "native.navigation.scheduled"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 401.0, "stage": "native.window.created"}
+[9200:5420:1112/114446.589:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[9200:5420:1112/114446.589:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+REAPDF_LIFECYCLE {"pid": 9200, "at": 401.218, "stage": "native.ready.ready"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 401.218, "stage": "native.close.check"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 401.218, "stage": "native.close.busy"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 401.328, "stage": "native.close.check"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 401.328, "stage": "native.close.accepted"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 401.328, "stage": "native.loop.finished:0"}
+REAPDF_LIFECYCLE {"pid": 9200, "at": 401.328, "stage": "native.instance.closed"}
+
+GUARD_PRESERVED=cancel
+
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.484, "stage": "native.start"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.5, "stage": "native.application.created"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.515, "stage": "native.instance.acquired"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.546, "stage": "native.view.created"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.578, "stage": "native.page.created"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.593, "stage": "native.navigation.start"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.593, "stage": "native.navigation.scheduled"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.593, "stage": "native.window.created"}
+[6008:6072:1112/114447.194:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[6008:6072:1112/114447.194:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.812, "stage": "native.ready.ready"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.812, "stage": "native.close.check"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.812, "stage": "native.close.cancelled"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.921, "stage": "native.close.check"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.921, "stage": "native.close.accepted"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.921, "stage": "native.loop.finished:0"}
+REAPDF_LIFECYCLE {"pid": 6008, "at": 401.921, "stage": "native.instance.closed"}
+
+PASS: real native main quits after confirmed close with implicit Qt quit disabled; busy and Cancel keep the window alive first; normal zero exit and ordered loop/instance cleanup are verified for all four owned subprocesses, including cancellation before readiness without publishing a ready signal.
