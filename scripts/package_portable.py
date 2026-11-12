@@ -113,7 +113,7 @@ def build(wheelhouse=None,cache=None,output=None):
         shutil.copytree(ROOT/'web'/'src',app/'web'/'src')
         for name in ['package.json','package-lock.json','requirements-lock.txt']:shutil.copy2(ROOT/name,app/name)
         shutil.copy2(ROOT/'portable'/'launcher.py',app/'launcher.py')
-        for module in ['desktop.py','lifecycle.py','native_window.py','native_print.py','native_save.py','single_instance.py','parent_pipe.py','windows_association.py']:
+        for module in ['desktop.py','lifecycle.py','server_loop.py','native_window.py','native_print.py','native_save.py','single_instance.py','parent_pipe.py','windows_association.py']:
             shutil.copy2(ROOT/'portable'/module,app/module)
         shutil.copytree(ROOT/'docs',folder/'docs')
         shutil.copy2(ROOT/'portable'/'LEEME.md',folder/'LEEME.md')
