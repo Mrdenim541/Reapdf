@@ -12,7 +12,7 @@ import webbrowser
 APP_ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(APP_ROOT))
 if (APP_ROOT.parent/'backend').is_dir():sys.path.insert(0,str(APP_ROOT.parent))
-from lifecycle import trace
+from lifecycle import trace,observe_shutdown
 _DLL_HANDLES=[]
 if sys.platform=='win32':
     for directory in [APP_ROOT.parent/'runtime',APP_ROOT.parent/'runtime'/'DLLs',APP_ROOT.parent/'runtime'/'Lib'/'site-packages'/'pymupdf']:
@@ -142,8 +142,9 @@ def serve(open_browser=True,port=0,desktop=False,require_desktop=False,ready_fil
         # Mantener el socket reservado evita carreras entre elegir y abrir puerto.
         sock.bind(('127.0.0.1',port));sock.listen(128)
         selected_port=sock.getsockname()[1]
-        config=uvicorn.Config(app,host='127.0.0.1',port=selected_port,log_level='warning',access_log=False,loop='asyncio',http='h11')
+        config=uvicorn.Config(app,host='127.0.0.1',port=selected_port,log_level='info' if os.environ.get('REAPDF_TRACE_LIFECYCLE')=='1' else 'warning',access_log=False,loop='asyncio',http='h11')
         server=uvicorn.Server(config)
+        observe_shutdown(server)
         url=f'http://127.0.0.1:{selected_port}'
         def ready():
             deadline=time.monotonic()+30
