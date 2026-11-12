@@ -38,6 +38,11 @@ try:
     finally:
         if second.poll() is None:second.terminate();second.wait(timeout=10)
         second_log.close()
+except BaseException:
+    for path in sorted(root.glob('*.log')):
+        print('OWNED_LAUNCH_LOG '+path.name,flush=True)
+        print(path.read_text(encoding='utf-8',errors='replace'),flush=True)
+    raise
 finally:
     if first.poll() is None:first.terminate();first.wait(timeout=15)
     first_log.close()

@@ -9,7 +9,7 @@ from portable.server_loop import factory
 
 def test_server_peer_resets_close_without_policy_change():
     policy=asyncio.get_event_loop_policy()
-    loop=factory()();errors=[]
+    loop=factory();errors=[]
     loop.set_exception_handler(lambda unused,context:errors.append(context))
     writers=[]
     async def connected(reader,writer):
@@ -37,3 +37,13 @@ def test_server_peer_resets_close_without_policy_change():
     finally:loop.close()
     assert not errors
     assert asyncio.get_event_loop_policy() is policy
+
+
+def test_uvicorn_custom_factory_returns_a_running_loop_not_a_class():
+    import uvicorn
+    config=uvicorn.Config('backend.app:app',loop='portable.server_loop:factory')
+    loop=config.get_loop_factory()()
+    try:
+        assert isinstance(loop,asyncio.AbstractEventLoop)
+        assert loop.run_until_complete(asyncio.sleep(0,result='ready'))=='ready'
+    finally:loop.close()

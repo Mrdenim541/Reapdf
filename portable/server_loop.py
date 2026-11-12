@@ -2,10 +2,10 @@
 import asyncio
 
 
-def factory(use_subprocess=False):
+def factory():
     # This engine uses synchronous subprocess.Popen for isolated jobs, not
     # asyncio subprocess/pipe transports. On Windows Proactor's socket shutdown
     # can raise after a peer reset, before detaching the socket from its server,
     # leaving Server.wait_closed() pending forever. Selector closes/detaches in
     # a finally block. Choose it only for this server; do not change global policy.
-    return asyncio.SelectorEventLoop
+    return asyncio.SelectorEventLoop()
