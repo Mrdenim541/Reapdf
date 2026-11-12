@@ -1,0 +1,17 @@
+// CDP connects to the already-running Qt app; no external browser is launched.
+import {chromium,expect} from '@playwright/test';
+import {writeFileSync} from 'node:fs';
+import {openTool} from './smoke-tool-navigation.mjs';
+const [endpoint,output]=process.argv.slice(2),browser=await chromium.connectOverCDP(endpoint,{timeout:45000,noDefaults:true});
+try{
+ const page=browser.contexts()[0].pages().find(p=>p.url().startsWith('http://127.0.0.1:'));page.setDefaultTimeout(30000);
+ await expect(page.locator('.text-layer')).toContainText('ONLY A',{timeout:40000});await openTool(page,'Capas del PDF');
+ await page.getByLabel('Configuración de capas',{exact:true}).selectOption('0');await page.locator('summary').filter({hasText:/^Pantalla, zoom e idioma$/}).click();
+ await page.getByLabel('Pantalla capa 6',{exact:true}).selectOption('ON');await page.getByLabel('Condición de zoom capa 6',{exact:true}).check();await page.getByLabel('Hasta, sin incluir (%) capa 6',{exact:true}).fill('200');await page.getByLabel('Condición de idioma capa 6',{exact:true}).check();await page.getByLabel('Idioma capa 6',{exact:true}).fill('es-MX');
+ await page.getByLabel('Simular condiciones de pantalla',{exact:true}).check();await page.getByLabel('Idioma de simulación',{exact:true}).fill('es-MX');await page.getByLabel('Zoom de simulación',{exact:true}).fill('150');await page.getByRole('button',{name:'Vista previa de capas',exact:true}).click();await expect(page.getByAltText('Visibilidad de capas',{exact:true})).toBeVisible();
+ await page.getByLabel('Zoom de simulación',{exact:true}).fill('200');await expect(page.getByAltText('Visibilidad de capas',{exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Guardar visibilidad',exact:true})).toBeDisabled();await page.getByRole('button',{name:'Vista previa de capas',exact:true}).click();await expect(page.getByAltText('Visibilidad de capas',{exact:true})).toBeVisible();
+ const pending=page.waitForResponse(r=>r.url().endsWith('/set-layers')&&r.request().postDataJSON().preview!==true);await page.getByRole('button',{name:'Guardar visibilidad',exact:true}).click();const response=await pending;if(!response.ok())throw new Error(await response.text());const doc=await response.json();
+ const encoded=await page.evaluate(async id=>{const r=await fetch(`/api/documents/${id}/export`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({operations:[]})});if(!r.ok)throw new Error(await r.text());let s='';for(const v of new Uint8Array(await r.arrayBuffer()))s+=String.fromCharCode(v);return btoa(s);},doc.id);writeFileSync(output,Buffer.from(encoded,'base64'));
+ await expect(page.locator('dialog[open]')).toHaveCount(0);await page.getByRole('button',{name:'Deshacer',exact:false}).click();await expect(page.locator('.document-bar')).toContainText('0 cambios');
+ console.log('PASS: compiled Qt configures native screen usage, previews zoom/language, invalidates changed context, applies and undoes. Bundled server exports for independent native verification; no native save dialog or automatic main-view zoom switching claimed.');
+}finally{await browser.close();}

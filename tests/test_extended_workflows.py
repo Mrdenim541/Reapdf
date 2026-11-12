@@ -173,7 +173,7 @@ def test_explicit_empty_cells_and_labels_survive_project_roundtrip_and_real_spli
 def test_nondefault_layer_configuration_locked_and_unknown_rules_protected():
     base,a,b=layered()
     with f.open(stream=base) as d:
-        d.xref_set_key(d.pdf_catalog(),'OCProperties/Configs',f'[<< /Name (Locked B) /BaseState /OFF /ON [{b} 0 R] /Locked [{b} 0 R] >> << /Name (Automatic) /AS [<< /Event/View /Category[/Zoom] >>] /ON [{a} 0 R] >>]');base=d.tobytes()
+        d.xref_set_key(d.pdf_catalog(),'OCProperties/Configs',f'[<< /Name (Locked B) /BaseState /OFF /ON [{b} 0 R] /Locked [{b} 0 R] >> << /Name (Automatic) /AS [<< /Event/View /Category[/User] >>] /ON [{a} 0 R] >>]');base=d.tobytes()
     info=layer_model(base,[]);assert info['configurations'][0]['locked']==[b] and not info['configurations'][1]['supported']
     with pytest.raises(DocumentError,match='bloqueada'):layers_apply(base,[],[],0)
     with pytest.raises(DocumentError):layers_apply(base,[],[a],1)

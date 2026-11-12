@@ -435,8 +435,11 @@ async def inspect_layers(doc_id:str,request:Request):
 @app.post('/api/documents/{doc_id}/set-layers')
 async def change_layers(doc_id:str,request:Request):
     p=await read_payload(request)
-    result=await run_in_threadpool(layers.apply,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('visible'),p.get('configuration'),p.get('usage'))
+    result=await run_in_threadpool(layers.apply,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('visible'),p.get('configuration'),p.get('usage'),p.get('screen'))
     if p.get('preview') is True:
+        if p.get('screen_context') is not None:
+            from .layer_screen import resolve
+            result=await run_in_threadpool(resolve,result,p['screen_context'])
         image,_=await run_in_threadpool(paragraph_preview,result,[],p.get('page',0),1)
         return Response(image,media_type='image/png')
     return store_document(result)

@@ -6,12 +6,19 @@ from .engine import DocumentError
 def supported(doc,config):
     n=f.mupdf;rules=n.pdf_dict_gets(config,'AS');known=set(doc.get_ocgs())
     if n.pdf_is_null(rules):return True
+    view_seen=set()
     if not n.pdf_is_array(rules) or n.pdf_array_len(rules)>20:return False
     for i in range(n.pdf_array_len(rules)):
         rule=n.pdf_array_get(rules,i);keys={n.pdf_to_name(n.pdf_dict_get_key(rule,j)) for j in range(n.pdf_dict_len(rule))}
         event=n.pdf_to_name(n.pdf_dict_gets(rule,'Event'));category=n.pdf_dict_gets(rule,'Category');refs=n.pdf_dict_gets(rule,'OCGs')
-        if not n.pdf_is_dict(rule) or not keys<={'Event','Category','OCGs'} or event not in ['Print','Export'] or not n.pdf_is_array(category) or n.pdf_array_len(category)!=1 or n.pdf_to_name(n.pdf_array_get(category,0))!=event:return False
-        if not n.pdf_is_null(refs) and (not n.pdf_is_array(refs) or n.pdf_array_len(refs)>200 or any(n.pdf_to_num(n.pdf_array_get(refs,j)) not in known for j in range(n.pdf_array_len(refs)))):return False
+        if not n.pdf_is_dict(rule) or not keys<={'Event','Category','OCGs'} or event not in ['Print','Export','View'] or not n.pdf_is_array(category) or not 1<=n.pdf_array_len(category)<=3:return False
+        cats=[n.pdf_to_name(n.pdf_array_get(category,j)) for j in range(n.pdf_array_len(category))]
+        if len(set(cats))!=len(cats) or not set(cats)<=({'View','Zoom','Language'} if event=='View' else {event}):return False
+        if not n.pdf_is_null(refs) and (not n.pdf_is_array(refs) or n.pdf_array_len(refs)>200 or any(not n.pdf_is_indirect(n.pdf_array_get(refs,j)) or n.pdf_to_num(n.pdf_array_get(refs,j)) not in known for j in range(n.pdf_array_len(refs))) or len({n.pdf_to_num(n.pdf_array_get(refs,j)) for j in range(n.pdf_array_len(refs))})!=n.pdf_array_len(refs)):return False
+        if event=='View':
+            ids={n.pdf_to_num(n.pdf_array_get(refs,j)) for j in range(n.pdf_array_len(refs))}
+            if ids&view_seen:return False
+            view_seen.update(ids)
     return True
 
 
@@ -35,7 +42,10 @@ def apply(doc,values):
     if not isinstance(values,list) or len(values)!=len(known) or any(not isinstance(row,dict) or set(row)!={'id','print','export'} or type(row['id']) is not int or row['id'] not in known or any(row[k] not in ['ON','OFF',None] for k in ['print','export']) for row in values) or len({r['id'] for r in values})!=len(known):raise DocumentError('Revisa impresión y exportación de todas las capas, sin repetirlas.')
     n=f.mupdf;pdf=f._as_pdf_document(doc);root=n.pdf_dict_getp(n.pdf_trailer(pdf),'Root/OCProperties');config=n.pdf_dict_gets(root,'D')
     config=n.pdf_deep_copy_obj(n.pdf_resolve_indirect(config)) if n.pdf_is_dict(config) else n.pdf_new_dict(pdf,4)
-    rules=n.pdf_new_array(pdf,2)
+    old_rules=n.pdf_dict_gets(config,'AS');rules=n.pdf_new_array(pdf,5)
+    for i in range(n.pdf_array_len(old_rules)):
+        rule=n.pdf_array_get(old_rules,i)
+        if n.pdf_to_name(n.pdf_dict_gets(rule,'Event'))=='View':n.pdf_array_push(rules,rule)
     for event in ['Print','Export']:
         refs=n.pdf_new_array(pdf,len(values))
         for row in values:
@@ -46,6 +56,7 @@ def apply(doc,values):
             n.pdf_dict_puts(usage,event,state);n.pdf_dict_puts(group,'Usage',usage)
         if n.pdf_array_len(refs):
             rule=n.pdf_new_dict(pdf,3);category=n.pdf_new_array(pdf,1);n.pdf_array_push(category,n.pdf_new_name(event));n.pdf_dict_puts(rule,'Event',n.pdf_new_name(event));n.pdf_dict_puts(rule,'Category',category);n.pdf_dict_puts(rule,'OCGs',refs);n.pdf_array_push(rules,rule)
+    if n.pdf_array_len(rules)>20:raise DocumentError('Hasta 20 reglas automáticas de capas.')
     if n.pdf_array_len(rules):n.pdf_dict_puts(config,'AS',rules)
     else:n.pdf_dict_dels(config,'AS')
     n.pdf_dict_puts(root,'D',config)
@@ -64,7 +75,7 @@ def for_print(data):
         for i in range(n.pdf_array_len(rules)):
             rule=n.pdf_array_get(rules,i)
             if n.pdf_to_name(n.pdf_dict_gets(rule,'Event'))!='Print':continue
-            refs=n.pdf_dict_gets(rule,'OCGs');ids=known if n.pdf_is_null(refs) else {n.pdf_to_num(n.pdf_array_get(refs,j)) for j in range(n.pdf_array_len(refs))}
+            refs=n.pdf_dict_gets(rule,'OCGs');ids={n.pdf_to_num(n.pdf_array_get(refs,j)) for j in range(n.pdf_array_len(refs))}
             for identity in ids:
                 group=n.pdf_load_object(pdf,identity);state=n.pdf_to_name(n.pdf_dict_getp(group,'Usage/Print/PrintState'))
                 if state not in ['ON','OFF']:continue

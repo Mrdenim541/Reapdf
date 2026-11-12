@@ -12,10 +12,11 @@ def model(base,ops):
         locked=set(config.get('locked',[]));on=set(config.get('on',[]));off=set(config.get('off',[]));base_on=config.get('basestate','ON')!='OFF'
         from .layer_configs import describe
         from .layer_usage import model as usage_model
-        return {'configurations':describe(doc),'usage':usage_model(doc),'layers':[{'id':xref,'name':g['name'],'visible':xref in on or xref not in off and base_on,'locked':xref in locked} for xref,g in groups.items()],'radio_groups':config.get('rbgroups',[])}
+        from .layer_screen import model as screen_model
+        return {'configurations':describe(doc),'usage':usage_model(doc),'screen':screen_model(doc),'layers':[{'id':xref,'name':g['name'],'visible':xref in on or xref not in off and base_on,'locked':xref in locked} for xref,g in groups.items()],'radio_groups':config.get('rbgroups',[])}
 
 
-def apply(base,ops,visible,configuration=None,usage=None):
+def apply(base,ops,visible,configuration=None,usage=None,screen=None):
     data=export_pdf(base,ops)
     if configuration is not None:
         with open_pdf(data) as doc:
@@ -37,4 +38,7 @@ def apply(base,ops,visible,configuration=None,usage=None):
             apply_usage(doc,usage)
             original={r['id']:r for r in info['usage']['layers']}
             if any(groups[r['id']]['locked'] and r!=original[r['id']] for r in usage):raise DocumentError('No se pueden cambiar las preferencias de una capa bloqueada.')
+        if screen is not None:
+            from .layer_screen import apply as apply_screen
+            apply_screen(doc,screen)
         return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,garbage=pdf_garbage(doc),deflate=True)

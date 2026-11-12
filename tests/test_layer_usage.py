@@ -20,7 +20,7 @@ def test_native_print_export_rules_are_independent_of_screen_and_preserve_stream
 def test_unknown_automatic_rules_are_retained_and_not_replaced():
     base,a,b=layered()
     with f.open(stream=base) as d:
-        d.xref_set_key(d.pdf_catalog(),'OCProperties/D/AS',f'[<< /Event/View /Category[/Zoom] /OCGs[{a} 0 R] >>]');base=d.tobytes()
+        d.xref_set_key(d.pdf_catalog(),'OCProperties/D/AS',f'[<< /Event/View /Category[/User] /OCGs[{a} 0 R] >>]');base=d.tobytes()
     assert not model(base,[])['usage']['supported']
     with pytest.raises(DocumentError,match='especializada'):apply(base,[],[a,b],usage=[{'id':i,'print':'OFF','export':None} for i in [a,b]])
 
