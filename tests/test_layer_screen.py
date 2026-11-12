@@ -218,6 +218,7 @@ def test_copy_context_api_preserves_source_and_preview_pixels():
         source=client.post('/api/documents',files={'file':('Layers.pdf',base,'application/pdf')}).json()['id'];url=f'/api/documents/{source}/set-layers'
         payload={'operations':[],'visible':[a,b],'screen':v,'screen_context':{'zoom':2,'language':'es'}}
         preview=client.post(url,json={**payload,'preview':True});copy=client.post(url,json={**payload,'apply_context':True});assert preview.status_code==200 and copy.status_code==200,copy.text
+        assert copy.json().get('working_copy') is True
         out=client.post('/api/documents/'+copy.json()['id']+'/export',json={'operations':[]}).content
         with f.open(stream=out) as doc:assert doc[0].get_pixmap().samples==f.Pixmap(preview.content).samples
         assert 'ONLY B' in text(out) and 'ONLY A' not in text(out)

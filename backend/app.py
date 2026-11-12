@@ -446,7 +446,9 @@ async def change_layers(doc_id:str,request:Request):
             result=await run_in_threadpool(resolve,result,p['screen_context'])
         image,_=await run_in_threadpool(paragraph_preview,result,[],p.get('page',0),1)
         return Response(image,media_type='image/png')
-    return store_document(result)
+    stored=store_document(result)
+    if p.get('apply_context') is True:stored['working_copy']=True
+    return stored
 
 @app.post("/api/documents")
 async def upload(file: UploadFile, password: str = Form('')):
