@@ -436,6 +436,10 @@ async def inspect_layers(doc_id:str,request:Request):
 async def change_layers(doc_id:str,request:Request):
     p=await read_payload(request)
     result=await run_in_threadpool(layers.apply,document_path(doc_id).read_bytes(),p.get('operations',[]),p.get('visible'),p.get('configuration'),p.get('usage'),p.get('screen'))
+    if p.get('apply_context') is True:
+        if p.get('preview') is True:raise DocumentError('Elige vista previa o crear copia contextual.')
+        from .layer_screen import resolve
+        result=await run_in_threadpool(resolve,result,p.get('screen_context'),True)
     if p.get('preview') is True:
         if p.get('screen_context') is not None:
             from .layer_screen import resolve

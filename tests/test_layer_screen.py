@@ -196,3 +196,30 @@ def test_overlapping_foreign_view_rules_remain_protected():
         doc.xref_set_key(doc.pdf_catalog(),'OCProperties/D/AS',f'[<< /Event /View /Category[/View] /OCGs[{a} 0 R] >> << /Event /View /Category[/Zoom] /OCGs[{a} 0 R] >>]');base=doc.tobytes()
     assert not model(base,[])['screen']['supported']
     with pytest.raises(DocumentError):apply(base,[],[a,b],screen=values(base))
+
+
+def test_frozen_context_is_editable_by_layer_controls_and_preserves_print_export():
+    base,a,b=layered();v=values(base);v[0]['zoom']={'min':1,'max':2};v[1]['language']={'lang':'es','preferred':False}
+    u=[{'id':a,'print':'ON','export':'OFF'},{'id':b,'print':'OFF','export':'ON'}];configured=apply(base,[],[a,b],usage=u,screen=v)
+    frozen=resolve(configured,{'zoom':2,'language':'es'},freeze=True)
+    assert 'ONLY B' in text(frozen) and 'ONLY A' not in text(frozen)
+    assert all(r['view'] is None and r['zoom'] is None and r['language'] is None for r in values(frozen))
+    assert model(frozen,[])['usage']['layers']==u
+    assert 'ONLY A' in text(for_print(frozen)) and 'ONLY B' not in text(for_print(frozen))
+    restored=apply(frozen,[],[a,b]);assert 'ONLY A' in text(restored) and 'ONLY B' in text(restored)
+    with f.open(stream=configured) as before,f.open(stream=frozen) as after:assert before[0].read_contents()==after[0].read_contents()
+
+
+def test_copy_context_api_preserves_source_and_preview_pixels():
+    from fastapi.testclient import TestClient
+    from backend.app import app
+    base,a,b=layered();v=values(base);v[0]['zoom']={'min':1,'max':2}
+    with TestClient(app) as client:
+        source=client.post('/api/documents',files={'file':('Layers.pdf',base,'application/pdf')}).json()['id'];url=f'/api/documents/{source}/set-layers'
+        payload={'operations':[],'visible':[a,b],'screen':v,'screen_context':{'zoom':2,'language':'es'}}
+        preview=client.post(url,json={**payload,'preview':True});copy=client.post(url,json={**payload,'apply_context':True});assert preview.status_code==200 and copy.status_code==200,copy.text
+        out=client.post('/api/documents/'+copy.json()['id']+'/export',json={'operations':[]}).content
+        with f.open(stream=out) as doc:assert doc[0].get_pixmap().samples==f.Pixmap(preview.content).samples
+        assert 'ONLY B' in text(out) and 'ONLY A' not in text(out)
+        assert client.post('/api/documents/'+source+'/layers',json={'operations':[]}).json()['screen']['layers']==values(base)
+        assert client.post(url,json={**payload,'apply_context':True,'preview':True}).status_code==422

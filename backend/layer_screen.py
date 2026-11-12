@@ -104,7 +104,7 @@ def apply(doc,values):
     n.pdf_dict_puts(cfg,'AS',rules);n.pdf_dict_putp(n.pdf_trailer(pdf),'Root/OCProperties/D',cfg)
 
 
-def resolve(data,context):
+def resolve(data,context,freeze=False):
     """Temporary snapshot for the layer panel; not a saved zoom-dependent edit."""
     if not isinstance(context,dict) or set(context)!={'zoom','language'} or not number(context['zoom']) or not .05<=context['zoom']<=16 or not isinstance(context['language'],str) or len(context['language'])>63 or not LANG.fullmatch(context['language']):raise DocumentError('Usa zoom entre 5 y 1600 % y un idioma como es o es-MX.')
     with f.open(stream=data,filetype='pdf') as doc:
@@ -141,6 +141,12 @@ def resolve(data,context):
         doc.set_layer(-1,on=sorted(on),off=sorted(known-on))
         # MuPDF consults ViewState even without AS. Strip only in this temporary
         # snapshot so its implicit behavior cannot override the resolved state.
-        for identity in known:doc.xref_set_key(identity,'Usage/View','null')
-        doc.xref_set_key(doc.pdf_catalog(),'OCProperties/D/AS','null')
+        for identity in known:
+            for name in (['View','Zoom','Language'] if freeze else ['View']):doc.xref_set_key(identity,'Usage/'+name,'null')
+        kept=n.pdf_new_array(pdf,n.pdf_array_len(rules))
+        if freeze:
+            for i in range(n.pdf_array_len(rules)):
+                rule=n.pdf_array_get(rules,i)
+                if n.pdf_to_name(n.pdf_dict_gets(rule,'Event'))!='View':n.pdf_array_push(kept,rule)
+        n.pdf_dict_puts(cfg,'AS',kept)
         return doc.tobytes(encryption=f.PDF_ENCRYPT_KEEP,deflate=True)

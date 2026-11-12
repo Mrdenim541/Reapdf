@@ -62,6 +62,7 @@ export function Layers({doc,page,operations,busy,error,onClose,onAction}){
   <button disabled={disabled||!layers.length||doc.signed||!doc.can_edit} onClick={prepare}>Vista previa de capas</button>
   {preview&&<><p>{simulate?'Simulación del contexto indicado. Se guardarán las preferencias y la visibilidad inicial, no este contexto.':'Vista inicial del PDF que se guardará.'}</p><img style={{maxWidth:'100%',maxHeight:'55vh'}} src={preview.url} alt="Visibilidad de capas"/></>}
   {(issue||error)&&<p role="alert">{issue||error}</p>}
-  <div className="organizer-footer"><button disabled={disabled} onClick={onClose}>Cerrar</button><button className="primary" disabled={disabled||!preview||preview.key!==key} onClick={()=>onAction('set-layers',payload)}>Guardar visibilidad</button></div>
+  {simulate&&<p>La copia contextual fija la visibilidad de esta simulación y retira sus condiciones de pantalla. Conserva capas, contenido y preferencias de impresión/exportación. Puedes deshacer al abrirla.</p>}
+  <div className="organizer-footer"><button disabled={disabled} onClick={onClose}>Cerrar</button>{simulate&&<button disabled={disabled||!preview||preview.key!==key} onClick={()=>onAction('set-layers',{...payload,apply_context:true,screen_context:context})}>Abrir copia contextual</button>}<button className="primary" disabled={disabled||!preview||preview.key!==key} onClick={()=>onAction('set-layers',payload)}>Guardar visibilidad</button></div>
  </dialog>;
 }

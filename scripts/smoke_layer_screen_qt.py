@@ -8,6 +8,7 @@ from PySide6.QtTest import QTest
 from portable.native_window import create_window
 from scripts.create_layer_screen_sample import create
 from backend.layers import model
+from backend.layer_usage import for_print
 root=Path(tempfile.mkdtemp(prefix='reapdf-layer-screen-qt-'));original=root/'Layers.pdf';original.write_bytes(create());before=original.read_bytes();output=root/'LayerPreferences.pdf'
 QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts);app=QApplication([]);QMessageBox.question=lambda *a:QMessageBox.StandardButton.Yes
 window=create_window('http://127.0.0.1:8000',str(original));window.resize(1500,1100);window.show()
@@ -42,5 +43,11 @@ try:
     info=model(output.read_bytes(),[]);row=next(r for r in info['screen']['layers'] if r['id']==6);assert row['view']=='ON' and row['zoom']=={'min':1.0,'max':2.0} and row['language']=={'lang':'es-MX','preferred':False}
     with f.open(stream=before) as a,f.open(output) as b:assert a[0].read_contents()==b[0].read_contents() and 'ONLY B' in b[0].get_text()
     QFileDialog.getOpenFileName=lambda *a,**kw:(str(output),'');window.open_action.trigger();wait('document.querySelector(".document-bar")?.textContent.includes("LayerPreferences.pdf")');assert original.read_bytes()==before
-    print('PASS: actual Qt configures native View/Zoom/Language, invalidates simulation after context edits, saves/reopens preferences using native route with test file selector, preserves initial state/content and original. No automatic main-view zoom switching claimed.')
+    preferences=output.read_bytes();click('Documentos');wait(field('Capas del PDF')+'?.disabled===false');js(field('Capas del PDF')+'.closest("details").open=true');js(field('Capas del PDF')+'.click()');wait('!!'+field('Simular condiciones de pantalla'));js(field('Simular condiciones de pantalla')+'.click()');edit('Idioma de simulación','es-MX');edit('Zoom de simulación','150');click('Vista previa de capas');image();assert ink();click('Abrir copia contextual');wait('!document.querySelector("dialog[open]")&&window.__reapdfCloseState.dirty')
+    frozen=root/'ContextCopy.pdf';QFileDialog.getSaveFileName=lambda *a,**kw:(str(frozen),'');window.save_as_action.trigger();wait('document.body.innerText.includes("PDF guardado.")&&!window.__reapdfCloseState.dirty');assert frozen.exists()
+    copy_info=model(frozen.read_bytes(),[]);assert all(r['view'] is None and r['zoom'] is None and r['language'] is None for r in copy_info['screen']['layers']);assert copy_info['usage']==model(before,[])['usage']
+    with f.open(stream=before) as a,f.open(frozen) as b:assert a[0].read_contents()==b[0].read_contents() and 'ONLY B' in b[0].get_text() and 'ONLY A' not in b[0].get_text()
+    with f.open(stream=for_print(frozen.read_bytes())) as printed:assert 'ONLY A' in printed[0].get_text() and 'ONLY B' not in printed[0].get_text()
+    assert output.read_bytes()==preferences and original.read_bytes()==before
+    print('PASS: actual Qt configures native View/Zoom/Language, invalidates simulation after context edits, saves/reopens preferences using native route with test file selector, opens and saves a static contextual copy preserving print/export, initial state/content and originals. No automatic main-view zoom switching claimed.')
 finally:window.allow_close=True;window.close();QTest.qWait(200)
