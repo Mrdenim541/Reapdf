@@ -235,7 +235,7 @@ def compiled_gui_check(folder,journey='basic'):
         subprocess.run([str(folder/'runtime/python.exe'),'-I',str(root/'scripts/create_tagged_image_sample.py'),str(sample)],check=True,timeout=30)
     if journey=='word_manual_columns':
         word=folder/'word-manual-columns-fixture.docx'
-        subprocess.run([str(folder/'runtime/python.exe'),'-I',str(root/'scripts/create_word_manual_columns_sample.py'),str(word),'--changing'],check=True,timeout=30)
+        subprocess.run([str(folder/'runtime/python.exe'),'-I',str(root/'scripts/create_word_manual_columns_sample.py'),str(word),'--changing','--notes'],check=True,timeout=30)
     if journey=='word_columns':
         word=folder/'word-columns-fixture.docx'
         subprocess.run([str(folder/'runtime/python.exe'),'-I',str(root/'scripts/create_word_columns_sample.py'),str(word)],check=True,timeout=30)
@@ -308,7 +308,10 @@ assert [locations[word][0][0] for word in labels]==[0,0,1,1,1]
 assert locations['FIRSTCOLLINK'][0][1].x0<locations['SECONDCOLLINK'][0][1].x0 and locations['NEXTPAGELEFT'][0][1].x0<locations['NEXTPAGERIGHT'][0][1].x0
 assert abs(locations['FIRSTCOLLINK'][0][1].x0-locations['NEXTPAGELEFT'][0][1].x0-18)<1
 extra=['PHYSICALPAGELEFT','PHYSICALPAGERIGHT','NEXTWHOLEPAGE','CONTINUOUSLAST'];extra_rows=[next((p.number,rect) for p in d for rect in p.search_for(label)) for label in extra];assert [row[0] for row in extra_rows]==[2,2,3,3] and extra_rows[0][1].x0==extra_rows[2][1].x0 and extra_rows[0][1].x0<extra_rows[1][1].x0
-links=[l for p in d for l in p.get_links() if l['kind']==f.LINK_GOTO];assert len(links)==8 and all(l['page']==1 for l in links)
+links=[l for p in d for l in p.get_links() if l['kind']==f.LINK_GOTO];assert len(links)==16
+for label in ['FIRSTCOLLINK','SECONDCOLLINK','PHYSICALPAGELEFT','PHYSICALPAGERIGHT','NEXTWHOLEPAGE','BANDTHREEA','BANDTHREEB','BANDTHREEC']:
+ page,rect=next((p.number,r) for p in d for r in p.search_for(label));center=f.Point((rect.x0+rect.x1)/2,(rect.y0+rect.y1)/2);chosen=[l for l in d[page].get_links() if l['kind']==f.LINK_GOTO and f.Rect(l['from']).contains(center)];assert len(chosen)==1 and chosen[0]['page']==1
+foots=[next((p.number,r) for p in d for r in p.search_for(label)) for label in ['COLUMNFOOTONE','COLUMNFOOTTWO','COLUMNFOOTTHREE']];assert all(row[0]==3 for row in foots);assert d[3].get_text().index('ENDCOLUMNSECTION')<d[3].get_text().index('BANDONEFINAL');assert all(word[3]<min(row[1].y0 for row in foots) for word in d[3].get_text('words') if word[4].startswith(('BAND','CONTINUOUS','BEFORECOLUMN','ENDCOLUMN')))
 bands=[next((p.number,rect) for p in d for rect in p.search_for(label)) for label in ['BANDTHREEA','BANDTHREEB','BANDTHREEC','BANDONEFINAL']];assert all(v[0]==3 for v in bands) and bands[0][1].x0<bands[1][1].x0<bands[2][1].x0 and bands[3][1].y0>max(v[1].y1 for v in bands[:3]);assert all(len([v for v in d[i].get_drawings() if v['rect'].width<1 and v['rect'].height>0])==1 for i in range(3)) and len([v for v in d[3].get_drawings() if v['rect'].width<1 and v['rect'].height>0])==3
 spans=[s for p in d for b in p.get_text('dict')['blocks'] for line in b.get('lines',[]) for s in line['spans'] if 'COLLINK' in s['text']];assert len(spans)==2 and all('Bold' in s['font'] and s['color']==0x214eaa for s in spans)
 """

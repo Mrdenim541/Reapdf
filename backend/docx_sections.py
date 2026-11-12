@@ -48,29 +48,28 @@ def sections(body,paper):
 
 
 def continuous_groups(segments,package,parse_xml):
-    """Join identical-layout continuous sections, keeping source identities.
+    """Group compatible continuous sections, retaining logical note boundaries.
 
-    Geometry-changing continuous sections need balancing and remain protected.
+    Column changes share the page; paper/margins and section effects remain protected.
     """
     def key(node):
         children=[key(c) for c in node if c.tag not in [tag('type'),tag('cols')]]
         return node.tag,tuple(sorted(node.attrib.items())),(node.text or '').strip(),tuple(sorted(children) if node.tag==tag('sectPr') else children)
     result=[];section_pages=None
     for index,segment in enumerate(segments):
-        segment['source_sections']=[index+1];segment['flow_parts']=[{'nodes':list(segment['nodes']),'columns':segment['columns'],'source_sections':[index+1]}]
+        segment['source_sections']=[index+1];segment['logical_parts']=[{'id':index+1,'properties':segment['properties'],'nodes':list(segment['nodes'])}];segment['flow_parts']=[{'nodes':list(segment['nodes']),'columns':segment['columns'],'source_sections':[index+1]}]
         if not result or segment['break']!='continuous':result.append(segment);continue
         previous=result[-1];a=previous['properties'];b=segment['properties']
-        unsafe=['pgNumType','titlePg','footnotePr','endnotePr']
-        has_notes=any(n.tag in [tag('footnoteReference'),tag('endnoteReference')] for s in [previous,segment] for node in s['nodes'] for n in node.iter())
+        unsafe=['pgNumType','titlePg']
         if section_pages is None:
             section_pages=False
             for name,value in package.items():
                 if name.endswith('.xml') and name.startswith(('word/header','word/footer')):
                     root=parse_xml(value);content=''.join(list(root.itertext())+[v for node in root.iter() for v in node.attrib.values()]).upper()
                     section_pages=section_pages or 'SECTIONPAGES' in content
-        if previous['size']!=segment['size'] or previous['margins']!=segment['margins'] or key(a)!=key(b) or has_notes or section_pages or any(a.find(tag(k)) is not None or b.find(tag(k)) is not None for k in unsafe):
-            raise DocumentError('Las secciones continuas con cambios de geometría, encabezados, numeración o notas necesitan otro tratamiento; usa página siguiente para este perfil compatible.')
-        previous['nodes'].extend(segment['nodes']);previous['source_sections'].append(index+1)
+        if previous['size']!=segment['size'] or previous['margins']!=segment['margins'] or key(a)!=key(b) or section_pages or any(a.find(tag(k)) is not None or b.find(tag(k)) is not None for k in unsafe):
+            raise DocumentError('Las secciones continuas con cambios de papel, márgenes, encabezados, numeración o propiedades incompatibles de notas necesitan otro tratamiento; usa página siguiente para este perfil compatible.')
+        previous['nodes'].extend(segment['nodes']);previous['source_sections'].append(index+1);previous['logical_parts'].extend(segment['logical_parts'])
         if previous['flow_parts'][-1]['columns']==segment['columns']:
             previous['flow_parts'][-1]['nodes'].extend(segment['nodes']);previous['flow_parts'][-1]['source_sections'].append(index+1)
         else:previous['flow_parts'].extend(segment['flow_parts'])

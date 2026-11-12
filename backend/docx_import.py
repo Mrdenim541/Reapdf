@@ -306,21 +306,28 @@ def import_docx(data,paper='source',balance_columns=False):
         try:return blocks(root)
         finally:relationships=previous;styles.counters=counters;complex_nodes,forced_cached,char_formats=old
     for segment_index,segment in enumerate(segments):
-        notes.begin(segment['properties'],segment_index)
         size=segment['size'];margins=segment['margins'];section=segment['properties']
-        page_fields=PageFields()
-        if len(segment['flow_parts'])>1:
-            for flow in segment['flow_parts']:flow['content']=blocks(flow['nodes'])
-            segment['content']=''.join(flow['content'] for flow in segment['flow_parts'])
-        else:segment['content']=blocks(segment['nodes'])
+        page_fields=PageFields();logical_content={}
+        for logical in segment['logical_parts']:
+            notes.begin(logical['properties'],segment_index,logical['id'])
+            logical_content[logical['id']]=blocks(logical['nodes'])
+        segment['logical_content']=logical_content
+        for flow in segment['flow_parts']:
+            flow['content']=''.join(logical_content[ident] for ident in flow['source_sections'])
+        segment['content']=''.join(flow['content'] for flow in segment['flow_parts'])
         segment['fields']=page_fields
         segment['running']=running_parts(package,section,relationships,parse_xml,render_running,warnings,page_fields)
     expected_references=sum(node.tag in {tag('footnoteReference'),tag('endnoteReference')} for node in body.iter())
     if expected_references!=len(notes.used):raise DocumentError('Hay referencias de notas en estructuras Word no compatibles. No se omiten sus notas ni se entrega un PDF incompleto.')
     notes.render(render_note)
     for index,segment in enumerate(segments):
-        ending=notes.end_content(index,len(segments)-1);segment['content']+=ending
-        if len(segment['flow_parts'])>1:segment['flow_parts'][-1]['content']+=ending
+        for logical in segment['logical_parts']:
+            segment['logical_content'][logical['id']]+=notes.end_content(index,len(segments)-1,logical['id'])
+        for flow in segment['flow_parts']:
+            flow['content']=''.join(segment['logical_content'][ident] for ident in flow['source_sections'])
+        ending=notes.end_content(index,len(segments)-1,document_only=True)
+        segment['flow_parts'][-1]['content']+=ending
+        segment['content']=''.join(flow['content'] for flow in segment['flow_parts'])
     if len(segments)>1:warnings.discard('Encabezados/pies sin referencia en la sección importada no se incorporan.')
     if not characters and not images and not dynamic_fields:raise DocumentError('No hay texto ni imágenes compatibles para importar.')
     css='''@font-face{font-family:Reapdf;src:url(DejaVuSans.ttf)}@font-face{font-family:Reapdf;src:url(DejaVuSans-Bold.ttf);font-weight:bold}@font-face{font-family:Reapdf;src:url(DejaVuSans-Oblique.ttf);font-style:italic}@font-face{font-family:Reapdf;src:url(DejaVuSans-BoldOblique.ttf);font-weight:bold;font-style:italic}body{font-family:Reapdf;font-size:12pt;margin:0}p{margin:0 0 8pt 0}table{border-collapse:collapse;width:100%;margin-bottom:10pt}td{border:0.5pt solid #888;padding:4pt}a{color:#23644f}.word-note p{margin:0 0 4pt 0}.word-note{font-size:10pt;margin-bottom:4pt}.word-note-label{font-weight:bold}.word-footnotes{border-top:.5pt solid #888;padding-top:4pt}.word-endnotes{margin-top:14pt}'''
@@ -346,8 +353,7 @@ def import_docx(data,paper='source',balance_columns=False):
             previous_format=fields.format
             top,bottom=running.prepare(width,height,left,right,top,bottom,css,archive)
             if len(segment['flow_parts'])>1:
-                from .docx_balance import continuous_plan
-                note_plan=continuous_plan(segment['flow_parts'],css,archive,(width,height,left,top,right,bottom),50-total)
+                note_plan=notes.prepare(index,segment['content'],css,archive,width,height,left,top,right,bottom,50-total,segment['columns'],segment['flow_parts'])
             else:
                 note_plan=notes.prepare(index,segment['content'],css,archive,width,height,left,top,right,bottom,50-total,segment['columns'])
                 if balance_columns:
@@ -419,6 +425,6 @@ def import_docx(data,paper='source',balance_columns=False):
     if missing and table_stats['merged_tables']:raise DocumentError('La comprobación detectó texto perdido en una tabla combinada. Simplifica la tabla antes de importar; no se entrega un PDF incompleto.')
     if missing:warnings.add('La comprobación de texto detectó diferencias; revisa los fragmentos indicados y el PDF completo.')
     warnings.add('Las fuentes originales se sustituyen por DejaVu Sans. La paginación y el diseño pueden cambiar.')
-    report={'schema':'reapdf-docx-import-1','source_sha256':hashlib.sha256(data).hexdigest(),'pdf_sha256':hashlib.sha256(result).hexdigest(),'pages':pages,'paragraphs':paragraphs,'tables':tables,'cells':cells,'images':len(images),'characters':characters,'balance_columns_requested':balance_columns,'balanced_column_pages':sum(s['note_plan'].get('balanced_pages',0) for s in segments),'continuous_column_changes':sum(max(0,len(s['flow_parts'])-1) for s in segments),'manual_page_breaks':manual_breaks,'manual_column_breaks':manual_column_breaks,'physical_page_breaks_verified':sum(len(s['note_plan']['page_break_frames']) for s in segments),'sections':section_report,'section_count':source_section_count,'layout_section_count':len(segments),'continuous_sections_merged':source_section_count-len(segments),'header_footer_templates':sum(len(s['running'].templates) for s in segments),'header_footer_instances':sum(s['running'].drawn for s in segments),'page_fields':dynamic_fields,**notes.report(),**field_stats,**table_stats,'page_number_start':segments[0]['fields'].start,'page_number_format':segments[0]['fields'].format,'page_labels_preserved':page_labels_preserved,'styles_applied':len(styles.used),'list_items':styles.list_items,'fonts_replaced':sorted(fonts),'warnings':sorted(warnings),'missing_words':list(missing)[:30],'text_check_passed':not missing,'layout_preserved':False,'output_bytes':len(result)}
+    report={'schema':'reapdf-docx-import-1','source_sha256':hashlib.sha256(data).hexdigest(),'pdf_sha256':hashlib.sha256(result).hexdigest(),'pages':pages,'paragraphs':paragraphs,'tables':tables,'cells':cells,'images':len(images),'characters':characters,'continuous_footnote_groups':sum(bool(notes.foot(i)) and len(s['source_sections'])>1 for i,s in enumerate(segments)),'continuous_footnote_references':sum(len(notes.foot(i)) for i,s in enumerate(segments) if len(s['source_sections'])>1),'balance_columns_requested':balance_columns,'balanced_column_pages':sum(s['note_plan'].get('balanced_pages',0) for s in segments),'continuous_column_changes':sum(max(0,len(s['flow_parts'])-1) for s in segments),'manual_page_breaks':manual_breaks,'manual_column_breaks':manual_column_breaks,'physical_page_breaks_verified':sum(len(s['note_plan']['page_break_frames']) for s in segments),'sections':section_report,'section_count':source_section_count,'layout_section_count':len(segments),'continuous_sections_merged':source_section_count-len(segments),'header_footer_templates':sum(len(s['running'].templates) for s in segments),'header_footer_instances':sum(s['running'].drawn for s in segments),'page_fields':dynamic_fields,**notes.report(),**field_stats,**table_stats,'page_number_start':segments[0]['fields'].start,'page_number_format':segments[0]['fields'].format,'page_labels_preserved':page_labels_preserved,'styles_applied':len(styles.used),'list_items':styles.list_items,'fonts_replaced':sorted(fonts),'warnings':sorted(warnings),'missing_words':list(missing)[:30],'text_check_passed':not missing,'layout_preserved':False,'output_bytes':len(result)}
     report.update(bookmarks=len(bookmarks.names),internal_hyperlinks=bookmarks.links)
     return result,report

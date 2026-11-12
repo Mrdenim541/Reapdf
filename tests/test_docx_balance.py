@@ -115,12 +115,14 @@ def test_prior_section_endnote_is_not_dropped_when_final_section_changes_columns
     with f.open(stream=out) as d:assert sum(page.get_text().count('ENDNOTEBETA') for page in d)==1
 
 
-def test_notes_in_changing_continuous_group_remain_explicitly_protected():
+def test_notes_in_changing_continuous_group_are_placed_on_the_reference_page():
     from tests.test_docx_notes import source as notes,reference
     two=properties().replace('</w:sectPr>','<w:cols w:num="2" w:space="240"/></w:sectPr>');three=two.replace('nextPage','continuous').replace('w:num="2"','w:num="3"')
     body=reference('footnote',1,'PROTECTEDREF')+'<w:p><w:pPr>'+two+'</w:pPr><w:r><w:t>NOTEENDING</w:t></w:r></w:p>'+p('AFTERNOTE')+three
     data=rewrite(notes(),{'word/document.xml':f'<w:document xmlns:w="{W}"><w:body>{body}</w:body></w:document>'})
-    with pytest.raises(DocumentError,match='notas'):import_docx(data)
+    output,report=import_docx(data)
+    with f.open(stream=output) as d:
+        ref,note=positions(d,['PROTECTEDREF','FOOTNOTEALPHA']);assert ref[0]==note[0] and ref[1].y1<note[1].y0 and report['text_check_passed']
 
 
 def test_unequal_continuous_columns_keep_declared_widths_and_order():

@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QApplication,QFileDialog,QMessageBox
 from PySide6.QtTest import QTest
 from portable.native_window import create_window
 from scripts.create_word_manual_columns_sample import create
-root=Path(tempfile.mkdtemp(prefix='reapdf-columns-qt-'));word=root/'Columns.docx';word.write_bytes(create(changing=True));original=word.read_bytes();output=root/'Columns.pdf'
+root=Path(tempfile.mkdtemp(prefix='reapdf-columns-qt-'));word=root/'Columns.docx';word.write_bytes(create(changing=True,with_notes=True));original=word.read_bytes();output=root/'Columns.pdf'
 QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts);app=QApplication([]);QMessageBox.question=lambda *a:QMessageBox.StandardButton.Yes
 window=create_window('http://127.0.0.1:8000');window.resize(1500,1100);window.show()
 def js(script):
@@ -29,6 +29,7 @@ try:
     encoded=base64.b64encode(original).decode()
     js('(()=>{const raw=atob('+json.dumps(encoded)+');const bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));const data=new DataTransfer();data.items.add(new File([bytes],"Columns.docx",{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"}));const e='+field('Archivo Word para convertir')+';e.files=data.files;e.dispatchEvent(new Event("change",{bubbles:true}));})()')
     js(field('Equilibrar últimas columnas de Word')+'.click()');click('Convertir y revisar Word');wait('!!'+field('Página de Word importado'));wait('document.body.innerText.includes("Columnas por sección: 2")&&document.body.innerText.includes("enlaces internos a marcadores")')
+    assert js('document.body.innerText.includes("3 notas al pie en secciones continuas")')
     assert js('document.body.innerText.includes("6 saltos de columna conservados") && document.body.innerText.includes("2 cambios continuos de columnas: 2 → 3 → 1")')
     assert js('document.body.innerText.includes("2 saltos de página física conservados") && document.body.innerText.includes("3 secciones continuas con continuidad de página compatible")');pages=int(js(field('Página de Word importado')+'.options.length'));assert pages==4
     for index in range(pages):
@@ -43,14 +44,20 @@ try:
         assert locations['FIRSTCOLLINK'][0][1].x0<locations['SECONDCOLLINK'][0][1].x0 and locations['NEXTPAGELEFT'][0][1].x0<locations['NEXTPAGERIGHT'][0][1].x0
         extra=['PHYSICALPAGELEFT','PHYSICALPAGERIGHT','NEXTWHOLEPAGE','CONTINUOUSLAST'];extra_rows=[next((p.number,rect) for p in d for rect in p.search_for(label)) for label in extra];assert [row[0] for row in extra_rows]==[2,2,3,3] and extra_rows[0][1].x0==extra_rows[2][1].x0 and extra_rows[0][1].x0<extra_rows[1][1].x0
         destination=next(page.number for page in d if page.search_for('DESTINATIONWORD'))
-        links=[l for page in d for l in page.get_links() if l['kind']==f.LINK_GOTO];assert len(links)==8 and all(l['page']==destination for l in links)
+        links=[l for page in d for l in page.get_links() if l['kind']==f.LINK_GOTO];assert len(links)==16
+        labels8=['FIRSTCOLLINK','SECONDCOLLINK','PHYSICALPAGELEFT','PHYSICALPAGERIGHT','NEXTWHOLEPAGE','BANDTHREEA','BANDTHREEB','BANDTHREEC']
+        for label in labels8:
+            page,rect=next((p.number,r) for p in d for r in p.search_for(label));center=f.Point((rect.x0+rect.x1)/2,(rect.y0+rect.y1)/2);chosen=[l for l in d[page].get_links() if l['kind']==f.LINK_GOTO and f.Rect(l['from']).contains(center)];assert len(chosen)==1 and chosen[0]['page']==destination
+        foots=[next((p.number,r) for p in d for r in p.search_for(label)) for label in ['COLUMNFOOTONE','COLUMNFOOTTWO','COLUMNFOOTTHREE']];assert all(row[0]==3 for row in foots)
+        assert d[3].get_text().index('ENDCOLUMNSECTION')<d[3].get_text().index('BANDONEFINAL')
+        assert all(word[3]<min(row[1].y0 for row in foots) for word in d[3].get_text('words') if word[4].startswith(('BAND','CONTINUOUS','BEFORECOLUMN','ENDCOLUMN')))
         assert abs(locations['FIRSTCOLLINK'][0][1].x0-locations['NEXTPAGELEFT'][0][1].x0-18)<1
         spans=[s for p in d for b in p.get_text('dict')['blocks'] for line in b.get('lines',[]) for s in line['spans'] if 'COLLINK' in s['text']];assert len(spans)==2 and all('Bold' in s['font'] and s['color']==0x214eaa for s in spans)
         bands=[next((p.number,rect) for p in d for rect in p.search_for(label)) for label in ['BANDTHREEA','BANDTHREEB','BANDTHREEC','BANDONEFINAL']];assert all(v[0]==3 for v in bands) and bands[0][1].x0<bands[1][1].x0<bands[2][1].x0 and bands[3][1].y0>max(v[1].y1 for v in bands[:3])
         assert all(len([v for v in d[i].get_drawings() if v['rect'].width<1 and v['rect'].height>0])==1 for i in range(3)) and len([v for v in d[3].get_drawings() if v['rect'].width<1 and v['rect'].height>0])==3
     QFileDialog.getOpenFileName=lambda *a,**kw:(str(output),'');window.open_action.trigger();wait('document.querySelector(".document-bar")?.textContent.includes("Columns.pdf")')
     assert word.read_bytes()==original
-    print('PASS: actual Qt imports manual page/column breaks, balancing and 2-to-3-to-1 continuous column bands, reviews all four pages, opens/saves/reopens; new columns/pages, first-line indentation, bold color and eight native bookmark links remain correct; source DOCX unchanged.')
+    print('PASS: actual Qt imports manual page/column breaks, balancing and 2-to-3-to-1 continuous column bands, reviews all four pages, opens/saves/reopens; new columns/pages, first-line indentation, bold color and eight bookmark links, six footnote links and two section-endnote links remain correct; source DOCX unchanged.')
 except Exception:
     print(js('document.body.innerText'));raise
 finally:window.allow_close=True;window.close();app.processEvents()

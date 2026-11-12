@@ -53,8 +53,8 @@ class Notes:
                     if not target.startswith('word/'):raise DocumentError('Un recurso de notas sale del directorio Word.')
                     rel['Target']=posixpath.relpath(target,'word')
 
-    def begin(self,section,index):
-        self.current=index
+    def begin(self,section,index,logical_section=None):
+        self.current=index;self.logical_section=logical_section if logical_section is not None else index
         for kind in ['footnote','endnote']:
             if kind not in getattr(self,'active',{'footnote','endnote'}):continue
             nodes=[n for n in [self.defaults.get(kind),section.find(tag(kind+'Pr'))] if n is not None];options={}
@@ -65,7 +65,7 @@ class Notes:
             fmt=options.get('numFmt','decimal' if kind=='footnote' else 'lowerRoman');restart=options.get('numRestart','continuous');start=options.get('numStart','1');placement=options.get('pos','pageBottom' if kind=='footnote' else 'docEnd')
             if fmt not in ['decimal','lowerRoman','upperRoman','lowerLetter','upperLetter'] or restart not in (['continuous','eachSect','eachPage'] if kind=='footnote' else ['continuous','eachSect']) or not re.fullmatch(r'\d{1,4}',start) or not 1<=int(start)<=9999:raise DocumentError('Numeración de notas no compatible: usa formato estándar; las notas finales no admiten reinicio por página.')
             if placement not in (['pageBottom'] if kind=='footnote' else ['docEnd','sectEnd']):raise DocumentError('La posición de las notas Word todavía no es compatible.')
-            if index==0 or restart=='eachSect':self.counter[kind]=int(start)
+            if (logical_section==1 if logical_section is not None else index==0) or restart=='eachSect':self.counter[kind]=int(start)
             self.style[kind]=fmt;self.placement[kind]=placement;self.numbering[kind]={'restart':restart,'start':int(start),'format':fmt}
             if kind=='footnote':self.foot_settings[index]=dict(self.numbering[kind])
 
@@ -85,7 +85,7 @@ class Notes:
         if len(self.used)>=200:raise DocumentError('Hasta 200 referencias de notas por documento.')
         label=custom_label if custom else number_label(self.numbering[kind]['start'] if self.numbering[kind]['restart']=='eachPage' else self.counter[kind],self.style[kind])
         if not custom and self.numbering[kind]['restart']!='eachPage':self.counter[kind]+=1
-        stem=PREFIX+kind+'_'+str(ident);item={'kind':kind,'id':ident,'custom':custom,'label':label,'ref':stem+'_ref','dest':stem+'_body','node':definition,'segment':self.current,'placement':self.placement[kind],'numbering':dict(self.numbering[kind])};self.used[key]=item;self.by_segment[self.current].append(item)
+        stem=PREFIX+kind+'_'+str(ident);item={'kind':kind,'id':ident,'custom':custom,'label':label,'ref':stem+'_ref','dest':stem+'_body','node':definition,'segment':self.current,'source_section':getattr(self,'logical_section',self.current),'placement':self.placement[kind],'numbering':dict(self.numbering[kind])};self.used[key]=item;self.by_segment[self.current].append(item)
         return '<sup><a id="'+item['ref']+'" href="#'+item['dest']+'">'+html.escape(label)+'</a></sup>'
 
     def render(self,render):
@@ -107,43 +107,55 @@ class Notes:
         return '<div class="word-note" id="'+item['dest']+'"><p class="word-note-label"><a href="#'+item['ref']+'">'+html.escape(item['label'])+('' if item['custom'] else '.')+'</a></p>'+content+'</div>'
 
     def foot(self,index):return {item['ref']:item for item in self.by_segment[index] if item['kind']=='footnote'}
-    def end_content(self,index,last):
-        items=[v for v in self.used.values() if v['kind']=='endnote' and (v['placement']=='sectEnd' and v['segment']==index or v['placement']=='docEnd' and index==last)]
+    def end_content(self,index,last,source_section=None,document_only=False):
+        items=[v for v in self.used.values() if v['kind']=='endnote' and (v['placement']=='sectEnd' and not document_only and (v.get('source_section',v['segment'])==source_section if source_section is not None else v['segment']==index) or v['placement']=='docEnd' and source_section is None and index==last)]
         return ('<div class="word-endnotes"><h3>Notas finales</h3>'+''.join(self.rendered[(v['kind'],v['id'])] for v in items)+'</div>') if items else ''
     def page_content(self,items):return '<div class="word-footnotes">'+''.join(self.rendered[(v['kind'],v['id'])] for v in items)+'</div>'
 
-    def prepare(self,index,content,css,archive,width,height,left,top,right,bottom,max_pages,columns=None):
+    def prepare(self,index,content,css,archive,width,height,left,top,right,bottom,max_pages,columns=None,flows=None):
         refs=self.foot(index);reserves={};previous=None;break_frames=set();settings=self.foot_settings.get(index,{'restart':'continuous','start':1})
         first_counter=settings['start'] if self.resolved_foot_counter is None or settings['restart'] in ['eachSect','eachPage'] else self.resolved_foot_counter
         for attempt in range(12):
-            reviewed_content=content
-            for ref,item in refs.items():
-                pattern='(<a id="'+re.escape(ref)+'" href="#[^"]+">)[^<]*(</a>)'
-                reviewed_content,count_=re.subn(pattern,lambda m:m[1]+html.escape(item['label'])+m[2],reviewed_content)
-                if count_!=1:raise DocumentError('La referencia de nota con reinicio por página no tiene un anclaje único.')
-            story=f.Story('<html><body>'+reviewed_content+'</body></html>',user_css=css,archive=archive)
-            from .docx_frames import Frames,PAGE_BREAK_PREFIX
-            frames=Frames(columns or {'widths':[width-left-right],'gaps':[],'separator':False},break_frames)
-            positions={};count=[0];active_frame=[0];current_breaks=set()
-            def position(node):
-                if node.id and node.id.startswith(PAGE_BREAK_PREFIX) and node.open_close&1:current_breaks.add(active_frame[0])
-                if node.id in refs and node.open_close&1 and not f.Rect(node.rect).is_empty:positions.setdefault(node.id,node.page_num-1)
-            def rect(n,filled):
-                active_frame[0]=n;page,logical=frames.locate(n)
-                if page>=max_pages:raise DocumentError('El Word necesita más de 50 páginas o tiene notas que no caben.')
-                count[0]=page+1;reserve=reserves.get(page,0)
-                if height-bottom-reserve-top<72:raise DocumentError('Las notas no dejan espacio suficiente para el texto de su página.')
-                if columns:
-                    return frames.rect(logical,width,height,left,top,right,bottom,reserve)
-                return f.Rect(0,0,width,height),f.Rect(left,top,width-right,height-bottom-reserve),None
-            story.write(None,rect,positionfn=position);story.reset()
+            counts={ref:0 for ref in refs}
+            def review(html_):
+                for ref,item in refs.items():
+                    pattern='(<a id="'+re.escape(ref)+'" href="#[^"]+">)[^<]*(</a>)'
+                    html_,count_=re.subn(pattern,lambda m:m[1]+html.escape(item['label'])+m[2],html_);counts[ref]+=count_
+                return html_
+            reviewed_flows=[{**flow,'content':review(flow['content'])} for flow in flows] if flows else None
+            reviewed_content=''.join(flow['content'] for flow in reviewed_flows) if flows else review(content)
+            if any(value!=1 for value in counts.values()):raise DocumentError('La referencia de nota no tiene un anclaje único en las secciones Word.')
+            if flows:
+                from .docx_balance import continuous_plan
+                layout=continuous_plan(reviewed_flows,css,archive,(width,height,left,top,right,bottom),max_pages,reserves,set(refs))
+                story=layout['story'];positions={ref:layout['element_pages'][ref] for ref in refs if ref in layout['element_pages']};count=[layout['count']];current_breaks=set(layout['page_break_frames'])
+            else:
+                story=f.Story('<html><body>'+reviewed_content+'</body></html>',user_css=css,archive=archive)
+                from .docx_frames import Frames,PAGE_BREAK_PREFIX
+                frames=Frames(columns or {'widths':[width-left-right],'gaps':[],'separator':False},break_frames)
+                positions={};count=[0];active_frame=[0];current_breaks=set()
+                def position(node):
+                    if node.id and node.id.startswith(PAGE_BREAK_PREFIX) and node.open_close&1:current_breaks.add(active_frame[0])
+                    if node.id in refs and node.open_close&1 and not f.Rect(node.rect).is_empty:positions.setdefault(node.id,node.page_num-1)
+                def rect(n,filled):
+                    active_frame[0]=n;page,logical=frames.locate(n)
+                    if page>=max_pages:raise DocumentError('El Word necesita más de 50 páginas o tiene notas que no caben.')
+                    count[0]=page+1;reserve=reserves.get(page,0)
+                    if height-bottom-reserve-top<72:raise DocumentError('Las notas no dejan espacio suficiente para el texto de su página.')
+                    if columns:return frames.rect(logical,width,height,left,top,right,bottom,reserve)
+                    return f.Rect(0,0,width,height),f.Rect(left,top,width-right,height-bottom-reserve),None
+                story.write(None,rect,positionfn=position);story.reset()
+                layout={}
             if set(positions)!=set(refs):raise DocumentError('No se localizaron todas las referencias de notas al paginar.')
             by_page=defaultdict(list)
-            for ref,page in positions.items():by_page[page].append(refs[ref])
-            labels_changed=False;resolved_counter=first_counter
+            for ref in refs:by_page[positions[ref]].append(refs[ref])
+            labels_changed=False;resolved_counter=first_counter;seen_sections=set()
             for page,items in sorted(by_page.items()):
                 if settings['restart']=='eachPage':resolved_counter=settings['start']
                 for item in items:
+                    scope=item.get('source_section',item['segment'])
+                    if item['numbering']['restart']=='eachSect' and scope not in seen_sections:resolved_counter=item['numbering']['start']
+                    seen_sections.add(scope)
                     if item['custom']:continue
                     label=number_label(resolved_counter,item['numbering']['format']);resolved_counter+=1
                     if label!=item['label']:
@@ -158,7 +170,7 @@ class Notes:
             break_frames=current_breaks
             if breaks_stable and (not refs or not grew and not labels_changed and positions==previous):
                 self.resolved_foot_counter=resolved_counter
-                return {'story':story,'count':count[0],'reserves':reserves,'foot_pages':dict(by_page),'foot_heights':needed,'ref_pages':positions,'passes':attempt+1,'page_break_frames':sorted(break_frames),'layout_content':reviewed_content}
+                return {**layout,'story':story,'count':count[0],'reserves':reserves,'foot_pages':dict(by_page),'foot_heights':needed,'ref_pages':positions,'passes':attempt+1,'page_break_frames':sorted(break_frames),'layout_content':reviewed_content}
             previous=positions
         raise DocumentError('La distribución de las notas no converge dentro del límite. No se entrega un PDF incompleto.')
 
