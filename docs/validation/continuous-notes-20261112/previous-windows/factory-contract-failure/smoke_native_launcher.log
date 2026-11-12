@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "D:\a\Reapdf\Reapdf\scripts\smoke_native_launcher.py", line 30, in <module>
+    url=wait_ready(first,ready);assert first.poll() is None and health(url)['status']=='ok'
+        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\smoke_native_launcher.py", line 21, in wait_ready
+    if process.poll() is not None:raise AssertionError(f'Launcher exited before ready: {process.returncode}')
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Launcher exited before ready: 1

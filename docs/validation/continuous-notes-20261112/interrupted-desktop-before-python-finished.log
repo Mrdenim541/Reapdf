@@ -1,0 +1,31 @@
+Checking smoke_native_save.py
+Checking smoke_native_document_set.py
+Checking smoke_single_instance.py
+Checking smoke_native_window.py
+Checking smoke_vector_print.py
+Checking smoke_native_readiness.py
+Checking smoke_native_launcher.py
+Checking smoke_parent_exit.py
+Checking smoke_text_states_native.py
+Checking smoke_extended_workflows_qt.py
+Traceback (most recent call last):
+  File "/workspace/Reapdf/scripts/check_desktop_candidate.py", line 59, in <module>
+    if __name__=='__main__':raise SystemExit(main())
+                                             ^^^^^^
+  File "/workspace/Reapdf/scripts/check_desktop_candidate.py", line 37, in main
+    try:run=subprocess.run([sys.executable,str(ROOT/'scripts'/name)],cwd=ROOT,env=env,stdout=handle,stderr=subprocess.STDOUT,timeout=150);code=run.returncode
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 550, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1209, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 2141, in _communicate
+    self.wait(timeout=self._remaining_time(endtime))
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py", line 2047, in _wait
+    time.sleep(delay)
+KeyboardInterrupt

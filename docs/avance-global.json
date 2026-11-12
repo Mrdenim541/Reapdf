@@ -1,11 +1,11 @@
 {
   "schema": 1,
-  "review_date": "2026-11-11",
-  "status": "provisional_with_word_balanced_bands_windows_validation_queued",
+  "review_date": "2026-11-12",
+  "status": "provisional_with_continuous_section_footnotes_and_logical_endnotes",
   "scope": "Programa PDF completo: herramientas comerciales, escritorio y vinculación configurable de documentos. Excluye generación de informes, registros y documentos de ensayos. Dots y REA son herramientas de desarrollo y no añaden puntos al producto.",
   "method": "Media ponderada de madurez estimada por área; juicio de ingeniería apoyado en código y comprobaciones locales, no porcentaje objetivo de paridad comercial ni horas restantes. Nueva referencia reconstruida: la matriz de 0.55 no se recuperó. Las áreas y pesos se publican para mantenerlos estables desde esta revisión. No se comparan automáticamente con el 61.3 histórico.",
-  "weighted_percent": 88.49,
-  "reported_percent": 88,
+  "weighted_percent": 88.52,
+  "reported_percent": 89,
   "subjective_range_percent": [
     62,
     89
@@ -294,7 +294,7 @@
     {
       "id": "ocr_conversion",
       "weight": 9,
-      "maturity": 99.5,
+      "maturity": 99.75,
       "evidence": [
         "backend/ocr.py",
         "backend/docx_import.py",
@@ -346,9 +346,12 @@
         "backend/docx_balance.py",
         "tests/test_docx_balance.py",
         "docs/EQUILIBRIO_Y_BANDAS_WORD_20261111.md",
-        "docs/validation/word-balanced-bands-20261111/results.json"
+        "docs/validation/word-balanced-bands-20261111/results.json",
+        "tests/test_docx_continuous_notes.py",
+        "docs/NOTAS_EN_SECCIONES_CONTINUAS_20261112.md",
+        "docs/validation/continuous-notes-20261112/results.json"
       ],
-      "remaining": "Saltos explícitos de columna y enlaces que los cruzan ya incorporados; tablas/notas/encabezados con esos saltos siguen protegidos. Importación Word por lotes y saltos de sección par/impar con numeración ya incorporados. Columnas de 1–4 con anchos/espacios/separadores, notas al pie y enlaces internos a marcadores ya incorporados. Quedan continuidad con cambios de papel/márgenes/efectos de sección y notas dentro de esos grupos, campos y fidelidad Office general, OCR con esquinas/bajo contraste/idiomas y tablas irregulares/curvas/multilínea generales, notas Word partidas o con marcas fuera de fragmentos consecutivos compatibles y corpus externo. OCR comprueba ahora aspecto y límites antes de publicar; no incrementa su exactitud de reconocimiento ni garantiza otros visores. Incorporado: saltos físicos de página en 1–4 columnas y continuidad de secciones de geometría idéntica, con informe de secciones origen. No repetirlos como ausentes. Quedan continuidad con cambios de papel/márgenes/efectos y notas dentro de esos grupos, y campos/fidelidad Office generales; los saltos dentro de notas/tablas/encabezados permanecen protegidos. Equilibrio opcional de última página y bandas continuas de 1–4 columnas ya incorporados y comprobados en Linux; Windows de esta fuente sigue en cola. No repetirlos como ausentes. Quedan notas dentro de grupos continuos, efectos de sección/papel/márgenes y fidelidad Office general."
+      "remaining": "Ya incorporados: Word por lotes; secciones par/impar; 1–4 columnas iguales/desiguales; saltos físicos/de columna; equilibrio opcional; bandas continuas compatibles con cambios de columnas; notas al pie con reserva de página y numeración continua/por página/por sección lógica; notas finales por documento/sección; enlaces compatibles. Fuente actual a9d616c comprobada en Linux/Windows. Quedan propiedades de notas distintas dentro del grupo continuo, notas al pie partidas, cambios continuos de papel/márgenes/encabezados/numeración y otros efectos de sección, campos y fidelidad Office generales. Saltos dentro de notas/tablas/encabezados siguen protegidos. Quedan OCR con esquinas/bajo contraste/idiomas, tablas irregulares/curvas/multilínea, marcas fuera de fragmentos consecutivos compatibles y corpus externo. La comprobación OCR de aspecto/límites no garantiza exactitud de reconocimiento ni otros visores. No repetir los perfiles incorporados como ausentes."
     },
     {
       "id": "security_signatures",
@@ -502,9 +505,13 @@
         "docs/IMPLEMENTACIONES_Y_VALIDACION_20261104.md",
         "docs/validation/functional-closing-20261104/results.json",
         "docs/CIERRE_NATIVO_FORMULARIOS_Y_COLUMNAS_20261106.md",
-        "docs/validation/native-forms-columns-20261106/results.json"
+        "docs/validation/native-forms-columns-20261106/results.json",
+        "portable/server_loop.py",
+        "tests/test_server_loop.py",
+        "scripts/smoke_backend_reset.py",
+        "docs/validation/continuous-notes-20261112/results.json"
       ],
-      "remaining": "47 recorridos desde fuente en Linux/Windows Server y 20 ejecuciones independientes de Reapdf.exe comprobadas en esta fuente; tres son repeticiones básicas. Cierre explícito y cancelación antes de disponibilidad incorporados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga y recuperación sostenidas, migración del recorrido histórico extendido y aceptación personal al final. Intermitencias históricas de arranque/ajuste y causa del cierre Windows anterior no declaradas resueltas."
+      "remaining": "49 recorridos desde fuente Linux/Windows Server y 21 ejecuciones independientes de Reapdf.exe comprobados en la fuente a9d616c; tres son repeticiones básicas. Cierre explícito, cancelación antes de disponibilidad y bucle HTTP Windows con liberación tras reset TCP incorporados. Quedan paquete final del alcance completo, Windows cliente limpio, DPI/asociaciones/impresión física, carga/recuperación sostenidas y migración del recorrido histórico extendido. No se declaran resueltas todas las intermitencias de arranque/ajuste/cierre; aceptación personal al final."
     },
     {
       "id": "migration_interoperability",
@@ -645,34 +652,20 @@
   },
   "accepted_complete": false,
   "last_change": {
-    "baseline": "docs/progress/20261111-before-css-formats.json",
-    "before_weighted": 87.83,
-    "before_unrounded": "87.829",
-    "after_weighted": 87.9,
-    "unrounded_after_weighted": "87.9045",
-    "new_points": 0.08,
-    "unrounded_delta": "0.0755",
+    "baseline": "docs/progress/20261112-before-continuous-notes.json",
+    "before_weighted": 88.49,
+    "before_unrounded": "88.4945",
+    "after_weighted": 88.52,
+    "unrounded_after_weighted": "88.517",
+    "new_points": 0.0225,
+    "unrounded_delta": "0.0225",
     "changes": [
       {
-        "id": "text_images",
-        "before": 99.9,
-        "after": 99.95,
-        "points": 0.008,
-        "reason": "Cambio de fuente/tamaño con atributos CSS-1.00 absolutos coordinados y clases compartidas aisladas."
-      },
-      {
-        "id": "accessibility",
+        "id": "ocr_conversion",
         "before": 99.5,
         "after": 99.75,
-        "points": 0.0075,
-        "reason": "Familia/tamaño/peso/estilo CSS conservan unidades y representación y se actualizan junto con glifos y estructura."
-      },
-      {
-        "id": "forms",
-        "before": 95,
-        "after": 96,
-        "points": 0.06,
-        "reason": "Formatos rojos nativos de negativos con restablecimiento de color y rangos estándar con límites decimales textuales."
+        "points": 0.0225,
+        "reason": "Notas al pie en bandas continuas con reservas/numeración físicas y límites de notas finales por sección lógica. Sin crédito adicional por repetir pruebas o documentar; madurez de escritorio conservada."
       }
     ]
   },
@@ -712,21 +705,20 @@
     "Revisión personal del programa entregado y registro de observaciones"
   ],
   "verified_platforms": {
-    "source_commit": "49f7db9fbd4146974b208c8d6f0363457b756083",
+    "source_commit": "a9d616c0fbbe84f8a6a07b6bf3741001c7ce833e",
     "linux": {
-      "checks": 48,
-      "evidence": "docs/validation/word-balanced-bands-20261111/linux/desktop-report.json"
+      "checks": 49,
+      "evidence": "docs/validation/continuous-notes-20261112/linux/desktop-report.json"
     },
     "windows": {
-      "status": "queued_not_executed",
-      "run_url": "https://github.com/Mrdenim541/Reapdf/actions/runs/43096564819",
-      "current_checks": 0,
-      "last_verified_source": "ab2c482338bef0ad0c712336b54a26a97f9f5740",
-      "last_verified_evidence": "docs/validation/word-physical-pages-20261111/windows/assessment.json"
+      "platform": "Windows Server 2025",
+      "checks": 49,
+      "evidence": "docs/validation/continuous-notes-20261112/windows/assessment.json"
     },
-    "packaged_executable_verified": false,
-    "compiled_gui_independent_runs": 0,
-    "packaged_scope": "La ejecución Windows actual está en cola, sin recibo ni ejecutable comprobado para esta fuente. Las 21 ejecuciones anteriores pertenecen a ab2c482 y no se atribuyen a esta revisión."
+    "packaged_executable_verified": true,
+    "compiled_gui_independent_runs": 21,
+    "compiled_basic_repetitions": 3,
+    "packaged_scope": "Recorrido Word existente ampliado a tres notas al pie y una final de sección, cuatro páginas/bandas 2→3→1 y dieciséis enlaces. 21 ejecuciones, tres básicas, exportación/verificación con servidor/intérprete incluidos. No diálogo nativo de guardar del exe, cliente Windows/DPI/impresora ni resolución de intermitencias históricas. Se añade recorrido de reset TCP al motor: 49 fuente, 21 compilados. No se atribuyen a esta fuente éxitos de revisiones anteriores."
   },
   "last_implementation": {
     "date": "2026-11-11",
@@ -875,6 +867,14 @@
     "evidence": "docs/validation/word-balanced-bands-20261111/results.json",
     "python_related_passed": 500,
     "windows_status": "queued_not_executed",
+    "technical_complete": false,
+    "accepted_complete": false
+  },
+  "last_continuous_notes": {
+    "source_commit": "a9d616c0fbbe84f8a6a07b6bf3741001c7ce833e",
+    "report": "docs/NOTAS_EN_SECCIONES_CONTINUAS_20261112.md",
+    "evidence": "docs/validation/continuous-notes-20261112/results.json",
+    "python_related_passed": 540,
     "technical_complete": false,
     "accepted_complete": false
   }

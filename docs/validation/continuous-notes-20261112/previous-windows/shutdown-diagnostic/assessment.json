@@ -1,0 +1,11 @@
+{
+  "verified": true,
+  "source_commit": "ece2e0424699cb246cd4ce06a1deb7a6f21d6ba8",
+  "platform": "Windows",
+  "checks": 48,
+  "problems": [],
+  "human_acceptance": false,
+  "distributable_built": true,
+  "packaged_windows_verified": true,
+  "archive_sha256": "e70e57fa8b922c6e1df3619667de121a29c12b920275092588a13e2c5e6c31a5"
+}

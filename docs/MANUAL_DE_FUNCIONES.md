@@ -20,7 +20,7 @@ Las confirmaciones de OCR, censura, firma, tablas o cambios destructivos forman 
 | Seleccionar y copiar | En Leer, selecciona texto y pulsa Ctrl+C. Un escaneado requiere OCR. |
 | Buscar | Introduce texto y recorre coincidencias en el documento editado. |
 | Crear desde imágenes | Archivo → Crear PDF desde imágenes: carga, ordena y configura papel/márgenes. |
-| Crear desde Word | Archivo → Crear PDF desde Word: carga DOCX; puedes activar Equilibrar últimas columnas por sección. Los cambios continuos de 1–4 columnas compatibles se distribuyen en bandas, sobre el mismo papel y márgenes. Revisa páginas y diferencias antes de abrir/guardar. Conserva saltos y referencias compatibles; no promete alturas idénticas ni fidelidad Office universal. |
+| Crear desde Word | Archivo → Crear PDF desde Word: carga DOCX y revisa las páginas. Puedes equilibrar las últimas columnas; los grupos continuos compatibles distribuyen columnas y notas al pie en su página. La numeración admite continuidad o reinicio por página/sección original; las notas finales quedan al final del documento o sección. Se conservan enlaces de ida/retorno compatibles. No promete alturas idénticas ni fidelidad Office universal; propiedades de notas distintas y notas al pie partidas siguen pendientes. |
 | Herramientas y favoritos | Cambia de área o busca por nombre. Aplica o cancela los borradores antes de cambiar de tarea. |
 | Instancia y cierre | La aplicación propia recibe nuevos archivos y protege borradores u operaciones pendientes al cerrar. |
 

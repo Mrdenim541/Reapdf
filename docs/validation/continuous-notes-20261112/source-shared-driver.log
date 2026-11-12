@@ -1,0 +1,1 @@
+PASS: compiled Qt imports DOCX with columns and bookmark link, reviews every page, opens and exports through bundled server; no external browser or native save dialog used in this check.

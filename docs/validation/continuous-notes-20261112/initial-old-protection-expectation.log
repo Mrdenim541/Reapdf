@@ -1,0 +1,23 @@
+.........................................F.............................. [ 64%]
+.......................................                                  [100%]
+=================================== FAILURES ===================================
+_____ test_notes_in_changing_continuous_group_remain_explicitly_protected ______
+
+    def test_notes_in_changing_continuous_group_remain_explicitly_protected():
+        from tests.test_docx_notes import source as notes,reference
+        two=properties().replace('</w:sectPr>','<w:cols w:num="2" w:space="240"/></w:sectPr>');three=two.replace('nextPage','continuous').replace('w:num="2"','w:num="3"')
+        body=reference('footnote',1,'PROTECTEDREF')+'<w:p><w:pPr>'+two+'</w:pPr><w:r><w:t>NOTEENDING</w:t></w:r></w:p>'+p('AFTERNOTE')+three
+        data=rewrite(notes(),{'word/document.xml':f'<w:document xmlns:w="{W}"><w:body>{body}</w:body></w:document>'})
+>       with pytest.raises(DocumentError,match='notas'):import_docx(data)
+E       Failed: DID NOT RAISE <class 'backend.engine.DocumentError'>
+
+tests/test_docx_balance.py:123: Failed
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/fastapi/testclient.py:1
+  /workspace/Reapdf/.venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_docx_balance.py::test_notes_in_changing_continuous_group_remain_explicitly_protected
+1 failed, 110 passed, 1 warning in 17.58s

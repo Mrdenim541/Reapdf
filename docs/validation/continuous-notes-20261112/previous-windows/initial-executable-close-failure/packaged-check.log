@@ -1,0 +1,89 @@
+CLOSE: basic native discard confirmation: False
+PASS: attached embedded Qt window loads PDF, edits text on page, undoes/redoes and exports through its server. Executable identity is checked by the Windows verifier.
+CLOSE: spacing_flow native discard confirmation: False
+PASS: packaged Qt selects original styled text on page, continues on an existing page, undoes/redoes and exports with original fonts; no external browser or native save dialog used in this check.
+CLOSE_PROCESS_DIAGNOSTICS: [{"ProcessId":9248,"ParentProcessId":800,"Name":"Reapdf.exe"},{"ProcessId":9804,"ParentProcessId":9248,"Name":"python.exe"},{"ProcessId":1936,"ParentProcessId":9804,"Name":"conhost.exe"}]
+OWNED_WINDOW_DIAGNOSTICS: []
+CLOSE_OWNED_STARTUP_LOG: Reapdf portable. Deja esta ventana abierta. Ctrl+C para cerrar.
+
+REAPDF_URL=http://127.0.0.1:52249
+
+REAPDF_LIFECYCLE {"pid": 9804, "at": 713.060798, "stage": "backend.started"}
+
+REAPDF_LIFECYCLE {"pid": 4056, "at": 713.115248, "stage": "native.start"}
+
+REAPDF_LIFECYCLE {"pid": 4056, "at": 713.336547, "stage": "native.application.created"}
+
+REAPDF_LIFECYCLE {"pid": 4056, "at": 713.36514, "stage": "native.instance.acquired"}
+
+REAPDF_LIFECYCLE {"pid": 4056, "at": 713.402843, "stage": "native.view.created"}
+
+
+DevTools listening on ws://127.0.0.1:52246/devtools/browser/146be2c4-49a6-4986-ba01-df82c80c56fa
+REAPDF_LIFECYCLE {"pid": 4056, "at": 713.48948, "stage": "native.page.created"}
+
+REAPDF_LIFECYCLE {"pid": 4056, "at": 713.508753, "stage": "native.navigation.start"}
+
+REAPDF_LIFECYCLE {"pid": 4056, "at": 713.522904, "stage": "native.navigation.scheduled"}
+
+REAPDF_LIFECYCLE {"pid": 4056, "at": 713.586692, "stage": "native.window.created"}
+
+[4056:5152:1112/112048.515:ERROR:gpu_channel_manager.cc(959)] Failed to create GLES3 context, fallback to GLES2.
+[4056:5152:1112/112048.515:ERROR:gpu_channel_manager.cc(970)] ContextResult::kFatalFailure: Failed to create shared context for virtualization.
+REAPDF_LIFECYCLE {"pid": 4056, "at": 713.914928, "stage": "native.ready.ready"}
+
+REAPDF_LIFECYCLE {"pid": 9804, "at": 713.962289, "stage": "backend.native.ready"}
+
+REAPDF_PRESENTATION=desktop
+
+REAPDF_LIFECYCLE {"pid": 9804, "at": 713.962863, "stage": "controller.waiting"}
+
+Exception in callback _ProactorBasePipeTransport._call_connection_lost()
+
+handle: <Handle _ProactorBasePipeTransport._call_connection_lost()>
+
+Traceback (most recent call last):
+
+  File "C:\Users\RUNNER~1\AppData\Local\Temp\Reapdf prueba con espacios y8jn2mo7\Reapdf-portable\runtime\Lib\asyncio\events.py", line 89, in _run
+
+    self._context.run(self._callback, *self._args)
+
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "C:\Users\RUNNER~1\AppData\Local\Temp\Reapdf prueba con espacios y8jn2mo7\Reapdf-portable\runtime\Lib\asyncio\proactor_events.py", line 167, in _call_connection_lost
+
+    self._sock.shutdown(socket.SHUT_RDWR)
+
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+
+REAPDF_LIFECYCLE {"pid": 4056, "at": 717.08726, "stage": "native.close.check"}
+
+REAPDF_LIFECYCLE {"pid": 4056, "at": 717.088144, "stage": "native.close.accepted"}
+
+REAPDF_LIFECYCLE {"pid": 4056, "at": 717.10594, "stage": "native.loop.finished:0"}
+
+REAPDF_LIFECYCLE {"pid": 4056, "at": 717.109715, "stage": "native.instance.closed"}
+
+REAPDF_LIFECYCLE {"pid": 9804, "at": 717.238839, "stage": "controller.exited:0"}
+
+REAPDF_LIFECYCLE {"pid": 9804, "at": 717.238924, "stage": "backend.shutdown.requested"}
+
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 438, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 431, in main
+    folder=Path(tmp)/'Reapdf-portable';native=native_check(folder);basic=compiled_gui_check(folder);spacing=compiled_gui_check(folder,'spacing_flow');gui=compiled_gui_check(folder,'pagination');images=compiled_gui_check(folder,'tagged_images');shear=compiled_gui_check(folder,'variable_shear');tagged=compiled_gui_check(folder,'tagged_paragraph');word_columns=compiled_gui_check(folder,'word_columns');semantic_stream=compiled_gui_check(folder,'semantic_stream');semantic_outer=compiled_gui_check(folder,'semantic_outer');quick_text=compiled_gui_check(folder,'quick_text');native_format=compiled_gui_check(folder,'native_format');paragraph_format=compiled_gui_check(folder,'paragraph_format');paragraph_geometry=compiled_gui_check(folder,'paragraph_geometry');byte_split=compiled_gui_check(folder,'byte_split');manual_columns=compiled_gui_check(folder,'word_manual_columns');form_datetime=compiled_gui_check(folder,'form_datetime');shared_choices=compiled_gui_check(folder,'shared_choices');colored_ranges=compiled_gui_check(folder,'colored_ranges');press_preparation=compiled_gui_check(folder,'press_preparation');basic_repetitions=[basic,compiled_gui_check(folder),compiled_gui_check(folder)];result={**native,**spacing,**gui,**images,**shear,**tagged,**word_columns,**semantic_stream,**semantic_outer,**quick_text,**native_format,**paragraph_format,**paragraph_geometry,**byte_split,**manual_columns,**form_datetime,**shared_choices,**colored_ranges,**press_preparation,'compiled_gui_independent_runs':21,'compiled_basic_repetitions':len(basic_repetitions),'archive_sha256':hashlib.sha256(Path(args.archive).read_bytes()).hexdigest(),'physical_print_verified':False,'human_acceptance':False}
+                                                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\verify_portable_windows.py", line 411, in compiled_gui_check
+    discarded=wait_closed(process,pid,windows,key)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\a\Reapdf\Reapdf\scripts\compiled_close.py", line 14, in wait_closed
+    if clock()>=deadline:raise RuntimeError('El candidato no cerr�; ventanas propias observadas: '+repr([(w['title'],w['class']) for w in observed]))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: El candidato no cerr�; ventanas propias observadas: []
